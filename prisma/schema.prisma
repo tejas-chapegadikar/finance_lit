@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum XPTransactionType {
+  SIGNUP_BONUS
+  QUIZ_COMPLETION
+  STREAK_BONUS // future (Week 2)
+  ADMIN_ADJUSTMENT
+  REDEMPTION // future (negative amount)
+}
+
+model College {
+  id          String   @id @default(cuid())
+  name        String
+  city        String
+  state       String
+  emailDomain String?  @unique
+  logoUrl     String?
+  isActive    Boolean  @default(true)
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, city])
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  clerkId               String    @unique
+  email                 String    @unique
+  emailVerified         Boolean   @default(false)
+  phone                 String?   @unique
+  phoneVerified         Boolean   @default(false)
+  name                  String?
+  role                  Role      @default(STUDENT)
+
+  collegeId             String?
+  college               College?  @relation(fields: [collegeId], references: [id])
+  onboardingCompletedAt DateTime?
+
+  xpTotal               Int       @default(0)
+
+  // future streak/leaderboard fields — unused this session, safe to add now
+  currentStreak          Int       @default(0)
+  longestStreak           Int       @default(0)
+  lastActivityDate        DateTime?
+  streakFreezesAvailable  Int       @default(3)
+  streakFreezesResetAt    DateTime?
+
+  quizAttempts    QuizAttempt[]
+  xpTransactions  XPTransaction[]
+  createdLessons  Lesson[]        @relation("LessonAuthor")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lesson {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            String
+  topic            String
+  description      String
+  contentMarkdown  String   @db.Text
+  videoUrl         String
+  estimatedMinutes Int      @default(5)
+  xpReward         Int      @default(75)
+  isPublished      Boolean  @default(false)
+  order            Int      @default(0)
+
+  authorId String?
+  author   User?   @relation("LessonAuthor", fields: [authorId], references: [id])
+
+  questions Question[]
+  attempts  QuizAttempt[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  lessonId    String
+  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  prompt      String
+  explanation String       @db.Text
+  order       Int          @default(0)
+  options     Option[]
+  answers     QuizAnswer[]
+  createdAt   DateTime     @default(now())
+}
+
+model Option {
+  id         String       @id @default(cuid())
+  questionId String
+  question   Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean      @default(false)
+  order      Int          @default(0)
+  answers    QuizAnswer[]
+}
+
+model QuizAttempt {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  lessonId       String
+  lesson         Lesson        @relation(fields: [lessonId], references: [id])
+  status         AttemptStatus @default(IN_PROGRESS)
+  score          Int           @default(0)
+  totalQuestions Int           @default(5)
+  xpAwarded      Int?
+  startedAt      DateTime      @default(now())
+  completedAt    DateTime?
+  answers        QuizAnswer[]
+  xpTransactions XPTransaction[]
+
+  @@index([userId, lessonId])
+}
+
+model QuizAnswer {
+  id               String      @id @default(cuid())
+  attemptId        String
+  attempt          QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId       String
+  // Cascades so admins can edit a lesson's questions (delete + recreate)
+  // without hitting FK violations from historical answers — those answers
+  // become meaningless once the question they referenced is gone anyway.
+  // XP already earned is untouched: it lives in XPTransaction, not here.
+  question         Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOptionId String
+  selectedOption   Option      @relation(fields: [selectedOptionId], references: [id], onDelete: Cascade)
+  isCorrect        Boolean
+  answeredAt       DateTime    @default(now())
+
+  @@unique([attemptId, questionId])
+}
+
+model XPTransaction {
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  amount        Int
+  type          XPTransactionType
+  quizAttemptId String?
+  quizAttempt   QuizAttempt?      @relation(fields: [quizAttemptId], references: [id])
+  description   String?
+  createdAt     DateTime          @default(now())
+
+  @@index([userId, createdAt])
+}
