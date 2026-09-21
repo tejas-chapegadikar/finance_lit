@@ -11,14 +11,14 @@ export function OnboardingForm({ colleges }: { colleges: College[] }) {
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="collegeId" className="text-sm font-medium">
+        <label htmlFor="collegeId" className="text-sm font-medium text-neutral-700">
           College
         </label>
         <select
           id="collegeId"
           name="collegeId"
           required
-          className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="rounded-xl border-2 border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-violet-400"
         >
           <option value="">Select your college</option>
           {colleges.map((college) => (
@@ -30,7 +30,7 @@ export function OnboardingForm({ colleges }: { colleges: College[] }) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="phone" className="text-sm font-medium">
+        <label htmlFor="phone" className="text-sm font-medium text-neutral-700">
           Phone number
         </label>
         <input
@@ -39,7 +39,7 @@ export function OnboardingForm({ colleges }: { colleges: College[] }) {
           type="tel"
           required
           placeholder="+91XXXXXXXXXX"
-          className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="rounded-xl border-2 border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-violet-400"
         />
       </div>
 

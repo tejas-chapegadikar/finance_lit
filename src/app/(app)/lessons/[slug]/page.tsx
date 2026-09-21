@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { LessonVideo } from "@/components/lessons/LessonVideo";
+import { getTopicStyle } from "@/lib/topic-style";
 
 export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
   await requireOnboardedUser();
@@ -14,13 +15,18 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
     notFound();
   }
 
+  const style = getTopicStyle(lesson.topic);
+
   return (
     <article className="flex flex-col gap-6">
       <div>
-        <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${style.chipBg} ${style.labelText}`}
+        >
+          <span aria-hidden>{style.icon}</span>
           {lesson.topic}
         </span>
-        <h1 className="text-2xl font-bold">{lesson.title}</h1>
+        <h1 className="mt-2 text-2xl font-bold">{lesson.title}</h1>
       </div>
 
       <LessonVideo url={lesson.videoUrl} />
