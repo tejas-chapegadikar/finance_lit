@@ -34,7 +34,7 @@ export function LessonVideo({ url }: { url: string }) {
           allowFullScreen
         />
       ) : (
-        <video key={url} src={url} controls className="h-full w-full" />
+        <video key={url} src={url} controls preload="metadata" className="h-full w-full" />
       )}
     </div>
   );

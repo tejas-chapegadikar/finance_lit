@@ -15,7 +15,7 @@ export async function completeOnboarding(
   const user = await requireAppUser();
 
   const parsed = onboardingSchema.safeParse({
-    collegeId: formData.get("collegeId"),
+    collegeName: formData.get("collegeName"),
     phone: formData.get("phone"),
   });
 
@@ -23,18 +23,11 @@ export async function completeOnboarding(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const college = await db.college.findUnique({
-    where: { id: parsed.data.collegeId },
-  });
-  if (!college || !college.isActive) {
-    return { error: "Please select a valid college" };
-  }
-
   try {
     await db.user.update({
       where: { id: user.id },
       data: {
-        collegeId: parsed.data.collegeId,
+        collegeName: parsed.data.collegeName,
         phone: parsed.data.phone,
         onboardingCompletedAt: new Date(),
       },

@@ -25,21 +25,6 @@ enum XPTransactionType {
   REDEMPTION // future (negative amount)
 }
 
-model College {
-  id          String   @id @default(cuid())
-  name        String
-  city        String
-  state       String
-  emailDomain String?  @unique
-  logoUrl     String?
-  isActive    Boolean  @default(true)
-  users       User[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([name, city])
-}
-
 model User {
   id                    String    @id @default(cuid())
   clerkId               String    @unique
@@ -50,8 +35,7 @@ model User {
   name                  String?
   role                  Role      @default(STUDENT)
 
-  collegeId             String?
-  college               College?  @relation(fields: [collegeId], references: [id])
+  collegeName           String?
   onboardingCompletedAt DateTime?
 
   xpTotal               Int       @default(0)

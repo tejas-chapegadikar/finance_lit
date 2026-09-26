@@ -3,30 +3,23 @@
 import { useActionState } from "react";
 import { completeOnboarding } from "@/actions/onboarding";
 
-type College = { id: string; name: string; city: string };
-
-export function OnboardingForm({ colleges }: { colleges: College[] }) {
+export function OnboardingForm() {
   const [state, formAction, isPending] = useActionState(completeOnboarding, {});
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="collegeId" className="text-sm font-medium text-neutral-700">
+        <label htmlFor="collegeName" className="text-sm font-medium text-neutral-700">
           College
         </label>
-        <select
-          id="collegeId"
-          name="collegeId"
+        <input
+          id="collegeName"
+          name="collegeName"
+          type="text"
           required
+          placeholder="e.g. BITS Pilani"
           className="rounded-xl border-2 border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-violet-400"
-        >
-          <option value="">Select your college</option>
-          {colleges.map((college) => (
-            <option key={college.id} value={college.id}>
-              {college.name} — {college.city}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
       <div className="flex flex-col gap-1">

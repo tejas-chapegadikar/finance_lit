@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { LessonCard } from "@/components/lessons/LessonCard";
+
+export const metadata: Metadata = { title: "Lessons — StockStreak" };
 
 export default async function LessonsPage() {
   await requireOnboardedUser();

@@ -9,15 +9,6 @@ const db = new PrismaClient({ adapter });
 // once it exists — see LessonVideo.tsx for how both are supported.
 const PLACEHOLDER_VIDEO = "https://placeholder.stockstreak.in/videos/replace-me.mp4";
 
-const colleges = [
-  { name: "IIT Bombay", city: "Mumbai", state: "Maharashtra" },
-  { name: "IIT Delhi", city: "New Delhi", state: "Delhi" },
-  { name: "Shri Ram College of Commerce", city: "Delhi", state: "Delhi" },
-  { name: "BITS Pilani", city: "Pilani", state: "Rajasthan" },
-  { name: "Christ University", city: "Bengaluru", state: "Karnataka" },
-  { name: "NMIMS Mumbai", city: "Mumbai", state: "Maharashtra" },
-];
-
 type SeedOption = { text: string; isCorrect: boolean };
 type SeedQuestion = { prompt: string; explanation: string; options: SeedOption[] };
 type SeedLesson = {
@@ -1167,15 +1158,6 @@ async function seedLesson(data: SeedLesson) {
 }
 
 async function main() {
-  console.log("Seeding colleges...");
-  for (const college of colleges) {
-    await db.college.upsert({
-      where: { name_city: { name: college.name, city: college.city } },
-      create: college,
-      update: college,
-    });
-  }
-
   console.log("Seeding lessons...");
   await seedLesson(budgetingBasics);
   await seedLesson(compoundInterest);

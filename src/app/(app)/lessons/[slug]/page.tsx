@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -5,6 +6,14 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { LessonVideo } from "@/components/lessons/LessonVideo";
 import { getTopicStyle } from "@/lib/topic-style";
+
+export async function generateMetadata(
+  props: PageProps<"/lessons/[slug]">,
+): Promise<Metadata> {
+  const { slug } = await props.params;
+  const lesson = await db.lesson.findUnique({ where: { slug }, select: { title: true } });
+  return { title: lesson ? `${lesson.title} — StockStreak` : "Lesson — StockStreak" };
+}
 
 export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
   await requireOnboardedUser();

@@ -1,6 +1,9 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+
+export const metadata: Metadata = { title: "Dashboard — StockStreak" };
 
 export default async function DashboardPage() {
   const user = await requireOnboardedUser();
