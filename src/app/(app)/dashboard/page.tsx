@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getDisplayName } from "@/lib/user";
 
 export const metadata: Metadata = { title: "Dashboard — StockStreak" };
 
@@ -19,7 +20,7 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 p-6 text-white shadow-lg shadow-violet-900/20">
         <div>
           <h1 className="text-xl font-extrabold">
-            Welcome back{user.name ? `, ${user.name}` : ""} 👋
+            Welcome back, {getDisplayName(user)} 👋
           </h1>
           <p className="mt-1 text-violet-100">Keep the momentum going.</p>
         </div>

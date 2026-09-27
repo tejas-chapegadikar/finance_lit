@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { LessonVideo } from "@/components/lessons/LessonVideo";
+import { RecordLessonView } from "@/components/lessons/RecordLessonView";
 import { getTopicStyle } from "@/lib/topic-style";
 
 export async function generateMetadata(
@@ -39,6 +40,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
       </div>
 
       <LessonVideo url={lesson.videoUrl} />
+      <RecordLessonView lessonId={lesson.id} />
 
       <div className="prose prose-neutral max-w-none">
         <ReactMarkdown>{lesson.contentMarkdown}</ReactMarkdown>

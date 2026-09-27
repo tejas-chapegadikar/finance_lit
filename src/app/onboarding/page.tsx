@@ -23,10 +23,10 @@ export default async function OnboardingPage() {
             Tell us about yourself
           </h1>
           <p className="text-neutral-500">
-            Your college and phone number to get started.
+            Pick your display name, then add your college and phone number.
           </p>
         </div>
-        <OnboardingForm />
+        <OnboardingForm defaultDisplayName={user.displayName ?? user.name ?? ""} />
       </div>
     </main>
   );

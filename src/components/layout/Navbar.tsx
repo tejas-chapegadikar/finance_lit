@@ -4,16 +4,16 @@ import { XPBadge } from "./XPBadge";
 
 export function Navbar({
   xpTotal,
-  userName,
+  displayName,
   isAdmin,
 }: {
   xpTotal: number;
-  userName: string | null;
+  displayName: string;
   isAdmin: boolean;
 }) {
   return (
     <header className="bg-gradient-to-r from-violet-600 to-indigo-600 shadow-md shadow-violet-900/10">
-      <div className="mx-auto flex max-w-3xl items-center justify-between p-4">
+      <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 p-4">
         <Link href="/lessons" className="text-lg font-extrabold tracking-tight text-white">
           Stock<span className="text-orange-300">Streak</span>
         </Link>
@@ -39,7 +39,19 @@ export function Navbar({
             </Link>
           )}
           <XPBadge xpTotal={xpTotal} />
-          <UserButton showName={!!userName} />
+          <Link
+            href="/account"
+            className="hidden max-w-32 truncate text-sm font-semibold text-white hover:text-orange-200 sm:inline"
+          >
+            {displayName}
+          </Link>
+          <Link
+            href="/account"
+            className="text-sm font-semibold text-white hover:text-orange-200 sm:hidden"
+          >
+            Account
+          </Link>
+          <UserButton />
         </nav>
       </div>
     </header>

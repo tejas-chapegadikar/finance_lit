@@ -15,6 +15,7 @@ export async function completeOnboarding(
   const user = await requireAppUser();
 
   const parsed = onboardingSchema.safeParse({
+    displayName: formData.get("displayName"),
     collegeName: formData.get("collegeName"),
     phone: formData.get("phone"),
   });
@@ -27,6 +28,7 @@ export async function completeOnboarding(
     await db.user.update({
       where: { id: user.id },
       data: {
+        displayName: parsed.data.displayName,
         collegeName: parsed.data.collegeName,
         phone: parsed.data.phone,
         onboardingCompletedAt: new Date(),

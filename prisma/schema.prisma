@@ -33,6 +33,7 @@ model User {
   phone                 String?   @unique
   phoneVerified         Boolean   @default(false)
   name                  String?
+  displayName           String?
   role                  Role      @default(STUDENT)
 
   collegeName           String?
@@ -49,6 +50,7 @@ model User {
 
   quizAttempts    QuizAttempt[]
   xpTransactions  XPTransaction[]
+  lessonViews     LessonView[]
   createdLessons  Lesson[]        @relation("LessonAuthor")
 
   createdAt DateTime @default(now())
@@ -73,9 +75,23 @@ model Lesson {
 
   questions Question[]
   attempts  QuizAttempt[]
+  views     LessonView[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// One row per (user, lesson) the first time the student opens that lesson's
+// video page — backs the "videos watched" count on the account page.
+model LessonView {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId String
+  lesson   Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  viewedAt DateTime @default(now())
+
+  @@unique([userId, lessonId])
 }
 
 model Question {

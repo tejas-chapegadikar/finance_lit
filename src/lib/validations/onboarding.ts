@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { displayNameSchema } from "./profile";
 
 export const onboardingSchema = z.object({
+  displayName: displayNameSchema,
   collegeName: z
     .string()
     .trim()
