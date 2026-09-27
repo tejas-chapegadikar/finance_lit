@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+import { UserAvatar } from "@clerk/nextjs";
 import { XPBadge } from "./XPBadge";
 
 export function Navbar({
@@ -41,17 +41,14 @@ export function Navbar({
           <XPBadge xpTotal={xpTotal} />
           <Link
             href="/account"
-            className="hidden max-w-32 truncate text-sm font-semibold text-white hover:text-orange-200 sm:inline"
+            aria-label="Your account"
+            className="flex items-center gap-2 rounded-full p-0.5 text-white ring-2 ring-transparent transition hover:ring-white/40 sm:pl-3"
           >
-            {displayName}
+            <span className="hidden max-w-32 truncate text-sm font-semibold sm:inline">
+              {displayName}
+            </span>
+            <UserAvatar />
           </Link>
-          <Link
-            href="/account"
-            className="text-sm font-semibold text-white hover:text-orange-200 sm:hidden"
-          >
-            Account
-          </Link>
-          <UserButton />
         </nav>
       </div>
     </header>

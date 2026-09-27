@@ -3,6 +3,7 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDisplayName } from "@/lib/user";
 import { DisplayNameForm } from "@/components/account/DisplayNameForm";
+import { AccountActions } from "@/components/account/AccountActions";
 
 export const metadata: Metadata = { title: "Account — StockStreak" };
 
@@ -72,11 +73,16 @@ export default async function AccountPage() {
             </div>
           ))}
         </dl>
+      </section>
 
-        <p className="text-xs text-neutral-400">
-          To change your email, password, or sign-in methods, use the avatar menu in the top
-          right.
-        </p>
+      <section className="flex flex-col gap-3 rounded-2xl bg-white p-6 shadow-sm shadow-violet-900/5 ring-1 ring-violet-900/5">
+        <div>
+          <h2 className="text-lg font-bold text-neutral-900">Sign-in &amp; security</h2>
+          <p className="text-sm text-neutral-500">
+            Change your email, password, or connected Google account.
+          </p>
+        </div>
+        <AccountActions />
       </section>
     </div>
   );
