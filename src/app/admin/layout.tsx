@@ -15,9 +15,17 @@ export default async function AdminLayout({
           <Link href="/admin/lessons" className="text-lg font-bold">
             StockStreak Admin
           </Link>
-          <Link href="/lessons" className="text-sm text-neutral-300 hover:text-white">
-            Back to app
-          </Link>
+          <nav className="flex items-center gap-4 text-sm">
+            <Link href="/admin/lessons" className="text-neutral-300 hover:text-white">
+              Lessons
+            </Link>
+            <Link href="/admin/metrics" className="text-neutral-300 hover:text-white">
+              Metrics
+            </Link>
+            <Link href="/dashboard" className="text-neutral-300 hover:text-white">
+              Back to app
+            </Link>
+          </nav>
         </div>
       </header>
       <main className="mx-auto w-full max-w-4xl flex-1 p-4 sm:p-6">{children}</main>

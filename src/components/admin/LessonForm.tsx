@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { lessonSchema, type LessonInput } from "@/lib/validations/lesson";
 import { QUESTIONS_PER_QUIZ, OPTIONS_PER_QUESTION, XP_REWARD_DEFAULT } from "@/lib/constants";
+import { READINESS_AREA_META, READINESS_AREA_VALUES } from "@/lib/readiness-areas";
 
 const inputClass = "rounded-md border border-neutral-300 px-3 py-2 text-sm";
 
@@ -25,6 +26,7 @@ function emptyLesson(): LessonInput {
     slug: "",
     title: "",
     topic: "",
+    area: "BUDGETING",
     description: "",
     contentMarkdown: "",
     videoUrl: "",
@@ -98,6 +100,16 @@ export function LessonForm({
 
         <Field label="Topic" error={errors.topic?.message}>
           <input {...register("topic")} className={inputClass} />
+        </Field>
+
+        <Field label="Readiness area (which dashboard score this lesson builds)" error={errors.area?.message}>
+          <select {...register("area")} className={inputClass}>
+            {READINESS_AREA_VALUES.map((area) => (
+              <option key={area} value={area}>
+                {READINESS_AREA_META[area].label}
+              </option>
+            ))}
+          </select>
         </Field>
 
         <Field label="Short description" error={errors.description?.message}>

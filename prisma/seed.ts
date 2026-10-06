@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type ReadinessArea } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
@@ -15,6 +15,7 @@ type SeedLesson = {
   slug: string;
   title: string;
   topic: string;
+  area: ReadinessArea;
   description: string;
   contentMarkdown: string;
   videoUrl: string;
@@ -29,6 +30,7 @@ const budgetingBasics: SeedLesson = {
   slug: "budgeting-basics",
   title: "Budgeting Basics",
   topic: "Budgeting",
+  area: "BUDGETING",
   description:
     "Learn the 50/30/20 rule and how to make your monthly allowance actually last the month.",
   contentMarkdown: `## Why budget at all?
@@ -125,6 +127,7 @@ const compoundInterest: SeedLesson = {
   slug: "compound-interest",
   title: "Compound Interest",
   topic: "Investing",
+  area: "BUDGETING",
   description:
     "The math behind why starting to invest early beats almost everything else you can do with money.",
   contentMarkdown: `## Simple vs. compound interest
@@ -223,6 +226,7 @@ const savingVsSpending: SeedLesson = {
   slug: "saving-vs-spending-psychology",
   title: "Saving vs. Spending Psychology",
   topic: "Saving",
+  area: "BUDGETING",
   description:
     "Why small daily spends do more damage than one big purchase, and how to make saving automatic instead of willpower-dependent.",
   contentMarkdown: `## The ₹40 chai problem
@@ -313,6 +317,7 @@ const upiSafety: SeedLesson = {
   slug: "upi-payment-safety",
   title: "UPI & Digital Payments Safety",
   topic: "Digital Payments",
+  area: "DIGITAL_SAFETY",
   description: "How UPI actually moves money, and the exact scam patterns targeting students right now.",
   contentMarkdown: `## How UPI actually works
 
@@ -399,6 +404,7 @@ const bankAccountsSavingsInstruments: SeedLesson = {
   slug: "bank-accounts-savings-instruments",
   title: "Bank Accounts & Savings Instruments",
   topic: "Banking",
+  area: "BANKING",
   description: "Savings vs. current accounts, FDs vs. RDs, and the minimum-balance traps that quietly cost students money.",
   contentMarkdown: `## Savings account vs. current account
 
@@ -488,6 +494,7 @@ const creditScoreCibil: SeedLesson = {
   slug: "credit-score-cibil",
   title: "Understanding Credit Score (CIBIL)",
   topic: "Credit",
+  area: "CREDIT",
   description: "What a CIBIL score actually measures, why it matters before you even have a credit card, and how one mistake follows you for years.",
   contentMarkdown: `## What is a CIBIL score?
 
@@ -574,6 +581,7 @@ const creditCards101: SeedLesson = {
   slug: "credit-cards-101",
   title: "Credit Cards 101",
   topic: "Credit",
+  area: "CREDIT",
   description: "Grace periods, the minimum-due trap, and how credit card interest compounds against you if you're not careful.",
   contentMarkdown: `## How a credit card actually works
 
@@ -664,6 +672,7 @@ const incomeTaxBasics: SeedLesson = {
   slug: "income-tax-basics",
   title: "Income Tax Basics for First Salary",
   topic: "Taxes",
+  area: "TAX",
   description: "Why your CTC isn't your take-home pay, and the old vs. new tax regime choice you'll face on your first payslip.",
   contentMarkdown: `## CTC is not what lands in your bank account
 
@@ -752,6 +761,7 @@ const investingBasics: SeedLesson = {
   slug: "investing-basics-stocks-mutual-funds-fds",
   title: "Investing Basics: Stocks vs. Mutual Funds vs. FDs",
   topic: "Investing",
+  area: "INVESTING",
   description: "A simple risk/return map of the three most common ways Indians invest, and which fits which goal.",
   contentMarkdown: `## The risk-return spectrum
 
@@ -845,6 +855,7 @@ const sipStartingEarly: SeedLesson = {
   slug: "sip-starting-early",
   title: "SIP & the Power of Starting Early",
   topic: "Investing",
+  area: "INVESTING",
   description: "How a Systematic Investment Plan turns compound interest into an actual habit, and why starting at 21 beats starting at 31.",
   contentMarkdown: `## What is a SIP?
 
@@ -934,6 +945,7 @@ const insuranceBasics: SeedLesson = {
   slug: "insurance-basics",
   title: "Insurance Basics",
   topic: "Insurance",
+  area: "INVESTING",
   description: "Term vs. health insurance, and why 'investment-cum-insurance' combo products are usually a bad deal for both goals.",
   contentMarkdown: `## What insurance actually is
 
@@ -1021,6 +1033,7 @@ const commonScamsIndia: SeedLesson = {
   slug: "common-financial-scams-india",
   title: "Common Financial Scams in India",
   topic: "Scam Awareness",
+  area: "DIGITAL_SAFETY",
   description: "Spot the patterns behind fake loan apps, Ponzi schemes, and phishing calls before they cost you money.",
   contentMarkdown: `## The common thread in almost every scam
 
@@ -1111,6 +1124,7 @@ async function seedLesson(data: SeedLesson) {
       slug: data.slug,
       title: data.title,
       topic: data.topic,
+      area: data.area,
       description: data.description,
       contentMarkdown: data.contentMarkdown,
       videoUrl: data.videoUrl,
@@ -1122,6 +1136,7 @@ async function seedLesson(data: SeedLesson) {
     update: {
       title: data.title,
       topic: data.topic,
+      area: data.area,
       description: data.description,
       contentMarkdown: data.contentMarkdown,
       videoUrl: data.videoUrl,

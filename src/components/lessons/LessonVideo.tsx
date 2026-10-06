@@ -1,3 +1,7 @@
+"use client";
+
+import { useCallback, useState } from "react";
+
 function getEmbedUrl(url: string): string | null {
   try {
     const parsed = new URL(url);
@@ -19,22 +23,55 @@ function getEmbedUrl(url: string): string | null {
 /**
  * Lesson videos may come from InVideo AI as a direct file export, or the
  * founder may re-host on YouTube/Vimeo — support both instead of assuming
- * one delivery shape.
+ * one delivery shape. A file that fails to load (e.g. a placeholder URL
+ * before the real video is uploaded) falls back to a note instead of a
+ * broken black player — the written lesson below still teaches everything.
  */
 export function LessonVideo({ url }: { url: string }) {
+  const [failed, setFailed] = useState(false);
   const embedUrl = getEmbedUrl(url);
 
+  // The browser starts loading the server-rendered <video> before React
+  // hydrates, so a fast failure can fire before onError is attached — check
+  // for an error that already happened when the element attaches.
+  const detectEarlyError = useCallback((node: HTMLVideoElement | null) => {
+    if (node?.error) setFailed(true);
+  }, []);
+
+  if (failed) {
+    return (
+      <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-3xl bg-gradient-to-br from-violet-100 to-orange-50 p-6 text-center ring-1 ring-violet-900/5">
+        <span aria-hidden className="text-4xl">
+          🎬
+        </span>
+        <p className="font-bold text-neutral-900">The video for this lesson is coming soon</p>
+        <p className="max-w-sm text-sm text-neutral-600">
+          Everything you need is in the written lesson below — and the quiz after it.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
+    <div className="aspect-video w-full overflow-hidden rounded-3xl bg-neutral-900">
       {embedUrl ? (
         <iframe
           src={embedUrl}
+          title="Lesson video"
           className="h-full w-full"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
       ) : (
-        <video key={url} src={url} controls preload="metadata" className="h-full w-full" />
+        <video
+          key={url}
+          ref={detectEarlyError}
+          src={url}
+          controls
+          preload="metadata"
+          onError={() => setFailed(true)}
+          className="h-full w-full"
+        />
       )}
     </div>
   );

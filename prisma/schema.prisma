@@ -17,6 +17,17 @@ enum AttemptStatus {
   ABANDONED
 }
 
+// The six Financial Readiness areas on the dashboard. Each lesson feeds
+// exactly one of them.
+enum ReadinessArea {
+  BUDGETING
+  DIGITAL_SAFETY
+  BANKING
+  CREDIT
+  TAX
+  INVESTING
+}
+
 enum XPTransactionType {
   SIGNUP_BONUS
   QUIZ_COMPLETION
@@ -62,6 +73,7 @@ model Lesson {
   slug             String   @unique
   title            String
   topic            String
+  area             ReadinessArea
   description      String
   contentMarkdown  String   @db.Text
   videoUrl         String
@@ -103,6 +115,7 @@ model Question {
   order       Int          @default(0)
   options     Option[]
   answers     QuizAnswer[]
+  coachHints  CoachHint[]
   createdAt   DateTime     @default(now())
 }
 
@@ -123,7 +136,11 @@ model QuizAttempt {
   lessonId       String
   lesson         Lesson        @relation(fields: [lessonId], references: [id])
   status         AttemptStatus @default(IN_PROGRESS)
+  // Questions answered correctly on the first try.
   score          Int           @default(0)
+  // 0-100, set on completion: first-try answers count fully, ones solved
+  // after Coach hints count half. Feeds the Financial Readiness Score.
+  mastery        Int?
   totalQuestions Int           @default(5)
   xpAwarded      Int?
   startedAt      DateTime      @default(now())
@@ -147,9 +164,29 @@ model QuizAnswer {
   selectedOptionId String
   selectedOption   Option      @relation(fields: [selectedOptionId], references: [id], onDelete: Cascade)
   isCorrect        Boolean
+  // 1 for the first pick on a question; wrong picks earn a Coach hint and
+  // another try, up to MAX_TRIES_PER_QUESTION.
+  tryNumber        Int         @default(1)
   answeredAt       DateTime    @default(now())
 
-  @@unique([attemptId, questionId])
+  @@unique([attemptId, questionId, tryNumber])
+}
+
+// AI Coach hints, generated once per (question, set of wrong options picked
+// so far) and reused for every student who takes the same wrong path — keeps
+// hints consistent, reviewable, and the total number of model calls bounded.
+model CoachHint {
+  id             String   @id @default(cuid())
+  questionId     String
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  // Sorted, comma-joined ids of the wrong options picked so far.
+  wrongOptionIds String
+  level          Int
+  text           String   @db.Text
+  model          String
+  createdAt      DateTime @default(now())
+
+  @@unique([questionId, wrongOptionIds])
 }
 
 model XPTransaction {

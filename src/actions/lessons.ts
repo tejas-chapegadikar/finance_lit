@@ -14,9 +14,13 @@ export async function recordLessonView(lessonId: string) {
     return;
   }
 
-  await db.lessonView.upsert({
-    where: { userId_lessonId: { userId: user.id, lessonId } },
-    create: { userId: user.id, lessonId },
-    update: {},
-  });
+  await Promise.all([
+    db.lessonView.upsert({
+      where: { userId_lessonId: { userId: user.id, lessonId } },
+      create: { userId: user.id, lessonId },
+      update: {},
+    }),
+    // Feeds Day-7 / Day-30 retention on the admin metrics page.
+    db.user.update({ where: { id: user.id }, data: { lastActivityDate: new Date() } }),
+  ]);
 }

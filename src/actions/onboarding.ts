@@ -41,5 +41,5 @@ export async function completeOnboarding(
     throw err;
   }
 
-  redirect("/lessons");
+  redirect("/dashboard");
 }

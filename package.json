@@ -13,6 +13,7 @@
     "promote-admin": "tsx prisma/promote-admin.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "@clerk/nextjs": "^7.9.4",
     "@hookform/resolvers": "^5.9.1",
     "@prisma/adapter-pg": "^7.10.0",

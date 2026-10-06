@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { READINESS_AREA_META } from "@/lib/readiness-areas";
 
 export default async function AdminLessonsPage() {
   const lessons = await db.lesson.findMany({
@@ -29,7 +30,8 @@ export default async function AdminLessonsPage() {
             <div>
               <p className="font-medium">{lesson.title}</p>
               <p className="text-neutral-500">
-                {lesson.topic} • {lesson._count.questions} questions
+                {lesson.topic} • {READINESS_AREA_META[lesson.area].label} •{" "}
+                {lesson._count.questions} questions
               </p>
             </div>
             <span

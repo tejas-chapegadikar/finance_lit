@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { completeOnboarding } from "@/actions/onboarding";
+import { primaryButton } from "@/components/ui/button-styles";
 
 export function OnboardingForm({ defaultDisplayName }: { defaultDisplayName: string }) {
   const [state, formAction, isPending] = useActionState(completeOnboarding, {});
@@ -22,14 +23,14 @@ export function OnboardingForm({ defaultDisplayName }: { defaultDisplayName: str
           placeholder="How should we show your name?"
           className="rounded-xl border-2 border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-violet-400"
         />
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-neutral-500">
           Shown on your profile. You can change it any time.
         </p>
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="collegeName" className="text-sm font-medium text-neutral-700">
-          College
+          College <span className="font-normal text-neutral-500">(current or most recent)</span>
         </label>
         <input
           id="collegeName"
@@ -57,11 +58,7 @@ export function OnboardingForm({ defaultDisplayName }: { defaultDisplayName: str
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-violet-900/20 hover:brightness-110 disabled:opacity-50"
-      >
+      <button type="submit" disabled={isPending} className={primaryButton}>
         {isPending ? "Saving…" : "Continue"}
       </button>
     </form>

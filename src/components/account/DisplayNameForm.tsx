@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { updateDisplayName } from "@/actions/profile";
+import { primaryButton } from "@/components/ui/button-styles";
 
 export function DisplayNameForm({ currentDisplayName }: { currentDisplayName: string }) {
   const [state, formAction, isPending] = useActionState(updateDisplayName, {});
@@ -28,11 +29,7 @@ export function DisplayNameForm({ currentDisplayName }: { currentDisplayName: st
           defaultValue={currentDisplayName}
           className="flex-1 rounded-xl border-2 border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-violet-400"
         />
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-violet-900/20 hover:brightness-110 disabled:opacity-50"
-        >
+        <button type="submit" disabled={isPending} className={primaryButton}>
           {isPending ? "Saving…" : "Save"}
         </button>
       </div>

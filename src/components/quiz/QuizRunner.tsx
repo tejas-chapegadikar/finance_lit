@@ -1,22 +1,29 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { submitAnswer, completeAttempt } from "@/actions/quiz";
-import { QuestionCard } from "./QuestionCard";
-import { FeedbackBanner } from "./FeedbackBanner";
+import { submitAnswer, getCoachHint, completeAttempt } from "@/actions/quiz";
+import { MAX_TRIES_PER_QUESTION } from "@/lib/constants";
+import { primaryButton } from "@/components/ui/button-styles";
+import { ArrowRightIcon, XIcon } from "@/components/ui/icons";
+import { QuestionCard, type OptionState } from "./QuestionCard";
+import { CoachPanel } from "./CoachPanel";
+import { AnswerBanner } from "./AnswerBanner";
 
-type Option = { id: string; text: string; order: number };
+type Option = { id: string; text: string };
 type Question = { id: string; prompt: string; options: Option[] };
-type Feedback = {
-  isCorrect: boolean;
+type Resolution = {
+  status: "correct" | "revealed";
+  tryNumber: number;
+  correctOptionId: string;
   explanation: string;
-  correctOptionId?: string;
 };
 
 export function QuizRunner({
   attemptId,
   lessonSlug,
+  lessonTitle,
   questions,
 }: {
   attemptId: string;
@@ -26,70 +33,157 @@ export function QuizRunner({
 }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
-  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [pendingOptionId, setPendingOptionId] = useState<string | null>(null);
+  const [wrongOptionIds, setWrongOptionIds] = useState<string[]>([]);
+  const [hint, setHint] = useState<{ level: number; text: string } | null>(null);
+  const [hintLoading, setHintLoading] = useState(false);
+  const [resolution, setResolution] = useState<Resolution | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const currentQuestion = questions[index];
+  const question = questions[index];
   const isLastQuestion = index === questions.length - 1;
+  const answeredCount = index + (resolution ? 1 : 0);
+
+  function stateOf(optionId: string): OptionState {
+    if (resolution) {
+      if (optionId === resolution.correctOptionId) return "correct";
+      return wrongOptionIds.includes(optionId) ? "wrong" : "dimmed";
+    }
+    if (wrongOptionIds.includes(optionId)) return "wrong";
+    return optionId === pendingOptionId ? "pending" : "idle";
+  }
 
   function handleSelect(optionId: string) {
-    if (feedback) return;
-    setSelectedOptionId(optionId);
+    if (resolution || isPending) return;
+    setPendingOptionId(optionId);
+    setError(null);
+
     startTransition(async () => {
-      const result = await submitAnswer({
-        attemptId,
-        questionId: currentQuestion.id,
-        optionId,
-      });
-      setFeedback(result);
+      try {
+        const result = await submitAnswer({ attemptId, questionId: question.id, optionId });
+        setPendingOptionId(null);
+
+        if (result.status === "try-again") {
+          setWrongOptionIds((ids) => [...ids, optionId]);
+          setHintLoading(true);
+          try {
+            setHint(await getCoachHint({ attemptId, questionId: question.id }));
+          } finally {
+            setHintLoading(false);
+          }
+          return;
+        }
+
+        if (result.status === "revealed") {
+          setWrongOptionIds((ids) => [...ids, optionId]);
+        }
+        setResolution({
+          status: result.status,
+          tryNumber: result.tryNumber,
+          correctOptionId: result.correctOptionId,
+          explanation: result.explanation,
+        });
+      } catch {
+        setPendingOptionId(null);
+        setError("Something went wrong — please try again.");
+      }
     });
   }
 
   function handleNext() {
     if (isLastQuestion) {
       startTransition(async () => {
-        await completeAttempt(attemptId);
-        router.push(`/lessons/${lessonSlug}/quiz/results/${attemptId}`);
+        try {
+          await completeAttempt(attemptId);
+          router.push(`/lessons/${lessonSlug}/quiz/results/${attemptId}`);
+        } catch {
+          setError("Couldn't finish the quiz — please try again.");
+        }
       });
       return;
     }
+
     setIndex((i) => i + 1);
-    setSelectedOptionId(null);
-    setFeedback(null);
+    setPendingOptionId(null);
+    setWrongOptionIds([]);
+    setHint(null);
+    setResolution(null);
+    setError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
-        <span className="whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-700">
-          Question {index + 1}/{questions.length}
-        </span>
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-violet-100">
+        <Link
+          href={`/lessons/${lessonSlug}`}
+          aria-label="Exit quiz"
+          className="rounded-full p-1.5 text-neutral-500 transition hover:bg-white hover:text-neutral-800"
+        >
+          <XIcon />
+        </Link>
+        <div
+          role="progressbar"
+          aria-label="Quiz progress"
+          aria-valuemin={0}
+          aria-valuemax={questions.length}
+          aria-valuenow={answeredCount}
+          className="h-2.5 flex-1 overflow-hidden rounded-full bg-orange-100"
+        >
           <div
-            className="h-full rounded-full bg-gradient-to-r from-orange-400 to-amber-500 transition-all"
-            style={{ width: `${((index + (feedback ? 1 : 0)) / questions.length) * 100}%` }}
+            className="h-full rounded-full bg-orange-600 transition-all duration-500"
+            style={{ width: `${(answeredCount / questions.length) * 100}%` }}
           />
         </div>
+        <span className="text-xs font-bold text-neutral-600">
+          {answeredCount}/{questions.length}
+        </span>
       </div>
 
+      <p className="-mb-2 truncate text-sm font-semibold text-neutral-500">{lessonTitle}</p>
+
       <QuestionCard
-        question={currentQuestion}
-        selectedOptionId={selectedOptionId}
-        feedback={feedback}
+        number={index + 1}
+        total={questions.length}
+        prompt={question.prompt}
+        options={question.options}
+        stateOf={stateOf}
         onSelect={handleSelect}
         disabled={isPending}
       />
 
-      {feedback && <FeedbackBanner feedback={feedback} />}
+      {!resolution && (hintLoading || hint) && (
+        <CoachPanel
+          hint={hint}
+          loading={hintLoading}
+          triesLeft={MAX_TRIES_PER_QUESTION - wrongOptionIds.length}
+        />
+      )}
 
-      {feedback && (
+      {resolution && (
+        <AnswerBanner
+          status={resolution.status}
+          tryNumber={resolution.tryNumber}
+          explanation={resolution.explanation}
+        />
+      )}
+
+      {error && (
+        <p role="alert" className="text-sm font-medium text-rose-700">
+          {error}
+        </p>
+      )}
+
+      {resolution && (
         <button
+          type="button"
           onClick={handleNext}
           disabled={isPending}
-          className="ml-auto rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-violet-900/20 transition hover:brightness-110 disabled:opacity-50"
+          className={`${primaryButton} w-full sm:ml-auto sm:w-auto`}
         >
           {isPending ? "Loading…" : isLastQuestion ? "See results" : "Next question"}
+          {!isPending && <ArrowRightIcon className="h-4 w-4" />}
         </button>
       )}
     </div>

@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Finish signing up — StockStreak" }
 export default async function OnboardingPage() {
   const user = await requireAppUser();
   if (user.onboardingCompletedAt) {
-    redirect("/lessons");
+    redirect("/dashboard");
   }
 
   return (

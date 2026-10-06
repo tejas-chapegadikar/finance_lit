@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "StockStreak",
-  description: "Learn money management. Build a streak. Earn XP.",
+  description:
+    "Learn money before money teaches you the hard way. Short lessons, quizzes and an AI Coach for young Indians.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

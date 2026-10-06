@@ -25,6 +25,7 @@ export default async function EditLessonPage(props: PageProps<"/admin/lessons/[i
     slug: lesson.slug,
     title: lesson.title,
     topic: lesson.topic,
+    area: lesson.area,
     description: lesson.description,
     contentMarkdown: lesson.contentMarkdown,
     videoUrl: lesson.videoUrl,
