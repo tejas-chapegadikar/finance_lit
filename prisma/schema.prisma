@@ -28,73 +28,117 @@ enum ReadinessArea {
   INVESTING
 }
 
+// Asked during onboarding.
+enum LearnerStage {
+  FIRST_YEAR
+  SECOND_YEAR
+  THIRD_YEAR
+  FINAL_YEAR
+  GRADUATE_WORKING
+}
+
+// Asked during onboarding; kept for future personalisation.
+enum LearningGoal {
+  MANAGING_MONEY
+  INVESTING
+  AVOIDING_SCAMS
+  SALARY_TAXES
+  EVERYTHING
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
 enum XPTransactionType {
   SIGNUP_BONUS
   QUIZ_COMPLETION
-  STREAK_BONUS // future (Week 2)
+  DAILY_CHALLENGE
+  LEVEL_COMPLETION
+  STREAK_BONUS
   ADMIN_ADJUSTMENT
-  REDEMPTION // future (negative amount)
+  REDEMPTION
 }
 
 model User {
-  id                    String    @id @default(cuid())
-  clerkId               String    @unique
-  email                 String    @unique
-  emailVerified         Boolean   @default(false)
-  phone                 String?   @unique
-  phoneVerified         Boolean   @default(false)
+  id                    String        @id @default(cuid())
+  clerkId               String        @unique
+  email                 String        @unique
+  emailVerified         Boolean       @default(false)
+  phone                 String?       @unique
+  phoneVerified         Boolean       @default(false)
   name                  String?
   displayName           String?
-  role                  Role      @default(STUDENT)
+  role                  Role          @default(STUDENT)
 
+  stage                 LearnerStage?
+  goal                  LearningGoal?
   collegeName           String?
   onboardingCompletedAt DateTime?
 
-  xpTotal               Int       @default(0)
+  xpTotal               Int           @default(0)
 
-  // future streak/leaderboard fields — unused this session, safe to add now
-  currentStreak          Int       @default(0)
-  longestStreak           Int       @default(0)
-  lastActivityDate        DateTime?
-  streakFreezesAvailable  Int       @default(3)
-  streakFreezesResetAt    DateTime?
+  // Days in a row with a completed quiz or daily challenge (IST calendar days).
+  currentStreak         Int           @default(0)
+  longestStreak         Int           @default(0)
+  // IST date (YYYY-MM-DD) of the last day that counted toward the streak.
+  streakLastDay         String?
+  // Last time the student opened a lesson or started a quiz — feeds retention metrics.
+  lastActivityDate      DateTime?
+  streakFreezesAvailable Int          @default(3)
+  streakFreezesResetAt  DateTime?
 
-  quizAttempts    QuizAttempt[]
-  xpTransactions  XPTransaction[]
-  lessonViews     LessonView[]
-  createdLessons  Lesson[]        @relation("LessonAuthor")
+  quizAttempts     QuizAttempt[]
+  xpTransactions   XPTransaction[]
+  lessonViews      LessonView[]
+  scenarioAnswers  ScenarioAnswer[]
+  challengeAnswers ChallengeAnswer[]
+  createdLessons   Lesson[]          @relation("LessonAuthor")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Lesson {
-  id               String   @id @default(cuid())
-  slug             String   @unique
+  id               String        @id @default(cuid())
+  slug             String        @unique
   title            String
-  topic            String
+  icon             String        @default("📘")
   area             ReadinessArea
   description      String
-  contentMarkdown  String   @db.Text
-  videoUrl         String
-  estimatedMinutes Int      @default(5)
-  xpReward         Int      @default(75)
-  isPublished      Boolean  @default(false)
-  order            Int      @default(0)
+  // Part 1 — a relatable situation that gets the student thinking.
+  hook             String        @db.Text @default("")
+  // Part 2 — short explanation; each "## " section renders as its own card.
+  contentMarkdown  String        @db.Text
+  // [{ term, definition }] — shown while learning and on the completion screen.
+  keyTerms         Json          @default("[]")
+  // A real-life Indian example with numbers.
+  example          String        @db.Text @default("")
+  // "What would you do?" before the quiz. Options: [{ text, isCorrect }].
+  scenarioPrompt      String     @db.Text @default("")
+  scenarioOptions     Json       @default("[]")
+  scenarioExplanation String     @db.Text @default("")
+  estimatedMinutes Int           @default(5)
+  xpReward         Int           @default(75)
+  isPublished      Boolean       @default(false)
+  order            Int           @default(0)
 
   authorId String?
   author   User?   @relation("LessonAuthor", fields: [authorId], references: [id])
 
-  questions Question[]
-  attempts  QuizAttempt[]
-  views     LessonView[]
+  questions       Question[]
+  attempts        QuizAttempt[]
+  views           LessonView[]
+  scenarioAnswers ScenarioAnswer[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// One row per (user, lesson) the first time the student opens that lesson's
-// video page — backs the "videos watched" count on the account page.
+// One row per (user, lesson) the first time the student opens that lesson —
+// feeds the "signup → first lesson" metric.
 model LessonView {
   id       String   @id @default(cuid())
   userId   String
@@ -106,12 +150,30 @@ model LessonView {
   @@unique([userId, lessonId])
 }
 
+// The student's first answer to a lesson's scenario — it counts toward
+// Financial Readiness, so later re-answers don't overwrite it.
+model ScenarioAnswer {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  optionIndex Int
+  isCorrect   Boolean
+  answeredAt  DateTime @default(now())
+
+  @@unique([userId, lessonId])
+}
+
 model Question {
   id          String       @id @default(cuid())
   lessonId    String
   lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   prompt      String
   explanation String       @db.Text
+  // Written by the course team; shown when the AI Coach is unavailable.
+  hint        String?      @db.Text
+  difficulty  Difficulty   @default(MEDIUM)
   order       Int          @default(0)
   options     Option[]
   answers     QuizAnswer[]
@@ -130,23 +192,27 @@ model Option {
 }
 
 model QuizAttempt {
-  id             String        @id @default(cuid())
-  userId         String
-  user           User          @relation(fields: [userId], references: [id])
-  lessonId       String
-  lesson         Lesson        @relation(fields: [lessonId], references: [id])
-  status         AttemptStatus @default(IN_PROGRESS)
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  lessonId        String
+  lesson          Lesson        @relation(fields: [lessonId], references: [id])
+  status          AttemptStatus @default(IN_PROGRESS)
   // Questions answered correctly on the first try.
-  score          Int           @default(0)
+  score           Int           @default(0)
   // 0-100, set on completion: first-try answers count fully, ones solved
   // after Coach hints count half. Feeds the Financial Readiness Score.
-  mastery        Int?
-  totalQuestions Int           @default(5)
-  xpAwarded      Int?
-  startedAt      DateTime      @default(now())
-  completedAt    DateTime?
-  answers        QuizAnswer[]
-  xpTransactions XPTransaction[]
+  mastery         Int?
+  totalQuestions  Int           @default(5)
+  xpAwarded       Int?
+  // Overall readiness just before and after this attempt completed, so the
+  // completion screen can show the change.
+  readinessBefore Int?
+  readinessAfter  Int?
+  startedAt       DateTime      @default(now())
+  completedAt     DateTime?
+  answers         QuizAnswer[]
+  xpTransactions  XPTransaction[]
 
   @@index([userId, lessonId])
 }
@@ -187,6 +253,38 @@ model CoachHint {
   createdAt      DateTime @default(now())
 
   @@unique([questionId, wrongOptionIds])
+}
+
+// A pool of short real-life scenarios. Each day every student gets the same
+// one, picked by rotating through the published pool in `order`.
+model DailyChallenge {
+  id          String            @id @default(cuid())
+  prompt      String            @db.Text
+  // [{ text, isCorrect }]
+  options     Json
+  explanation String            @db.Text
+  area        ReadinessArea
+  isPublished Boolean           @default(true)
+  order       Int               @default(0)
+  answers     ChallengeAnswer[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model ChallengeAnswer {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  // IST date (YYYY-MM-DD) — one answer per student per day.
+  day         String
+  optionIndex Int
+  isCorrect   Boolean
+  xpAwarded   Int            @default(0)
+  answeredAt  DateTime       @default(now())
+
+  @@unique([userId, day])
 }
 
 model XPTransaction {

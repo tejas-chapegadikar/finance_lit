@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 
+const LINKS = [
+  { href: "/admin/lessons", label: "Lessons" },
+  { href: "/admin/challenges", label: "Daily challenges" },
+  { href: "/admin/metrics", label: "Metrics" },
+  { href: "/dashboard", label: "Back to app" },
+];
+
 export default async function AdminLayout({
   children,
 }: {
@@ -10,21 +17,17 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-neutral-800 bg-neutral-900 text-white">
-        <div className="mx-auto flex max-w-4xl items-center justify-between p-4">
+      <header className="border-b border-slate-800 bg-slate-900 text-white">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 p-4">
           <Link href="/admin/lessons" className="text-lg font-bold">
             StockStreak Admin
           </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link href="/admin/lessons" className="text-neutral-300 hover:text-white">
-              Lessons
-            </Link>
-            <Link href="/admin/metrics" className="text-neutral-300 hover:text-white">
-              Metrics
-            </Link>
-            <Link href="/dashboard" className="text-neutral-300 hover:text-white">
-              Back to app
-            </Link>
+          <nav className="flex flex-wrap items-center gap-4 text-sm">
+            {LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className="text-slate-300 hover:text-white">
+                {link.label}
+              </Link>
+            ))}
           </nav>
         </div>
       </header>

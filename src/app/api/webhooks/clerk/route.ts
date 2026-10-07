@@ -51,7 +51,14 @@ export async function POST(request: NextRequest) {
   }
 
   if (event.type === "user.deleted" && event.data.id) {
-    await db.user.deleteMany({ where: { clerkId: event.data.id } });
+    const clerkId = event.data.id;
+    // XP history and quiz attempts don't cascade from User, so remove them
+    // first; views, scenario and challenge answers cascade with the user.
+    await db.$transaction([
+      db.xPTransaction.deleteMany({ where: { user: { clerkId } } }),
+      db.quizAttempt.deleteMany({ where: { user: { clerkId } } }),
+      db.user.deleteMany({ where: { clerkId } }),
+    ]);
   }
 
   return NextResponse.json({ received: true });

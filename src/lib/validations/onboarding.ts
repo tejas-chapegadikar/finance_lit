@@ -1,16 +1,11 @@
 import { z } from "zod";
-import { displayNameSchema } from "./profile";
+import { collegeNameSchema, displayNameSchema, goalSchema, stageSchema } from "./profile";
 
 export const onboardingSchema = z.object({
   displayName: displayNameSchema,
-  collegeName: z
-    .string()
-    .trim()
-    .min(2, "Enter your college name")
-    .max(200, "College name is too long"),
-  phone: z
-    .string()
-    .regex(/^\+?[0-9]{10,15}$/, "Enter a valid phone number"),
+  stage: stageSchema,
+  collegeName: collegeNameSchema,
+  goal: goalSchema,
 });
 
-export type OnboardingInput = z.infer<typeof onboardingSchema>;
+export type OnboardingInput = z.input<typeof onboardingSchema>;

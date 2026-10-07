@@ -1,45 +1,34 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
-import { redirect } from "next/navigation";
 import { requireAppUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { onboardingSchema } from "@/lib/validations/onboarding";
 
-export type OnboardingState = { error?: string };
+export type OnboardingResult = { error?: string; success?: boolean };
 
-export async function completeOnboarding(
-  _prevState: OnboardingState,
-  formData: FormData,
-): Promise<OnboardingState> {
+// Typed loosely on purpose: this is a public endpoint, so everything is
+// validated here rather than trusted from the browser.
+type OnboardingAnswers = { displayName: string; stage: string; collegeName: string; goal: string };
+
+export async function completeOnboarding(input: OnboardingAnswers): Promise<OnboardingResult> {
   const user = await requireAppUser();
 
-  const parsed = onboardingSchema.safeParse({
-    displayName: formData.get("displayName"),
-    collegeName: formData.get("collegeName"),
-    phone: formData.get("phone"),
+  const parsed = onboardingSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Please check your answers" };
+  }
+
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      displayName: parsed.data.displayName,
+      stage: parsed.data.stage,
+      collegeName: parsed.data.collegeName,
+      goal: parsed.data.goal,
+      // Re-onboarding (e.g. a double submit) keeps the original date.
+      onboardingCompletedAt: user.onboardingCompletedAt ?? new Date(),
+    },
   });
 
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
-  }
-
-  try {
-    await db.user.update({
-      where: { id: user.id },
-      data: {
-        displayName: parsed.data.displayName,
-        collegeName: parsed.data.collegeName,
-        phone: parsed.data.phone,
-        onboardingCompletedAt: new Date(),
-      },
-    });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      return { error: "That phone number is already in use on another account" };
-    }
-    throw err;
-  }
-
-  redirect("/dashboard");
+  return { success: true };
 }

@@ -4,140 +4,206 @@ import Link from "next/link";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { questionOutcome, summarizeAttempt, type QuestionOutcome } from "@/lib/quiz-outcome";
-import { getReadiness } from "@/lib/readiness";
-import { primaryButton, secondaryButton } from "@/components/ui/button-styles";
+import { getProgress } from "@/lib/progress";
+import { getBadges } from "@/lib/badges";
+import { readKeyTerms } from "@/lib/lesson-content";
+import { LEVEL_1_NAME } from "@/lib/constants";
+import { beginQuiz } from "@/actions/quiz";
+import { SubmitButton } from "@/components/ui/SubmitButton";
+import { card, heroSurface, primaryButton, secondaryButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Quiz results — StockStreak" };
+export const metadata: Metadata = { title: "Lesson complete — StockStreak" };
 
 const OUTCOME_BADGE: Record<QuestionOutcome, { label: string; className: string }> = {
   "first-try": { label: "First try", className: "bg-emerald-100 text-emerald-800" },
-  "with-coach": { label: "With the Coach", className: "bg-violet-100 text-violet-700" },
-  revealed: { label: "Answer shown", className: "bg-neutral-100 text-neutral-700" },
+  "with-coach": { label: "With the Coach", className: "bg-brand-100 text-brand-800" },
+  revealed: { label: "Answer shown", className: "bg-slate-100 text-slate-700" },
 };
 
-function headlineFor(mastery: number) {
-  if (mastery >= 80) return { emoji: "🏆", title: "Great job!" };
-  if (mastery >= 50) return { emoji: "🎉", title: "Nice work!" };
-  return { emoji: "💪", title: "Good effort!" };
-}
-
-export default async function QuizResultsPage(
-  props: PageProps<"/lessons/[slug]/quiz/results/[attemptId]">,
-) {
+export default async function LessonCompletePage(props: PageProps<"/lessons/[slug]/quiz/results/[attemptId]">) {
   const user = await requireOnboardedUser();
   const { slug, attemptId } = await props.params;
 
-  const attempt = await db.quizAttempt.findUnique({
-    where: { id: attemptId },
-    include: {
-      lesson: {
-        include: {
-          questions: {
-            orderBy: { order: "asc" },
-            include: { options: { orderBy: { order: "asc" } } },
+  const [attempt, progress] = await Promise.all([
+    db.quizAttempt.findUnique({
+      where: { id: attemptId },
+      include: {
+        lesson: {
+          include: {
+            questions: {
+              orderBy: { order: "asc" },
+              include: { options: { orderBy: { order: "asc" } } },
+            },
           },
         },
+        answers: { orderBy: { tryNumber: "asc" } },
+        xpTransactions: { select: { amount: true, type: true } },
       },
-      answers: { orderBy: { tryNumber: "asc" } },
-    },
-  });
+    }),
+    getProgress(user.id),
+  ]);
 
-  if (
-    !attempt ||
-    attempt.userId !== user.id ||
-    attempt.lesson.slug !== slug ||
-    attempt.status !== "COMPLETED"
-  ) {
+  if (!attempt || attempt.userId !== user.id || attempt.lesson.slug !== slug || attempt.status !== "COMPLETED") {
     notFound();
   }
 
   const summary = summarizeAttempt(attempt.answers, attempt.totalQuestions);
-  const mastery = attempt.mastery ?? summary.mastery;
-  const headline = headlineFor(mastery);
-  const { next } = await getReadiness(user.id);
-  const nextIsThisLesson = next?.lesson.slug === slug;
+  const percent = Math.round((summary.firstTry / attempt.totalQuestions) * 100);
+  const lessonXp = attempt.xpAwarded ?? 0;
+  const levelBonus = attempt.xpTransactions
+    .filter((tx) => tx.type === "LEVEL_COMPLETION")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const readinessBefore = attempt.readinessBefore ?? progress.overall;
+  const readinessAfter = attempt.readinessAfter ?? progress.overall;
+  const keyTerms = readKeyTerms(attempt.lesson.keyTerms);
 
-  const stats = [
-    { label: "First try", value: summary.firstTry },
-    { label: "With the Coach", value: summary.withCoach },
-    { label: "Answer shown", value: summary.revealed },
-  ];
+  // A badge was unlocked by this attempt if it was earned at the moment this
+  // attempt completed (badges are earned when their last lesson is first finished).
+  const completedAt = attempt.completedAt?.getTime();
+  const newBadges = getBadges(progress.lessons).filter((b) => b.earnedAt && b.earnedAt.getTime() === completedAt);
+  const levelJustCompleted = newBadges.some((b) => b.area === null);
+
+  const next = progress.next && progress.next.lesson.id !== attempt.lessonId ? progress.next : null;
+  const retake = beginQuiz.bind(null, attempt.lessonId);
 
   return (
-    <div className="flex flex-col gap-6">
-      <section className="overflow-hidden rounded-3xl bg-white shadow-lg shadow-violet-900/10 ring-1 ring-violet-900/5">
-        <div className="flex flex-col items-center gap-2 bg-gradient-to-br from-violet-600 to-indigo-600 px-6 pt-8 pb-10 text-center text-white">
-          <span
-            aria-hidden
-            className="flex h-20 w-20 items-center justify-center rounded-full bg-white/15 text-5xl ring-8 ring-white/10"
-          >
-            {headline.emoji}
+    <div className="mx-auto flex max-w-2xl flex-col gap-5">
+      {levelJustCompleted && (
+        <section className="rounded-3xl bg-gradient-to-br from-amber-300 via-orange-300 to-orange-400 p-6 text-center shadow-lg shadow-orange-900/20">
+          <span aria-hidden className="text-5xl">
+            🎓
           </span>
-          <h1 className="mt-2 text-3xl font-extrabold">{headline.title}</h1>
-          <p className="text-violet-100">
-            You got {summary.firstTry} of {attempt.totalQuestions} right on the first try
+          <p className="mt-2 text-xs font-extrabold tracking-[0.2em] text-slate-900 uppercase">Level 1 complete</p>
+          <h2 className="mt-1 text-2xl font-extrabold text-slate-900">🏆 {LEVEL_1_NAME} Graduate</h2>
+          <ul className="mt-4 flex flex-wrap justify-center gap-2 text-sm font-bold text-slate-900">
+            <li className="rounded-full bg-white/70 px-3 py-1">
+              {progress.completedCount}/{progress.totalLessons} lessons
+            </li>
+            <li className="rounded-full bg-white/70 px-3 py-1">{user.xpTotal.toLocaleString("en-IN")} XP</li>
+            <li className="rounded-full bg-white/70 px-3 py-1">Readiness {progress.overall}/100</li>
+          </ul>
+          <p className="mt-4 text-sm font-semibold text-slate-900">
+            +{levelBonus} XP level bonus · Level 2 is coming soon
           </p>
-          <p className="text-sm font-semibold text-violet-100">{attempt.lesson.title}</p>
-        </div>
+        </section>
+      )}
 
-        <div className="-mt-6 flex flex-col gap-5 rounded-t-3xl bg-white p-6">
-          <div className="grid grid-cols-3 gap-2">
-            {stats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl bg-violet-50 p-3 text-center">
-                <p className="text-2xl font-extrabold text-neutral-900">{stat.value}</p>
-                <p className="text-xs font-medium text-neutral-600">{stat.label}</p>
-              </div>
-            ))}
+      <section className={`${heroSurface} relative overflow-hidden p-6 text-center sm:p-8`}>
+        <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/5" />
+        <span aria-hidden className="relative text-5xl">
+          🎉
+        </span>
+        <h1 className="relative mt-2 text-3xl font-extrabold">Lesson Complete!</h1>
+        <p className="relative mt-1 font-semibold">
+          <span aria-hidden>{attempt.lesson.icon}</span> {attempt.lesson.title}
+        </p>
+
+        <dl className="relative mt-6 grid grid-cols-3 gap-2 text-left sm:gap-3">
+          <div className="rounded-2xl bg-brand-900/30 p-3 ring-1 ring-white/15">
+            <dt className="text-xs font-bold tracking-wider uppercase">Score</dt>
+            <dd className="mt-1 text-xl font-extrabold tabular-nums sm:text-2xl">
+              {summary.firstTry}/{attempt.totalQuestions}
+            </dd>
+            <dd className="text-xs font-semibold">{percent}% correct</dd>
           </div>
-
-          <div>
-            <div className="flex items-baseline justify-between text-sm">
-              <span className="font-semibold text-neutral-700">Lesson mastery</span>
-              <span className="font-bold text-neutral-900">{mastery}%</span>
-            </div>
-            <div
-              role="meter"
-              aria-label="Lesson mastery"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={mastery}
-              className="mt-2 h-2.5 overflow-hidden rounded-full bg-violet-100"
-            >
-              <div className="h-full rounded-full bg-violet-600" style={{ width: `${mastery}%` }} />
-            </div>
-            <p className="mt-2 text-xs text-neutral-500">
-              First-try answers count fully; answers you got with the Coach&apos;s help count half.
-            </p>
+          <div className="rounded-2xl bg-brand-900/30 p-3 ring-1 ring-white/15">
+            <dt className="text-xs font-bold tracking-wider uppercase">XP</dt>
+            <dd className="mt-1 text-xl font-extrabold tabular-nums sm:text-2xl">⭐ +{lessonXp}</dd>
+            <dd className="text-xs font-semibold">{lessonXp ? "for this lesson" : "retakes earn no XP"}</dd>
           </div>
+          <div className="rounded-2xl bg-brand-900/30 p-3 ring-1 ring-white/15">
+            <dt className="text-xs font-bold tracking-wider uppercase">Readiness</dt>
+            <dd className="mt-1 text-xl font-extrabold tabular-nums sm:text-2xl">
+              {readinessBefore} → {readinessAfter}
+            </dd>
+            <dd className="text-xs font-semibold">out of 100</dd>
+          </div>
+        </dl>
 
-          <p className="rounded-2xl bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">
-            {attempt.xpAwarded
-              ? `⚡ +${attempt.xpAwarded} XP earned`
-              : "⚡ You already earned XP for this lesson — retakes still raise your Readiness Score."}
+        {summary.withCoach > 0 && (
+          <p className="relative mt-4 text-sm font-semibold">
+            {summary.withCoach} more solved with the Coach&apos;s help 💪
           </p>
-
-          <div className="flex flex-col gap-2 sm:flex-row-reverse sm:justify-start">
-            {next && !nextIsThisLesson ? (
-              <Link href={`/lessons/${next.lesson.slug}`} className={primaryButton}>
-                Next: {next.lesson.title}
-                <ArrowRightIcon className="h-4 w-4" />
-              </Link>
-            ) : (
-              <Link href="/dashboard" className={primaryButton}>
-                Back to dashboard
-                <ArrowRightIcon className="h-4 w-4" />
-              </Link>
-            )}
-            <Link href={`/lessons/${slug}/quiz`} prefetch={false} className={secondaryButton}>
-              Try again
-            </Link>
-          </div>
-        </div>
+        )}
       </section>
 
+      {newBadges.filter((b) => b.area !== null).length > 0 && (
+        <section className={`${card} p-5 sm:p-6`}>
+          <h2 className="text-lg font-extrabold text-slate-900">🏅 New badge unlocked</h2>
+          <ul className="mt-3 flex flex-wrap gap-3">
+            {newBadges
+              .filter((b) => b.area !== null)
+              .map((badge) => (
+                <li key={badge.id} className="flex items-center gap-3 rounded-2xl bg-amber-50 px-4 py-3 ring-1 ring-amber-200">
+                  <span aria-hidden className="text-3xl">
+                    {badge.icon}
+                  </span>
+                  <span>
+                    <span className="block font-bold text-slate-900">{badge.name}</span>
+                    <span className="block text-xs text-slate-600">{badge.description}</span>
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </section>
+      )}
+
+      {keyTerms.length > 0 && (
+        <section className={`${card} p-5 sm:p-6`}>
+          <h2 className="text-lg font-extrabold text-slate-900">What you learned</h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {keyTerms.map((term) => (
+              <li key={term.term} className="rounded-full bg-brand-50 px-3 py-1.5 text-sm font-bold text-brand-800">
+                ✓ {term.term}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {next ? (
+        <section className={`${card} p-5 sm:p-6`}>
+          <p className="text-xs font-bold tracking-wider text-brand-700 uppercase">
+            {next.isRetake ? "Recommended next" : "Next recommended lesson"}
+          </p>
+          <div className="mt-3 flex items-center gap-4">
+            <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
+              {next.lesson.icon}
+            </span>
+            <div className="min-w-0">
+              <h2 className="font-extrabold text-slate-900">{next.lesson.title}</h2>
+              <p className="text-sm text-slate-600">{next.isRetake ? next.reason : next.lesson.description}</p>
+            </div>
+          </div>
+          <Link href={`/lessons/${next.lesson.slug}`} className={`${primaryButton} mt-5 w-full sm:w-auto`}>
+            Continue
+            <ArrowRightIcon className="h-4 w-4" />
+          </Link>
+        </section>
+      ) : null}
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        {!next && (
+          <Link href="/dashboard" className={primaryButton}>
+            Back to dashboard
+            <ArrowRightIcon className="h-4 w-4" />
+          </Link>
+        )}
+        <form action={retake}>
+          <SubmitButton pendingLabel="Starting…" className={`${secondaryButton} w-full sm:w-auto`}>
+            Retake quiz
+          </SubmitButton>
+        </form>
+        {next && (
+          <Link href="/dashboard" className={secondaryButton}>
+            Dashboard
+          </Link>
+        )}
+      </div>
+
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-bold text-neutral-900">Review your answers</h2>
+        <h2 className="text-lg font-extrabold text-slate-900">Review your answers</h2>
         {attempt.lesson.questions.map((question, i) => {
           const tries = attempt.answers.filter((a) => a.questionId === question.id);
           const outcome = questionOutcome(tries);
@@ -145,12 +211,9 @@ export default async function QuizResultsPage(
           const firstPick = question.options.find((o) => o.id === tries[0]?.selectedOptionId);
 
           return (
-            <div
-              key={question.id}
-              className="rounded-2xl bg-white p-4 text-sm shadow-sm shadow-violet-900/5 ring-1 ring-violet-900/5"
-            >
+            <div key={question.id} className={`${card} p-4 text-sm`}>
               <div className="flex items-start justify-between gap-3">
-                <p className="font-semibold text-neutral-900">
+                <p className="font-semibold text-slate-900">
                   {i + 1}. {question.prompt}
                 </p>
                 {outcome && (
@@ -162,12 +225,12 @@ export default async function QuizResultsPage(
                 )}
               </div>
               {outcome !== "first-try" && firstPick && (
-                <p className="mt-2 text-neutral-600">
+                <p className="mt-2 text-slate-600">
                   Your first pick: <span className="text-rose-700">{firstPick.text}</span>
                 </p>
               )}
               {correct && (
-                <p className="mt-1 text-neutral-600">
+                <p className="mt-1 text-slate-600">
                   Answer: <span className="font-semibold text-emerald-800">{correct.text}</span>
                 </p>
               )}

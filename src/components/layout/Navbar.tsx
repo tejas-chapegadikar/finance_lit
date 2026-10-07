@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { UserAvatar } from "@clerk/nextjs";
+import { Logo } from "@/components/ui/Logo";
+import { DesktopNav } from "./DesktopNav";
 import { XPBadge } from "./XPBadge";
 
 export function Navbar({
@@ -12,44 +14,22 @@ export function Navbar({
   isAdmin: boolean;
 }) {
   return (
-    <header className="bg-gradient-to-r from-violet-600 to-indigo-600 shadow-md shadow-violet-900/10">
-      <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 p-4">
-        <Link href="/dashboard" className="text-lg font-extrabold tracking-tight text-white">
-          Stock<span className="text-orange-300">Streak</span>
+    <header className="sticky top-0 z-30 border-b border-slate-900/5 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
+        <Link href="/dashboard" aria-label="StockStreak home" className="shrink-0">
+          <Logo />
         </Link>
-        <nav className="flex items-center gap-4">
-          <Link
-            href="/dashboard"
-            className="hidden text-sm font-medium text-violet-100 hover:text-white sm:inline"
-          >
-            Dashboard
-          </Link>
-          <Link
-            href="/lessons"
-            className="hidden text-sm font-medium text-violet-100 hover:text-white sm:inline"
-          >
-            Lessons
-          </Link>
-          {isAdmin && (
-            <Link
-              href="/admin/lessons"
-              className="hidden text-sm font-medium text-violet-100 hover:text-white sm:inline"
-            >
-              Admin
-            </Link>
-          )}
+        <DesktopNav isAdmin={isAdmin} />
+        <div className="flex items-center gap-2">
           <XPBadge xpTotal={xpTotal} />
           <Link
-            href="/account"
-            aria-label="Your account"
-            className="flex items-center gap-2 rounded-full p-0.5 text-white ring-2 ring-transparent transition hover:ring-white/40 sm:pl-3"
+            href="/profile"
+            aria-label={`Your profile (${displayName})`}
+            className="rounded-full ring-2 ring-transparent transition hover:ring-brand-200"
           >
-            <span className="hidden max-w-32 truncate text-sm font-semibold sm:inline">
-              {displayName}
-            </span>
             <UserAvatar />
           </Link>
-        </nav>
+        </div>
       </div>
     </header>
   );

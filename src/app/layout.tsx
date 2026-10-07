@@ -22,7 +22,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <ClerkProvider>
+    // brand-700, so Clerk's sign-in buttons and links match the app.
+    <ClerkProvider appearance={{ variables: { colorPrimary: "#0063b2" } }}>
       <html
         lang="en"
         className={`${plusJakartaSans.variable} ${geistMono.variable} h-full antialiased`}

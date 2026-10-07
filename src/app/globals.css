@@ -2,8 +2,8 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #f4f2ff;
-  --foreground: #1e1b3a;
+  --background: #f3f6fb;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -11,6 +11,25 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-plus-jakarta-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+/*
+ * The brand blue, used as `brand-*` everywhere (bg-brand-600, text-brand-700…).
+ * Change the hue here to re-colour the whole app. Contrast notes:
+ * white text needs brand-600 or darker (4.6:1 on 600, 6.1:1 on 700), and
+ * coloured text on white needs brand-700 or darker.
+ */
+@theme {
+  --color-brand-50: oklch(97.7% 0.013 236.62);
+  --color-brand-100: oklch(95.1% 0.026 236.824);
+  --color-brand-200: oklch(90.1% 0.058 230.902);
+  --color-brand-300: oklch(82.8% 0.111 230.318);
+  --color-brand-400: oklch(74.6% 0.16 232.661);
+  --color-brand-500: oklch(66% 0.17 238);
+  --color-brand-600: oklch(55.5% 0.165 243);
+  --color-brand-700: oklch(49% 0.155 247);
+  --color-brand-800: oklch(42% 0.13 250);
+  --color-brand-900: oklch(36% 0.105 252);
 }
 
 body {

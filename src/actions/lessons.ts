@@ -2,6 +2,9 @@
 
 import { db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
+import { canOpenLesson, fetchProgress } from "@/lib/progress";
+import { readChoiceOptions } from "@/lib/lesson-content";
+import { isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit";
 
 export async function recordLessonView(lessonId: string) {
   const user = await requireOnboardedUser();
@@ -23,4 +26,47 @@ export async function recordLessonView(lessonId: string) {
     // Feeds Day-7 / Day-30 retention on the admin metrics page.
     db.user.update({ where: { id: user.id }, data: { lastActivityDate: new Date() } }),
   ]);
+}
+
+export type ScenarioResult =
+  | { status: "answered"; isCorrect: boolean; correctIndex: number; explanation: string }
+  | { status: "slow-down" };
+
+/**
+ * Checks a "What would you do?" answer on the server. Only the student's
+ * first answer is kept — it counts toward Financial Readiness, so changing
+ * it after seeing the explanation shouldn't.
+ */
+export async function answerScenario(lessonId: string, optionIndex: number): Promise<ScenarioResult> {
+  const user = await requireOnboardedUser();
+  if (!(await isAllowed(quizAnswerRatelimit, user.id))) {
+    return { status: "slow-down" };
+  }
+
+  const [lesson, progress] = await Promise.all([
+    db.lesson.findUnique({
+      where: { id: lessonId },
+      select: { isPublished: true, scenarioOptions: true, scenarioExplanation: true },
+    }),
+    fetchProgress(user.id),
+  ]);
+  const lessonProgress = progress.lessons.find((l) => l.id === lessonId);
+  if (!lesson?.isPublished || !lessonProgress || !canOpenLesson(lessonProgress, user.role)) {
+    throw new Error("Lesson not found");
+  }
+
+  const options = readChoiceOptions(lesson.scenarioOptions);
+  const picked = options[optionIndex];
+  const correctIndex = options.findIndex((o) => o.isCorrect);
+  if (!Number.isInteger(optionIndex) || !picked || correctIndex === -1) {
+    throw new Error("Option not found");
+  }
+
+  await db.scenarioAnswer.upsert({
+    where: { userId_lessonId: { userId: user.id, lessonId } },
+    create: { userId: user.id, lessonId, optionIndex, isCorrect: picked.isCorrect },
+    update: {},
+  });
+
+  return { status: "answered", isCorrect: picked.isCorrect, correctIndex, explanation: lesson.scenarioExplanation };
 }

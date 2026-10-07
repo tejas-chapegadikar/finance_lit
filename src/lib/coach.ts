@@ -12,7 +12,7 @@ const SYSTEM_PROMPT = `You are the StockStreak Coach, a friendly tutor inside a 
 - End with one short question that nudges them to reason it out.
 - Hint 1 is gentle: point them at the key idea. Hint 2 means they have now missed twice: be more direct about the concept that decides it, still without giving the answer away.
 - 2-3 sentences, under 70 words. Plain text only: no markdown, lists, headings, or emojis.
-- Stay within the lesson. This is education, not personal financial advice: don't recommend products or tell the student what to do with their own money.
+- Stay within the current lesson and question. This is education, not personal financial advice: never recommend stocks, funds or other products, never tell the student what to invest in or do with their own money, and never promise or predict returns.
 
 Latency-sensitive; begin your answer immediately.`;
 
@@ -26,16 +26,25 @@ export type CoachHintInput = {
   options: CoachOption[];
   lessonTitle: string;
   lessonContent: string;
+  /** The course team's own hint for this question, used when the AI is unavailable. */
+  authoredHint: string | null;
   /** Wrong options the student has picked so far, in the order picked. */
   wrongOptionIds: string[];
 };
 
-export type CoachHint = { level: number; text: string };
+/** `source: "fallback"` means the AI was unavailable and this is a written hint. */
+export type CoachHint = { level: number; text: string; source: "ai" | "fallback" };
 
-const FALLBACK_HINTS: Record<number, string> = {
-  1: "Not quite. Think back to the main idea the lesson used to explain this — which option fits it best?",
-  2: "Still not it. Re-read the question's key words and compare them with the lesson's main point. Which of the remaining options matches?",
+const GENERIC_HINTS: Record<number, string> = {
+  1: "Think back to the main idea the lesson used to explain this — which option fits it best?",
+  2: "Re-read the question's key words and compare them with the lesson's main point. Which of the remaining options matches?",
 };
+
+/** A hint that never needs the AI: the course team's hint first, then a generic nudge. */
+export function fallbackHint(level: number, authoredHint: string | null): CoachHint {
+  const text = level === 1 && authoredHint ? authoredHint : (GENERIC_HINTS[level] ?? GENERIC_HINTS[2]);
+  return { level, text, source: "fallback" };
+}
 
 export async function getOrCreateCoachHint(input: CoachHintInput): Promise<CoachHint> {
   const level = input.wrongOptionIds.length;
@@ -43,12 +52,13 @@ export async function getOrCreateCoachHint(input: CoachHintInput): Promise<Coach
 
   const cached = await db.coachHint.findUnique({ where: { questionId_wrongOptionIds: key } });
   if (cached) {
-    return { level, text: cached.text };
+    return { level, text: cached.text, source: "ai" };
   }
 
   const text = await generateHint(input, level);
   if (!text) {
-    return { level, text: FALLBACK_HINTS[level] ?? FALLBACK_HINTS[2] };
+    // The lesson must stay usable when the AI isn't — never fail the quiz here.
+    return fallbackHint(level, input.authoredHint);
   }
 
   try {
@@ -58,11 +68,13 @@ export async function getOrCreateCoachHint(input: CoachHintInput): Promise<Coach
     // hint that won the race so everyone on this path sees the same text.
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       const existing = await db.coachHint.findUnique({ where: { questionId_wrongOptionIds: key } });
-      if (existing) return { level, text: existing.text };
+      if (existing) return { level, text: existing.text, source: "ai" };
+    } else {
+      // Caching is an optimisation — the student still gets this hint.
+      console.error("[coach] couldn't cache hint", err);
     }
-    throw err;
   }
-  return { level, text };
+  return { level, text, source: "ai" };
 }
 
 let client: Anthropic | null = null;

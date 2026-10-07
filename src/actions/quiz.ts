@@ -1,22 +1,32 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { awardXp } from "@/lib/xp";
+import { awardLevelBonusIfComplete, awardXp, lockUser } from "@/lib/xp";
 import { MAX_TRIES_PER_QUESTION, QUESTIONS_PER_QUIZ } from "@/lib/constants";
 import { questionOutcome, summarizeAttempt } from "@/lib/quiz-outcome";
-import { getOrCreateCoachHint, type CoachHint } from "@/lib/coach";
+import { fallbackHint, getOrCreateCoachHint, type CoachHint } from "@/lib/coach";
+import { canOpenLesson, fetchProgress } from "@/lib/progress";
+import { recordStreakDay } from "@/lib/streak";
+import { coachRatelimit, isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit";
 
-export async function startAttempt(lessonId: string) {
+/**
+ * Starts a fresh attempt and opens it. A form action (the lesson page's
+ * "Start quiz" button) rather than something the quiz page does while
+ * rendering, so prefetches and re-renders never create attempts.
+ */
+export async function beginQuiz(lessonId: string) {
   const user = await requireOnboardedUser();
 
-  const lesson = await db.lesson.findUnique({
-    where: { id: lessonId },
-    select: { id: true, isPublished: true },
-  });
-  if (!lesson || !lesson.isPublished) {
+  const progress = await fetchProgress(user.id);
+  const lesson = progress.lessons.find((l) => l.id === lessonId);
+  if (!lesson) {
     throw new Error("Lesson not found");
+  }
+  if (!canOpenLesson(lesson, user.role)) {
+    redirect(`/lessons/${lesson.slug}`);
   }
 
   // Abandon any stale in-progress attempt for this lesson (e.g. from a
@@ -34,7 +44,7 @@ export async function startAttempt(lessonId: string) {
     data: { userId: user.id, lessonId: lesson.id, totalQuestions: QUESTIONS_PER_QUIZ },
   });
 
-  return attempt.id;
+  redirect(`/lessons/${lesson.slug}/quiz/${attempt.id}`);
 }
 
 async function loadQuestionInAttempt(attemptId: string, questionId: string, userId: string) {
@@ -68,7 +78,8 @@ async function loadQuestionInAttempt(attemptId: string, questionId: string, user
 export type AnswerResult =
   | { status: "correct"; tryNumber: number; correctOptionId: string; explanation: string }
   | { status: "try-again"; tryNumber: number; triesLeft: number }
-  | { status: "revealed"; tryNumber: number; correctOptionId: string; explanation: string };
+  | { status: "revealed"; tryNumber: number; correctOptionId: string; explanation: string }
+  | { status: "slow-down" };
 
 export async function submitAnswer(params: {
   attemptId: string;
@@ -76,6 +87,10 @@ export async function submitAnswer(params: {
   optionId: string;
 }): Promise<AnswerResult> {
   const user = await requireOnboardedUser();
+  if (!(await isAllowed(quizAnswerRatelimit, user.id))) {
+    return { status: "slow-down" };
+  }
+
   const { attemptId, questionId, optionId } = params;
   const { question, tries } = await loadQuestionInAttempt(attemptId, questionId, user.id);
 
@@ -107,6 +122,11 @@ export async function submitAnswer(params: {
   return { status: "try-again", tryNumber, triesLeft: MAX_TRIES_PER_QUESTION - tryNumber };
 }
 
+/**
+ * The AI Coach only ever sees this one question, its options, the course
+ * explanation and the lesson text — never the rest of the curriculum or
+ * anything about the student.
+ */
 export async function getCoachHint(params: { attemptId: string; questionId: string }): Promise<CoachHint> {
   const user = await requireOnboardedUser();
   const { question, tries } = await loadQuestionInAttempt(params.attemptId, params.questionId, user.id);
@@ -119,6 +139,11 @@ export async function getCoachHint(params: { attemptId: string; questionId: stri
     throw new Error("Pick an answer first");
   }
 
+  // Over the limit: still help the student, just without a model call.
+  if (!(await isAllowed(coachRatelimit, user.id))) {
+    return fallbackHint(wrongOptionIds.length, question.hint);
+  }
+
   return getOrCreateCoachHint({
     questionId: question.id,
     prompt: question.prompt,
@@ -126,22 +151,31 @@ export async function getCoachHint(params: { attemptId: string; questionId: stri
     options: question.options,
     lessonTitle: question.lesson.title,
     lessonContent: question.lesson.contentMarkdown,
+    authoredHint: question.hint,
     wrongOptionIds,
   });
 }
 
-export async function completeAttempt(attemptId: string) {
+/**
+ * Finishes the quiz and opens the completion screen. Only returns (with
+ * "restarted") when the student has since started this quiz again elsewhere.
+ */
+export async function completeAttempt(attemptId: string): Promise<{ status: "restarted" }> {
   const user = await requireOnboardedUser();
 
   const attempt = await db.quizAttempt.findUnique({
     where: { id: attemptId },
-    include: { answers: true, lesson: true },
+    include: { answers: true, lesson: { select: { id: true, slug: true, title: true, xpReward: true } } },
   });
   if (!attempt || attempt.userId !== user.id) {
     throw new Error("Attempt not found");
   }
+  const resultsUrl = `/lessons/${attempt.lesson.slug}/quiz/results/${attempt.id}`;
   if (attempt.status === "COMPLETED") {
-    return { attemptId: attempt.id };
+    redirect(resultsUrl);
+  }
+  if (attempt.status === "ABANDONED") {
+    return { status: "restarted" };
   }
 
   // Score and mastery are recomputed from stored answers, never trusted from
@@ -151,29 +185,32 @@ export async function completeAttempt(attemptId: string) {
     throw new Error("Answer every question before finishing the quiz");
   }
 
-  // XP only on a user's FIRST completed attempt per lesson — retakes still
-  // count toward Financial Readiness, they just don't farm extra XP.
-  const priorCompleted = await db.quizAttempt.findFirst({
-    where: {
-      userId: user.id,
-      lessonId: attempt.lessonId,
-      status: "COMPLETED",
-      NOT: { id: attempt.id },
-    },
-  });
-  const xpAwarded = priorCompleted ? 0 : attempt.lesson.xpReward;
+  const readinessBefore = (await fetchProgress(user.id)).overall;
 
-  await db.$transaction(async (tx) => {
-    await tx.quizAttempt.update({
-      where: { id: attempt.id },
+  const claimed = await db.$transaction(async (tx) => {
+    await lockUser(tx, user.id);
+
+    // XP only on a student's FIRST completed attempt per lesson — retakes
+    // still count toward Financial Readiness, they just don't farm XP.
+    const priorCompleted = await tx.quizAttempt.count({
+      where: { userId: user.id, lessonId: attempt.lessonId, status: "COMPLETED", NOT: { id: attempt.id } },
+    });
+    const xpAwarded = priorCompleted > 0 ? 0 : attempt.lesson.xpReward;
+
+    // Conditional update: if a concurrent request already finished this
+    // attempt, it did the awarding and this one does nothing.
+    const { count } = await tx.quizAttempt.updateMany({
+      where: { id: attempt.id, status: "IN_PROGRESS" },
       data: {
         status: "COMPLETED",
         score: summary.firstTry,
         mastery: summary.mastery,
         completedAt: new Date(),
         xpAwarded,
+        readinessBefore,
       },
     });
+    if (count === 0) return false;
 
     if (xpAwarded > 0) {
       await awardXp(tx, {
@@ -183,11 +220,18 @@ export async function completeAttempt(attemptId: string) {
         quizAttemptId: attempt.id,
         description: `Completed "${attempt.lesson.title}"`,
       });
+      await awardLevelBonusIfComplete(tx, user.id, attempt.id);
     }
+    await recordStreakDay(tx, user.id);
+    return true;
   });
 
-  revalidatePath("/dashboard");
-  revalidatePath("/lessons");
+  if (claimed) {
+    const readinessAfter = (await fetchProgress(user.id)).overall;
+    await db.quizAttempt.update({ where: { id: attempt.id }, data: { readinessAfter } });
+  }
 
-  return { attemptId: attempt.id };
+  // The shared layout shows XP, so refresh it along with the destination.
+  revalidatePath("/", "layout");
+  redirect(resultsUrl);
 }

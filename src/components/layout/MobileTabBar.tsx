@@ -2,13 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookIcon, HomeIcon, UserIcon } from "@/components/ui/icons";
-
-const TABS = [
-  { href: "/dashboard", label: "Dashboard", Icon: HomeIcon },
-  { href: "/lessons", label: "Lessons", Icon: BookIcon },
-  { href: "/account", label: "Account", Icon: UserIcon },
-];
+import { NAV_ITEMS, isActive } from "./nav-items";
 
 export function MobileTabBar() {
   const pathname = usePathname();
@@ -16,23 +10,23 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-violet-900/10 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-900/10 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden"
     >
       <ul className="mx-auto flex max-w-md justify-around px-2">
-        {TABS.map(({ href, label, Icon }) => {
-          const active = pathname === href || pathname.startsWith(`${href}/`);
+        {NAV_ITEMS.map(({ href, label, Icon }) => {
+          const active = isActive(pathname, href);
           return (
             <li key={href} className="flex-1">
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={`flex flex-col items-center gap-0.5 py-2 text-xs font-semibold ${
-                  active ? "text-violet-700" : "text-neutral-500"
+                  active ? "text-brand-700" : "text-slate-600"
                 }`}
               >
                 <span
                   className={`flex h-8 w-14 items-center justify-center rounded-full transition ${
-                    active ? "bg-violet-100" : ""
+                    active ? "bg-brand-50" : ""
                   }`}
                 >
                   <Icon className="h-5 w-5" />
