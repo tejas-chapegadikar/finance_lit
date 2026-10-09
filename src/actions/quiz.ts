@@ -2,13 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
+import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { awardLevelBonusIfComplete, awardXp, lockUser } from "@/lib/xp";
+import { awardLevelBonusIfComplete, awardXp, lockUser, xpKeys } from "@/lib/xp";
+import { awardEarnedBadges } from "@/lib/badges";
 import { MAX_TRIES_PER_QUESTION, QUESTIONS_PER_QUIZ } from "@/lib/constants";
 import { questionOutcome, summarizeAttempt } from "@/lib/quiz-outcome";
 import { fallbackHint, getOrCreateCoachHint, type CoachHint } from "@/lib/coach";
-import { canOpenLesson, fetchProgress } from "@/lib/progress";
+import { fetchProgress, readinessAfterQuiz } from "@/lib/progress";
 import { recordStreakDay } from "@/lib/streak";
 import { coachRatelimit, isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit";
 
@@ -25,7 +26,7 @@ export async function beginQuiz(lessonId: string) {
   if (!lesson) {
     throw new Error("Lesson not found");
   }
-  if (!canOpenLesson(lesson, user.role)) {
+  if (lesson.locked) {
     redirect(`/lessons/${lesson.slug}`);
   }
 
@@ -36,7 +37,7 @@ export async function beginQuiz(lessonId: string) {
       where: { userId: user.id, lessonId: lesson.id, status: "IN_PROGRESS" },
       data: { status: "ABANDONED" },
     }),
-    // Feeds Day-7 / Day-30 retention on the admin metrics page.
+    // When the student was last active — kept for Day-7 / Day-30 retention.
     db.user.update({ where: { id: user.id }, data: { lastActivityDate: new Date() } }),
   ]);
 
@@ -185,9 +186,11 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
     throw new Error("Answer every question before finishing the quiz");
   }
 
-  const readinessBefore = (await fetchProgress(user.id)).overall;
+  const progressBefore = await fetchProgress(user.id);
+  const readinessBefore = progressBefore.overall;
+  const readinessAfter = readinessAfterQuiz(progressBefore, attempt.lessonId, summary.mastery);
 
-  const claimed = await db.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
 
     // XP only on a student's FIRST completed attempt per lesson — retakes
@@ -208,28 +211,29 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
         completedAt: new Date(),
         xpAwarded,
         readinessBefore,
+        readinessAfter,
       },
     });
-    if (count === 0) return false;
+    if (count === 0) return;
 
     if (xpAwarded > 0) {
-      await awardXp(tx, {
+      const awarded = await awardXp(tx, {
         userId: user.id,
         amount: xpAwarded,
         type: "QUIZ_COMPLETION",
+        idempotencyKey: xpKeys.lessonComplete(user.id, attempt.lessonId),
         quizAttemptId: attempt.id,
         description: `Completed "${attempt.lesson.title}"`,
       });
+      if (awarded !== xpAwarded) {
+        // This lesson's reward was already paid — the completion screen must say +0.
+        await tx.quizAttempt.update({ where: { id: attempt.id }, data: { xpAwarded: awarded } });
+      }
       await awardLevelBonusIfComplete(tx, user.id, attempt.id);
     }
+    await awardEarnedBadges(tx, user.id, attempt.id);
     await recordStreakDay(tx, user.id);
-    return true;
-  });
-
-  if (claimed) {
-    const readinessAfter = (await fetchProgress(user.id)).overall;
-    await db.quizAttempt.update({ where: { id: attempt.id }, data: { readinessAfter } });
-  }
+  }, SLOW_DB_TRANSACTION);
 
   // The shared layout shows XP, so refresh it along with the destination.
   revalidatePath("/", "layout");

@@ -3,7 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { updateProfile } from "@/actions/profile";
-import { LEARNER_STAGES } from "@/lib/learner-profile";
+import { LEARNER_STAGES, LEARNING_GOALS } from "@/lib/learner-profile";
 import { primaryButton } from "@/components/ui/button-styles";
 
 const inputClass =
@@ -13,10 +13,12 @@ export function ProfileForm({
   displayName,
   collegeName,
   stage,
+  goal,
 }: {
   displayName: string;
   collegeName: string;
   stage: string;
+  goal: string;
 }) {
   const [state, formAction, isPending] = useActionState(updateProfile, {});
 
@@ -28,50 +30,66 @@ export function ProfileForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="displayName" className="text-sm font-semibold text-slate-700">
-          Name
-        </label>
-        <input
-          id="displayName"
-          name="displayName"
-          type="text"
-          required
-          maxLength={40}
-          defaultValue={displayName}
-          className={inputClass}
-        />
-      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="displayName" className="text-sm font-semibold text-slate-700">
+            Name
+          </label>
+          <input
+            id="displayName"
+            name="displayName"
+            type="text"
+            required
+            maxLength={40}
+            defaultValue={displayName}
+            className={inputClass}
+          />
+        </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="collegeName" className="text-sm font-semibold text-slate-700">
-          College <span className="font-normal text-slate-600">(optional)</span>
-        </label>
-        <input
-          id="collegeName"
-          name="collegeName"
-          type="text"
-          maxLength={200}
-          defaultValue={collegeName}
-          placeholder="Type your college name"
-          className={inputClass}
-        />
-      </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="collegeName" className="text-sm font-semibold text-slate-700">
+            College <span className="font-normal text-slate-600">(optional)</span>
+          </label>
+          <input
+            id="collegeName"
+            name="collegeName"
+            type="text"
+            maxLength={200}
+            defaultValue={collegeName}
+            placeholder="Type your college name"
+            className={inputClass}
+          />
+        </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="stage" className="text-sm font-semibold text-slate-700">
-          Stage
-        </label>
-        <select id="stage" name="stage" required defaultValue={stage} className={inputClass}>
-          <option value="" disabled>
-            Where are you right now?
-          </option>
-          {LEARNER_STAGES.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="stage" className="text-sm font-semibold text-slate-700">
+            Stage
+          </label>
+          <select id="stage" name="stage" required defaultValue={stage} className={inputClass}>
+            <option value="" disabled>
+              Where are you right now?
             </option>
-          ))}
-        </select>
+            {LEARNER_STAGES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="goal" className="text-sm font-semibold text-slate-700">
+            Learning goal <span className="font-normal text-slate-600">(optional)</span>
+          </label>
+          <select id="goal" name="goal" defaultValue={goal} className={inputClass}>
+            <option value="">No particular goal</option>
+            {LEARNING_GOALS.map((g) => (
+              <option key={g.value} value={g.value}>
+                {g.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {state.error && (

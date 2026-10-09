@@ -1,6 +1,9 @@
 import type { Prisma, User } from "@prisma/client";
 import { istDay, shiftDay } from "./ist-date";
 
+// Streaks are postponed until after launch, so nothing shows them yet — but
+// they're still counted, so turning them on later starts from real history.
+
 /**
  * Counts today (IST) toward the student's streak. Call it inside the
  * transaction that records the activity — finishing a quiz or answering the

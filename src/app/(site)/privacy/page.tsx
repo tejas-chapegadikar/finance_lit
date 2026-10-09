@@ -1,0 +1,81 @@
+import type { Metadata } from "next";
+import { InfoPage } from "@/components/layout/InfoPage";
+import { CONTACT_EMAIL, LEGAL_LAST_UPDATED } from "@/lib/site";
+
+export const metadata: Metadata = { title: "Privacy Policy — StockStreak" };
+
+const CONTENT = `
+This policy explains what personal data StockStreak ("we", "us") collects when you use stockstreak.in, why we collect it, and the choices you have. We process personal data in line with India's Digital Personal Data Protection Act, 2023.
+
+## What we collect
+
+- **Account details** — your name, email address and, if you sign in with Google, your profile picture. Sign-in is handled by our authentication provider, Clerk; we never see your password.
+- **Profile details you give us** — your display name, your stage (year of study or graduate/working), your college (optional) and your learning goal (optional).
+- **Learning activity** — the lessons you open, your answers to scenarios, quizzes and Today's Challenge, your scores, XP, badges, and any lesson feedback you send.
+- **Technical data** — your IP address and basic device and browser information, processed by our hosting and security providers to run and protect the service.
+
+We **don't** collect bank account numbers, card details, UPI IDs or PINs, Aadhaar or PAN numbers, or any payment information. Never share these with us.
+
+## How we use it
+
+- To run StockStreak: save your progress, award XP and badges, calculate your Financial Readiness Score and recommend what to learn next
+- To give AI Coach hints when you get a quiz question wrong
+- To improve our lessons, using overall statistics and the feedback you send
+- To keep the service secure — for example, limiting how fast requests can be made
+- To contact you about your account, if we ever need to
+
+## The AI Coach
+
+When you ask for a hint, we send the quiz question, its answer options, the lesson's explanation and the lesson text to our AI provider, Anthropic, to write the hint. We **don't** send your name, email or other personal details. Hints may be saved and shown to other students who make the same mistake.
+
+## Who we share data with
+
+We use trusted service providers to run StockStreak: **Clerk** (sign-in), **Neon** (database), **Vercel** (hosting), **Upstash** (rate limiting) and **Anthropic** (AI hints). If you choose Google sign-in, Google shares your basic profile with us. These providers only process data to provide their service to us.
+
+We **don't sell** your personal data or use it for advertising. We may disclose data if the law requires it.
+
+## Where your data is stored
+
+Our providers may store and process data outside India, including in the United States.
+
+## How long we keep it
+
+We keep your data while your account is active. If you delete your account, we delete your profile and learning data from our database; copies in backups may remain for a limited time. We may keep anonymous, overall statistics (for example, how many students completed a lesson).
+
+## Your rights
+
+You can:
+
+- **See and correct** your profile at any time on your Profile page
+- **Delete your account** from Profile → Account preferences & security, or by emailing us
+- **Withdraw consent** by deleting your account
+- **Ask questions or raise a grievance** by emailing [${CONTACT_EMAIL}](mailto:${CONTACT_EMAIL})
+
+## Cookies
+
+We only use the cookies needed to keep you signed in, set by Clerk. We don't use advertising cookies or third-party trackers.
+
+## Age
+
+StockStreak is meant for people aged 18 and above.
+
+## Security
+
+Data is encrypted in transit (HTTPS) and access to it is restricted. No system is perfectly secure, so please use a strong password and keep your sign-in details private.
+
+## Changes to this policy
+
+If we change this policy, we'll update this page and the date at the top.
+
+## Contact
+
+Questions about your privacy? Email [${CONTACT_EMAIL}](mailto:${CONTACT_EMAIL}).
+`;
+
+export default function PrivacyPage() {
+  return (
+    <InfoPage title="Privacy Policy" updated={LEGAL_LAST_UPDATED}>
+      {CONTENT}
+    </InfoPage>
+  );
+}

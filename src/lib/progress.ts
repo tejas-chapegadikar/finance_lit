@@ -1,5 +1,5 @@
 import { cache } from "react";
-import type { Lesson, ReadinessArea, Role } from "@prisma/client";
+import type { Lesson, ReadinessArea } from "@prisma/client";
 import { db } from "./db";
 import { READINESS_AREA_META, READINESS_AREA_VALUES } from "./readiness-areas";
 
@@ -8,12 +8,17 @@ export type LessonSummary = Pick<
   "id" | "slug" | "title" | "icon" | "area" | "description" | "estimatedMinutes" | "xpReward" | "order"
 >;
 
-export type LessonStatus = "completed" | "continue" | "locked";
+/** Not started → In progress (opened, or a quiz begun) → Completed (finished the quiz). */
+export type LessonStatus = "not-started" | "in-progress" | "completed";
 
 export type LessonProgress = LessonSummary & {
   /** 1-based position in Level 1 — the 01–12 numbers in the library. */
   number: number;
   status: LessonStatus;
+  /** Lessons unlock in order: true until the lesson before this one is completed. */
+  locked: boolean;
+  /** Quiz accuracy (0-100) on the student's best attempt; null until completed. */
+  quizScore: number | null;
   /** 0-100: this lesson's contribution to Financial Readiness. */
   score: number;
   /** When the student first finished this lesson's quiz, if ever. */
@@ -27,9 +32,14 @@ export type AreaReadiness = {
   score: number;
   lessonCount: number;
   completedCount: number;
+  /** Average quiz accuracy over the area's completed lessons; null before any. */
+  quizAccuracy: number | null;
 };
 
 export type NextStep = { lesson: LessonProgress; reason: string; isRetake: boolean };
+
+/** An area whose quiz answers suggest the student hasn't got it yet. */
+export type ReviewSuggestion = { area: AreaReadiness; lesson: LessonProgress };
 
 export type Progress = {
   lessons: LessonProgress[];
@@ -39,18 +49,21 @@ export type Progress = {
   completedCount: number;
   totalLessons: number;
   levelComplete: boolean;
-  /** What the dashboard's Continue Learning card points at; null once there's nothing left to do. */
+  /** What the Continue Learning card points at; null once there's nothing left to do. */
   next: NextStep | null;
-  /** A finished lesson worth retaking, suggested alongside `next`. */
-  brushUp: LessonProgress | null;
+  /** The weakest area to revisit, when the student's quiz accuracy there is low. */
+  review: ReviewSuggestion | null;
 };
 
-// A lesson's readiness score: 80% from the student's best quiz result and 20%
-// from getting the "What would you do?" scenario right on their first answer.
-const QUIZ_WEIGHT = 0.8;
-const SCENARIO_WEIGHT = 0.2;
-// Finished lessons scoring below this get suggested for a retake.
-export const WEAK_LESSON_SCORE = 60;
+// Financial Readiness — the same rule for every student, so scores compare:
+// a completed lesson earns COMPLETION_POINTS for finishing it plus up to
+// QUIZ_POINTS for quiz accuracy on the best attempt (answers solved after a
+// Coach hint count half). Unfinished lessons earn nothing, every lesson counts
+// equally toward the overall score, and each area averages its own lessons.
+export const COMPLETION_POINTS = 30;
+export const QUIZ_POINTS = 70;
+// Below this quiz accuracy, an area (or a lesson) is suggested for review.
+export const WEAK_ACCURACY = 60;
 
 const lessonSummarySelect = {
   id: true,
@@ -64,103 +77,129 @@ const lessonSummarySelect = {
   order: true,
 } as const;
 
+const average = (values: number[]) =>
+  values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
+
+const lessonScore = (quizScore: number | null) =>
+  quizScore === null ? 0 : Math.round(COMPLETION_POINTS + (QUIZ_POINTS * quizScore) / 100);
+
 /**
  * Everything the dashboard, library and profile show about a student's
- * progress, computed from their quiz attempts and scenario answers (nothing
- * here is stored). Lessons unlock in order: the first is always open, and
- * each one after it opens once the one before it is finished.
+ * progress, computed from their lesson views and quiz attempts (nothing here
+ * is stored). Lessons unlock in order: the first is always open, and each one
+ * after it opens once the one before it is completed.
  */
 export async function fetchProgress(userId: string): Promise<Progress> {
-  const [lessons, attempts, scenarioAnswers] = await Promise.all([
+  const [lessons, attempts, views] = await Promise.all([
     db.lesson.findMany({
       where: { isPublished: true },
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
       select: lessonSummarySelect,
     }),
     db.quizAttempt.findMany({
-      where: { userId, status: "COMPLETED" },
-      select: { lessonId: true, mastery: true, completedAt: true },
+      where: { userId },
+      select: { lessonId: true, status: true, mastery: true, completedAt: true },
     }),
-    db.scenarioAnswer.findMany({ where: { userId }, select: { lessonId: true, isCorrect: true } }),
+    db.lessonView.findMany({ where: { userId }, select: { lessonId: true } }),
   ]);
 
+  const started = new Set([...views.map((v) => v.lessonId), ...attempts.map((a) => a.lessonId)]);
   const bestMastery = new Map<string, number>();
   const firstCompletedAt = new Map<string, Date>();
   for (const attempt of attempts) {
+    if (attempt.status !== "COMPLETED") continue;
     bestMastery.set(attempt.lessonId, Math.max(bestMastery.get(attempt.lessonId) ?? 0, attempt.mastery ?? 0));
     const first = firstCompletedAt.get(attempt.lessonId);
     if (attempt.completedAt && (!first || attempt.completedAt < first)) {
       firstCompletedAt.set(attempt.lessonId, attempt.completedAt);
     }
   }
-  const scenarioCorrect = new Set(scenarioAnswers.filter((a) => a.isCorrect).map((a) => a.lessonId));
 
   let previousCompleted = true;
   const lessonProgress = lessons.map((lesson, i): LessonProgress => {
-    const completed = bestMastery.has(lesson.id);
-    const status: LessonStatus = completed ? "completed" : previousCompleted ? "continue" : "locked";
-    previousCompleted = completed;
-    return {
+    const quizScore = bestMastery.get(lesson.id) ?? null;
+    const completed = quizScore !== null;
+    const progress: LessonProgress = {
       ...lesson,
       number: i + 1,
-      status,
-      score: Math.round(
-        QUIZ_WEIGHT * (bestMastery.get(lesson.id) ?? 0) + SCENARIO_WEIGHT * (scenarioCorrect.has(lesson.id) ? 100 : 0),
-      ),
+      status: completed ? "completed" : started.has(lesson.id) ? "in-progress" : "not-started",
+      locked: !completed && !previousCompleted,
+      quizScore,
+      score: lessonScore(quizScore),
       firstCompletedAt: firstCompletedAt.get(lesson.id) ?? null,
     };
+    previousCompleted = completed;
+    return progress;
   });
 
   const areas = READINESS_AREA_VALUES.flatMap((area): AreaReadiness[] => {
     const inArea = lessonProgress.filter((lesson) => lesson.area === area);
     if (inArea.length === 0) return [];
+    const scores = inArea.flatMap((lesson) => (lesson.quizScore === null ? [] : [lesson.quizScore]));
     const { label, icon } = READINESS_AREA_META[area];
     return [
       {
         area,
         label,
         icon,
-        score: Math.round(inArea.reduce((sum, lesson) => sum + lesson.score, 0) / inArea.length),
+        score: average(inArea.map((lesson) => lesson.score)),
         lessonCount: inArea.length,
-        completedCount: inArea.filter((lesson) => lesson.status === "completed").length,
+        completedCount: scores.length,
+        quizAccuracy: scores.length ? average(scores) : null,
       },
     ];
   });
 
   const completedCount = lessonProgress.filter((lesson) => lesson.status === "completed").length;
-  const upNext = lessonProgress.find((lesson) => lesson.status === "continue") ?? null;
-  const weakest = weakestFinishedLesson(lessonProgress);
+  const upNext = lessonProgress.find((lesson) => lesson.status !== "completed" && !lesson.locked) ?? null;
+  const review = weakestArea(areas, lessonProgress);
 
   return {
     lessons: lessonProgress,
     areas,
-    // Areas weigh equally, so being ready across all six matters more than
-    // acing one.
-    overall: areas.length ? Math.round(areas.reduce((sum, area) => sum + area.score, 0) / areas.length) : 0,
+    overall: average(lessonProgress.map((lesson) => lesson.score)),
     completedCount,
     totalLessons: lessonProgress.length,
     levelComplete: lessonProgress.length > 0 && completedCount === lessonProgress.length,
-    next: recommendNext(upNext, weakest, completedCount),
-    brushUp: upNext ? weakest : null,
+    next: recommendNext(upNext, review, completedCount),
+    review,
   };
 }
 
 /** Per-request cached progress for pages; actions call fetchProgress directly. */
 export const getProgress = cache(fetchProgress);
 
-function weakestFinishedLesson(lessons: LessonProgress[]): LessonProgress | null {
-  return (
-    lessons
-      .filter((lesson) => lesson.status === "completed" && lesson.score < WEAK_LESSON_SCORE)
-      .sort((a, b) => a.score - b.score || a.number - b.number)[0] ?? null
+/**
+ * Financial Readiness once a quiz finished with `mastery` counts — the
+ * lesson's best attempt wins. Lets the completion screen's "before → after"
+ * be saved together with the attempt itself.
+ */
+export function readinessAfterQuiz(progress: Progress, lessonId: string, mastery: number): number {
+  return average(
+    progress.lessons.map((lesson) =>
+      lesson.id === lessonId ? lessonScore(Math.max(lesson.quizScore ?? 0, mastery)) : lesson.score,
+    ),
   );
 }
 
+// "Struggling with credit questions → review credit": the area with the
+// lowest quiz accuracy below WEAK_ACCURACY, and its weakest completed lesson.
+function weakestArea(areas: AreaReadiness[], lessons: LessonProgress[]): ReviewSuggestion | null {
+  const area = areas
+    .filter((a) => a.quizAccuracy !== null && a.quizAccuracy < WEAK_ACCURACY)
+    .sort((a, b) => (a.quizAccuracy ?? 0) - (b.quizAccuracy ?? 0))[0];
+  if (!area) return null;
+  const lesson = lessons
+    .filter((l) => l.area === area.area && l.quizScore !== null)
+    .sort((a, b) => (a.quizScore ?? 0) - (b.quizScore ?? 0) || a.number - b.number)[0];
+  return lesson ? { area, lesson } : null;
+}
+
 // Students never have to decide what to learn next: it's the next lesson in
-// order, then — once everything is done — a retake of their weakest lesson.
+// order, then — once everything is done — a review of their weakest area.
 function recommendNext(
   upNext: LessonProgress | null,
-  weakest: LessonProgress | null,
+  review: ReviewSuggestion | null,
   completedCount: number,
 ): NextStep | null {
   if (upNext) {
@@ -170,17 +209,12 @@ function recommendNext(
       reason: completedCount === 0 ? "Start here — the foundation for everything else" : "Next up in Level 1",
     };
   }
-  if (weakest) {
+  if (review) {
     return {
-      lesson: weakest,
+      lesson: review.lesson,
       isRetake: true,
-      reason: `You scored ${weakest.score}/100 here — a retake will lift your ${READINESS_AREA_META[weakest.area].label} readiness`,
+      reason: `You've answered ${review.area.quizAccuracy}% of ${review.area.label} questions correctly — a retake will strengthen it`,
     };
   }
   return null;
-}
-
-/** Admins can open any lesson to review content; students follow the unlock order. */
-export function canOpenLesson(lesson: LessonProgress, role: Role): boolean {
-  return lesson.status !== "locked" || role === "ADMIN";
 }

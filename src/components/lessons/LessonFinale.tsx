@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChoiceQuestion, type ChoiceAnswer, type ChoiceResult } from "@/components/ui/ChoiceQuestion";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { card, heroSurface, primaryButton } from "@/components/ui/button-styles";
+import { card, deepSurface, primaryButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon, SparklesIcon } from "@/components/ui/icons";
 import { StepLabel } from "./StepLabel";
 
@@ -19,6 +19,7 @@ export function LessonFinale({
   xpReward,
   alreadyCompleted,
   scenarioStep,
+  quizStep,
 }: {
   scenario: { prompt: string; options: string[] } | null;
   answerScenario: (optionIndex: number) => Promise<ChoiceResult>;
@@ -27,6 +28,7 @@ export function LessonFinale({
   xpReward: number;
   alreadyCompleted: boolean;
   scenarioStep: number;
+  quizStep: number;
 }) {
   const [scenarioDone, setScenarioDone] = useState(!scenario || initialAnswer !== null);
 
@@ -47,19 +49,28 @@ export function LessonFinale({
         </section>
       )}
 
-      <section className={`${heroSurface} flex flex-col gap-4 p-6 sm:flex-row sm:items-center`}>
+      <section className={`${deepSurface} flex flex-col gap-4 p-6 sm:flex-row sm:items-center`} aria-labelledby="quiz-heading">
         <div className="flex-1">
-          <p className="text-lg font-extrabold">Ready for the quiz?</p>
-          <p className="mt-1 flex items-start gap-1.5 text-sm text-white">
-            <SparklesIcon className="mt-0.5 h-4 w-4 shrink-0" />5 quick questions. Get one wrong and the AI Coach
-            gives you a hint.
+          <h2 id="quiz-heading" className="flex items-center gap-2.5 text-lg font-extrabold">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-sm font-extrabold text-brand-700 shadow-[0_3px_0_0_var(--color-brand-900)]">
+              {quizStep}
+            </span>
+            Ready for the quiz?
+          </h2>
+          <p className="mt-2 flex items-start gap-1.5 text-sm text-white">
+            <SparklesIcon className="mt-0.5 h-4 w-4 shrink-0" />
+            5 quick questions. Get one wrong and the AI Coach gives you a hint.
+          </p>
+          <p className="mt-1 text-sm text-white">
+            {alreadyCompleted
+              ? "You've completed this lesson — a retake can raise your readiness score."
+              : `Finish all 5 questions to complete this lesson and earn +${xpReward} XP.`}
           </p>
         </div>
         {scenarioDone ? (
           <form action={startQuiz} className="shrink-0">
-            <SubmitButton pendingLabel="Starting…" className={`${primaryButton} w-full sm:w-auto`}>
-              {alreadyCompleted ? "Retake quiz" : "Start quiz"}
-              {!alreadyCompleted && <span className="rounded-full bg-orange-900/40 px-2 py-0.5">+{xpReward} XP</span>}
+            <SubmitButton pendingLabel="Starting…" className={`${primaryButton} w-full py-3.5 text-base sm:w-auto`}>
+              {alreadyCompleted ? "Retake quiz" : "Start Quiz"}
               <ArrowRightIcon className="h-4 w-4" />
             </SubmitButton>
           </form>

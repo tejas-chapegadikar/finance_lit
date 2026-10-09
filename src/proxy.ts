@@ -10,8 +10,8 @@ import { clerkMiddleware } from "@clerk/nextjs/server";
 // Route Handlers). Path-based route protection is deliberately NOT done
 // here — @clerk/nextjs's createRouteMatcher is deprecated in this version
 // in favor of resource-based checks (auth.protect() called directly inside
-// each protected layout/page/action). See src/app/(app)/layout.tsx and
-// src/app/admin/layout.tsx.
+// each protected layout/page/action). See src/lib/auth.ts, used by every
+// page and action under src/app/(app).
 export default clerkMiddleware();
 
 export const config = {

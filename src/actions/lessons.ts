@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { canOpenLesson, fetchProgress } from "@/lib/progress";
+import { fetchProgress } from "@/lib/progress";
 import { readChoiceOptions } from "@/lib/lesson-content";
 import { isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit";
 
@@ -23,7 +23,7 @@ export async function recordLessonView(lessonId: string) {
       create: { userId: user.id, lessonId },
       update: {},
     }),
-    // Feeds Day-7 / Day-30 retention on the admin metrics page.
+    // When the student was last active — kept for Day-7 / Day-30 retention.
     db.user.update({ where: { id: user.id }, data: { lastActivityDate: new Date() } }),
   ]);
 }
@@ -34,8 +34,8 @@ export type ScenarioResult =
 
 /**
  * Checks a "What would you do?" answer on the server. Only the student's
- * first answer is kept — it counts toward Financial Readiness, so changing
- * it after seeing the explanation shouldn't.
+ * first answer is kept, so answering again after reading the explanation
+ * doesn't hide how they decided the first time.
  */
 export async function answerScenario(lessonId: string, optionIndex: number): Promise<ScenarioResult> {
   const user = await requireOnboardedUser();
@@ -51,7 +51,7 @@ export async function answerScenario(lessonId: string, optionIndex: number): Pro
     fetchProgress(user.id),
   ]);
   const lessonProgress = progress.lessons.find((l) => l.id === lessonId);
-  if (!lesson?.isPublished || !lessonProgress || !canOpenLesson(lessonProgress, user.role)) {
+  if (!lesson?.isPublished || !lessonProgress || lessonProgress.locked) {
     throw new Error("Lesson not found");
   }
 

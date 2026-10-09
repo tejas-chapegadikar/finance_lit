@@ -4,11 +4,12 @@ export type OptionState = "idle" | "pending" | "wrong" | "correct" | "dimmed";
 
 export const OPTION_LETTERS = ["A", "B", "C", "D"];
 
+// Each tile sits on a hard edge (the box-shadow) like a game button.
 const TILE: Record<OptionState, string> = {
-  idle: "border-slate-200 bg-white text-slate-800 enabled:hover:border-brand-300 enabled:hover:bg-brand-50/60",
-  pending: "border-brand-500 bg-brand-50 text-slate-900",
-  wrong: "border-rose-300 bg-rose-50 text-rose-800",
-  correct: "border-emerald-500 bg-emerald-50 text-emerald-900",
+  idle: "border-slate-200 bg-white text-slate-800 shadow-[0_4px_0_0_var(--color-slate-200)] enabled:hover:border-brand-300 enabled:hover:bg-brand-50 enabled:active:translate-y-[3px] enabled:active:shadow-[0_1px_0_0_var(--color-slate-200)]",
+  pending: "border-brand-500 bg-brand-50 text-slate-900 shadow-[0_4px_0_0_var(--color-brand-300)]",
+  wrong: "border-rose-300 bg-rose-50 text-rose-800 shadow-[0_4px_0_0_var(--color-rose-200)]",
+  correct: "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-[0_4px_0_0_var(--color-emerald-300)]",
   dimmed: "border-slate-200 bg-white text-slate-500 opacity-70",
 };
 
@@ -39,10 +40,10 @@ export function OptionButton({
       type="button"
       disabled={disabled || state !== "idle"}
       onClick={onSelect}
-      className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left text-sm font-semibold transition sm:text-base ${TILE[state]}`}
+      className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left text-sm font-semibold transition-[transform,box-shadow,background-color,border-color] duration-100 sm:text-base ${TILE[state]}`}
     >
       <span
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-extrabold ${BADGE[state]}`}
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-extrabold ${BADGE[state]}`}
       >
         {OPTION_LETTERS[index] ?? index + 1}
       </span>

@@ -2,18 +2,19 @@
 // use them; values mirror the LearnerStage / LearningGoal enums.
 
 export const LEARNER_STAGES = [
-  { value: "FIRST_YEAR", label: "1st Year" },
-  { value: "SECOND_YEAR", label: "2nd Year" },
-  { value: "THIRD_YEAR", label: "3rd Year" },
-  { value: "FINAL_YEAR", label: "Final Year" },
+  { value: "FIRST_YEAR", label: "First year" },
+  { value: "SECOND_YEAR", label: "Second year" },
+  { value: "THIRD_YEAR", label: "Third year" },
+  { value: "FINAL_YEAR", label: "Final year" },
   { value: "GRADUATE_WORKING", label: "Graduate / Working" },
 ] as const;
 
 export const LEARNING_GOALS = [
   { value: "MANAGING_MONEY", label: "Managing money", icon: "💰" },
-  { value: "INVESTING", label: "Understanding investing", icon: "📈" },
-  { value: "AVOIDING_SCAMS", label: "Avoiding scams", icon: "🛡️" },
-  { value: "SALARY_TAXES", label: "Understanding salary & taxes", icon: "🧾" },
+  { value: "CREDIT", label: "Understanding credit", icon: "💳" },
+  { value: "AVOIDING_SCAMS", label: "Avoiding financial scams", icon: "🛡️" },
+  { value: "SALARY_TAXES", label: "Understanding salary and taxes", icon: "🧾" },
+  { value: "INVESTING", label: "Learning investing basics", icon: "📈" },
   { value: "EVERYTHING", label: "Everything", icon: "🚀" },
 ] as const;
 

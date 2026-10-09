@@ -1,4 +1,5 @@
 import { OptionButton, type OptionState } from "@/components/ui/OptionButton";
+import { card } from "@/components/ui/button-styles";
 
 type Option = { id: string; text: string };
 
@@ -9,8 +10,6 @@ const DIFFICULTY: Record<string, { label: string; className: string }> = {
 };
 
 export function QuestionCard({
-  number,
-  total,
   prompt,
   difficulty,
   options,
@@ -18,8 +17,6 @@ export function QuestionCard({
   onSelect,
   disabled,
 }: {
-  number: number;
-  total: number;
   prompt: string;
   difficulty: string;
   options: Option[];
@@ -31,11 +28,9 @@ export function QuestionCard({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-3xl bg-white p-5 shadow-sm shadow-slate-900/5 ring-1 ring-slate-900/5 sm:p-7">
+      <div className={`${card} p-5 sm:p-7`}>
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-bold tracking-wider text-brand-700 uppercase">
-            Question {number} of {total}
-          </p>
+          <p className="text-xs font-bold tracking-wider text-brand-700 uppercase">Pick one answer</p>
           {level && (
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${level.className}`}>{level.label}</span>
           )}
@@ -43,7 +38,7 @@ export function QuestionCard({
         <h2 className="mt-2 text-xl leading-snug font-bold text-slate-900 sm:text-2xl">{prompt}</h2>
       </div>
 
-      <div className="flex flex-col gap-2.5" role="group" aria-label="Answer options">
+      <div className="flex flex-col gap-3" role="group" aria-label="Answer options">
         {options.map((option, i) => (
           <OptionButton
             key={option.id}

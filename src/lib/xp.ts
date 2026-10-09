@@ -5,8 +5,17 @@ type AwardXpParams = {
   userId: string;
   amount: number;
   type: XPTransactionType;
+  /** Identifies the reward itself — build it with `xpKeys`. */
+  idempotencyKey: string;
   quizAttemptId?: string;
   description?: string;
+};
+
+/** One key per reward. A second award with the same key pays nothing. */
+export const xpKeys = {
+  lessonComplete: (userId: string, lessonId: string) => `lesson-complete:${userId}:${lessonId}`,
+  dailyChallenge: (userId: string, day: string) => `daily-challenge:${userId}:${day}`,
+  levelComplete: (userId: string, level: number) => `level-complete:${userId}:${level}`,
 };
 
 /**
@@ -25,18 +34,25 @@ export async function lockUser(tx: Prisma.TransactionClient, userId: string) {
  * alongside whatever else the caller is doing (e.g. marking a quiz attempt
  * COMPLETED) — a partial write here would desync the cached total from the
  * ledger it's supposed to mirror.
+ *
+ * Returns the XP actually awarded: 0 when this reward's idempotency key was
+ * already used — the unique index is the last line of defence against a
+ * duplicate reward, whatever the caller's own checks missed.
  */
-export async function awardXp(tx: Prisma.TransactionClient, params: AwardXpParams) {
-  const { userId, amount, type, quizAttemptId, description } = params;
+export async function awardXp(tx: Prisma.TransactionClient, params: AwardXpParams): Promise<number> {
+  const { userId, amount, type, idempotencyKey, quizAttemptId, description } = params;
 
-  await tx.xPTransaction.create({
-    data: { userId, amount, type, quizAttemptId, description },
+  const { count } = await tx.xPTransaction.createMany({
+    data: [{ userId, amount, type, idempotencyKey, quizAttemptId, description }],
+    skipDuplicates: true,
   });
+  if (count === 0) return 0;
 
   await tx.user.update({
     where: { id: userId },
     data: { xpTotal: { increment: amount } },
   });
+  return amount;
 }
 
 /**
@@ -59,12 +75,12 @@ export async function awardLevelBonusIfComplete(
   });
   if (publishedCount === 0 || completed.length < publishedCount) return 0;
 
-  await awardXp(tx, {
+  return awardXp(tx, {
     userId,
     amount: LEVEL_COMPLETION_XP,
     type: "LEVEL_COMPLETION",
+    idempotencyKey: xpKeys.levelComplete(userId, 1),
     quizAttemptId,
     description: `Level 1 complete — ${LEVEL_1_NAME}`,
   });
-  return LEVEL_COMPLETION_XP;
 }

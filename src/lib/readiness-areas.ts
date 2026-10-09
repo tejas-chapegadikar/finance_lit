@@ -1,5 +1,5 @@
-// Kept free of Prisma imports so client components (the admin forms) can use
-// it. Values mirror the ReadinessArea enum in schema.prisma.
+// Kept free of Prisma imports so client components can use it. Values
+// mirror the ReadinessArea enum in schema.prisma.
 export const READINESS_AREA_VALUES = [
   "BUDGETING",
   "DIGITAL_SAFETY",

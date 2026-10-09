@@ -18,14 +18,19 @@ const RENAMED_SLUGS: Record<string, string> = {
   "credit-score-cibil": "cibil-score",
   "income-tax-basics": "first-salary-tax",
   "investing-basics-stocks-mutual-funds-fds": "stocks-mutual-funds-fds",
-  "sip-starting-early": "sips-insurance",
+  // Lesson 12 was briefly "SIPs & Insurance"; it's "SIPs and Starting Early" again.
+  "sips-insurance": "sip-starting-early",
 };
 
-// Pre-V1 lessons with no V1 counterpart (insurance moved into SIPs & Insurance).
+// Pre-V1 lessons with no V1 counterpart (insurance basics are covered inside
+// lesson 12's "Protect before you invest").
 const RETIRED_SLUGS = ["insurance-basics"];
 
 const QUESTIONS_PER_LESSON = 5;
 const OPTIONS_PER_CHOICE = 4;
+// Each lesson's "Key concepts": three to five ideas to remember.
+const MIN_KEY_TERMS = 3;
+const MAX_KEY_TERMS = 5;
 
 // Catch content typos (a missing option, two correct answers) before they
 // reach students.
@@ -43,6 +48,9 @@ function validateContent() {
     slugs.add(lesson.slug);
     if (lesson.questions.length !== QUESTIONS_PER_LESSON) {
       throw new Error(`${lesson.slug}: needs ${QUESTIONS_PER_LESSON} questions`);
+    }
+    if (lesson.keyTerms.length < MIN_KEY_TERMS || lesson.keyTerms.length > MAX_KEY_TERMS) {
+      throw new Error(`${lesson.slug}: needs ${MIN_KEY_TERMS}–${MAX_KEY_TERMS} key concepts`);
     }
     assertChoices(`${lesson.slug} scenario`, lesson.scenario.options);
     lesson.questions.forEach((q, i) => assertChoices(`${lesson.slug} Q${i + 1}`, q.options));

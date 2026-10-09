@@ -81,7 +81,7 @@ export function ChoiceQuestion({
     <div className="flex flex-col gap-4">
       <p className="text-lg leading-snug font-bold text-slate-900">{prompt}</p>
 
-      <div className="flex flex-col gap-2.5" role="group" aria-label="Answer options">
+      <div className="flex flex-col gap-3" role="group" aria-label="Answer options">
         {options.map((option, i) => (
           <OptionButton
             key={i}
@@ -98,15 +98,17 @@ export function ChoiceQuestion({
         <div
           role="status"
           className={`rounded-2xl border-2 p-4 ${
-            result.isCorrect ? "border-emerald-300 bg-emerald-50" : "border-rose-200 bg-rose-50"
+            result.isCorrect
+              ? "border-emerald-300 bg-emerald-50 shadow-[0_4px_0_0_var(--color-emerald-200)]"
+              : "border-rose-200 bg-rose-50 shadow-[0_4px_0_0_var(--color-rose-200)]"
           }`}
         >
-          <p className={`font-bold ${result.isCorrect ? "text-emerald-800" : "text-rose-800"}`}>
+          <p className={`font-extrabold ${result.isCorrect ? "text-emerald-800" : "text-rose-800"}`}>
             {result.isCorrect ? "✅ Great choice!" : "❌ Not quite — here's why"}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-slate-800">{result.explanation}</p>
           {result.xpAwarded ? (
-            <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-bold text-orange-700 ring-1 ring-orange-200">
+            <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-extrabold text-orange-700 ring-2 ring-orange-200">
               ⭐ +{result.xpAwarded} XP
             </p>
           ) : null}

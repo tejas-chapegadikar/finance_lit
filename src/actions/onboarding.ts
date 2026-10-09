@@ -1,15 +1,17 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { requireAppUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { onboardingSchema } from "@/lib/validations/onboarding";
 
-export type OnboardingResult = { error?: string; success?: boolean };
+export type OnboardingResult = { error: string };
 
 // Typed loosely on purpose: this is a public endpoint, so everything is
 // validated here rather than trusted from the browser.
 type OnboardingAnswers = { displayName: string; stage: string; collegeName: string; goal: string };
 
+/** Saves the answers and opens the dashboard; only returns when something is wrong. */
 export async function completeOnboarding(input: OnboardingAnswers): Promise<OnboardingResult> {
   const user = await requireAppUser();
 
@@ -30,5 +32,5 @@ export async function completeOnboarding(input: OnboardingAnswers): Promise<Onbo
     },
   });
 
-  return { success: true };
+  redirect("/dashboard");
 }

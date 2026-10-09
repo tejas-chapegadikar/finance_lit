@@ -5,12 +5,16 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { questionOutcome, summarizeAttempt, type QuestionOutcome } from "@/lib/quiz-outcome";
 import { getProgress } from "@/lib/progress";
-import { getBadges } from "@/lib/badges";
+import { BADGES } from "@/lib/badges";
 import { readKeyTerms } from "@/lib/lesson-content";
-import { LEVEL_1_NAME } from "@/lib/constants";
+import { LEVEL_1_NAME, LEVEL_2_NAME } from "@/lib/constants";
 import { beginQuiz } from "@/actions/quiz";
+import { saveLessonFeedback } from "@/actions/feedback";
+import { LessonFeedbackForm } from "@/components/lessons/LessonFeedbackForm";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { card, heroSurface, primaryButton, secondaryButton } from "@/components/ui/button-styles";
+import { Medal } from "@/components/ui/Medal";
+import { Confetti } from "@/components/ui/Confetti";
+import { card, primaryButton, secondaryButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Lesson complete — StockStreak" };
@@ -39,6 +43,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
         },
         answers: { orderBy: { tryNumber: "asc" } },
         xpTransactions: { select: { amount: true, type: true } },
+        badges: { select: { badgeId: true } },
       },
     }),
     getProgress(user.id),
@@ -47,6 +52,11 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   if (!attempt || attempt.userId !== user.id || attempt.lesson.slug !== slug || attempt.status !== "COMPLETED") {
     notFound();
   }
+
+  const feedback = await db.lessonFeedback.findUnique({
+    where: { userId_lessonId: { userId: user.id, lessonId: attempt.lessonId } },
+    select: { helpful: true, comment: true },
+  });
 
   const summary = summarizeAttempt(attempt.answers, attempt.totalQuestions);
   const percent = Math.round((summary.firstTry / attempt.totalQuestions) * 100);
@@ -57,12 +67,12 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   const readinessBefore = attempt.readinessBefore ?? progress.overall;
   const readinessAfter = attempt.readinessAfter ?? progress.overall;
   const keyTerms = readKeyTerms(attempt.lesson.keyTerms);
+  const lessonNumber = progress.lessons.find((l) => l.id === attempt.lessonId)?.number;
 
-  // A badge was unlocked by this attempt if it was earned at the moment this
-  // attempt completed (badges are earned when their last lesson is first finished).
-  const completedAt = attempt.completedAt?.getTime();
-  const newBadges = getBadges(progress.lessons).filter((b) => b.earnedAt && b.earnedAt.getTime() === completedAt);
-  const levelJustCompleted = newBadges.some((b) => b.area === null);
+  // Badges are stored with the attempt that unlocked them.
+  const unlocked = new Set(attempt.badges.map((b) => b.badgeId));
+  const newBadges = BADGES.filter((badge) => unlocked.has(badge.id));
+  const levelJustCompleted = levelBonus > 0 || newBadges.some((b) => b.area === null);
 
   const next = progress.next && progress.next.lesson.id !== attempt.lessonId ? progress.next : null;
   const retake = beginQuiz.bind(null, attempt.lessonId);
@@ -83,66 +93,81 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
             <li className="rounded-full bg-white/70 px-3 py-1">{user.xpTotal.toLocaleString("en-IN")} XP</li>
             <li className="rounded-full bg-white/70 px-3 py-1">Readiness {progress.overall}/100</li>
           </ul>
-          <p className="mt-4 text-sm font-semibold text-slate-900">
-            +{levelBonus} XP level bonus · Level 2 is coming soon
+          {levelBonus > 0 && <p className="mt-4 text-sm font-bold text-slate-900">+{levelBonus} XP level bonus</p>}
+          <p className="mx-auto mt-2 max-w-sm text-sm font-semibold text-slate-900">
+            Next: Level 2 — {LEVEL_2_NAME} is coming soon. Until then, keep your skills sharp with Today&apos;s
+            Challenge.
           </p>
         </section>
       )}
 
-      <section className={`${heroSurface} relative overflow-hidden p-6 text-center sm:p-8`}>
-        <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/5" />
-        <span aria-hidden className="relative text-5xl">
-          🎉
-        </span>
-        <h1 className="relative mt-2 text-3xl font-extrabold">Lesson Complete!</h1>
-        <p className="relative mt-1 font-semibold">
-          <span aria-hidden>{attempt.lesson.icon}</span> {attempt.lesson.title}
-        </p>
-
-        <dl className="relative mt-6 grid grid-cols-3 gap-2 text-left sm:gap-3">
-          <div className="rounded-2xl bg-brand-900/30 p-3 ring-1 ring-white/15">
-            <dt className="text-xs font-bold tracking-wider uppercase">Score</dt>
-            <dd className="mt-1 text-xl font-extrabold tabular-nums sm:text-2xl">
-              {summary.firstTry}/{attempt.totalQuestions}
-            </dd>
-            <dd className="text-xs font-semibold">{percent}% correct</dd>
+      {/* The celebration: confetti, a medal, then the scores on a white card */}
+      <div>
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-slate-900 via-brand-900 to-brand-800 px-6 pt-8 pb-24 text-center text-white shadow-lg shadow-brand-900/30 sm:px-8">
+          <Confetti />
+          <div className="relative flex justify-center motion-safe:animate-pop">
+            <Medal icon={levelJustCompleted ? "🎓" : "⭐"} size="lg" />
           </div>
-          <div className="rounded-2xl bg-brand-900/30 p-3 ring-1 ring-white/15">
-            <dt className="text-xs font-bold tracking-wider uppercase">XP</dt>
-            <dd className="mt-1 text-xl font-extrabold tabular-nums sm:text-2xl">⭐ +{lessonXp}</dd>
-            <dd className="text-xs font-semibold">{lessonXp ? "for this lesson" : "retakes earn no XP"}</dd>
-          </div>
-          <div className="rounded-2xl bg-brand-900/30 p-3 ring-1 ring-white/15">
-            <dt className="text-xs font-bold tracking-wider uppercase">Readiness</dt>
-            <dd className="mt-1 text-xl font-extrabold tabular-nums sm:text-2xl">
-              {readinessBefore} → {readinessAfter}
-            </dd>
-            <dd className="text-xs font-semibold">out of 100</dd>
-          </div>
-        </dl>
-
-        {summary.withCoach > 0 && (
-          <p className="relative mt-4 text-sm font-semibold">
-            {summary.withCoach} more solved with the Coach&apos;s help 💪
+          <h1 className="relative mt-4 text-3xl font-extrabold sm:text-4xl">Lesson Complete!</h1>
+          <p className="relative mt-1 font-semibold">
+            <span aria-hidden>{attempt.lesson.icon}</span> {attempt.lesson.title}
           </p>
-        )}
-      </section>
+          <p className="relative mt-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-sm font-semibold ring-1 ring-white/20">
+            {lessonXp > 0
+              ? `✅ Lesson ${lessonNumber ? String(lessonNumber).padStart(2, "0") : ""} completed`
+              : "✅ Already completed — this retake can raise your readiness"}
+          </p>
+        </section>
+
+        <div className="relative z-10 mx-3 -mt-16 rounded-3xl bg-white p-4 shadow-lg shadow-slate-900/10 ring-1 ring-slate-900/5 sm:mx-6 sm:p-5">
+          <h2 className="text-center text-sm font-extrabold tracking-wider text-slate-600 uppercase">Your performance</h2>
+          <dl className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="flex flex-col-reverse justify-end rounded-2xl bg-emerald-50 p-3 ring-2 ring-emerald-200 shadow-[0_4px_0_0_var(--color-emerald-200)]">
+              <dt className="text-xs font-semibold text-slate-600">
+                <span className="block font-extrabold tracking-wider text-emerald-800 uppercase">Score</span>
+                {percent}% correct first try
+              </dt>
+              <dd className="text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">
+                {summary.firstTry}/{attempt.totalQuestions}
+              </dd>
+            </div>
+            <div className="flex flex-col-reverse justify-end rounded-2xl bg-orange-50 p-3 ring-2 ring-orange-200 shadow-[0_4px_0_0_var(--color-orange-200)]">
+              <dt className="text-xs font-semibold text-slate-600">
+                <span className="block font-extrabold tracking-wider text-orange-800 uppercase">XP earned</span>
+                {lessonXp ? "for your first completion" : "retakes earn no XP"}
+              </dt>
+              <dd className="text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">⭐ +{lessonXp}</dd>
+            </div>
+            <div className="flex flex-col-reverse justify-end rounded-2xl bg-brand-50 p-3 ring-2 ring-brand-200 shadow-[0_4px_0_0_var(--color-brand-200)]">
+              <dt className="text-xs font-semibold text-slate-600">
+                <span className="block font-extrabold tracking-wider text-brand-800 uppercase">Readiness</span>
+                out of 100
+              </dt>
+              <dd className="text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">
+                {readinessBefore} → {readinessAfter}
+              </dd>
+            </div>
+          </dl>
+          {summary.withCoach > 0 && (
+            <p className="mt-3 text-center text-sm font-semibold text-slate-700">
+              {summary.withCoach} more solved with the Coach&apos;s help 💪
+            </p>
+          )}
+        </div>
+      </div>
 
       {newBadges.filter((b) => b.area !== null).length > 0 && (
         <section className={`${card} p-5 sm:p-6`}>
           <h2 className="text-lg font-extrabold text-slate-900">🏅 New badge unlocked</h2>
-          <ul className="mt-3 flex flex-wrap gap-3">
+          <ul className="mt-4 flex flex-wrap gap-4">
             {newBadges
               .filter((b) => b.area !== null)
               .map((badge) => (
-                <li key={badge.id} className="flex items-center gap-3 rounded-2xl bg-amber-50 px-4 py-3 ring-1 ring-amber-200">
-                  <span aria-hidden className="text-3xl">
-                    {badge.icon}
+                <li key={badge.id} className="flex w-28 flex-col items-center gap-2 text-center">
+                  <span className="motion-safe:animate-pop">
+                    <Medal icon={badge.icon} />
                   </span>
-                  <span>
-                    <span className="block font-bold text-slate-900">{badge.name}</span>
-                    <span className="block text-xs text-slate-600">{badge.description}</span>
-                  </span>
+                  <span className="text-sm font-bold text-slate-900">{badge.name}</span>
                 </li>
               ))}
           </ul>
@@ -151,7 +176,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
 
       {keyTerms.length > 0 && (
         <section className={`${card} p-5 sm:p-6`}>
-          <h2 className="text-lg font-extrabold text-slate-900">What you learned</h2>
+          <h2 className="text-lg font-extrabold text-slate-900">Concepts learned</h2>
           <ul className="mt-3 flex flex-wrap gap-2">
             {keyTerms.map((term) => (
               <li key={term.term} className="rounded-full bg-brand-50 px-3 py-1.5 text-sm font-bold text-brand-800">
@@ -177,7 +202,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
             </div>
           </div>
           <Link href={`/lessons/${next.lesson.slug}`} className={`${primaryButton} mt-5 w-full sm:w-auto`}>
-            Continue
+            {next.isRetake ? "Review this lesson" : "Continue to Next Lesson"}
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </section>
@@ -201,6 +226,17 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
           </Link>
         )}
       </div>
+
+      <section className={`${card} p-5 sm:p-6`} aria-labelledby="feedback-heading">
+        <h2 id="feedback-heading" className="text-lg font-extrabold text-slate-900">
+          Was this lesson clear and useful?
+        </h2>
+        <p className="mb-4 text-sm text-slate-600">Your answer goes straight to the StockStreak team.</p>
+        <LessonFeedbackForm
+          save={saveLessonFeedback.bind(null, attempt.lessonId)}
+          initial={feedback ? { helpful: feedback.helpful, comment: feedback.comment ?? "" } : null}
+        />
+      </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-extrabold text-slate-900">Review your answers</h2>

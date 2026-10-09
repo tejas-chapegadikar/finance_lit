@@ -6,11 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  STUDENT
-  ADMIN
-}
-
 enum AttemptStatus {
   IN_PROGRESS
   COMPLETED
@@ -37,9 +32,10 @@ enum LearnerStage {
   GRADUATE_WORKING
 }
 
-// Asked during onboarding; kept for future personalisation.
+// Asked (optionally) during onboarding; editable on the profile page.
 enum LearningGoal {
   MANAGING_MONEY
+  CREDIT
   INVESTING
   AVOIDING_SCAMS
   SALARY_TAXES
@@ -71,7 +67,6 @@ model User {
   phoneVerified         Boolean       @default(false)
   name                  String?
   displayName           String?
-  role                  Role          @default(STUDENT)
 
   stage                 LearnerStage?
   goal                  LearningGoal?
@@ -81,6 +76,7 @@ model User {
   xpTotal               Int           @default(0)
 
   // Days in a row with a completed quiz or daily challenge (IST calendar days).
+  // Still counted, but hidden in V1 — streaks are postponed until after launch.
   currentStreak         Int           @default(0)
   longestStreak         Int           @default(0)
   // IST date (YYYY-MM-DD) of the last day that counted toward the streak.
@@ -95,7 +91,8 @@ model User {
   lessonViews      LessonView[]
   scenarioAnswers  ScenarioAnswer[]
   challengeAnswers ChallengeAnswer[]
-  createdLessons   Lesson[]          @relation("LessonAuthor")
+  badges           UserBadge[]
+  lessonFeedback   LessonFeedback[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -125,13 +122,11 @@ model Lesson {
   isPublished      Boolean       @default(false)
   order            Int           @default(0)
 
-  authorId String?
-  author   User?   @relation("LessonAuthor", fields: [authorId], references: [id])
-
   questions       Question[]
   attempts        QuizAttempt[]
   views           LessonView[]
   scenarioAnswers ScenarioAnswer[]
+  feedback        LessonFeedback[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -150,8 +145,8 @@ model LessonView {
   @@unique([userId, lessonId])
 }
 
-// The student's first answer to a lesson's scenario — it counts toward
-// Financial Readiness, so later re-answers don't overwrite it.
+// The student's first answer to a lesson's scenario. Later re-answers don't
+// overwrite it, so it shows how students decide before being taught twice.
 model ScenarioAnswer {
   id          String   @id @default(cuid())
   userId      String
@@ -213,6 +208,7 @@ model QuizAttempt {
   completedAt     DateTime?
   answers         QuizAnswer[]
   xpTransactions  XPTransaction[]
+  badges          UserBadge[]
 
   @@index([userId, lessonId])
 }
@@ -222,7 +218,7 @@ model QuizAnswer {
   attemptId        String
   attempt          QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   questionId       String
-  // Cascades so admins can edit a lesson's questions (delete + recreate)
+  // Cascades so the seed can replace a lesson's questions (delete + recreate)
   // without hitting FK violations from historical answers — those answers
   // become meaningless once the question they referenced is gone anyway.
   // XP already earned is untouched: it lives in XPTransaction, not here.
@@ -296,7 +292,41 @@ model XPTransaction {
   quizAttemptId String?
   quizAttempt   QuizAttempt?      @relation(fields: [quizAttemptId], references: [id])
   description   String?
+  // One key per reward (e.g. "lesson-complete:<user>:<lesson>"), so a retried
+  // or duplicated request can never pay the same reward twice.
+  idempotencyKey String?          @unique
   createdAt     DateTime          @default(now())
 
   @@index([userId, createdAt])
+}
+
+// A badge a student has earned. The definitions (name, rule) live in
+// src/lib/badges.ts; a row here is permanent, even if lessons are added later.
+model UserBadge {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId       String
+  // The quiz attempt that unlocked it, so the completion screen can celebrate it.
+  quizAttemptId String?
+  quizAttempt   QuizAttempt? @relation(fields: [quizAttemptId], references: [id], onDelete: SetNull)
+  earnedAt      DateTime     @default(now())
+
+  @@unique([userId, badgeId])
+}
+
+// "Was this lesson clear and useful?" from the completion screen — one per
+// student per lesson, editable.
+model LessonFeedback {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  helpful   Boolean
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, lessonId])
 }

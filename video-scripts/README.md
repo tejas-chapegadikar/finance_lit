@@ -6,7 +6,7 @@ Narration scripts for the 12 lesson explainer videos, written for InVideo AI's s
 2. Paste one file's **Narration** lines (just the spoken text, scene by scene) into the script box.
 3. Use the **Visual** notes as your own scene-by-scene direction if the tool asks you to guide/edit each generated scene, or as B-roll/stock-footage search terms.
 4. Target length is intentionally short (75–100 seconds) — this is a hook-and-highlights explainer that complements the full written lesson already in the app, not a narration of the entire markdown text.
-5. Once a video is rendered and exported (or uploaded to YouTube/Vimeo), paste its URL into `/admin/lessons` for that lesson, or update the matching entry in `prisma/seed.ts` and reseed.
+5. Videos aren't part of V1, so the app has no place for them yet. If they come back, a video field gets added to the lessons in `prisma/content/level1.ts` and the database is reseeded.
 
 ## Shared style notes for every video
 

@@ -6,7 +6,7 @@ import { unstable_rethrow } from "next/navigation";
 import { submitAnswer, getCoachHint, completeAttempt } from "@/actions/quiz";
 import type { CoachHint } from "@/lib/coach";
 import { GENERIC_ERROR_MESSAGE, MAX_TRIES_PER_QUESTION, SLOW_DOWN_MESSAGE } from "@/lib/constants";
-import { primaryButton } from "@/components/ui/button-styles";
+import { heroChip, heroSurface, primaryButton, skyButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon, XIcon } from "@/components/ui/icons";
 import type { OptionState } from "@/components/ui/OptionButton";
 import { QuestionCard } from "./QuestionCard";
@@ -172,37 +172,43 @@ export function QuizRunner({
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
-      <div className="flex items-center gap-3">
-        <Link
-          href={`/lessons/${lessonSlug}`}
-          aria-label="Exit quiz"
-          className="rounded-full p-1.5 text-slate-600 transition hover:bg-white hover:text-slate-900"
-        >
-          <XIcon />
-        </Link>
+      <div className={`${heroSurface} relative overflow-hidden px-4 pt-4 pb-5 sm:px-6`}>
+        <div aria-hidden className="pointer-events-none absolute -right-12 -bottom-20 h-44 w-44 rounded-full bg-white/5" />
+        <div className="relative flex items-center gap-3">
+          <Link
+            href={`/lessons/${lessonSlug}`}
+            aria-label="Exit quiz"
+            className="rounded-xl p-1.5 text-white transition hover:bg-white/15"
+          >
+            <XIcon className="h-6 w-6" />
+          </Link>
+          <p className="flex-1 text-center text-xl font-extrabold">
+            Question {index + 1} of {questions.length}
+          </p>
+          <span aria-hidden className="w-9" />
+        </div>
         <div
           role="progressbar"
           aria-label="Quiz progress"
           aria-valuemin={0}
           aria-valuemax={questions.length}
           aria-valuenow={answeredCount}
-          className="h-3 flex-1 overflow-hidden rounded-full bg-brand-100"
+          aria-valuetext={`${answeredCount} of ${questions.length} answered`}
+          className="relative mt-4 h-3 overflow-hidden rounded-full bg-brand-900/30"
         >
           <div
-            className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700 transition-all duration-500"
+            className="h-full rounded-full bg-white transition-all duration-500"
             style={{ width: `${(answeredCount / questions.length) * 100}%` }}
           />
         </div>
-        <span className="text-sm font-bold text-slate-700 tabular-nums">
-          {answeredCount}/{questions.length}
-        </span>
+        <p className="relative mt-3 flex justify-center">
+          <span className={`${heroChip} max-w-full min-w-0`}>
+            <span className="truncate">{lessonTitle} · Quiz</span>
+          </span>
+        </p>
       </div>
 
-      <p className="-mb-2 truncate text-sm font-semibold text-slate-600">{lessonTitle} · Quiz</p>
-
       <QuestionCard
-        number={index + 1}
-        total={questions.length}
         prompt={question.prompt}
         difficulty={question.difficulty}
         options={question.options}
@@ -230,7 +236,7 @@ export function QuizRunner({
           type="button"
           onClick={handleNext}
           disabled={isPending}
-          className={`${primaryButton} w-full sm:ml-auto sm:w-auto`}
+          className={`${skyButton} w-full py-3.5 text-base sm:ml-auto sm:w-auto`}
         >
           {isPending ? "Loading…" : isLastQuestion ? "Finish quiz" : "Next question"}
           {!isPending && <ArrowRightIcon className="h-4 w-4" />}

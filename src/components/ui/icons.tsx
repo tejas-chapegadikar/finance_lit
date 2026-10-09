@@ -54,6 +54,12 @@ export const UserIcon = (p: IconProps) => (
   </Svg>
 );
 
+export const ChevronRightIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9 6l6 6-6 6" />
+  </Svg>
+);
+
 export const ArrowLeftIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M19 12H5M11 6l-6 6 6 6" />
@@ -70,6 +76,55 @@ export const LockIcon = (p: IconProps) => (
   <Svg {...p}>
     <rect x="5" y="11" width="14" height="9" rx="2" />
     <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </Svg>
+);
+
+export const ClockIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 7.5V12l3 2" />
+  </Svg>
+);
+
+export const ShieldIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 3l7 3v5.5c0 4.3-2.9 8-7 9.5-4.1-1.5-7-5.2-7-9.5V6z" />
+    <path d="M9 12l2 2 4-4" />
+  </Svg>
+);
+
+export const InfoIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 11v5M12 8h.01" />
+  </Svg>
+);
+
+export const MailIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
+    <path d="M4 7l8 6 8-6" />
+  </Svg>
+);
+
+export const DocumentIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z" />
+    <path d="M14 3.5V8h4M10 12.5h5M10 16h5" />
+  </Svg>
+);
+
+export const AlertIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 4l9 16H3z" />
+    <path d="M12 10v4M12 17h.01" />
+  </Svg>
+);
+
+export const LogOutIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M14 4h4.5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H14" />
+    <path d="M10 8l-4 4 4 4M6 12h10" />
   </Svg>
 );
 

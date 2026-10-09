@@ -1,8 +1,8 @@
 import { choices, type SeedLesson } from "./types";
 
 // Level 1 — Financial Foundations. Every lesson follows the same V1 structure:
-// Hook → Learn (each "## " section is a card) → Key terms → Real-life example
-// → "What would you do?" scenario → 5-question quiz.
+// Hook → Learn (each "## " section is a card) → Real-life example → Key
+// concepts (3–5 terms) → "What would you do?" scenario → 5-question quiz.
 //
 // Numbers that involve returns are always labelled as assumptions — lessons
 // teach how things work, they never promise returns or recommend products.
@@ -252,7 +252,7 @@ Ravi didn't invest more. He just gave compounding 10 extra years.
 
 const savingVsSpending: SeedLesson = {
   slug: "saving-vs-spending",
-  title: "Saving vs Spending",
+  title: "Saving vs Spending Psychology",
   icon: "🐷",
   area: "BUDGETING",
   description: "Spot impulse buys, beat lifestyle creep and start your first emergency fund.",
@@ -374,7 +374,7 @@ He cuts it to ₹50 a day and moves the ₹100 he saves into an emergency fund �
 
 const upiPayments: SeedLesson = {
   slug: "upi-digital-payments",
-  title: "UPI & Digital Payments",
+  title: "UPI and Digital Payments",
   icon: "📱",
   area: "DIGITAL_SAFETY",
   description: "Use UPI confidently — and learn the one rule that stops most UPI frauds.",
@@ -499,7 +499,7 @@ She looks closely: the screen says **"Pay ₹2,000"** and asks for her UPI PIN. 
 
 const financialScams: SeedLesson = {
   slug: "financial-scams",
-  title: "Financial Scams",
+  title: "Common Financial Scams in India",
   icon: "🚨",
   area: "DIGITAL_SAFETY",
   description: "Recognise the scams that target students — fake jobs, KYC calls and \"digital arrests\".",
@@ -637,22 +637,28 @@ The earnings were never real — every deposit went straight to the scammers.
 
 const bankAccounts: SeedLesson = {
   slug: "bank-accounts",
-  title: "Bank Accounts",
+  title: "Savings and Current Accounts",
   icon: "🏦",
   area: "BANKING",
-  description: "Pick the right account, dodge minimum-balance charges and keep your money protected.",
+  description: "Savings vs current accounts, minimum-balance charges, and how your money is protected.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 6,
   hook: `Your bank cut ₹350 plus GST from your account this quarter. You didn't buy anything.
 
 What did you just pay for?`,
-  learn: `## Types of accounts
+  learn: `## Savings vs current accounts
 
-- **Savings account** — for keeping your money; earns a little interest
+- **Savings account** — for individuals keeping their own money. It earns a little interest.
+- **Current account** — for businesses, shops and freelancers who make many payments every day. It earns **no interest** and usually needs a much higher minimum balance.
+
+As a student or young employee, a **savings account** is almost always the right choice.
+
+## Kinds of savings accounts
+
+- **Regular savings account** — often needs a minimum balance
 - **Salary account** — opened through your employer; usually zero-balance while your salary comes in
 - **Zero-balance (BSBDA) account** — a basic account with no minimum balance
-- **Current account** — for businesses; earns no interest
 
 ## Minimum balance (AMB)
 
@@ -670,11 +676,10 @@ Deposits in a bank are insured by **DICGC up to ₹5 lakh per person, per bank**
 
 Add a **nominee**, turn on SMS alerts, and never share your debit card PIN, CVV or net-banking password.`,
   keyTerms: [
-    { term: "Savings account", definition: "A bank account for keeping money safely while earning a little interest." },
+    { term: "Savings account", definition: "An account for individuals to keep money safely while earning a little interest." },
+    { term: "Current account", definition: "An account for businesses that make many transactions — it earns no interest." },
     { term: "Average Monthly Balance (AMB)", definition: "The average of your end-of-day balances across the month." },
     { term: "Non-maintenance charge", definition: "A fee banks charge when your balance falls below the required minimum." },
-    { term: "Zero-balance account", definition: "An account with no minimum balance requirement, such as a BSBDA." },
-    { term: "Nominee", definition: "The person who receives your money if something happens to you." },
     { term: "DICGC", definition: "The RBI-backed body that insures bank deposits up to ₹5 lakh per person, per bank." },
   ],
   example: `**Divya, 20, Chennai** opened an account that needs a **₹5,000 Average Monthly Balance**. Most months she withdraws everything by the 10th, so her average falls short.
@@ -714,12 +719,18 @@ She switches to a zero-balance account and keeps that money instead.
       ),
     },
     {
-      prompt: "Which type of account usually has no minimum balance requirement?",
+      prompt: "Who is a current account mainly designed for?",
       explanation:
-        "A Basic Savings Bank Deposit Account (zero-balance account) lets you bank without keeping a minimum balance.",
-      hint: "One option's name literally tells you its balance requirement.",
+        "Current accounts are built for businesses and freelancers who make many transactions every day. They earn no interest, so students and employees are usually better off with a savings account.",
+      hint: "Think about who makes dozens of payments a day — and who would care more about that than about earning interest.",
       difficulty: "EASY",
-      options: choices(0, "Zero-balance (BSBDA) account", "Premium savings account", "Current account", "Wealth account"),
+      options: choices(
+        2,
+        "A student keeping their monthly allowance",
+        "Anyone who wants to earn more interest",
+        "A business or freelancer making many transactions",
+        "Someone saving for an emergency fund",
+      ),
     },
     {
       prompt: "How much of your deposits in one bank are insured by DICGC?",
@@ -756,7 +767,7 @@ She switches to a zero-balance account and keeps that money instead.
 
 const fdRd: SeedLesson = {
   slug: "fd-rd",
-  title: "FD & RD",
+  title: "Fixed Deposits and Recurring Deposits",
   icon: "🪙",
   area: "BANKING",
   description: "Understand fixed and recurring deposits — a simple, low-risk way to grow savings.",
@@ -994,7 +1005,7 @@ const creditCards: SeedLesson = {
   title: "Credit Cards 101",
   icon: "💳",
   area: "CREDIT",
-  description: "Learn how credit cards actually work.",
+  description: "Learn how credit cards, billing cycles, due dates, and minimum payments work.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 9,
@@ -1026,10 +1037,12 @@ The **minimum amount due** is a small part of your bill, often around 5%. Paying
   keyTerms: [
     { term: "Credit limit", definition: "The maximum amount you can borrow using the card." },
     { term: "Billing cycle", definition: "The roughly 30-day period whose spends are added into one bill." },
-    { term: "Due date", definition: "The last date to pay your bill without a late fee." },
+    { term: "Payment due date", definition: "The last date to pay your bill without a late fee." },
     { term: "Minimum payment", definition: "The small amount that avoids a late fee — the unpaid rest still attracts interest." },
-    { term: "Interest", definition: "What the bank charges on any unpaid balance — around 36–45% a year on cards." },
-    { term: "Credit score", definition: "A number that tells lenders how reliably you repay. Your card payments shape it." },
+    {
+      term: "Interest and credit history",
+      definition: "Unpaid balances cost around 36–45% a year, and every payment — on time or late — shapes your credit score.",
+    },
   ],
   example: `**Rahul earns ₹30,000/month.** His credit-card bill is **₹12,000**. He has **₹15,000** available in his bank account.
 
@@ -1118,7 +1131,7 @@ If he pays only the minimum (about ₹600), the remaining ₹11,400 starts attra
 
 const firstSalaryTax: SeedLesson = {
   slug: "first-salary-tax",
-  title: "First Salary & Tax",
+  title: "Income Tax for Your First Salary",
   icon: "🧾",
   area: "TAX",
   description: "Income tax for your first salary — CTC vs in-hand, PF, TDS and the new tax regime.",
@@ -1148,7 +1161,6 @@ Even when TDS is deducted, file your **Income Tax Return (ITR)** on incometax.go
   keyTerms: [
     { term: "CTC", definition: "Cost to Company — your total yearly package, including parts you never get in hand." },
     { term: "In-hand salary", definition: "What actually reaches your bank account after deductions." },
-    { term: "EPF", definition: "Employees' Provident Fund — retirement savings taken from your salary and matched by your employer." },
     { term: "TDS", definition: "Tax Deducted at Source — income tax your employer deducts before paying you." },
     { term: "Tax regime", definition: "The set of tax rules you pick — new (default, lower rates) or old (more deductions)." },
     { term: "ITR", definition: "Income Tax Return — the yearly form where you report your income to the tax department." },
@@ -1282,7 +1294,6 @@ Money you'll need within a year or two is usually kept somewhere safe. Stocks an
     { term: "Index fund", definition: "A mutual fund that simply copies a market index like the Nifty 50." },
     { term: "Diversification", definition: "Spreading money across many investments so one bad pick doesn't sink everything." },
     { term: "Risk–return trade-off", definition: "Higher possible returns come with a higher chance of losses." },
-    { term: "SEBI", definition: "Securities and Exchange Board of India — the regulator for stock markets and mutual funds." },
   ],
   example: `**Ishaan and Tanya, both 22,** each have ₹10,000.
 
@@ -1378,12 +1389,12 @@ Neither result is guaranteed to repeat — markets can rise or fall.
   ],
 };
 
-const sipsInsurance: SeedLesson = {
-  slug: "sips-insurance",
-  title: "SIPs & Insurance",
-  icon: "🛡️",
+const sipsStartingEarly: SeedLesson = {
+  slug: "sip-starting-early",
+  title: "SIPs and Starting Early",
+  icon: "⏳",
   area: "INVESTING",
-  description: "See how small monthly SIPs add up over time — and why protection comes first.",
+  description: "See how small monthly SIPs add up — and why starting early beats starting big.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 12,
@@ -1398,31 +1409,27 @@ A **SIP (Systematic Investment Plan)** invests a fixed amount in a mutual fund e
 
 - **Habit** — the money is invested before you can spend it
 - **Rupee cost averaging** — the same amount buys more units when prices are low, and fewer when they're high
-- **Compounding** — small amounts given many years can grow large
+- **No timing needed** — you don't have to guess the "right" day to invest
 
 Returns are **not guaranteed** — markets go up and down.
 
-## Protection comes first
+## Why starting early matters
 
-Insurance protects you from big money shocks. Two kinds matter most:
+**Compounding** means your returns start earning returns of their own. The longer your money stays invested, the bigger that snowball gets — so **time matters more than the amount**. A small SIP started at 21 can end up bigger than a larger one started at 31.
 
-- **Health insurance** — covers hospital bills. Don't rely only on your employer's cover; it usually ends when you leave the job.
-- **Term life insurance** — pure life cover, needed once others depend on your income. It's cheapest when you're young.
+## Stay invested through the dips
 
-## Know what you're buying
+Markets will fall sometimes. Stopping your SIP when prices drop means you miss buying units cheaply. SIPs in equity funds suit goals that are **5+ years away**, so there's time to ride out the dips.
 
-Some policies mix insurance with investment, and they usually give **far less life cover** than a term plan for the same premium. Always check the **sum assured** — your actual cover — not just the returns a seller talks about.
+## Protect before you invest
 
-## A common order
-
-1. Emergency fund → 2. Health insurance → 3. Investing for long-term goals`,
+Before starting a SIP, build an **emergency fund** and get **health insurance** — so a hospital bill or a gap between jobs doesn't force you to sell your investments at a bad time.`,
   keyTerms: [
     { term: "SIP", definition: "Systematic Investment Plan — investing a fixed amount in a mutual fund at regular intervals." },
     { term: "Rupee cost averaging", definition: "A fixed amount buys more units when prices are low and fewer when they're high." },
+    { term: "Compounding", definition: "Returns earning returns of their own — the longer you stay invested, the faster it grows." },
+    { term: "Emergency fund", definition: "Money set aside only for surprises, so you never have to sell investments in a hurry." },
     { term: "Health insurance", definition: "Cover for hospital and medical bills, in exchange for a yearly premium." },
-    { term: "Term insurance", definition: "Pure life cover that pays your family if you die during the policy term." },
-    { term: "Premium", definition: "What you pay for an insurance policy, monthly or yearly." },
-    { term: "Sum assured", definition: "The amount an insurance policy pays out — your actual cover." },
   ],
   example: `**Aisha** starts a SIP of **₹3,000 a month at 21**. **Rohan** starts the same SIP at **31**. Both continue until 60.
 
@@ -1436,16 +1443,16 @@ Aisha put in only ₹3.6 lakh more, but those 10 extra years did most of the wor
 **What's the real cost of waiting 10 years to start?**`,
   scenario: {
     prompt:
-      "You've just started your first job at ₹35,000 a month. You have no savings yet, and your company gives you ₹3 lakh of health cover. A relative suggests a ₹4,000-a-month policy \"with guaranteed returns\". What would you do first?",
+      "You've just started your first job at ₹35,000 a month and already have ₹40,000 saved for emergencies. You can spare ₹2,000 a month. A colleague says, \"Investing is for later — start after 30, when you earn more.\" What would you do?",
     options: choices(
       1,
-      "Buy the policy right away — guaranteed returns sound safe",
-      "Build an emergency fund first, then check what any policy actually covers and costs",
-      "Put all your savings into a single stock",
-      "Skip saving and insurance until you earn more",
+      "Wait until 30 — ₹2,000 a month is too small to matter",
+      "Start a ₹2,000 monthly SIP now and increase it as your salary grows",
+      "Move your whole emergency fund into a single stock instead",
+      "Start a SIP, but stop it whenever the market falls",
     ),
     explanation:
-      "An emergency fund comes first — it stops small shocks from turning into debt. Before buying any policy, check its actual cover (sum assured) and costs, not just the promised returns.",
+      "Small amounts invested early get more years to compound — time matters more than the amount. With an emergency fund already in place, starting small now and raising it later builds the habit. Stopping during market falls means missing out on buying units cheaply.",
   },
   questions: [
     {
@@ -1463,27 +1470,6 @@ Aisha put in only ₹3.6 lakh more, but those 10 extra years did most of the wor
       ),
     },
     {
-      prompt: "What does health insurance mainly cover?",
-      explanation: "Health insurance pays for hospital and medical costs, so one illness doesn't wipe out your savings.",
-      hint: "The name tells you what it protects. What costs come with being unwell?",
-      difficulty: "EASY",
-      options: choices(1, "Your shopping bills", "Hospital and medical expenses", "Stock market losses", "A broken phone"),
-    },
-    {
-      prompt: "Why shouldn't you rely only on your employer's health insurance?",
-      explanation:
-        "Group health cover is tied to your job — if you leave, switch or lose the job, the cover usually stops.",
-      hint: "Who actually holds that policy — you, or your employer? What happens to it when you leave?",
-      difficulty: "MEDIUM",
-      options: choices(
-        1,
-        "It's against the rules to depend on it",
-        "It usually ends when you leave or change your job",
-        "It never covers hospital bills",
-        "It always costs more than buying your own",
-      ),
-    },
-    {
       prompt: "With a fixed monthly SIP, what happens when market prices fall?",
       explanation:
         "That's rupee cost averaging — the same amount buys more units when prices are low and fewer when they're high.",
@@ -1498,17 +1484,47 @@ Aisha put in only ₹3.6 lakh more, but those 10 extra years did most of the wor
       ),
     },
     {
-      prompt: "Who needs term life insurance the most?",
+      prompt:
+        "Aisha starts a ₹3,000 monthly SIP at 21. Rohan starts the same SIP at 31. Assuming the same returns, why does Aisha end up with much more at 60?",
       explanation:
-        "Term insurance replaces your income for the people who depend on it. If nobody relies on your income yet, you may not need it yet.",
-      hint: "Term insurance pays out to others if something happens to you. Whose life would change most if that income stopped?",
+        "Both invested the same ₹3,000 a month. Aisha's money simply had 10 extra years to compound — returns earning returns — and that made most of the difference.",
+      hint: "Both put in the same amount every month. What's the one thing Aisha had more of?",
+      difficulty: "MEDIUM",
+      options: choices(
+        2,
+        "She picked a riskier fund",
+        "She invested a much bigger amount each month",
+        "Her money had 10 more years to compound",
+        "SIP returns are guaranteed for younger investors",
+      ),
+    },
+    {
+      prompt: "What should usually come before starting a SIP?",
+      explanation:
+        "An emergency fund and health insurance protect you from sudden shocks, so you won't have to sell your investments at a bad time to pay a bill.",
+      hint: "Imagine a big, sudden expense right after you start investing. What would you want to have in place first?",
+      difficulty: "MEDIUM",
+      options: choices(
+        1,
+        "Buying a new phone on EMI",
+        "An emergency fund and health insurance",
+        "A credit card with a high limit",
+        "Nothing — invest every rupee right away",
+      ),
+    },
+    {
+      prompt:
+        "Your SIP's value drops 15% in its second year because the market fell. Your goal is 10 years away. What does this lesson suggest?",
+      explanation:
+        "With a long goal, short-term falls are normal. Continuing the SIP means your fixed amount buys more units while prices are low — and your emergency fund stays untouched.",
+      hint: "Your goal is 10 years away. What happens to the number of units your fixed SIP amount buys when prices are low?",
       difficulty: "HARD",
       options: choices(
         1,
-        "A student whose income nobody depends on",
-        "A 30-year-old whose parents and child depend on their salary",
-        "Someone looking for guaranteed investment returns",
-        "Anyone who just opened a bank account",
+        "Stop the SIP and withdraw everything before it falls further",
+        "Keep the SIP going — your fixed amount now buys more units",
+        "Move all your money into a savings account for good",
+        "Double the SIP using your emergency fund",
       ),
     },
   ],
@@ -1526,5 +1542,5 @@ export const LEVEL_1_LESSONS: SeedLesson[] = [
   creditCards,
   firstSalaryTax,
   stocksFundsFds,
-  sipsInsurance,
+  sipsStartingEarly,
 ];

@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { auth } from "@clerk/nextjs/server";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { db } from "./db";
 
 /** Ensures a signed-in Clerk session, redirecting to /sign-in otherwise. */
@@ -30,20 +30,11 @@ export async function requireAppUser() {
   return user;
 }
 
-/** Ensures the signed-in user is an onboarded STUDENT/ADMIN. */
+/** Ensures the signed-in user has finished onboarding. */
 export async function requireOnboardedUser() {
   const user = await requireAppUser();
   if (!user.onboardingCompletedAt) {
     redirect("/onboarding");
-  }
-  return user;
-}
-
-/** Ensures the signed-in user has the ADMIN role; 404s otherwise. */
-export async function requireAdmin() {
-  const user = await requireAppUser();
-  if (user.role !== "ADMIN") {
-    notFound();
   }
   return user;
 }

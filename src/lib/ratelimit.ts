@@ -1,6 +1,5 @@
 import { Ratelimit, type Duration } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
-import { SLOW_DOWN_MESSAGE } from "./constants";
 
 // Sign-in/sign-up abuse is covered by Clerk's own Attack Protection
 // (Clerk Dashboard > Attack Protection) since we use Clerk's prebuilt
@@ -20,13 +19,13 @@ function limiter(prefix: string, tokens: number, window: Duration) {
     : null;
 }
 
-export const adminActionRatelimit = limiter("admin-action", 20, "1 m");
 // A quiz is 5 questions × up to 3 tries; this leaves room for retakes while
 // stopping scripted hammering.
 export const quizAnswerRatelimit = limiter("quiz-answer", 60, "1 m");
 // Each AI Coach hint can cost a model call, so it gets the tightest budget.
 export const coachRatelimit = limiter("coach", 20, "1 m");
 export const challengeRatelimit = limiter("challenge", 10, "1 m");
+export const feedbackRatelimit = limiter("feedback", 10, "1 m");
 
 /** True when the request may proceed. Fails open if Redis is unreachable. */
 export async function isAllowed(limit: Ratelimit | null, identifier: string): Promise<boolean> {
@@ -39,5 +38,3 @@ export async function isAllowed(limit: Ratelimit | null, identifier: string): Pr
     return true;
   }
 }
-
-export const TOO_MANY_REQUESTS = SLOW_DOWN_MESSAGE;

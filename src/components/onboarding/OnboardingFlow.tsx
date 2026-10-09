@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
+import { unstable_rethrow } from "next/navigation";
 import { completeOnboarding } from "@/actions/onboarding";
 import { LEARNER_STAGES, LEARNING_GOALS } from "@/lib/learner-profile";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
@@ -28,10 +28,10 @@ function ChoiceTile({
       role="radio"
       aria-checked={selected}
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition ${
+      className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition-[transform,box-shadow,background-color,border-color] duration-100 active:translate-y-[3px] ${
         selected
-          ? "border-brand-600 bg-brand-50 text-brand-800"
-          : "border-slate-200 bg-white text-slate-800 hover:border-brand-300 hover:bg-brand-50/50"
+          ? "border-brand-500 bg-brand-50 text-brand-800 shadow-[0_4px_0_0_var(--color-brand-300)] active:shadow-[0_1px_0_0_var(--color-brand-300)]"
+          : "border-slate-200 bg-white text-slate-800 shadow-[0_4px_0_0_var(--color-slate-200)] hover:border-brand-300 hover:bg-brand-50/50 active:shadow-[0_1px_0_0_var(--color-slate-200)]"
       }`}
     >
       <span className="flex-1">{children}</span>
@@ -54,23 +54,20 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
   const [collegeName, setCollegeName] = useState("");
   const [goal, setGoal] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const canContinue =
-    (step === 1 && displayName.trim().length >= 2) || (step === 2 && stage !== "") || step === 3 || (step === 4 && goal !== "");
+  // College (step 3) and the learning goal (step 4) are optional.
+  const canContinue = (step === 1 && displayName.trim().length >= 2) || (step === 2 && stage !== "") || step >= 3;
 
   function submit() {
     setError(null);
     startTransition(async () => {
       try {
+        // Opens the dashboard when it succeeds.
         const result = await completeOnboarding({ displayName, stage, collegeName, goal });
-        if (result.error) {
-          setError(result.error);
-          return;
-        }
-        setDone(true);
-      } catch {
+        setError(result.error);
+      } catch (err) {
+        unstable_rethrow(err);
         setError(GENERIC_ERROR_MESSAGE);
       }
     });
@@ -85,26 +82,6 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
     } else {
       submit();
     }
-  }
-
-  if (done) {
-    return (
-      <div className="flex flex-col items-center gap-4 py-6 text-center">
-        <span aria-hidden className="text-6xl">
-          🚀
-        </span>
-        <h1 className="text-2xl font-extrabold text-balance text-slate-900 sm:text-3xl">
-          Your financial journey starts now.
-        </h1>
-        <p className="max-w-xs text-slate-600">
-          We&apos;ll start you at Lesson 01 — Budgeting. It takes about 5 minutes.
-        </p>
-        <Link href="/dashboard" className={`${primaryButton} mt-2 w-full sm:w-auto`}>
-          Go to my dashboard
-          <ArrowRightIcon className="h-4 w-4" />
-        </Link>
-      </div>
-    );
   }
 
   return (
@@ -131,7 +108,7 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
           className="flex flex-1 gap-1.5"
         >
           {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-            <span key={i} className={`h-2 flex-1 rounded-full ${i < step ? "bg-brand-600" : "bg-brand-100"}`} />
+            <span key={i} className={`h-2.5 flex-1 rounded-full ${i < step ? "bg-brand-600" : "bg-brand-100"}`} />
           ))}
         </div>
         <span className="text-xs font-bold text-slate-600 tabular-nums">
@@ -193,6 +170,7 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
       {step === 4 && (
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl font-extrabold text-slate-900">What do you want to get better at?</h1>
+          <p className="-mt-1 text-sm text-slate-600">Optional — pick one, or skip and decide later in your profile.</p>
           <div role="radiogroup" aria-label="Your goal" className="flex flex-col gap-2.5">
             {LEARNING_GOALS.map((g) => (
               <ChoiceTile key={g.value} selected={goal === g.value} onClick={() => setGoal(g.value)}>
@@ -212,10 +190,10 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
         </p>
       )}
 
-      <button type="submit" disabled={!canContinue || isPending} className={`${primaryButton} w-full`}>
+      <button type="submit" disabled={!canContinue || isPending} className={`${primaryButton} w-full py-3.5 text-base`}>
         {isPending
           ? "Saving…"
-          : step === 3 && collegeName.trim() === ""
+          : (step === 3 && collegeName.trim() === "") || (step === 4 && goal === "")
             ? "Skip for now"
             : step === TOTAL_STEPS
               ? "Finish"

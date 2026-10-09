@@ -2,7 +2,7 @@
 
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
+import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { getChallengeForDay } from "@/lib/challenge";
 import { DAILY_CHALLENGE_XP } from "@/lib/constants";
@@ -10,7 +10,7 @@ import { istDay } from "@/lib/ist-date";
 import { readChoiceOptions } from "@/lib/lesson-content";
 import { challengeRatelimit, isAllowed } from "@/lib/ratelimit";
 import { recordStreakDay } from "@/lib/streak";
-import { awardXp, lockUser } from "@/lib/xp";
+import { awardXp, lockUser, xpKeys } from "@/lib/xp";
 
 export type ChallengeResult =
   | { status: "answered"; isCorrect: boolean; correctIndex: number; explanation: string; xpAwarded: number }
@@ -65,10 +65,11 @@ export async function answerDailyChallenge(challengeId: string, optionIndex: num
         userId: user.id,
         amount: DAILY_CHALLENGE_XP,
         type: "DAILY_CHALLENGE",
-        description: "Daily Money Challenge",
+        idempotencyKey: xpKeys.dailyChallenge(user.id, day),
+        description: "Today's Money Challenge",
       });
       await recordStreakDay(tx, user.id);
-    });
+    }, SLOW_DB_TRANSACTION);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       const answer = await db.challengeAnswer.findUniqueOrThrow({
