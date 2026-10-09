@@ -5,6 +5,9 @@ import { db } from "@/lib/db";
 import { getDisplayName } from "@/lib/user";
 import { COMPLETION_POINTS, QUIZ_POINTS, getProgress, type Progress } from "@/lib/progress";
 import { getTodaysChallenge } from "@/lib/challenge";
+import { countDueRevision } from "@/lib/revision";
+import { getWeeklySummary, learnedToday, nextMilestone } from "@/lib/activity";
+import { displayStreak } from "@/lib/streak";
 import { BADGES } from "@/lib/badges";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
 import {
@@ -16,17 +19,27 @@ import {
 } from "@/lib/constants";
 import { ReadinessRing } from "@/components/dashboard/ReadinessRing";
 import { card, heroChip, heroSurface, primaryButton, softButton } from "@/components/ui/button-styles";
-import { ArrowRightIcon, ChevronRightIcon, ClockIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, CheckIcon, ChevronRightIcon, ClockIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Dashboard — StockStreak" };
 
 type NextStepCard = { icon: string; title: string; text: string; href: string; cta: string };
 
-// "What should I do right now?" — simple rules, in priority order: review an
-// area the student's quiz answers show they're struggling with, then today's
+// "What should I do right now?" — simple rules, in priority order: revision
+// that's due (the exact questions they missed), then a review of an area the
+// student's quiz answers show they're struggling with, then today's
 // challenge, then the next lesson.
-function recommendNextStep(progress: Progress, challengeOpen: boolean): NextStepCard | null {
+function recommendNextStep(progress: Progress, challengeOpen: boolean, due: number): NextStepCard | null {
   const { review, next } = progress;
+  if (due > 0) {
+    return {
+      icon: "🔁",
+      title: "Do today's revision",
+      text: `${due} ${due === 1 ? "question you missed is" : "questions you missed are"} due — a couple of minutes keeps them fresh.`,
+      href: "/revision",
+      cta: "Start revision",
+    };
+  }
   if (review) {
     return {
       icon: "💡",
@@ -60,16 +73,46 @@ function recommendNextStep(progress: Progress, challengeOpen: boolean): NextStep
 export default async function DashboardPage() {
   const user = await requireOnboardedUser();
 
-  const [progress, today, badgesEarned] = await Promise.all([
+  const [progress, today, earnedBadges, due, didLearn, week, unlocks] = await Promise.all([
     getProgress(user.id),
     getTodaysChallenge(user.id),
-    db.userBadge.count({ where: { userId: user.id } }),
+    db.userBadge.findMany({ where: { userId: user.id }, select: { badgeId: true, earnedAt: true } }),
+    countDueRevision(user.id),
+    learnedToday(user.id),
+    getWeeklySummary(user.id),
+    db.rewardUnlock.findMany({ where: { userId: user.id }, select: { rewardId: true } }),
   ]);
+  const badgesEarned = earnedBadges.length;
+  const streak = displayStreak(user);
+  const milestone = nextMilestone(progress.lessons, earnedBadges, user, unlocks.map((u) => u.rewardId));
+  const todayPlan = [
+    {
+      icon: "⚡",
+      label: "Today's challenge",
+      detail: today?.answer ? "Done" : `+${DAILY_CHALLENGE_XP} XP · about 2 minutes`,
+      done: !!today?.answer,
+      href: "/challenge",
+    },
+    {
+      icon: "🔁",
+      label: "Revision",
+      detail: due ? `${due} ${due === 1 ? "question" : "questions"} due` : "Nothing due today",
+      done: due === 0,
+      href: due ? "/revision" : "/practice",
+    },
+    {
+      icon: "📚",
+      label: "Learn something new",
+      detail: didLearn ? "Done — a lesson or scenario today" : "A lesson or a money scenario",
+      done: didLearn,
+      href: progress.next && !progress.next.isRetake ? `/lessons/${progress.next.lesson.slug}` : "/practice",
+    },
+  ];
   const { next, overall, areas, completedCount, totalLessons, levelComplete, lessons } = progress;
   const name = getDisplayName(user);
   const isNew = lessons.every((lesson) => lesson.status === "not-started");
   const levelPercent = totalLessons ? Math.round((completedCount / totalLessons) * 100) : 0;
-  const nextStep = recommendNextStep(progress, !!today && !today.answer);
+  const nextStep = recommendNextStep(progress, !!today && !today.answer, due);
 
   // White cards that overlap the bottom of the header, each with its own colour.
   const quickStats = [
@@ -174,6 +217,12 @@ export default async function DashboardPage() {
                 </p>
                 <h2 className="text-xl font-extrabold text-slate-900 sm:text-2xl">{next.lesson.title}</h2>
                 <p className="mt-1 text-sm text-slate-700">{next.isRetake ? next.reason : next.lesson.description}</p>
+                {!next.isRetake && (
+                  <p className="mt-2 inline-flex items-start gap-1.5 text-sm font-bold text-brand-700">
+                    <span aria-hidden>✨</span>
+                    {next.reason}
+                  </p>
+                )}
               </div>
             </div>
             <ul className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-slate-700">
@@ -251,6 +300,98 @@ export default async function DashboardPage() {
           ) : (
             <p className="mt-3 font-semibold text-slate-700">{NO_CHALLENGE_MESSAGE}</p>
           )}
+        </section>
+      </div>
+
+      {/* Today's habit loop + this week */}
+      <div className="grid gap-5 lg:grid-cols-5">
+        <section className={`${card} p-5 sm:p-6 lg:col-span-3`} aria-labelledby="today-heading">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="today-heading" className="text-lg font-extrabold text-slate-900">
+              Today
+            </h2>
+            <span className="rounded-full bg-orange-50 px-3 py-1 text-sm font-extrabold text-orange-700 ring-2 ring-orange-200">
+              🔥 {streak ? `${streak}-day learning streak` : "Start a streak today"}
+            </span>
+          </div>
+          <ul className="mt-4 flex flex-col gap-2.5">
+            {todayPlan.map((item) => (
+              <li key={item.label}>
+                <Link
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-2xl p-3 ring-1 transition hover:-translate-y-0.5 ${
+                    item.done ? "bg-emerald-50 ring-emerald-200" : "bg-white ring-slate-200 shadow-[0_3px_0_0_var(--color-slate-200)]"
+                  }`}
+                >
+                  <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-xl ring-1 ring-slate-200">
+                    {item.icon}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-bold text-slate-900">{item.label}</span>
+                    <span className="block text-sm text-slate-600">{item.detail}</span>
+                  </span>
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                      item.done ? "bg-emerald-700 text-white" : "ring-2 ring-slate-300"
+                    }`}
+                  >
+                    {item.done && <CheckIcon className="h-4 w-4" />}
+                    <span className="sr-only">{item.done ? "Done" : "Not done yet"}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {milestone && (
+            <Link
+              href={milestone.href}
+              className="mt-4 flex items-center gap-3 rounded-2xl bg-amber-50 p-3 ring-1 ring-amber-200 transition hover:-translate-y-0.5"
+            >
+              <span aria-hidden className="text-2xl">
+                {milestone.icon}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs font-extrabold tracking-wider text-amber-800 uppercase">Next milestone</span>
+                <span className="block font-bold text-slate-900">{milestone.title}</span>
+                <span className="block text-sm text-slate-700">{milestone.text}</span>
+              </span>
+              <ChevronRightIcon className="h-5 w-5 shrink-0 text-slate-500" />
+            </Link>
+          )}
+        </section>
+
+        <section className={`${card} p-5 sm:p-6 lg:col-span-2`} aria-labelledby="week-heading">
+          <h2 id="week-heading" className="text-lg font-extrabold text-slate-900">
+            Your week
+          </h2>
+          <p className="text-sm text-slate-600">The last 7 days · active on {week.activeDays} of 7</p>
+          <dl className="mt-4 grid grid-cols-2 gap-2.5">
+            {[
+              { label: "Lessons completed", value: String(week.lessonsCompleted) },
+              {
+                label: "Quiz accuracy",
+                value: week.quizAccuracy === null ? "—" : `${week.quizAccuracy}%`,
+                note:
+                  week.quizAccuracy !== null && week.previousQuizAccuracy !== null
+                    ? week.quizAccuracy >= week.previousQuizAccuracy
+                      ? `↑ from ${week.previousQuizAccuracy}%`
+                      : `↓ from ${week.previousQuizAccuracy}%`
+                    : undefined,
+              },
+              { label: "Revision correct", value: week.revisionTotal ? `${week.revisionCorrect}/${week.revisionTotal}` : "—" },
+              { label: "Challenges", value: String(week.challenges) },
+              { label: "Scenarios", value: String(week.scenarios) },
+              { label: "XP earned", value: `+${week.xpEarned}` },
+            ].map((stat) => (
+              <div key={stat.label} className="flex flex-col-reverse justify-end rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
+                <dt className="text-xs font-semibold text-slate-600">
+                  {stat.label}
+                  {stat.note && <span className="block font-bold text-brand-700">{stat.note}</span>}
+                </dt>
+                <dd className="text-xl font-extrabold text-slate-900 tabular-nums">{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
       </div>
 

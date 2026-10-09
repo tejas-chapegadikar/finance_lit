@@ -5,7 +5,8 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getProgress, type LessonStatus } from "@/lib/progress";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
-import { readChoiceOptions, readKeyTerms, splitLearnSections } from "@/lib/lesson-content";
+import { readChoiceOptions, readKeyTerms, readSources, splitLearnSections } from "@/lib/lesson-content";
+import { CORE_SCENARIOS } from "@/lib/scenarios";
 import { answerScenario } from "@/actions/lessons";
 import { beginQuiz } from "@/actions/quiz";
 import { RecordLessonView } from "@/components/lessons/RecordLessonView";
@@ -13,7 +14,7 @@ import { LessonFinale } from "@/components/lessons/LessonFinale";
 import { LessonProgressBar, type LessonStep } from "@/components/lessons/LessonProgressBar";
 import { StepLabel } from "@/components/lessons/StepLabel";
 import { Markdown } from "@/components/ui/Markdown";
-import { card, heroChip, heroSurface, primaryButton } from "@/components/ui/button-styles";
+import { card, heroChip, heroSurface, tile } from "@/components/ui/button-styles";
 import { ArrowLeftIcon, ArrowRightIcon, ClockIcon } from "@/components/ui/icons";
 
 const STATUS_LABEL: Record<LessonStatus, string> = {
@@ -43,7 +44,6 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
 
   const area = READINESS_AREA_META[lesson.area];
   const number = String(lessonProgress.number).padStart(2, "0");
-  const locked = lessonProgress.locked;
 
   const header = (
     <header className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
@@ -70,7 +70,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
         <li className={heroChip}>
           <span aria-hidden>⭐</span>+{lesson.xpReward} XP
         </li>
-        {!locked && <li className={heroChip}>{STATUS_LABEL[lessonProgress.status]}</li>}
+        <li className={heroChip}>{STATUS_LABEL[lessonProgress.status]}</li>
       </ul>
     </header>
   );
@@ -85,33 +85,9 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
     </Link>
   );
 
-  if (locked) {
-    const upNext = progress.next && !progress.next.isRetake ? progress.next.lesson : null;
-    return (
-      <div className="mx-auto flex max-w-2xl flex-col gap-5">
-        {backLink}
-        {header}
-        <section className={`${card} p-8 text-center`}>
-          <span aria-hidden className="text-4xl">
-            🔒
-          </span>
-          <h2 className="mt-3 text-xl font-extrabold text-slate-900">This lesson is locked</h2>
-          <p className="mx-auto mt-1 max-w-sm text-slate-600">
-            Lessons open one at a time, so each one builds on the last.
-            {upNext && <> Complete “{upNext.title}” to keep going.</>}
-          </p>
-          {upNext && (
-            <Link href={`/lessons/${upNext.slug}`} className={`${primaryButton} mt-5`}>
-              Go to {upNext.title}
-              <ArrowRightIcon className="h-4 w-4" />
-            </Link>
-          )}
-        </section>
-      </div>
-    );
-  }
-
   const sections = splitLearnSections(lesson.contentMarkdown);
+  const sources = readSources(lesson.sources);
+  const practiceScenario = CORE_SCENARIOS.find((s) => s.lessonSlug === lesson.slug);
   const keyTerms = readKeyTerms(lesson.keyTerms);
   const scenarioOptions = readChoiceOptions(lesson.scenarioOptions);
   const scenario =
@@ -220,6 +196,48 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
         scenarioStep={stepNumber("scenario-heading")}
         quizStep={stepNumber("quiz-heading")}
       />
+
+      {practiceScenario && (
+        <Link
+          href={`/practice/${practiceScenario.slug}`}
+          className={`${tile} flex items-center gap-4 p-4 transition hover:-translate-y-0.5`}
+        >
+          <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
+            {practiceScenario.icon}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-bold tracking-wider text-brand-700 uppercase">Try it for real</span>
+            <span className="block font-extrabold text-slate-900">{practiceScenario.title}</span>
+            <span className="block text-sm text-slate-600">An interactive scenario that puts this lesson into practice.</span>
+          </span>
+          <ArrowRightIcon className="h-5 w-5 shrink-0 text-brand-700" />
+        </Link>
+      )}
+
+      <footer className="rounded-2xl bg-white/70 p-4 text-sm text-slate-600 ring-1 ring-slate-200" aria-label="Sources and review">
+        <p className="font-bold text-slate-800">Sources &amp; review</p>
+        {lesson.reviewedAt && (
+          <p className="mt-1">
+            Last reviewed:{" "}
+            {lesson.reviewedAt.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata" })}
+          </p>
+        )}
+        {lesson.appliesTo && <p className="mt-1">Applies to: {lesson.appliesTo}</p>}
+        {sources.length > 0 && (
+          <ul className="mt-2 flex flex-col gap-1">
+            {sources.map((source) => (
+              <li key={source.url}>
+                <a href={source.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-700 underline-offset-2 hover:underline">
+                  {source.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-2 text-xs">
+          Examples use illustrative numbers — your own situation may differ. This is education, not personal financial advice.
+        </p>
+      </footer>
     </article>
   );
 }

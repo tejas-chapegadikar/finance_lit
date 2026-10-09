@@ -55,36 +55,68 @@ enum XPTransactionType {
   LEVEL_COMPLETION
   STREAK_BONUS
   ADMIN_ADJUSTMENT
+  // XP spent in the Rewards Store — a negative amount.
   REDEMPTION
+  SCENARIO_COMPLETION
+  REVISION
+}
+
+// MISTAKE: a question the student missed, brought back at 1, 3 and 7 days.
+// CHECK: a 7-day retention check on a lesson they got right.
+enum RevisionKind {
+  MISTAKE
+  CHECK
+}
+
+enum RevisionStatus {
+  ACTIVE
+  DONE
+}
+
+// COACH_CHECK: the AI Coach's "check you've got it" question during a quiz.
+// REVIEW: a scheduled revision question.
+enum RevisionContext {
+  COACH_CHECK
+  REVIEW
 }
 
 model User {
-  id                    String        @id @default(cuid())
-  clerkId               String        @unique
-  email                 String        @unique
-  emailVerified         Boolean       @default(false)
-  phone                 String?       @unique
-  phoneVerified         Boolean       @default(false)
-  name                  String?
-  displayName           String?
+  id            String  @id @default(cuid())
+  clerkId       String  @unique
+  email         String  @unique
+  emailVerified Boolean @default(false)
+  phone         String? @unique
+  phoneVerified Boolean @default(false)
+  name          String?
+  displayName   String?
 
   stage                 LearnerStage?
   goal                  LearningGoal?
   collegeName           String?
   onboardingCompletedAt DateTime?
 
-  xpTotal               Int           @default(0)
+  // Lifetime XP earned — never goes down. Spendable XP is xpTotal - xpSpent.
+  xpTotal Int     @default(0)
+  xpSpent Int     @default(0)
+  // Equipped Rewards Store unlocks (reward ids from src/lib/rewards.ts).
+  title   String?
+  theme   String?
 
-  // Days in a row with a completed quiz or daily challenge (IST calendar days).
-  // Still counted, but hidden in V1 — streaks are postponed until after launch.
-  currentStreak         Int           @default(0)
-  longestStreak         Int           @default(0)
+  // Optional daily reminder email at this IST hour (0-23).
+  reminderEnabled     Boolean @default(false)
+  reminderHour        Int     @default(20)
+  reminderLastSentDay String?
+
+  // Days in a row with a meaningful learning action (quiz, scenario, daily
+  // challenge or revision), counted in IST calendar days.
+  currentStreak          Int       @default(0)
+  longestStreak          Int       @default(0)
   // IST date (YYYY-MM-DD) of the last day that counted toward the streak.
-  streakLastDay         String?
+  streakLastDay          String?
   // Last time the student opened a lesson or started a quiz — feeds retention metrics.
-  lastActivityDate      DateTime?
-  streakFreezesAvailable Int          @default(3)
-  streakFreezesResetAt  DateTime?
+  lastActivityDate       DateTime?
+  streakFreezesAvailable Int       @default(3)
+  streakFreezesResetAt   DateTime?
 
   quizAttempts     QuizAttempt[]
   xpTransactions   XPTransaction[]
@@ -93,40 +125,50 @@ model User {
   challengeAnswers ChallengeAnswer[]
   badges           UserBadge[]
   lessonFeedback   LessonFeedback[]
+  revisionItems    RevisionItem[]
+  revisionAnswers  RevisionAnswer[]
+  scenarioRuns     ScenarioRun[]
+  rewardUnlocks    RewardUnlock[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Lesson {
-  id               String        @id @default(cuid())
-  slug             String        @unique
-  title            String
-  icon             String        @default("📘")
-  area             ReadinessArea
-  description      String
+  id                  String        @id @default(cuid())
+  slug                String        @unique
+  title               String
+  icon                String        @default("📘")
+  area                ReadinessArea
+  description         String
   // Part 1 — a relatable situation that gets the student thinking.
-  hook             String        @db.Text @default("")
+  hook                String        @default("") @db.Text
   // Part 2 — short explanation; each "## " section renders as its own card.
-  contentMarkdown  String        @db.Text
+  contentMarkdown     String        @db.Text
   // [{ term, definition }] — shown while learning and on the completion screen.
-  keyTerms         Json          @default("[]")
+  keyTerms            Json          @default("[]")
   // A real-life Indian example with numbers.
-  example          String        @db.Text @default("")
+  example             String        @default("") @db.Text
   // "What would you do?" before the quiz. Options: [{ text, isCorrect }].
-  scenarioPrompt      String     @db.Text @default("")
-  scenarioOptions     Json       @default("[]")
-  scenarioExplanation String     @db.Text @default("")
-  estimatedMinutes Int           @default(5)
-  xpReward         Int           @default(75)
-  isPublished      Boolean       @default(false)
-  order            Int           @default(0)
+  scenarioPrompt      String        @default("") @db.Text
+  scenarioOptions     Json          @default("[]")
+  scenarioExplanation String        @default("") @db.Text
+  estimatedMinutes    Int           @default(5)
+  xpReward            Int           @default(75)
+  isPublished         Boolean       @default(false)
+  order               Int           @default(0)
+  // Content trust: [{ label, url }] for the important claims, when the lesson
+  // was last reviewed, and (for tax) the year its rules apply to.
+  sources             Json          @default("[]")
+  reviewedAt          DateTime?
+  appliesTo           String?
 
   questions       Question[]
   attempts        QuizAttempt[]
   views           LessonView[]
   scenarioAnswers ScenarioAnswer[]
   feedback        LessonFeedback[]
+  revisionItems   RevisionItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -161,19 +203,26 @@ model ScenarioAnswer {
 }
 
 model Question {
-  id          String       @id @default(cuid())
-  lessonId    String
-  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  prompt      String
-  explanation String       @db.Text
+  id                  String         @id @default(cuid())
+  lessonId            String
+  lesson              Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  prompt              String
+  explanation         String         @db.Text
   // Written by the course team; shown when the AI Coach is unavailable.
-  hint        String?      @db.Text
-  difficulty  Difficulty   @default(MEDIUM)
-  order       Int          @default(0)
-  options     Option[]
-  answers     QuizAnswer[]
-  coachHints  CoachHint[]
-  createdAt   DateTime     @default(now())
+  hint                String?        @db.Text
+  difficulty          Difficulty     @default(MEDIUM)
+  order               Int            @default(0)
+  // A second question on the same idea with a different example: the AI
+  // Coach's check after a mistake, and what revision asks later.
+  practicePrompt      String?        @db.Text
+  // [{ text, isCorrect }]
+  practiceOptions     Json?
+  practiceExplanation String?        @db.Text
+  options             Option[]
+  answers             QuizAnswer[]
+  coachHints          CoachHint[]
+  revisionItems       RevisionItem[]
+  createdAt           DateTime       @default(now())
 }
 
 model Option {
@@ -187,24 +236,24 @@ model Option {
 }
 
 model QuizAttempt {
-  id              String        @id @default(cuid())
+  id              String          @id @default(cuid())
   userId          String
-  user            User          @relation(fields: [userId], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
   lessonId        String
-  lesson          Lesson        @relation(fields: [lessonId], references: [id])
-  status          AttemptStatus @default(IN_PROGRESS)
+  lesson          Lesson          @relation(fields: [lessonId], references: [id])
+  status          AttemptStatus   @default(IN_PROGRESS)
   // Questions answered correctly on the first try.
-  score           Int           @default(0)
+  score           Int             @default(0)
   // 0-100, set on completion: first-try answers count fully, ones solved
   // after Coach hints count half. Feeds the Financial Readiness Score.
   mastery         Int?
-  totalQuestions  Int           @default(5)
+  totalQuestions  Int             @default(5)
   xpAwarded       Int?
   // Overall readiness just before and after this attempt completed, so the
   // completion screen can show the change.
   readinessBefore Int?
   readinessAfter  Int?
-  startedAt       DateTime      @default(now())
+  startedAt       DateTime        @default(now())
   completedAt     DateTime?
   answers         QuizAnswer[]
   xpTransactions  XPTransaction[]
@@ -284,18 +333,18 @@ model ChallengeAnswer {
 }
 
 model XPTransaction {
-  id            String            @id @default(cuid())
-  userId        String
-  user          User              @relation(fields: [userId], references: [id])
-  amount        Int
-  type          XPTransactionType
-  quizAttemptId String?
-  quizAttempt   QuizAttempt?      @relation(fields: [quizAttemptId], references: [id])
-  description   String?
+  id             String            @id @default(cuid())
+  userId         String
+  user           User              @relation(fields: [userId], references: [id])
+  amount         Int
+  type           XPTransactionType
+  quizAttemptId  String?
+  quizAttempt    QuizAttempt?      @relation(fields: [quizAttemptId], references: [id])
+  description    String?
   // One key per reward (e.g. "lesson-complete:<user>:<lesson>"), so a retried
   // or duplicated request can never pay the same reward twice.
-  idempotencyKey String?          @unique
-  createdAt     DateTime          @default(now())
+  idempotencyKey String?           @unique
+  createdAt      DateTime          @default(now())
 
   @@index([userId, createdAt])
 }
@@ -329,4 +378,73 @@ model LessonFeedback {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, lessonId])
+}
+
+// One concept a student should revisit, scheduled at 1, 3 and 7 days.
+model RevisionItem {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  kind        RevisionKind
+  // 0 → due 1 day later, 1 → 3 days, 2 → 7 days; passing stage 2 retires it.
+  stage       Int              @default(0)
+  // IST date (YYYY-MM-DD) from which it's due.
+  dueDay      String
+  status      RevisionStatus   @default(ACTIVE)
+  lastCorrect Boolean?
+  answers     RevisionAnswer[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([userId, questionId])
+  @@index([userId, status, dueDay])
+}
+
+model RevisionAnswer {
+  id            String          @id @default(cuid())
+  itemId        String
+  item          RevisionItem    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  context       RevisionContext
+  stage         Int
+  optionIndex   Int
+  isCorrect     Boolean
+  // Set for COACH_CHECK answers: one check per question per quiz attempt.
+  quizAttemptId String?
+  answeredAt    DateTime        @default(now())
+
+  @@unique([quizAttemptId, itemId])
+  @@index([userId, answeredAt])
+}
+
+// A completed run through an interactive money scenario (content lives in
+// src/lib/scenarios). Students can replay; XP comes only from the first.
+model ScenarioRun {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scenarioSlug String
+  score        Int
+  maxScore     Int
+  answers      Json
+  completedAt  DateTime @default(now())
+
+  @@index([userId, scenarioSlug])
+}
+
+// A Rewards Store item a student unlocked with XP (catalogue in src/lib/rewards.ts).
+model RewardUnlock {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewardId   String
+  costXp     Int
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, rewardId])
 }

@@ -6,7 +6,15 @@ import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { OptionButton, type OptionState } from "./OptionButton";
 
 export type ChoiceResult =
-  | { status: "answered"; isCorrect: boolean; correctIndex: number; explanation: string; xpAwarded?: number }
+  | {
+      status: "answered";
+      isCorrect: boolean;
+      correctIndex: number;
+      explanation: string;
+      xpAwarded?: number;
+      /** What happens next, e.g. when a revision question comes back. */
+      note?: string;
+    }
   | { status: "slow-down" }
   | { status: "new-day" };
 
@@ -16,6 +24,7 @@ export type ChoiceAnswer = {
   correctIndex: number;
   explanation: string;
   xpAwarded?: number;
+  note?: string;
 };
 
 /**
@@ -29,7 +38,9 @@ export function ChoiceQuestion({
   answer,
   initialAnswer,
   onAnswered,
+  labels = { right: "✅ Great choice!", wrong: "❌ Not quite — here's why" },
 }: {
+  labels?: { right: string; wrong: string };
   prompt: string;
   options: string[];
   answer: (optionIndex: number) => Promise<ChoiceResult>;
@@ -104,9 +115,10 @@ export function ChoiceQuestion({
           }`}
         >
           <p className={`font-extrabold ${result.isCorrect ? "text-emerald-800" : "text-rose-800"}`}>
-            {result.isCorrect ? "✅ Great choice!" : "❌ Not quite — here's why"}
+            {result.isCorrect ? labels.right : labels.wrong}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-slate-800">{result.explanation}</p>
+          {result.note && <p className="mt-2 text-sm font-bold text-slate-900">{result.note}</p>}
           {result.xpAwarded ? (
             <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-extrabold text-orange-700 ring-2 ring-orange-200">
               ⭐ +{result.xpAwarded} XP

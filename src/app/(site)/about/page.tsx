@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "About — StockStreak" };
 const CONTENT = `
 **Learn money before money teaches you the hard way.**
 
-StockStreak is a gamified financial-literacy and financial-readiness platform for Indian college students and young adults. It teaches you how to manage money *before* you meet your first stipend, salary, credit card, tax form or UPI scam.
+StockStreak is a practical financial-learning platform for Indian college students and first-job professionals. It prepares you for real money decisions — from managing your first stipend to understanding your first salary — *before* you meet them, or a UPI scam, for real.
 
 ## Why we built it
 
@@ -14,11 +14,14 @@ Most of us leave college without learning how budgets, bank accounts, credit sco
 
 ## How it works
 
-- **Short written lessons** with Indian examples — ₹, UPI, CIBIL, SIPs, salaries and taxes
-- **"What would you do?" scenarios** that put you in real-life situations
-- **5-question quizzes** with an **AI Coach** that helps you understand *why* an answer is wrong instead of just revealing it
-- **XP, badges and a Financial Readiness Score** that show how far you've come
-- **Today's Challenge** — one real-life money decision every day
+- **A college-to-first-salary journey** — 12 short written lessons in four chapters, with Indian examples
+- **Interactive money scenarios** — manage a ₹15,000 stipend, handle a credit-card bill, spot a fake UPI request, read your first payslip
+- **5-question quizzes** with an **AI Coach** that gives a hint, lets you retry and checks you've got it — instead of just revealing the answer
+- **Smart revision** that brings back what you missed after 1, 3 and 7 days, and tracks your topic mastery
+- **Today's Challenge** — one fresh money decision every day
+- **XP, badges and a Rewards Store** — XP comes only from real learning, and you can spend it on titles, themes and bonus scenarios
+
+Our lessons cite their sources and show when they were last reviewed, and tax lessons say which tax year they apply to.
 
 ## What we're not
 
@@ -26,7 +29,7 @@ StockStreak is not a trading app, a bank, a wallet or an investment adviser. We 
 
 ## Where we are
 
-This is our first version. We're starting with **Level 1 — Financial Foundations**: 12 lessons on budgeting, digital payments, scams, banking, credit, tax and investing. What comes next will be shaped by what students tell us — so please [get in touch](/contact).
+This is our first version. We're piloting **Level 1 — Financial Foundations** with a small group of students, measuring whether they come back, improve and remember — and improving it before we build more. Tell us what works and what doesn't: [get in touch](/contact).
 `;
 
 export default function AboutPage() {

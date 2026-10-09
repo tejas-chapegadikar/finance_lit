@@ -29,3 +29,8 @@ export const profileSchema = z.object({
 });
 
 export type ProfileInput = z.input<typeof profileSchema>;
+
+export const reminderSchema = z.object({
+  enabled: z.boolean(),
+  hour: z.number().int().min(6, "Pick a time between 6 AM and 10 PM").max(22, "Pick a time between 6 AM and 10 PM"),
+});

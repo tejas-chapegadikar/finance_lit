@@ -16,6 +16,10 @@ export const xpKeys = {
   lessonComplete: (userId: string, lessonId: string) => `lesson-complete:${userId}:${lessonId}`,
   dailyChallenge: (userId: string, day: string) => `daily-challenge:${userId}:${day}`,
   levelComplete: (userId: string, level: number) => `level-complete:${userId}:${level}`,
+  scenarioComplete: (userId: string, slug: string) => `scenario-complete:${userId}:${slug}`,
+  // One reward per time an item comes due.
+  revision: (itemId: string, stage: number, dueDay: string) => `revision:${itemId}:${stage}:${dueDay}`,
+  redeem: (userId: string, rewardId: string) => `redeem:${userId}:${rewardId}`,
 };
 
 /**
@@ -53,6 +57,30 @@ export async function awardXp(tx: Prisma.TransactionClient, params: AwardXpParam
     data: { xpTotal: { increment: amount } },
   });
   return amount;
+}
+
+/**
+ * Spends XP in the Rewards Store: a negative ledger row and a bump to
+ * xpSpent. Lifetime XP (xpTotal) never goes down. Returns false when the
+ * student can't afford it or already paid for this reward. Call inside a
+ * transaction that has locked the user (lockUser).
+ */
+export async function spendXp(
+  tx: Prisma.TransactionClient,
+  params: { userId: string; cost: number; idempotencyKey: string; description: string },
+): Promise<boolean> {
+  const { userId, cost, idempotencyKey, description } = params;
+  const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { xpTotal: true, xpSpent: true } });
+  if (user.xpTotal - user.xpSpent < cost) return false;
+
+  const { count } = await tx.xPTransaction.createMany({
+    data: [{ userId, amount: -cost, type: "REDEMPTION", idempotencyKey, description }],
+    skipDuplicates: true,
+  });
+  if (count === 0) return false;
+
+  await tx.user.update({ where: { id: userId }, data: { xpSpent: { increment: cost } } });
+  return true;
 }
 
 /**

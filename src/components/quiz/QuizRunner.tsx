@@ -3,7 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
-import { submitAnswer, getCoachHint, completeAttempt } from "@/actions/quiz";
+import { submitAnswer, getCoachHint, completeAttempt, answerCoachCheck } from "@/actions/quiz";
+import { ChoiceQuestion, type ChoiceAnswer } from "@/components/ui/ChoiceQuestion";
 import type { CoachHint } from "@/lib/coach";
 import { GENERIC_ERROR_MESSAGE, MAX_TRIES_PER_QUESTION, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { heroChip, heroSurface, primaryButton, skyButton } from "@/components/ui/button-styles";
@@ -29,7 +30,16 @@ export type QuizQuestion = {
   wrongOptionIds: string[];
   /** Set when the question was already resolved before this page load. */
   resolution: Resolution | null;
+  /** The Coach's follow-up question (same idea, new example), asked after a miss. */
+  practice: { prompt: string; options: string[] } | null;
+  /** The answer to that follow-up, if already given. */
+  coachCheck: ChoiceAnswer | null;
 };
+
+// A question answered first time needs no follow-up; a miss gets the Coach's check.
+function needsCheck(question: QuizQuestion, resolution: Resolution | null) {
+  return !!question.practice && !!resolution && (resolution.status === "revealed" || resolution.tryNumber > 1);
+}
 
 export function QuizRunner({
   attemptId,
@@ -56,6 +66,7 @@ export function QuizRunner({
   const [resolution, setResolution] = useState<Resolution | null>(resumed?.resolution ?? null);
   const [error, setError] = useState<string | null>(null);
   const [restarted, setRestarted] = useState(false);
+  const [checkDone, setCheckDone] = useState(!!resumed?.coachCheck);
   const [isPending, startTransition] = useTransition();
 
   const question = questions[index];
@@ -154,6 +165,7 @@ export function QuizRunner({
     setWrongOptionIds(next.wrongOptionIds);
     setHint(null);
     setResolution(next.resolution);
+    setCheckDone(!!next.coachCheck);
     setError(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -231,7 +243,28 @@ export function QuizRunner({
         </p>
       )}
 
-      {resolution && (
+      {resolution && needsCheck(question, resolution) && question.practice && (
+        <section
+          key={question.id}
+          aria-labelledby="coach-check-heading"
+          className="rounded-3xl border-2 border-brand-200 bg-white p-5 shadow-[0_4px_0_0_var(--color-brand-100)]"
+        >
+          <p id="coach-check-heading" className="text-sm font-extrabold text-brand-700">
+            💡 AI Coach · Check you&apos;ve got it
+          </p>
+          <p className="mb-3 text-sm text-slate-600">Same idea, different example. This one doesn&apos;t change your score.</p>
+          <ChoiceQuestion
+            prompt={question.practice.prompt}
+            options={question.practice.options}
+            answer={answerCoachCheck.bind(null, attemptId, question.id)}
+            initialAnswer={question.coachCheck}
+            onAnswered={() => setCheckDone(true)}
+            labels={{ right: "🎯 You've got it!", wrong: "❌ Not yet" }}
+          />
+        </section>
+      )}
+
+      {resolution && (!needsCheck(question, resolution) || checkDone) && (
         <button
           type="button"
           onClick={handleNext}

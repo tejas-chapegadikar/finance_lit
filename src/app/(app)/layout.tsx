@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireOnboardedUser } from "@/lib/auth";
 import { getDisplayName } from "@/lib/user";
 import { DISCLAIMER_SHORT, LEGAL_LINKS } from "@/lib/site";
+import { findReward } from "@/lib/rewards";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
@@ -13,13 +14,14 @@ export default async function AppLayout({
 }) {
   const user = await requireOnboardedUser();
   const navProps = { xpTotal: user.xpTotal, displayName: getDisplayName(user) };
+  const title = findReward(user.title)?.name ?? null;
 
   return (
     <div className="flex min-h-screen flex-col lg:pl-64">
-      <Sidebar {...navProps} />
+      <Sidebar {...navProps} title={title} />
       <Navbar {...navProps} />
-      {/* Bottom padding on phones keeps content clear of the fixed tab bar. */}
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-5 pb-28 sm:px-6 sm:pt-8 sm:pb-12 lg:px-8 lg:pt-10">
+      {/* Bottom padding below desktop keeps content clear of the fixed tab bar. */}
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-5 pb-28 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10 lg:pb-12">
         {children}
         <footer className="mt-12 flex flex-col items-center gap-2 text-center text-xs text-slate-600">
           <p>{DISCLAIMER_SHORT}</p>

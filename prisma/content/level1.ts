@@ -12,7 +12,7 @@ const budgeting: SeedLesson = {
   title: "Budgeting",
   icon: "💰",
   area: "BUDGETING",
-  description: "Plan where your money goes before the month starts — with the 50/30/20 rule.",
+  description: "Make your first ₹15,000 stipend last the month — plan it with the 50/30/20 rule.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 1,
@@ -130,7 +130,7 @@ const compoundInterest: SeedLesson = {
   title: "Compound Interest",
   icon: "🌱",
   area: "BUDGETING",
-  description: "See how money grows on its own growth — and why starting early matters so much.",
+  description: "See how money grows on its own growth — and why your college years are the best time to start.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 2,
@@ -255,7 +255,7 @@ const savingVsSpending: SeedLesson = {
   title: "Saving vs Spending Psychology",
   icon: "🐷",
   area: "BUDGETING",
-  description: "Spot impulse buys, beat lifestyle creep and start your first emergency fund.",
+  description: "Spot impulse buys, beat lifestyle creep before your first salary, and start an emergency fund.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 3,
@@ -377,7 +377,7 @@ const upiPayments: SeedLesson = {
   title: "UPI and Digital Payments",
   icon: "📱",
   area: "DIGITAL_SAFETY",
-  description: "Use UPI confidently — and learn the one rule that stops most UPI frauds.",
+  description: "Pay and get paid on UPI with confidence — and the one rule that stops most UPI frauds.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 4,
@@ -502,7 +502,7 @@ const financialScams: SeedLesson = {
   title: "Common Financial Scams in India",
   icon: "🚨",
   area: "DIGITAL_SAFETY",
-  description: "Recognise the scams that target students — fake jobs, KYC calls and \"digital arrests\".",
+  description: "Recognise the scams aimed at students and freshers — fake internships, KYC calls and \"digital arrests\".",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 5,
@@ -640,7 +640,7 @@ const bankAccounts: SeedLesson = {
   title: "Savings and Current Accounts",
   icon: "🏦",
   area: "BANKING",
-  description: "Savings vs current accounts, minimum-balance charges, and how your money is protected.",
+  description: "Pick the right account for your stipend or salary, dodge minimum-balance charges, and know your money is protected.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 6,
@@ -770,7 +770,7 @@ const fdRd: SeedLesson = {
   title: "Fixed Deposits and Recurring Deposits",
   icon: "🪙",
   area: "BANKING",
-  description: "Understand fixed and recurring deposits — a simple, low-risk way to grow savings.",
+  description: "Park your first savings in FDs and RDs — a simple, low-risk way to grow them.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 7,
@@ -890,7 +890,7 @@ const cibilScore: SeedLesson = {
   title: "CIBIL Score",
   icon: "📊",
   area: "CREDIT",
-  description: "Learn what a credit score is, what moves it, and how to build one from zero.",
+  description: "Build a credit score from zero before you need your first loan or card.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 8,
@@ -1134,7 +1134,7 @@ const firstSalaryTax: SeedLesson = {
   title: "Income Tax for Your First Salary",
   icon: "🧾",
   area: "TAX",
-  description: "Income tax for your first salary — CTC vs in-hand, PF, TDS and the new tax regime.",
+  description: "Read your first payslip — CTC vs in-hand, PF, TDS and the tax regimes for tax year 2026-27.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 10,
@@ -1150,6 +1150,10 @@ Then your first salary arrives: about ₹46,000. Where did the rest go?`,
 - **EPF (Provident Fund)** — usually 12% of your basic pay goes into your retirement savings, and your employer adds a matching share
 - **Professional tax** — a small state tax of up to ₹2,500 a year (about ₹200 a month in states like Maharashtra and Karnataka)
 - **TDS (Tax Deducted at Source)** — income tax your employer deducts and pays to the government for you
+
+## Which rules apply?
+
+From **1 April 2026**, the **Income-tax Act, 2025** replaced the 1961 Act. It talks about a **tax year** (April to March) instead of "financial year" and "assessment year", and many section numbers changed. The ideas in this lesson stay the same.
 
 ## New vs old tax regime
 
@@ -1170,7 +1174,7 @@ Even when TDS is deducted, file your **Income Tax Return (ITR)** on incometax.go
 - Employer's PF share (part of her CTC): **−₹1,800**
 - Her own PF contribution: **−₹1,800**
 - Professional tax: **−₹200**
-- Income tax (TDS): **₹0** — at her income, the new regime brings it to zero under current rules
+- Income tax (TDS): **₹0** — at her income, the new regime brings it to zero in tax year 2026-27
 
 **In-hand: about ₹46,200.**
 
@@ -1262,7 +1266,7 @@ const stocksFundsFds: SeedLesson = {
   title: "Stocks vs Mutual Funds vs FDs",
   icon: "📈",
   area: "INVESTING",
-  description: "Compare how stocks, mutual funds and FDs work — and the trade-off between risk and return.",
+  description: "Before you invest your first salary: how stocks, mutual funds and FDs differ, and the risk behind returns.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 11,

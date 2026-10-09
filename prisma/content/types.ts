@@ -10,6 +10,19 @@ export type SeedQuestion = {
   options: SeedOption[];
 };
 
+export type SeedPractice = { prompt: string; options: SeedOption[]; explanation: string };
+
+export type SeedSource = { label: string; url: string };
+
+/** Content-trust details shown under every lesson. */
+export type SeedLessonMeta = {
+  sources: SeedSource[];
+  /** ISO date the content was last reviewed. */
+  reviewedAt: string;
+  /** For rules that change by year, e.g. "Tax year 2026-27". */
+  appliesTo?: string;
+};
+
 export type SeedLesson = {
   slug: string;
   title: string;

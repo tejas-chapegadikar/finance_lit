@@ -8,7 +8,7 @@ import { NAV_ITEMS, isActive } from "./nav-items";
 import { XPBadge } from "./XPBadge";
 
 /** Desktop navigation: the four destinations, XP and the student's profile. */
-export function Sidebar({ xpTotal, displayName }: { xpTotal: number; displayName: string }) {
+export function Sidebar({ xpTotal, displayName, title }: { xpTotal: number; displayName: string; title: string | null }) {
   const pathname = usePathname();
 
   return (
@@ -18,8 +18,8 @@ export function Sidebar({ xpTotal, displayName }: { xpTotal: number; displayName
       </Link>
 
       <nav aria-label="Main" className="flex flex-1 flex-col gap-1 px-4">
-        {NAV_ITEMS.map(({ href, label, Icon }) => {
-          const active = isActive(pathname, href);
+        {NAV_ITEMS.map(({ href, label, Icon, also }) => {
+          const active = isActive(pathname, href, also);
           return (
             <Link
               key={href}
@@ -48,7 +48,10 @@ export function Sidebar({ xpTotal, displayName }: { xpTotal: number; displayName
           aria-label={`Your profile (${displayName})`}
         >
           <UserAvatar />
-          <span className="truncate text-sm font-bold text-slate-900">{displayName}</span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-bold text-slate-900">{displayName}</span>
+            {title && <span className="block truncate text-xs font-semibold text-brand-700">{title}</span>}
+          </span>
         </Link>
       </div>
     </aside>

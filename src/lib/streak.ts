@@ -1,13 +1,14 @@
 import type { Prisma, User } from "@prisma/client";
 import { istDay, shiftDay } from "./ist-date";
 
-// Streaks are postponed until after launch, so nothing shows them yet — but
-// they're still counted, so turning them on later starts from real history.
+// The learning streak shown in the dashboard's "Today" card: IST days in a
+// row with a meaningful learning action.
 
 /**
  * Counts today (IST) toward the student's streak. Call it inside the
- * transaction that records the activity — finishing a quiz or answering the
- * daily challenge — so the streak can't drift from what actually happened.
+ * transaction that records the activity — finishing a quiz or a scenario,
+ * answering the daily challenge or a revision question — so the streak can't
+ * drift from what actually happened.
  */
 export async function recordStreakDay(tx: Prisma.TransactionClient, userId: string) {
   const user = await tx.user.findUniqueOrThrow({

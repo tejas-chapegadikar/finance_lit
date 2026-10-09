@@ -10,11 +10,11 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-slate-900/5 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_20px_-12px_rgb(15_23_42/0.25)] backdrop-blur sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-slate-900/5 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_20px_-12px_rgb(15_23_42/0.25)] backdrop-blur lg:hidden"
     >
-      <ul className="mx-auto flex max-w-md justify-around px-2 pt-1">
-        {NAV_ITEMS.map(({ href, shortLabel, Icon }) => {
-          const active = isActive(pathname, href);
+      <ul className="mx-auto flex max-w-lg justify-around px-1 pt-1">
+        {NAV_ITEMS.map(({ href, shortLabel, Icon, also }) => {
+          const active = isActive(pathname, href, also);
           return (
             <li key={href} className="flex-1">
               <Link

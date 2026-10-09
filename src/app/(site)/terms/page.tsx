@@ -29,7 +29,7 @@ Please don't:
 
 ## 4. XP, badges and scores
 
-XP, badges and the Financial Readiness Score track your learning. They have **no monetary value** and can't be exchanged for cash, prizes or other rewards. We may correct them if they were awarded by mistake, and we may change how they work.
+XP, badges and the Financial Readiness Score track your learning. You can spend XP in the Rewards Store on digital unlocks such as profile titles, themes and bonus scenarios. XP and unlocks have **no monetary value**, can't be exchanged for cash, and spent XP can't be refunded. Spending XP never lowers your lifetime XP, badges or readiness score. We may correct XP or unlocks given by mistake, and we may change the store and how XP works.
 
 ## 5. Our content
 

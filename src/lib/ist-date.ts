@@ -19,6 +19,11 @@ export function dayNumber(day: string): number {
   return Math.floor(Date.parse(`${day}T00:00:00Z`) / DAY_MS);
 }
 
+/** The instant an IST calendar day starts. */
+export function istDayStart(day: string): Date {
+  return new Date(Date.parse(`${day}T00:00:00Z`) - IST_OFFSET_MS);
+}
+
 /** The hour (0-23) in IST right now. */
 export function istHour(date = new Date()): number {
   return new Date(date.getTime() + IST_OFFSET_MS).getUTCHours();

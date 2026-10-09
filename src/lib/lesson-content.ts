@@ -9,6 +9,14 @@ export type KeyTerm = { term: string; definition: string };
 
 const storedOptions = z.array(z.object({ text: z.string(), isCorrect: z.boolean() }));
 const storedKeyTerms = z.array(z.object({ term: z.string(), definition: z.string() }));
+const storedSources = z.array(z.object({ label: z.string(), url: z.string().url() }));
+
+export type Source = { label: string; url: string };
+
+export function readSources(value: unknown): Source[] {
+  const parsed = storedSources.safeParse(value);
+  return parsed.success ? parsed.data : [];
+}
 
 export function readChoiceOptions(value: unknown): ChoiceOption[] {
   const parsed = storedOptions.safeParse(value);

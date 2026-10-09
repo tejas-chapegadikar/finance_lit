@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { UserAvatar } from "@clerk/nextjs";
 import { Logo } from "@/components/ui/Logo";
-import { DesktopNav } from "./DesktopNav";
 import { XPBadge } from "./XPBadge";
 
-/** The top bar on phones and tablets; desktops get the sidebar instead. */
+/** The top bar on phones and tablets (with the bottom tab bar); desktops get the sidebar instead. */
 export function Navbar({ xpTotal, displayName }: { xpTotal: number; displayName: string }) {
   return (
     // Fixed h-14 so sticky elements below it (the lesson progress bar) can sit at top-14.
@@ -13,7 +12,6 @@ export function Navbar({ xpTotal, displayName }: { xpTotal: number; displayName:
         <Link href="/dashboard" aria-label="StockStreak home" className="shrink-0">
           <Logo />
         </Link>
-        <DesktopNav />
         <div className="flex items-center gap-2">
           <XPBadge xpTotal={xpTotal} />
           <Link

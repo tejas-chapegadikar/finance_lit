@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { questionOutcome } from "@/lib/quiz-outcome";
+import { coachCheckNote, revisionQuestion } from "@/lib/revision";
+import { readChoiceOptions } from "@/lib/lesson-content";
 import { QuizRunner, type QuizQuestion } from "@/components/quiz/QuizRunner";
 
 export const metadata: Metadata = { title: "Quiz — StockStreak" };
@@ -36,8 +38,16 @@ export default async function QuizPage(props: PageProps<"/lessons/[slug]/quiz/[a
     redirect(`/lessons/${slug}`);
   }
 
+  const checks = await db.revisionAnswer.findMany({
+    where: { quizAttemptId: attempt.id, context: "COACH_CHECK" },
+    select: { optionIndex: true, isCorrect: true, item: { select: { questionId: true } } },
+  });
+
   // Correct answers only go to the browser for questions already resolved.
   const questions: QuizQuestion[] = attempt.lesson.questions.map((question) => {
+    const practice = question.practicePrompt ? revisionQuestion(question) : null;
+    const practiceOptions = practice ? readChoiceOptions(practice.options) : [];
+    const check = checks.find((c) => c.item.questionId === question.id);
     const tries = attempt.answers.filter((a) => a.questionId === question.id);
     const outcome = questionOutcome(tries);
     const correct = question.options.find((o) => o.isCorrect);
@@ -47,6 +57,17 @@ export default async function QuizPage(props: PageProps<"/lessons/[slug]/quiz/[a
       difficulty: question.difficulty,
       options: question.options.map(({ id, text }) => ({ id, text })),
       wrongOptionIds: tries.filter((t) => !t.isCorrect).map((t) => t.selectedOptionId),
+      practice: practice ? { prompt: practice.prompt, options: practiceOptions.map((o) => o.text) } : null,
+      coachCheck:
+        practice && check
+          ? {
+              pickedIndex: check.optionIndex,
+              isCorrect: check.isCorrect,
+              correctIndex: practiceOptions.findIndex((o) => o.isCorrect),
+              explanation: practice.explanation,
+              note: coachCheckNote(check.isCorrect),
+            }
+          : null,
       resolution:
         outcome && correct
           ? {

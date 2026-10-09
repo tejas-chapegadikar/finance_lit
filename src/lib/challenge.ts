@@ -1,19 +1,34 @@
 import { db } from "./db";
-import { dayNumber, istDay } from "./ist-date";
+import { dayNumber, istDay, istDayStart } from "./ist-date";
 
 /**
- * The challenge everyone gets on `day`: the published pool is walked in
- * order, one challenge per IST day, wrapping around at the end.
+ * The challenge this student gets on `day`: a fresh one they haven't answered
+ * yet, preferring the topic of the lesson they most recently completed —
+ * learn about scams on Monday, get a scam decision on Tuesday. Only activity
+ * from before `day` counts, so the pick stays the same all day. Once they've
+ * answered the whole pool, it rotates by date.
  */
-export async function getChallengeForDay(day: string) {
-  const where = { isPublished: true };
-  const count = await db.dailyChallenge.count({ where });
-  if (count === 0) return null;
-  return db.dailyChallenge.findFirst({
-    where,
-    orderBy: [{ order: "asc" }, { createdAt: "asc" }, { id: "asc" }],
-    skip: dayNumber(day) % count,
-  });
+export async function getChallengeForUser(userId: string, day: string) {
+  const [challenges, answered, lastCompleted] = await Promise.all([
+    db.dailyChallenge.findMany({
+      where: { isPublished: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }, { id: "asc" }],
+    }),
+    db.challengeAnswer.findMany({ where: { userId, day: { lt: day } }, select: { challengeId: true } }),
+    db.quizAttempt.findFirst({
+      where: { userId, status: "COMPLETED", completedAt: { lt: istDayStart(day) } },
+      orderBy: { completedAt: "desc" },
+      select: { lesson: { select: { area: true } } },
+    }),
+  ]);
+  if (challenges.length === 0) return null;
+
+  const done = new Set(answered.map((answer) => answer.challengeId));
+  const fresh = challenges.filter((challenge) => !done.has(challenge.id));
+  if (fresh.length === 0) return challenges[dayNumber(day) % challenges.length];
+
+  const area = lastCompleted?.lesson.area;
+  return (area && fresh.find((challenge) => challenge.area === area)) || fresh[0];
 }
 
 /** Today's challenge for this student, plus their answer if they've already taken it. */
@@ -27,6 +42,6 @@ export async function getTodaysChallenge(userId: string) {
     // Show what they actually answered, even if the pool changed since.
     return { day, challenge: answer.challenge, answer };
   }
-  const challenge = await getChallengeForDay(day);
+  const challenge = await getChallengeForUser(userId, day);
   return challenge ? { day, challenge, answer: null } : null;
 }

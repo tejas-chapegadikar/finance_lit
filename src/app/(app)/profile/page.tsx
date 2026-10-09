@@ -9,6 +9,10 @@ import { stageLabel } from "@/lib/learner-profile";
 import { LEGAL_LINKS } from "@/lib/site";
 import { LEVEL_1_NAME } from "@/lib/constants";
 import { ProfileForm } from "@/components/profile/ProfileForm";
+import { ReminderForm } from "@/components/profile/ReminderForm";
+import { getMastery, MASTERY_META } from "@/lib/revision";
+import { findReward } from "@/lib/rewards";
+import { REMINDER_HOURS, emailRemindersConfigured, formatHour } from "@/lib/reminders";
 import { AccountActions } from "@/components/account/AccountActions";
 import { Medal } from "@/components/ui/Medal";
 import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/MenuRow";
@@ -41,6 +45,11 @@ export default async function ProfilePage() {
     }),
   ]);
   const badges = getBadges(progress.lessons, earnedBadges);
+  const mastery = await getMastery(user.id, progress.lessons);
+  const theme = findReward(user.theme);
+  const title = findReward(user.title);
+  // On a reward theme, chips sit on a neutral dark overlay instead of brand blue.
+  const chip = theme ? heroChip.replace("bg-brand-900/40", "bg-black/25") : heroChip;
   const earnedCount = badges.filter((b) => b.earnedAt).length;
   const displayName = getDisplayName(user);
   const subtitle = [stageLabel(user.stage), user.collegeName].filter(Boolean).join(" · ");
@@ -60,7 +69,9 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5">
-      <section className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
+      <section
+        className={`${theme?.gradient ? `rounded-3xl text-white shadow-lg shadow-slate-900/20 ${theme.gradient}` : heroSurface} relative overflow-hidden p-6 sm:p-8`}
+      >
         <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-24 h-64 w-64 rounded-full bg-white/5" />
         <div className="relative flex items-center gap-4">
           <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-3xl font-extrabold text-brand-700 uppercase shadow-[0_4px_0_0_var(--color-brand-800)]">
@@ -68,12 +79,17 @@ export default async function ProfilePage() {
           </span>
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-extrabold sm:text-3xl">{displayName}</h1>
+            {title && (
+              <p className="text-lg font-extrabold">
+                <span aria-hidden>{title.icon}</span> {title.name}
+              </p>
+            )}
             <p className="mt-1.5 flex flex-wrap gap-1.5">
-              <span className={heroChip}>
+              <span className={chip}>
                 Level 1 · {LEVEL_1_NAME}
                 {progress.levelComplete && " · 🎓 Graduate"}
               </span>
-              {subtitle && <span className={heroChip}>{subtitle}</span>}
+              {subtitle && <span className={chip}>{subtitle}</span>}
             </p>
           </div>
         </div>
@@ -84,7 +100,7 @@ export default async function ProfilePage() {
             // Label first for screen readers; shown under the number.
             <div
               key={stat.label}
-              className="flex flex-col-reverse justify-end rounded-2xl bg-brand-900/40 p-4 ring-1 ring-white/15"
+              className={`flex flex-col-reverse justify-end rounded-2xl p-4 ring-1 ring-white/15 ${theme ? "bg-black/25" : "bg-brand-900/40"}`}
             >
               <dt className="mt-0.5 text-xs font-semibold">{stat.label}</dt>
               <dd className="text-2xl font-extrabold tabular-nums">{stat.value}</dd>
@@ -147,6 +163,44 @@ export default async function ProfilePage() {
         </ul>
       </section>
 
+      <section className={`${card} scroll-mt-20 p-5 sm:p-6`} aria-labelledby="mastery-heading">
+        <h2 id="mastery-heading" className="text-lg font-extrabold text-slate-900">
+          Topic mastery
+        </h2>
+        <p className="text-sm text-slate-600">
+          Based on your quizzes and spaced revision — not on XP. Completing a lesson isn&apos;t proof you remember it;
+          getting it right again days later is.
+        </p>
+        <ul className="mt-4 divide-y divide-slate-100">
+          {progress.lessons.map((lesson) => {
+            const status = mastery.get(lesson.id) ?? "not-started";
+            return (
+              <li key={lesson.id} className="flex items-center gap-3 py-2.5 text-sm">
+                <span aria-hidden className="text-xl">
+                  {lesson.icon}
+                </span>
+                <Link href={`/lessons/${lesson.slug}`} className="min-w-0 flex-1 font-semibold text-slate-900 hover:text-brand-700">
+                  {lesson.title}
+                </Link>
+                <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${MASTERY_META[status].className}`}>
+                  {MASTERY_META[status].label}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        <details className="mt-3 text-sm text-slate-600">
+          <summary className="cursor-pointer font-bold text-brand-700">What do these mean?</summary>
+          <ul className="mt-2 flex flex-col gap-1.5">
+            {(["needs-revision", "practising", "provisional", "retained"] as const).map((status) => (
+              <li key={status}>
+                <span className="font-bold text-slate-800">{MASTERY_META[status].label}:</span> {MASTERY_META[status].rule}
+              </li>
+            ))}
+          </ul>
+        </details>
+      </section>
+
       <section className={`${card} p-5 sm:p-6`} aria-labelledby="xp-heading">
         <h2 id="xp-heading" className="text-lg font-extrabold text-slate-900">
           Recent XP
@@ -163,13 +217,15 @@ export default async function ProfilePage() {
                   aria-hidden
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-50 ring-1 ring-orange-200"
                 >
-                  ⭐
+                  {tx.amount < 0 ? "🎁" : "⭐"}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold text-slate-900">{tx.description ?? "XP"}</span>
                   <span className="text-xs text-slate-600">{formatDate(tx.createdAt)}</span>
                 </span>
-                <span className="shrink-0 font-extrabold text-orange-700 tabular-nums">+{tx.amount} XP</span>
+                <span className={`shrink-0 font-extrabold tabular-nums ${tx.amount < 0 ? "text-slate-700" : "text-orange-700"}`}>
+                  {tx.amount < 0 ? `−${-tx.amount}` : `+${tx.amount}`} XP
+                </span>
               </li>
             ))}
           </ul>
@@ -189,6 +245,19 @@ export default async function ProfilePage() {
             goal={user.goal ?? ""}
           />
         </div>
+      </section>
+
+      <section id="reminders" className={`${card} scroll-mt-20 p-5 sm:p-6`} aria-labelledby="reminders-heading">
+        <h2 id="reminders-heading" className="text-lg font-extrabold text-slate-900">
+          Daily reminder
+        </h2>
+        <p className="mb-4 text-sm text-slate-600">An optional nudge for your daily challenge and any revision that&apos;s due.</p>
+        <ReminderForm
+          enabled={user.reminderEnabled}
+          hour={user.reminderHour}
+          hours={REMINDER_HOURS.map((h) => ({ value: h, label: formatHour(h) }))}
+          emailReady={emailRemindersConfigured()}
+        />
       </section>
 
       <section className={`${card} flex flex-col gap-4 p-5 sm:p-6`} aria-labelledby="account-heading">

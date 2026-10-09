@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { getChallengeForDay } from "@/lib/challenge";
+import { getChallengeForUser } from "@/lib/challenge";
 import { DAILY_CHALLENGE_XP } from "@/lib/constants";
 import { istDay } from "@/lib/ist-date";
 import { readChoiceOptions } from "@/lib/lesson-content";
@@ -37,7 +37,7 @@ export async function answerDailyChallenge(challengeId: string, optionIndex: num
     return resultFor(existing.challenge, existing.optionIndex, existing.xpAwarded);
   }
 
-  const challenge = await getChallengeForDay(day);
+  const challenge = await getChallengeForUser(user.id, day);
   if (!challenge || challenge.id !== challengeId) {
     // The page was opened before midnight IST and today's challenge is a new one.
     return { status: "new-day" };

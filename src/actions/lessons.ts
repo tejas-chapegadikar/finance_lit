@@ -2,7 +2,6 @@
 
 import { db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { fetchProgress } from "@/lib/progress";
 import { readChoiceOptions } from "@/lib/lesson-content";
 import { isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit";
 
@@ -43,15 +42,11 @@ export async function answerScenario(lessonId: string, optionIndex: number): Pro
     return { status: "slow-down" };
   }
 
-  const [lesson, progress] = await Promise.all([
-    db.lesson.findUnique({
-      where: { id: lessonId },
-      select: { isPublished: true, scenarioOptions: true, scenarioExplanation: true },
-    }),
-    fetchProgress(user.id),
-  ]);
-  const lessonProgress = progress.lessons.find((l) => l.id === lessonId);
-  if (!lesson?.isPublished || !lessonProgress || lessonProgress.locked) {
+  const lesson = await db.lesson.findUnique({
+    where: { id: lessonId },
+    select: { isPublished: true, scenarioOptions: true, scenarioExplanation: true },
+  });
+  if (!lesson?.isPublished) {
     throw new Error("Lesson not found");
   }
 

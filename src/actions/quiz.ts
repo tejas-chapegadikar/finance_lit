@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
@@ -11,6 +12,8 @@ import { questionOutcome, summarizeAttempt } from "@/lib/quiz-outcome";
 import { fallbackHint, getOrCreateCoachHint, type CoachHint } from "@/lib/coach";
 import { fetchProgress, readinessAfterQuiz } from "@/lib/progress";
 import { recordStreakDay } from "@/lib/streak";
+import { coachCheckNote, dueDayFor, revisionQuestion, scheduleRevisionForAttempt } from "@/lib/revision";
+import { readChoiceOptions } from "@/lib/lesson-content";
 import { coachRatelimit, isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit";
 
 /**
@@ -21,13 +24,9 @@ import { coachRatelimit, isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit"
 export async function beginQuiz(lessonId: string) {
   const user = await requireOnboardedUser();
 
-  const progress = await fetchProgress(user.id);
-  const lesson = progress.lessons.find((l) => l.id === lessonId);
-  if (!lesson) {
+  const lesson = await db.lesson.findUnique({ where: { id: lessonId }, select: { id: true, slug: true, isPublished: true } });
+  if (!lesson?.isPublished) {
     throw new Error("Lesson not found");
-  }
-  if (lesson.locked) {
-    redirect(`/lessons/${lesson.slug}`);
   }
 
   // Abandon any stale in-progress attempt for this lesson (e.g. from a
@@ -166,7 +165,10 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
 
   const attempt = await db.quizAttempt.findUnique({
     where: { id: attemptId },
-    include: { answers: true, lesson: { select: { id: true, slug: true, title: true, xpReward: true } } },
+    include: {
+      answers: true,
+      lesson: { select: { id: true, slug: true, title: true, xpReward: true, questions: { select: { id: true } } } },
+    },
   });
   if (!attempt || attempt.userId !== user.id) {
     throw new Error("Attempt not found");
@@ -232,10 +234,93 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
       await awardLevelBonusIfComplete(tx, user.id, attempt.id);
     }
     await awardEarnedBadges(tx, user.id, attempt.id);
+    await scheduleRevisionForAttempt(tx, {
+      userId: user.id,
+      lessonId: attempt.lessonId,
+      quizAttemptId: attempt.id,
+      questionIds: attempt.lesson.questions.map((q) => q.id),
+      answers: attempt.answers,
+      firstCompletion: priorCompleted === 0,
+    });
     await recordStreakDay(tx, user.id);
   }, SLOW_DB_TRANSACTION);
 
   // The shared layout shows XP, so refresh it along with the destination.
   revalidatePath("/", "layout");
   redirect(resultsUrl);
+}
+
+export type CoachCheckResult =
+  | { status: "answered"; isCorrect: boolean; correctIndex: number; explanation: string; note: string }
+  | { status: "slow-down" };
+
+/**
+ * The AI Coach's follow-up after a missed question: the same idea with a
+ * different example. Checked here, never in the browser. Getting it right
+ * schedules a revision check in 3 days; missing it brings it back tomorrow.
+ * One answer per question per attempt — asking again returns the first.
+ */
+export async function answerCoachCheck(
+  attemptId: string,
+  questionId: string,
+  optionIndex: number,
+): Promise<CoachCheckResult> {
+  const user = await requireOnboardedUser();
+  if (!(await isAllowed(quizAnswerRatelimit, user.id))) {
+    return { status: "slow-down" };
+  }
+
+  const attempt = await db.quizAttempt.findUnique({ where: { id: attemptId }, select: { userId: true, lessonId: true } });
+  if (!attempt || attempt.userId !== user.id) throw new Error("Attempt not found");
+  const question = await db.question.findUnique({ where: { id: questionId }, include: { options: true } });
+  if (!question || question.lessonId !== attempt.lessonId) throw new Error("Question not found");
+
+  const tries = await db.quizAnswer.findMany({ where: { attemptId, questionId } });
+  const outcome = questionOutcome(tries);
+  if (outcome !== "with-coach" && outcome !== "revealed") throw new Error("No check needed for this question");
+
+  const practice = revisionQuestion(question);
+  const options = readChoiceOptions(practice.options);
+  const correctIndex = options.findIndex((o) => o.isCorrect);
+  if (!Number.isInteger(optionIndex) || !options[optionIndex] || correctIndex === -1) throw new Error("Option not found");
+
+  const result = (isCorrect: boolean): CoachCheckResult => ({
+    status: "answered",
+    isCorrect,
+    correctIndex,
+    explanation: practice.explanation,
+    note: coachCheckNote(isCorrect),
+  });
+
+  const existing = await db.revisionAnswer.findFirst({
+    where: { quizAttemptId: attemptId, context: "COACH_CHECK", item: { questionId } },
+  });
+  if (existing) return result(existing.isCorrect);
+
+  const isCorrect = options[optionIndex].isCorrect;
+  const stage = isCorrect ? 1 : 0;
+  const schedule = { kind: "MISTAKE" as const, stage, dueDay: dueDayFor(stage), status: "ACTIVE" as const, lastCorrect: isCorrect };
+  try {
+    await db.$transaction(async (tx) => {
+      await lockUser(tx, user.id);
+      const item = await tx.revisionItem.upsert({
+        where: { userId_questionId: { userId: user.id, questionId } },
+        create: { userId: user.id, lessonId: attempt.lessonId, questionId, ...schedule },
+        update: schedule,
+      });
+      await tx.revisionAnswer.create({
+        data: { itemId: item.id, userId: user.id, context: "COACH_CHECK", stage, optionIndex, isCorrect, quizAttemptId: attemptId },
+      });
+    }, SLOW_DB_TRANSACTION);
+  } catch (err) {
+    // A double tap: the first answer won.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      const first = await db.revisionAnswer.findFirst({
+        where: { quizAttemptId: attemptId, context: "COACH_CHECK", item: { questionId } },
+      });
+      if (first) return result(first.isCorrect);
+    }
+    throw err;
+  }
+  return result(isCorrect);
 }

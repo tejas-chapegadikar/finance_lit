@@ -86,6 +86,28 @@ export const ClockIcon = (p: IconProps) => (
   </Svg>
 );
 
+export const GiftIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="8.5" width="17" height="4" rx="1" />
+    <path d="M5 12.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7.5M12 8.5V21" />
+    <path d="M12 8.5C10.5 5 7 4.5 7 6.5S10 8.5 12 8.5zM12 8.5c1.5-3.5 5-4 5-2s-3 2-5 2z" />
+  </Svg>
+);
+
+export const TargetIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="1.5" />
+  </Svg>
+);
+
+export const RefreshIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4" />
+  </Svg>
+);
+
 export const ShieldIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M12 3l7 3v5.5c0 4.3-2.9 8-7 9.5-4.1-1.5-7-5.2-7-9.5V6z" />

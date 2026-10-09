@@ -3,6 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { LEVEL_1_LESSONS } from "./content/level1";
 import { DAILY_CHALLENGES } from "./content/challenges";
+import { PRACTICE } from "./content/practice";
+import { LESSON_TRUST } from "./content/trust";
 import type { SeedChallenge, SeedLesson } from "./content/types";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
@@ -54,6 +56,13 @@ function validateContent() {
     }
     assertChoices(`${lesson.slug} scenario`, lesson.scenario.options);
     lesson.questions.forEach((q, i) => assertChoices(`${lesson.slug} Q${i + 1}`, q.options));
+    const practice = PRACTICE[lesson.slug];
+    if (practice?.length !== lesson.questions.length) {
+      throw new Error(`${lesson.slug}: needs one practice question per quiz question`);
+    }
+    practice.forEach((p, i) => assertChoices(`${lesson.slug} practice ${i + 1}`, p.options));
+    const trust = LESSON_TRUST[lesson.slug];
+    if (!trust || trust.sources.length === 0) throw new Error(`${lesson.slug}: needs sources and a review date`);
   }
   const keys = new Set<string>();
   for (const challenge of DAILY_CHALLENGES) {
@@ -77,6 +86,8 @@ async function renameOldSlugs() {
 }
 
 async function seedLesson(data: SeedLesson) {
+  const trust = LESSON_TRUST[data.slug];
+  const practice = PRACTICE[data.slug];
   const fields = {
     title: data.title,
     icon: data.icon,
@@ -93,6 +104,9 @@ async function seedLesson(data: SeedLesson) {
     xpReward: data.xpReward,
     isPublished: true,
     order: data.order,
+    sources: trust.sources,
+    reviewedAt: new Date(`${trust.reviewedAt}T00:00:00+05:30`),
+    appliesTo: trust.appliesTo ?? null,
   };
 
   const lesson = await db.lesson.upsert({
@@ -101,28 +115,50 @@ async function seedLesson(data: SeedLesson) {
     update: fields,
   });
 
-  // Replace questions wholesale so the seed is safe to rerun — QuizAnswer
-  // and CoachHint rows cascade, and XP already earned lives in XPTransaction.
-  await db.question.deleteMany({ where: { lessonId: lesson.id } });
+  // Update questions and options in place, matched by position, so rerunning
+  // the seed keeps their ids — students' quiz answers, Coach hints and
+  // revision schedules all point at them.
+  const existing = await db.question.findMany({
+    where: { lessonId: lesson.id },
+    orderBy: { order: "asc" },
+    include: { options: { orderBy: { order: "asc" } } },
+  });
   for (const [qIndex, q] of data.questions.entries()) {
-    await db.question.create({
-      data: {
-        lessonId: lesson.id,
-        prompt: q.prompt,
-        explanation: q.explanation,
-        hint: q.hint,
-        difficulty: q.difficulty,
-        order: qIndex,
-        options: {
-          create: q.options.map((o, oIndex) => ({
-            text: o.text,
-            isCorrect: o.isCorrect,
-            order: oIndex,
-          })),
+    const questionFields = {
+      prompt: q.prompt,
+      explanation: q.explanation,
+      hint: q.hint,
+      difficulty: q.difficulty,
+      order: qIndex,
+      practicePrompt: practice[qIndex].prompt,
+      practiceOptions: practice[qIndex].options,
+      practiceExplanation: practice[qIndex].explanation,
+    };
+    const current = existing.find((e) => e.order === qIndex);
+    if (!current) {
+      await db.question.create({
+        data: {
+          lessonId: lesson.id,
+          ...questionFields,
+          options: { create: q.options.map((o, oIndex) => ({ text: o.text, isCorrect: o.isCorrect, order: oIndex })) },
         },
-      },
-    });
+      });
+      continue;
+    }
+    const textChanged = current.prompt !== q.prompt;
+    await db.question.update({ where: { id: current.id }, data: questionFields });
+    for (const [oIndex, o] of q.options.entries()) {
+      const option = current.options.find((co) => co.order === oIndex);
+      if (option) {
+        await db.option.update({ where: { id: option.id }, data: { text: o.text, isCorrect: o.isCorrect } });
+      } else {
+        await db.option.create({ data: { questionId: current.id, text: o.text, isCorrect: o.isCorrect, order: oIndex } });
+      }
+    }
+    // A reworded question makes its cached AI hints stale.
+    if (textChanged) await db.coachHint.deleteMany({ where: { questionId: current.id } });
   }
+  await db.question.deleteMany({ where: { lessonId: lesson.id, order: { gte: data.questions.length } } });
 
   console.log(`Seeded lesson: ${String(data.order).padStart(2, "0")} ${lesson.title}`);
 }

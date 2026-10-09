@@ -14,7 +14,7 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: "StockStreak",
   description:
-    "Learn money before money teaches you the hard way. Short lessons, quizzes and an AI Coach for young Indians.",
+    "Learn money before money teaches you the hard way. Practical money skills for Indian college students and first-job professionals — lessons, real-life scenarios, an AI Coach and smart revision.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

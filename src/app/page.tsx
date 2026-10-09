@@ -5,6 +5,7 @@ import { heroSurface, primaryButton, secondaryButton, tile } from "@/components/
 import { ArrowRightIcon, SparklesIcon } from "@/components/ui/icons";
 import { Logo } from "@/components/ui/Logo";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { CHAPTERS } from "@/lib/journey";
 
 // Marketing copy is static on purpose: the landing page shouldn't wait on (or
 // break with) the database.
@@ -21,28 +22,33 @@ const TOPICS = [
 
 const STEPS = [
   { icon: "📖", title: "Learn", text: "Short written lessons with real ₹ examples." },
-  { icon: "🤔", title: "Practise", text: "Decide what you'd do in a real-life situation." },
+  { icon: "🤔", title: "Practise", text: "Make decisions in real-life money scenarios and see what happens." },
   { icon: "✍️", title: "Take a Quiz", text: "Five quick questions at the end of every lesson." },
-  { icon: "💡", title: "Get Feedback", text: "A wrong answer gets you a hint from the AI Coach, not the answer." },
-  { icon: "⭐", title: "Earn XP", text: "+75 XP for every lesson you complete." },
-  { icon: "🏆", title: "Progress", text: "Raise your Financial Readiness Score and finish Level 1." },
+  { icon: "💡", title: "Get Feedback", text: "Miss one and the AI Coach gives a hint, lets you retry, then checks you've got it." },
+  { icon: "🔁", title: "Revise", text: "Missed ideas come back after 1, 3 and 7 days, so they stick." },
+  { icon: "🎁", title: "Earn & Unlock", text: "Earn XP for real learning and spend it on titles, themes and bonus scenarios." },
 ];
 
 const DIFFERENCES = [
   {
     icon: "📍",
-    title: "Built for young Indians",
-    text: "Every lesson uses examples you'll actually face — ₹, UPI, CIBIL, SIPs, bank accounts, your first salary and taxes.",
+    title: "From first stipend to first salary",
+    text: "One journey built around the money moments you'll actually face — ₹, UPI, CIBIL, payslips, taxes and SIPs.",
   },
   {
-    icon: "⚡",
-    title: "Short and interactive",
-    text: "Five-minute lessons with real-life scenarios and quizzes. You make decisions instead of sitting through lectures.",
+    icon: "🎮",
+    title: "Real decisions, not just reading",
+    text: "Manage a ₹15,000 stipend, handle a credit-card bill, spot a fake UPI request and read your first payslip.",
   },
   {
     icon: "🤖",
     title: "An AI Coach that teaches",
-    text: "Get something wrong and the Coach helps you understand why, with hints tied to the lesson — then you try again.",
+    text: "A hint first, then a retry, then a fresh question to check you've really got it — never just the answer.",
+  },
+  {
+    icon: "🧠",
+    title: "Revision that makes it stick",
+    text: "We track what you've mastered and bring back what you missed, so you remember it when it matters.",
   },
 ];
 
@@ -128,14 +134,14 @@ export default async function HomePage() {
             <div className="flex flex-col items-start gap-6">
               <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-bold tracking-wide text-brand-700 uppercase ring-1 ring-brand-200 shadow-[0_3px_0_0_var(--color-brand-100)]">
                 <span aria-hidden>⚡</span>
-                Money skills for young India
+                From first stipend to first salary
               </span>
               <h1 className="text-4xl leading-tight font-extrabold tracking-tight text-balance text-slate-900 sm:text-5xl lg:text-6xl">
                 Learn money before money teaches you <span className="text-brand-600">the hard way.</span>
               </h1>
               <p className="max-w-lg text-lg text-slate-700">
-                Learn practical money skills through interactive lessons, real-life challenges, quizzes, and an AI
-                Coach built for young Indians.
+                Practical money skills for college students and first-job professionals — from your first ₹15,000
+                stipend to your first payslip. Learn, practise real decisions, and actually remember it.
               </p>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Link href="/sign-up" className={`${primaryButton} px-8 py-4 text-base`}>
@@ -177,12 +183,34 @@ export default async function HomePage() {
           </ul>
         </section>
 
+        {/* The journey */}
+        <section className="bg-background px-4 py-16 sm:px-6 sm:py-24" aria-labelledby="journey-heading">
+          <SectionIntro
+            id="journey-heading"
+            eyebrow="Your journey"
+            title="From your first stipend to your first salary"
+            text="Level 1 is 12 short lessons in four chapters. Start with the one that fits where you are."
+          />
+          <ol className="mx-auto mt-10 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {CHAPTERS.map((chapter) => (
+              <li key={chapter.id} className={`${tile} p-5`}>
+                <span aria-hidden className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-2xl">
+                  {chapter.icon}
+                </span>
+                <p className="mt-4 text-xs font-bold tracking-wider text-brand-700 uppercase">Chapter {chapter.number}</p>
+                <h3 className="font-extrabold text-slate-900">{chapter.title}</h3>
+                <p className="mt-1 text-sm text-slate-600">{chapter.stage}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         {/* How it works */}
-        <section id="how-it-works" className="scroll-mt-4 bg-background px-4 py-16 sm:px-6 sm:py-24" aria-labelledby="how-heading">
+        <section id="how-it-works" className="scroll-mt-4 px-4 py-16 sm:px-6 sm:py-24" aria-labelledby="how-heading">
           <SectionIntro
             id="how-heading"
             eyebrow="How it works"
-            title="Learn → Practise → Take a Quiz → Get Feedback → Earn XP → Progress"
+            title="Learn → Practise → Take a Quiz → Get Feedback → Revise → Earn & Unlock"
           />
           <ol className="mx-auto mt-10 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-6">
             {STEPS.map((step, i) => (
@@ -201,13 +229,13 @@ export default async function HomePage() {
         </section>
 
         {/* What makes StockStreak different? */}
-        <section className="px-4 py-16 sm:px-6 sm:py-24" aria-labelledby="different-heading">
+        <section className="bg-background px-4 py-16 sm:px-6 sm:py-24" aria-labelledby="different-heading">
           <SectionIntro
             id="different-heading"
             eyebrow="What makes StockStreak different?"
             title="Learning that feels like real life"
           />
-          <ul className="mx-auto mt-10 grid max-w-6xl gap-4 md:grid-cols-3">
+          <ul className="mx-auto mt-10 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {DIFFERENCES.map((item) => (
               <li
                 key={item.title}
@@ -227,7 +255,7 @@ export default async function HomePage() {
         </section>
 
         {/* Final call to action */}
-        <section className="px-4 pb-16 sm:px-6 sm:pb-24">
+        <section className="px-4 py-16 sm:px-6 sm:py-24">
           <div className={`${heroSurface} relative mx-auto max-w-4xl overflow-hidden rounded-[2rem] px-6 py-14 text-center sm:px-12`}>
             <div aria-hidden className="pointer-events-none absolute -right-20 -bottom-24 h-64 w-64 rounded-full bg-white/5" />
             <h2 className="relative text-3xl font-extrabold tracking-tight text-balance sm:text-4xl">
@@ -235,7 +263,7 @@ export default async function HomePage() {
             </h2>
             {/* 20px bold counts as large text, which the bright gradient supports. */}
             <p className="relative mx-auto mt-3 max-w-xl text-xl font-bold">
-              12 short lessons, a daily money challenge and an AI Coach — free to start.
+              12 lessons, 4 money scenarios, a daily challenge and smart revision — free to start.
             </p>
             <Link href="/sign-up" className={`${primaryButton} relative mt-8 px-8 py-4 text-base`}>
               Start Learning

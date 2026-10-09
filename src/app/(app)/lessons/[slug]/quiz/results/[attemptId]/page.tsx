@@ -14,7 +14,8 @@ import { LessonFeedbackForm } from "@/components/lessons/LessonFeedbackForm";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Medal } from "@/components/ui/Medal";
 import { Confetti } from "@/components/ui/Confetti";
-import { card, primaryButton, secondaryButton } from "@/components/ui/button-styles";
+import { card, primaryButton, secondaryButton, tile } from "@/components/ui/button-styles";
+import { CORE_SCENARIOS } from "@/lib/scenarios";
 import { ArrowRightIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Lesson complete — StockStreak" };
@@ -75,6 +76,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   const levelJustCompleted = levelBonus > 0 || newBadges.some((b) => b.area === null);
 
   const next = progress.next && progress.next.lesson.id !== attempt.lessonId ? progress.next : null;
+  const practiceScenario = CORE_SCENARIOS.find((scenario) => scenario.lessonSlug === slug);
   const retake = beginQuiz.bind(null, attempt.lessonId);
 
   return (
@@ -185,6 +187,40 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
             ))}
           </ul>
         </section>
+      )}
+
+      {summary.withCoach + summary.revealed > 0 && (
+        <section className={`${card} flex items-start gap-4 p-5 sm:p-6`} aria-labelledby="revision-note">
+          <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
+            🔁
+          </span>
+          <div>
+            <h2 id="revision-note" className="font-extrabold text-slate-900">
+              Revision scheduled
+            </h2>
+            <p className="text-sm text-slate-600">
+              The {summary.withCoach + summary.revealed}{" "}
+              {summary.withCoach + summary.revealed === 1 ? "question" : "questions"} you missed will come back in
+              Revision over the next week, with fresh examples — that&apos;s how it sticks.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {practiceScenario && (
+        <Link
+          href={`/practice/${practiceScenario.slug}`}
+          className={`${tile} flex items-center gap-4 p-4 transition hover:-translate-y-0.5`}
+        >
+          <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
+            {practiceScenario.icon}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-bold tracking-wider text-brand-700 uppercase">Practise it for real</span>
+            <span className="block font-extrabold text-slate-900">{practiceScenario.title}</span>
+          </span>
+          <ArrowRightIcon className="h-5 w-5 shrink-0 text-brand-700" />
+        </Link>
       )}
 
       {next ? (

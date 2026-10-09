@@ -26,6 +26,8 @@ export const quizAnswerRatelimit = limiter("quiz-answer", 60, "1 m");
 export const coachRatelimit = limiter("coach", 20, "1 m");
 export const challengeRatelimit = limiter("challenge", 10, "1 m");
 export const feedbackRatelimit = limiter("feedback", 10, "1 m");
+export const rewardRatelimit = limiter("reward", 10, "1 m");
+export const practiceRatelimit = limiter("practice", 60, "1 m");
 
 /** True when the request may proceed. Fails open if Redis is unreachable. */
 export async function isAllowed(limit: Ratelimit | null, identifier: string): Promise<boolean> {
