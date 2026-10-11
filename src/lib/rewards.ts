@@ -1,9 +1,12 @@
+import { AVATAR_ITEMS, AVATAR_SLOTS, type AvatarSlot } from "./avatar";
+
 // The XP Rewards Store catalogue. Kept free of Prisma imports so client
 // components can use it. XP stays a measure of learning: spending it never
 // lowers lifetime XP, badges or the readiness score — it only uses up the
-// "available to spend" balance (xpTotal - xpSpent).
+// "available to spend" balance (xpTotal - xpSpent). Everything is cosmetic
+// or extra practice: nothing bought gives an advantage.
 
-export type RewardKind = "title" | "theme" | "scenario";
+export type RewardKind = "avatar" | "title" | "theme" | "scenario";
 
 export type Reward = {
   id: string;
@@ -12,16 +15,40 @@ export type Reward = {
   description: string;
   icon: string;
   cost: number;
+  /** For avatar items: the slot it fills. */
+  slot?: AvatarSlot;
+  rare?: boolean;
   /** For bonus scenarios: the scenario it unlocks. */
   scenarioSlug?: string;
   /** For themes: the profile header's gradient (white text stays readable on every step). */
   gradient?: string;
 };
 
+const slotLabel = (slot: AvatarSlot) => AVATAR_SLOTS.find((s) => s.slot === slot)?.label ?? slot;
+
+// Avatar items bought with XP. Free ones and milestone ones aren't for sale.
+const AVATAR_REWARDS: Reward[] = AVATAR_ITEMS.flatMap((item) =>
+  item.unlock.type === "xp"
+    ? [
+        {
+          id: item.id,
+          kind: "avatar" as const,
+          name: item.name,
+          description: `${item.rare ? "Rare " : ""}${slotLabel(item.slot).toLowerCase()} for your avatar.`,
+          icon: "🧑",
+          cost: item.unlock.cost,
+          slot: item.slot,
+          rare: item.rare,
+        },
+      ]
+    : [],
+);
+
 export const REWARDS: Reward[] = [
-  { id: "title-budget-boss", kind: "title", name: "Budget Boss", description: "A title shown on your profile.", icon: "💼", cost: 100 },
+  ...AVATAR_REWARDS,
+  { id: "title-stipend-saver", kind: "title", name: "Stipend Saver", description: "A title shown on your profile.", icon: "💰", cost: 100 },
   { id: "title-scam-buster", kind: "title", name: "Scam Buster", description: "A title shown on your profile.", icon: "🕵️", cost: 100 },
-  { id: "title-credit-champ", kind: "title", name: "Credit Champ", description: "A title shown on your profile.", icon: "🏆", cost: 100 },
+  { id: "title-due-date-hero", kind: "title", name: "Due-Date Hero", description: "A title shown on your profile.", icon: "📅", cost: 100 },
   { id: "title-salary-smart", kind: "title", name: "Salary Smart", description: "A title shown on your profile.", icon: "🧾", cost: 100 },
   {
     id: "theme-sunset",
@@ -71,6 +98,7 @@ export const REWARDS: Reward[] = [
 ];
 
 export const REWARD_KIND_LABEL: Record<RewardKind, string> = {
+  avatar: "Avatar items",
   title: "Profile titles",
   theme: "Profile themes",
   scenario: "Bonus scenarios",
@@ -86,4 +114,9 @@ export function rewardForScenario(slug: string): Reward | undefined {
 
 export function spendableXp(user: { xpTotal: number; xpSpent: number }): number {
   return Math.max(0, user.xpTotal - user.xpSpent);
+}
+
+/** The cheapest store item not owned yet — "your next reward". */
+export function nextReward(owned: Set<string>): Reward | null {
+  return REWARDS.filter((r) => !owned.has(r.id)).sort((a, b) => a.cost - b.cost)[0] ?? null;
 }

@@ -14,9 +14,14 @@ export function shiftDay(day: string, delta: number): string {
   return new Date(Date.parse(`${day}T00:00:00Z`) + delta * DAY_MS).toISOString().slice(0, 10);
 }
 
-/** Days since 1970-01-01 — used to rotate through the daily challenge pool. */
+/** Days since 1970-01-01 — used to rotate daily content. */
 export function dayNumber(day: string): number {
   return Math.floor(Date.parse(`${day}T00:00:00Z`) / DAY_MS);
+}
+
+/** Whole days from `from` to `to` (positive when `to` is later). */
+export function daysBetween(from: string, to: string): number {
+  return dayNumber(to) - dayNumber(from);
 }
 
 /** The instant an IST calendar day starts. */

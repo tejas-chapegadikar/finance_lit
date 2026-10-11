@@ -2,13 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserAvatar } from "@clerk/nextjs";
+import type { AvatarConfig } from "@/lib/avatar";
+import { Avatar } from "@/components/avatar/Avatar";
 import { Logo } from "@/components/ui/Logo";
 import { NAV_ITEMS, isActive } from "./nav-items";
 import { XPBadge } from "./XPBadge";
 
-/** Desktop navigation: the four destinations, XP and the student's profile. */
-export function Sidebar({ xpTotal, displayName, title }: { xpTotal: number; displayName: string; title: string | null }) {
+/** Desktop navigation: the five destinations, XP and the student's profile. */
+export function Sidebar({
+  xpTotal,
+  displayName,
+  title,
+  avatar,
+}: {
+  xpTotal: number;
+  displayName: string;
+  title: string | null;
+  avatar: AvatarConfig;
+}) {
   const pathname = usePathname();
 
   return (
@@ -47,7 +58,9 @@ export function Sidebar({ xpTotal, displayName, title }: { xpTotal: number; disp
           className="flex items-center gap-3 rounded-2xl p-2 transition hover:bg-slate-100"
           aria-label={`Your profile (${displayName})`}
         >
-          <UserAvatar />
+          <span className="flex h-10 w-10 shrink-0 items-end justify-center overflow-hidden rounded-full bg-brand-50 ring-2 ring-brand-100">
+            <Avatar config={avatar} crop="head" className="h-10 w-10" />
+          </span>
           <span className="min-w-0">
             <span className="block truncate text-sm font-bold text-slate-900">{displayName}</span>
             {title && <span className="block truncate text-xs font-semibold text-brand-700">{title}</span>}

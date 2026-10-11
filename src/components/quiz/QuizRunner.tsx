@@ -13,6 +13,7 @@ import type { OptionState } from "@/components/ui/OptionButton";
 import { QuestionCard } from "./QuestionCard";
 import { CoachPanel } from "./CoachPanel";
 import { AnswerBanner } from "./AnswerBanner";
+import { CoachFollowUp, type FollowUp } from "./CoachFollowUp";
 
 export type Resolution = {
   status: "correct" | "revealed";
@@ -34,6 +35,8 @@ export type QuizQuestion = {
   practice: { prompt: string; options: string[] } | null;
   /** The answer to that follow-up, if already given. */
   coachCheck: ChoiceAnswer | null;
+  /** Questions already asked to the Coach about this one. */
+  followUps: FollowUp[];
 };
 
 // A question answered first time needs no follow-up; a miss gets the Coach's check.
@@ -262,6 +265,16 @@ export function QuizRunner({
             labels={{ right: "🎯 You've got it!", wrong: "❌ Not yet" }}
           />
         </section>
+      )}
+
+      {resolution && (
+        <CoachFollowUp
+          key={`ask-${question.id}`}
+          attemptId={attemptId}
+          questionId={question.id}
+          missed={resolution.status === "revealed" || resolution.tryNumber > 1}
+          initial={question.followUps}
+        />
       )}
 
       {resolution && (!needsCheck(question, resolution) || checkDone) && (

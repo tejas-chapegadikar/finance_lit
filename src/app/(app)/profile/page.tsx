@@ -4,7 +4,13 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDisplayName } from "@/lib/user";
 import { getProgress } from "@/lib/progress";
-import { getBadges } from "@/lib/badges";
+import { getBadges, loadBadgeStats } from "@/lib/badges";
+import { istDay, shiftDay } from "@/lib/ist-date";
+import { MAX_STREAK_FREEZES, STREAK_MILESTONES, getActivityDays, streakStatus } from "@/lib/streak";
+import { rankFor } from "@/lib/ranks";
+import { readAvatar } from "@/lib/avatar";
+import { Avatar } from "@/components/avatar/Avatar";
+import { StreakCalendar } from "@/components/streak/StreakCalendar";
 import { stageLabel } from "@/lib/learner-profile";
 import { LEGAL_LINKS } from "@/lib/site";
 import { LEVEL_1_NAME } from "@/lib/constants";
@@ -34,7 +40,8 @@ const formatDate = (date: Date) =>
 
 export default async function ProfilePage() {
   const user = await requireOnboardedUser();
-  const [progress, earnedBadges, xpHistory] = await Promise.all([
+  const today = istDay();
+  const [progress, earnedBadges, xpHistory, revisionByLesson, calendar] = await Promise.all([
     getProgress(user.id),
     db.userBadge.findMany({ where: { userId: user.id }, select: { badgeId: true, earnedAt: true } }),
     db.xPTransaction.findMany({
@@ -43,26 +50,45 @@ export default async function ProfilePage() {
       take: 8,
       select: { id: true, amount: true, description: true, createdAt: true },
     }),
+    db.revisionAnswer.findMany({
+      where: { userId: user.id, context: "REVIEW" },
+      select: { isCorrect: true, item: { select: { lessonId: true } } },
+    }),
+    getActivityDays(db, user.id, shiftDay(today, -41), today),
   ]);
-  const badges = getBadges(progress.lessons, earnedBadges);
-  const mastery = await getMastery(user.id, progress.lessons);
+  const [badgeStats, mastery] = await Promise.all([
+    loadBadgeStats(db, user.id, progress.lessons),
+    getMastery(user.id, progress.lessons),
+  ]);
+  const badges = getBadges(badgeStats, earnedBadges);
   const theme = findReward(user.theme);
   const title = findReward(user.title);
+  const avatar = readAvatar(user.avatar);
+  const streak = streakStatus(user, today);
+  const rank = rankFor(progress.completedCount, progress.overall, progress.totalLessons);
   // On a reward theme, chips sit on a neutral dark overlay instead of brand blue.
   const chip = theme ? heroChip.replace("bg-brand-900/40", "bg-black/25") : heroChip;
   const earnedCount = badges.filter((b) => b.earnedAt).length;
   const displayName = getDisplayName(user);
   const subtitle = [stageLabel(user.stage), user.collegeName].filter(Boolean).join(" · ");
   const memberSince = user.createdAt.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
-  const overallProgress = progress.totalLessons
-    ? Math.round((progress.completedCount / progress.totalLessons) * 100)
-    : 0;
+
+  // Accuracy by topic: quiz accuracy (best attempts) and revision answers.
+  const topicAccuracy = progress.areas.map((area) => {
+    const lessonIds = new Set(progress.lessons.filter((l) => l.area === area.area).map((l) => l.id));
+    const answers = revisionByLesson.filter((r) => lessonIds.has(r.item.lessonId));
+    return {
+      ...area,
+      revisionTotal: answers.length,
+      revisionPercent: answers.length ? Math.round((100 * answers.filter((a) => a.isCorrect).length) / answers.length) : null,
+    };
+  });
 
   const stats = [
     { label: "Total XP", value: user.xpTotal.toLocaleString("en-IN") },
     { label: "Lessons completed", value: `${progress.completedCount}/${progress.totalLessons}` },
-    { label: "Overall progress", value: `${overallProgress}%` },
-    { label: "Current level", value: "Level 1" },
+    { label: "Learning streak", value: `🔥 ${streak.streak}` },
+    { label: "Rank", value: rank.current.name },
     { label: "Financial Readiness", value: `${progress.overall}/100` },
     { label: "Badges earned", value: `${earnedCount}/${badges.length}` },
   ];
@@ -74,9 +100,14 @@ export default async function ProfilePage() {
       >
         <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-24 h-64 w-64 rounded-full bg-white/5" />
         <div className="relative flex items-center gap-4">
-          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-3xl font-extrabold text-brand-700 uppercase shadow-[0_4px_0_0_var(--color-brand-800)]">
-            {displayName.charAt(0)}
-          </span>
+          <div className="flex shrink-0 flex-col items-center gap-2">
+            <span className="flex h-32 w-28 items-end justify-center overflow-hidden rounded-3xl bg-white/90 shadow-[0_4px_0_0_rgb(0_0_0/0.25)]">
+              <Avatar config={avatar} className="h-28 w-auto" label={`${displayName}'s avatar`} />
+            </span>
+            <Link href="/profile/avatar" className={`${chip} hover:bg-white/25`}>
+              🎨 Edit avatar
+            </Link>
+          </div>
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-extrabold sm:text-3xl">{displayName}</h1>
             {title && (
@@ -85,6 +116,9 @@ export default async function ProfilePage() {
               </p>
             )}
             <p className="mt-1.5 flex flex-wrap gap-1.5">
+              <span className={chip}>
+                <span aria-hidden>{rank.current.icon}</span> {rank.current.name}
+              </span>
               <span className={chip}>
                 Level 1 · {LEVEL_1_NAME}
                 {progress.levelComplete && " · 🎓 Graduate"}
@@ -128,6 +162,44 @@ export default async function ProfilePage() {
         </section>
       )}
 
+      <section id="streak" className={`${card} scroll-mt-20 p-5 sm:p-6`} aria-labelledby="streak-heading">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="streak-heading" className="text-lg font-extrabold text-slate-900">
+            🔥 Learning streak
+          </h2>
+          <span className="text-sm font-semibold text-slate-600">Longest: {user.longestStreak} days</span>
+        </div>
+        <p className="text-sm text-slate-600">
+          {streak.streak
+            ? `${streak.streak} ${streak.streak === 1 ? "day" : "days"} in a row${streak.doneToday ? " — today counts." : "."}`
+            : "Do one lesson, scenario, revision or daily question to start a streak."}{" "}
+          🧊 {user.streakFreezes} of {MAX_STREAK_FREEZES} streak freezes ready.
+        </p>
+        <div className="mt-4 grid gap-5 sm:grid-cols-[minmax(0,1fr)_14rem]">
+          <StreakCalendar marks={calendar} today={today} />
+          <div>
+            <h3 className="text-sm font-extrabold text-slate-900">Milestones</h3>
+            <ul className="mt-2 flex flex-col gap-1.5 text-sm">
+              {STREAK_MILESTONES.map((m) => {
+                const reached = user.longestStreak >= m.days;
+                return (
+                  <li key={m.days} className={`flex items-center justify-between rounded-xl px-3 py-1.5 ring-1 ${reached ? "bg-orange-50 ring-orange-200" : "bg-slate-50 ring-slate-200"}`}>
+                    <span className="font-semibold text-slate-800">
+                      {reached ? "✅" : "🔒"} {m.days} days
+                    </span>
+                    <span className="font-extrabold text-orange-800">+{m.xp} XP</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-3 text-xs text-slate-600">
+              🔥 learned · 🧊 covered by a freeze. A freeze covers a missed day automatically; you earn one every 7 days of
+              streak (hold up to {MAX_STREAK_FREEZES}). A 7-day streak unlocks the Flame hoodie, 30 days the Crown.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className={`${card} p-5 sm:p-6`} aria-labelledby="badges-heading">
         <div className="flex items-baseline justify-between gap-3">
           <h2 id="badges-heading" className="text-lg font-extrabold text-slate-900">
@@ -151,7 +223,7 @@ export default async function ProfilePage() {
               >
                 <Medal icon={badge.icon} earned={earned} />
                 <p className={`mt-2 text-sm font-bold ${earned ? "text-slate-900" : "text-slate-600"}`}>{badge.name}</p>
-                <p className="mt-0.5 text-xs text-slate-600">{badge.rule}</p>
+                <p className="mt-0.5 text-xs text-slate-600">{badge.ruleText}</p>
                 <p className={`mt-1.5 text-xs font-bold ${earned ? "text-emerald-800" : "text-slate-600"}`}>
                   {badge.earnedAt
                     ? `✓ Earned ${formatDate(badge.earnedAt)}`
@@ -189,6 +261,33 @@ export default async function ProfilePage() {
             );
           })}
         </ul>
+        <h3 className="mt-5 text-sm font-extrabold text-slate-900">Accuracy by topic</h3>
+        <div className="mt-2 overflow-hidden rounded-2xl ring-1 ring-slate-200">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-xs text-slate-600">
+              <tr>
+                <th scope="col" className="px-3 py-2 font-bold">Topic</th>
+                <th scope="col" className="px-3 py-2 text-right font-bold">Quiz accuracy</th>
+                <th scope="col" className="px-3 py-2 text-right font-bold">Revision</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {topicAccuracy.map((area) => (
+                <tr key={area.area}>
+                  <th scope="row" className="px-3 py-2 font-semibold text-slate-800">
+                    <span aria-hidden>{area.icon}</span> {area.label}
+                  </th>
+                  <td className="px-3 py-2 text-right font-bold text-slate-900 tabular-nums">
+                    {area.quizAccuracy === null ? "—" : `${area.quizAccuracy}%`}
+                  </td>
+                  <td className="px-3 py-2 text-right font-bold text-slate-900 tabular-nums">
+                    {area.revisionPercent === null ? "—" : `${area.revisionPercent}% of ${area.revisionTotal}`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <details className="mt-3 text-sm text-slate-600">
           <summary className="cursor-pointer font-bold text-brand-700">What do these mean?</summary>
           <ul className="mt-2 flex flex-col gap-1.5">
@@ -207,7 +306,7 @@ export default async function ProfilePage() {
         </h2>
         {xpHistory.length === 0 ? (
           <p className="mt-2 text-sm text-slate-600">
-            No XP yet. Complete a lesson for your first +75 XP, or answer Today&apos;s Challenge for +25.
+            No XP yet. Complete a lesson for your first +75 XP, or answer the Question of the Day for +10.
           </p>
         ) : (
           <ul className="mt-3 divide-y divide-slate-100 text-sm">
@@ -251,7 +350,11 @@ export default async function ProfilePage() {
         <h2 id="reminders-heading" className="text-lg font-extrabold text-slate-900">
           Daily reminder
         </h2>
-        <p className="mb-4 text-sm text-slate-600">An optional nudge for your daily challenge and any revision that&apos;s due.</p>
+        <p className="mb-4 text-sm text-slate-600">
+          An optional nudge when today&apos;s question and challenge are ready, with any revision that&apos;s due. At most
+          one a day, only at the hour you pick (never between 10 PM and 6 AM), and only if you haven&apos;t learned yet
+          that day.
+        </p>
         <ReminderForm
           enabled={user.reminderEnabled}
           hour={user.reminderHour}

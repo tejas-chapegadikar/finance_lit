@@ -69,6 +69,9 @@ export type StepAnswer = number | number[] | Record<string, number>;
 
 export type StepResult = { points: number; maxPoints: number; feedback: string[] };
 
+/** A server check of one step. "new-day": a daily set changed at midnight IST. */
+export type StepCheck = ({ status: "checked" } & StepResult) | { status: "slow-down" } | { status: "new-day" };
+
 // What the browser sees: no points, feedback or correct answers.
 export type PublicStep =
   | { kind: "choice"; prompt: string; options: string[] }

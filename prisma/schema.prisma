@@ -51,14 +51,20 @@ enum Difficulty {
 enum XPTransactionType {
   SIGNUP_BONUS
   QUIZ_COMPLETION
-  DAILY_CHALLENGE
+  // Answering the single Question of the Day.
+  QUESTION_OF_THE_DAY
   LEVEL_COMPLETION
+  // A streak milestone (3, 7, 14, 30, 100 days).
   STREAK_BONUS
   ADMIN_ADJUSTMENT
   // XP spent in the Rewards Store — a negative amount.
   REDEMPTION
   SCENARIO_COMPLETION
   REVISION
+  // Finishing the multi-step Daily Challenge.
+  DAILY_CHALLENGE
+  // Completing all three of the day's missions.
+  MISSION_BONUS
 }
 
 // MISTAKE: a question the student missed, brought back at 1, 3 and 7 days.
@@ -101,34 +107,40 @@ model User {
   // Equipped Rewards Store unlocks (reward ids from src/lib/rewards.ts).
   title   String?
   theme   String?
+  // The student's avatar: { slot: itemId } (items in src/lib/avatar.ts); null = default look.
+  avatar  Json?
 
   // Optional daily reminder email at this IST hour (0-23).
   reminderEnabled     Boolean @default(false)
   reminderHour        Int     @default(20)
   reminderLastSentDay String?
 
-  // Days in a row with a meaningful learning action (quiz, scenario, daily
-  // challenge or revision), counted in IST calendar days.
-  currentStreak          Int       @default(0)
-  longestStreak          Int       @default(0)
+  // Days in a row with a meaningful learning action (a quiz, scenario,
+  // revision answer, Question of the Day or Daily Challenge), in IST days.
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
   // IST date (YYYY-MM-DD) of the last day that counted toward the streak.
-  streakLastDay          String?
+  streakLastDay    String?
   // Last time the student opened a lesson or started a quiz — feeds retention metrics.
-  lastActivityDate       DateTime?
-  streakFreezesAvailable Int       @default(3)
-  streakFreezesResetAt   DateTime?
+  lastActivityDate DateTime?
+  // Streak freezes held (max 2): each covers one missed day automatically.
+  // Earned every 7 days of streak — never bought.
+  streakFreezes    Int       @default(1)
 
-  quizAttempts     QuizAttempt[]
-  xpTransactions   XPTransaction[]
-  lessonViews      LessonView[]
-  scenarioAnswers  ScenarioAnswer[]
-  challengeAnswers ChallengeAnswer[]
-  badges           UserBadge[]
-  lessonFeedback   LessonFeedback[]
-  revisionItems    RevisionItem[]
-  revisionAnswers  RevisionAnswer[]
-  scenarioRuns     ScenarioRun[]
-  rewardUnlocks    RewardUnlock[]
+  quizAttempts         QuizAttempt[]
+  xpTransactions       XPTransaction[]
+  lessonViews          LessonView[]
+  scenarioAnswers      ScenarioAnswer[]
+  questionAnswers      DailyQuestionAnswer[]
+  badges               UserBadge[]
+  lessonFeedback       LessonFeedback[]
+  revisionItems        RevisionItem[]
+  revisionAnswers      RevisionAnswer[]
+  scenarioRuns         ScenarioRun[]
+  rewardUnlocks        RewardUnlock[]
+  activityDays         ActivityDay[]
+  dailyChallengeRuns   DailyChallengeRun[]
+  coachFollowUps       CoachFollowUp[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -222,6 +234,7 @@ model Question {
   answers             QuizAnswer[]
   coachHints          CoachHint[]
   revisionItems       RevisionItem[]
+  coachFollowUps      CoachFollowUp[]
   createdAt           DateTime       @default(now())
 }
 
@@ -258,6 +271,7 @@ model QuizAttempt {
   answers         QuizAnswer[]
   xpTransactions  XPTransaction[]
   badges          UserBadge[]
+  coachFollowUps  CoachFollowUp[]
 
   @@index([userId, lessonId])
 }
@@ -300,36 +314,85 @@ model CoachHint {
   @@unique([questionId, wrongOptionIds])
 }
 
-// A pool of short real-life scenarios. Each day every student gets the same
-// one, picked by rotating through the published pool in `order`.
-model DailyChallenge {
-  id          String            @id @default(cuid())
-  prompt      String            @db.Text
+// The Question of the Day pool: one short real-life money decision a day,
+// picked per student from the questions they haven't answered yet.
+model DailyQuestion {
+  id          String                @id @default(cuid())
+  prompt      String                @db.Text
   // [{ text, isCorrect }]
   options     Json
-  explanation String            @db.Text
+  explanation String                @db.Text
   area        ReadinessArea
-  isPublished Boolean           @default(true)
-  order       Int               @default(0)
-  answers     ChallengeAnswer[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  isPublished Boolean               @default(true)
+  order       Int                   @default(0)
+  answers     DailyQuestionAnswer[]
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
 }
 
-model ChallengeAnswer {
-  id          String         @id @default(cuid())
+model DailyQuestionAnswer {
+  id          String        @id @default(cuid())
   userId      String
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challengeId String
-  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    DailyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   // IST date (YYYY-MM-DD) — one answer per student per day.
   day         String
   optionIndex Int
   isCorrect   Boolean
-  xpAwarded   Int            @default(0)
-  answeredAt  DateTime       @default(now())
+  xpAwarded   Int           @default(0)
+  answeredAt  DateTime      @default(now())
 
   @@unique([userId, day])
+}
+
+// A finished Daily Challenge (content in src/lib/daily-challenge): a short
+// multi-step set — one per student per IST day.
+model DailyChallengeRun {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day          String
+  // Which challenge it was, e.g. "quickfire-CREDIT" or "spot-the-scams".
+  challengeKey String
+  score        Int
+  maxScore     Int
+  answers      Json
+  xpAwarded    Int      @default(0)
+  completedAt  DateTime @default(now())
+
+  @@unique([userId, day])
+}
+
+// One row per IST day a student did a meaningful learning action — the
+// streak calendar. `frozen` marks a missed day a streak freeze covered.
+model ActivityDay {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day       String
+  frozen    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, day])
+}
+
+// A follow-up question a student asked the AI Coach about a quiz question
+// they'd already answered, and the Coach's reply.
+model CoachFollowUp {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attemptId  String
+  attempt    QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  message    String      @db.Text
+  reply      String      @db.Text
+  model      String
+  createdAt  DateTime    @default(now())
+
+  @@index([attemptId, questionId])
 }
 
 model XPTransaction {

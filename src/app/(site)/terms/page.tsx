@@ -27,9 +27,9 @@ Please don't:
 - Misuse the AI Coach, for example by trying to make it produce content unrelated to the lesson
 - Pretend to be someone else
 
-## 4. XP, badges and scores
+## 4. XP, badges, streaks and scores
 
-XP, badges and the Financial Readiness Score track your learning. You can spend XP in the Rewards Store on digital unlocks such as profile titles, themes and bonus scenarios. XP and unlocks have **no monetary value**, can't be exchanged for cash, and spent XP can't be refunded. Spending XP never lowers your lifetime XP, badges or readiness score. We may correct XP or unlocks given by mistake, and we may change the store and how XP works.
+XP, badges, ranks, streaks and the Financial Readiness Score track your learning. You can spend XP in the Rewards Store on digital unlocks such as avatar items, profile titles, themes and bonus scenarios; some avatar items unlock only through badges or streaks. XP, unlocks and streak freezes have **no monetary value**, can't be bought or exchanged for cash, and spent XP can't be refunded. Unlocks are cosmetic or extra practice — they give no advantage. Spending XP never lowers your lifetime XP, badges or readiness score. We may correct XP, streaks or unlocks given by mistake, and we may change the store and how XP works.
 
 ## 5. Our content
 

@@ -6,10 +6,18 @@ import { redirect } from "next/navigation";
 import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { awardLevelBonusIfComplete, awardXp, lockUser, xpKeys } from "@/lib/xp";
-import { awardEarnedBadges } from "@/lib/badges";
-import { MAX_TRIES_PER_QUESTION, QUESTIONS_PER_QUIZ } from "@/lib/constants";
+import { awardLessonBadges } from "@/lib/badges";
+import { COACH_UNAVAILABLE_MESSAGE, MAX_TRIES_PER_QUESTION, QUESTIONS_PER_QUIZ } from "@/lib/constants";
 import { questionOutcome, summarizeAttempt } from "@/lib/quiz-outcome";
-import { fallbackHint, getOrCreateCoachHint, type CoachHint } from "@/lib/coach";
+import {
+  COACH_MODEL,
+  MAX_FOLLOW_UPS,
+  MAX_FOLLOW_UP_LENGTH,
+  answerFollowUp,
+  fallbackHint,
+  getOrCreateCoachHint,
+  type CoachHint,
+} from "@/lib/coach";
 import { fetchProgress, readinessAfterQuiz } from "@/lib/progress";
 import { recordStreakDay } from "@/lib/streak";
 import { coachCheckNote, dueDayFor, revisionQuestion, scheduleRevisionForAttempt } from "@/lib/revision";
@@ -233,7 +241,7 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
       }
       await awardLevelBonusIfComplete(tx, user.id, attempt.id);
     }
-    await awardEarnedBadges(tx, user.id, attempt.id);
+    await awardLessonBadges(tx, user.id, attempt.id);
     await scheduleRevisionForAttempt(tx, {
       userId: user.id,
       lessonId: attempt.lessonId,
@@ -323,4 +331,60 @@ export async function answerCoachCheck(
     throw err;
   }
   return result(isCorrect);
+}
+
+export type FollowUpResult =
+  | { status: "answered"; reply: string; remaining: number }
+  | { status: "unavailable"; message: string }
+  | { status: "limit" }
+  | { status: "slow-down" };
+
+/**
+ * A follow-up question to the AI Coach about a question the student has
+ * already answered. The Coach sees only this lesson, this question and the
+ * conversation so far. A few per question, so model calls stay bounded.
+ */
+export async function askCoach(params: { attemptId: string; questionId: string; message: string }): Promise<FollowUpResult> {
+  const user = await requireOnboardedUser();
+  if (!(await isAllowed(coachRatelimit, user.id))) return { status: "slow-down" };
+
+  const message = params.message.trim().slice(0, MAX_FOLLOW_UP_LENGTH);
+  if (!message) throw new Error("Type a question first");
+
+  const attempt = await db.quizAttempt.findUnique({ where: { id: params.attemptId }, select: { userId: true, lessonId: true } });
+  if (!attempt || attempt.userId !== user.id) throw new Error("Attempt not found");
+  const question = await db.question.findUnique({
+    where: { id: params.questionId },
+    include: { options: { orderBy: { order: "asc" } }, lesson: { select: { title: true, contentMarkdown: true } } },
+  });
+  if (!question || question.lessonId !== attempt.lessonId) throw new Error("Question not found");
+
+  const [tries, history] = await Promise.all([
+    db.quizAnswer.findMany({ where: { attemptId: params.attemptId, questionId: question.id }, orderBy: { tryNumber: "asc" } }),
+    db.coachFollowUp.findMany({
+      where: { attemptId: params.attemptId, questionId: question.id },
+      orderBy: { createdAt: "asc" },
+      select: { message: true, reply: true },
+    }),
+  ]);
+  // Only once the answer is on screen — follow-ups never give a question away.
+  if (!questionOutcome(tries)) throw new Error("Answer the question first");
+  if (history.length >= MAX_FOLLOW_UPS) return { status: "limit" };
+
+  const reply = await answerFollowUp({
+    lessonTitle: question.lesson.title,
+    lessonContent: question.lesson.contentMarkdown,
+    prompt: question.prompt,
+    options: question.options,
+    explanation: question.explanation,
+    picks: tries.map((t) => question.options.find((o) => o.id === t.selectedOptionId)?.text ?? ""),
+    history,
+    message,
+  });
+  if (!reply) return { status: "unavailable", message: COACH_UNAVAILABLE_MESSAGE };
+
+  await db.coachFollowUp.create({
+    data: { userId: user.id, attemptId: params.attemptId, questionId: question.id, message, reply, model: COACH_MODEL },
+  });
+  return { status: "answered", reply, remaining: MAX_FOLLOW_UPS - history.length - 1 };
 }

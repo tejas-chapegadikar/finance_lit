@@ -40,7 +40,7 @@ export type SeedLesson = {
   questions: SeedQuestion[];
 };
 
-export type SeedChallenge = {
+export type SeedDailyQuestion = {
   key: string;
   area: ReadinessArea;
   prompt: string;

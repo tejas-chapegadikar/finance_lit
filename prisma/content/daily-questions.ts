@@ -1,9 +1,9 @@
-import { choices, type SeedChallenge } from "./types";
+import { choices, type SeedDailyQuestion } from "./types";
 
-// The Daily Money Challenge pool. Every student gets the same challenge each
-// day, rotating through this list in order — areas are interleaved so
-// back-to-back days feel different.
-export const DAILY_CHALLENGES: SeedChallenge[] = [
+// The Question of the Day pool. Each student gets one a day — a fresh one they
+// haven't answered, preferring their latest lesson's topic, then this order. Areas
+// are interleaved so back-to-back days feel different.
+export const DAILY_QUESTIONS: SeedDailyQuestion[] = [
   {
     key: "upi-pin-to-receive",
     area: "DIGITAL_SAFETY",

@@ -54,10 +54,18 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
     notFound();
   }
 
-  const feedback = await db.lessonFeedback.findUnique({
-    where: { userId_lessonId: { userId: user.id, lessonId: attempt.lessonId } },
-    select: { helpful: true, comment: true },
-  });
+  const [feedback, earlier] = await Promise.all([
+    db.lessonFeedback.findUnique({
+      where: { userId_lessonId: { userId: user.id, lessonId: attempt.lessonId } },
+      select: { helpful: true, comment: true },
+    }),
+    // Earlier completed attempts, to celebrate an improvement.
+    db.quizAttempt.aggregate({
+      where: { userId: user.id, lessonId: attempt.lessonId, status: "COMPLETED", completedAt: { lt: attempt.completedAt ?? new Date() } },
+      _max: { mastery: true },
+    }),
+  ]);
+  const previousBest = earlier._max.mastery;
 
   const summary = summarizeAttempt(attempt.answers, attempt.totalQuestions);
   const percent = Math.round((summary.firstTry / attempt.totalQuestions) * 100);
@@ -73,7 +81,8 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   // Badges are stored with the attempt that unlocked them.
   const unlocked = new Set(attempt.badges.map((b) => b.badgeId));
   const newBadges = BADGES.filter((badge) => unlocked.has(badge.id));
-  const levelJustCompleted = levelBonus > 0 || newBadges.some((b) => b.area === null);
+  const levelJustCompleted = levelBonus > 0 || newBadges.some((b) => b.rule.kind === "level");
+  const shownBadges = newBadges.filter((b) => b.rule.kind !== "level");
 
   const next = progress.next && progress.next.lesson.id !== attempt.lessonId ? progress.next : null;
   const practiceScenario = CORE_SCENARIOS.find((scenario) => scenario.lessonSlug === slug);
@@ -97,8 +106,8 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
           </ul>
           {levelBonus > 0 && <p className="mt-4 text-sm font-bold text-slate-900">+{levelBonus} XP level bonus</p>}
           <p className="mx-auto mt-2 max-w-sm text-sm font-semibold text-slate-900">
-            Next: Level 2 — {LEVEL_2_NAME} is coming soon. Until then, keep your skills sharp with Today&apos;s
-            Challenge.
+            Next: Level 2 — {LEVEL_2_NAME} is coming soon. Until then, keep your skills sharp with the daily
+            question and challenge.
           </p>
         </section>
       )}
@@ -155,15 +164,19 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
               {summary.withCoach} more solved with the Coach&apos;s help 💪
             </p>
           )}
+          {previousBest !== null && (attempt.mastery ?? 0) > previousBest && (
+            <p className="mt-3 text-center text-sm font-extrabold text-emerald-800">
+              📈 You improved — quiz accuracy {previousBest}% → {attempt.mastery}%. That&apos;s learning sticking!
+            </p>
+          )}
         </div>
       </div>
 
-      {newBadges.filter((b) => b.area !== null).length > 0 && (
+      {shownBadges.length > 0 && (
         <section className={`${card} p-5 sm:p-6`}>
           <h2 className="text-lg font-extrabold text-slate-900">🏅 New badge unlocked</h2>
           <ul className="mt-4 flex flex-wrap gap-4">
-            {newBadges
-              .filter((b) => b.area !== null)
+            {shownBadges
               .map((badge) => (
                 <li key={badge.id} className="flex w-28 flex-col items-center gap-2 text-center">
                   <span className="motion-safe:animate-pop">

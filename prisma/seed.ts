@@ -2,10 +2,10 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { LEVEL_1_LESSONS } from "./content/level1";
-import { DAILY_CHALLENGES } from "./content/challenges";
+import { DAILY_QUESTIONS } from "./content/daily-questions";
 import { PRACTICE } from "./content/practice";
 import { LESSON_TRUST } from "./content/trust";
-import type { SeedChallenge, SeedLesson } from "./content/types";
+import type { SeedDailyQuestion, SeedLesson } from "./content/types";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter });
@@ -65,10 +65,10 @@ function validateContent() {
     if (!trust || trust.sources.length === 0) throw new Error(`${lesson.slug}: needs sources and a review date`);
   }
   const keys = new Set<string>();
-  for (const challenge of DAILY_CHALLENGES) {
-    if (keys.has(challenge.key)) throw new Error(`Duplicate challenge key: ${challenge.key}`);
-    keys.add(challenge.key);
-    assertChoices(`challenge ${challenge.key}`, challenge.options);
+  for (const question of DAILY_QUESTIONS) {
+    if (keys.has(question.key)) throw new Error(`Duplicate question key: ${question.key}`);
+    keys.add(question.key);
+    assertChoices(`question ${question.key}`, question.options);
   }
 }
 
@@ -183,7 +183,7 @@ async function retireOldLessons() {
   }
 }
 
-async function seedChallenge(data: SeedChallenge, order: number) {
+async function seedDailyQuestion(data: SeedDailyQuestion, order: number) {
   // A stable id keeps reruns idempotent without needing a separate key column.
   const id = `seed_${data.key}`;
   const fields = {
@@ -194,7 +194,7 @@ async function seedChallenge(data: SeedChallenge, order: number) {
     isPublished: true,
     order,
   };
-  await db.dailyChallenge.upsert({ where: { id }, create: { id, ...fields }, update: fields });
+  await db.dailyQuestion.upsert({ where: { id }, create: { id, ...fields }, update: fields });
 }
 
 async function main() {
@@ -207,11 +207,11 @@ async function main() {
   }
   await retireOldLessons();
 
-  console.log("Seeding daily challenges...");
-  for (const [i, challenge] of DAILY_CHALLENGES.entries()) {
-    await seedChallenge(challenge, i);
+  console.log("Seeding Questions of the Day...");
+  for (const [i, question] of DAILY_QUESTIONS.entries()) {
+    await seedDailyQuestion(question, i);
   }
-  console.log(`Seeded ${DAILY_CHALLENGES.length} daily challenges.`);
+  console.log(`Seeded ${DAILY_QUESTIONS.length} Questions of the Day.`);
 
   console.log("Done.");
 }

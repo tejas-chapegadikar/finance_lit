@@ -123,6 +123,91 @@ async function generateHint(input: CoachHintInput, level: number): Promise<strin
   }
 }
 
+// ── Follow-up questions ──────────────────────────────────────────────────
+// After a question is answered (so the answer is already on screen), the
+// student can ask the Coach a few follow-ups about it.
+
+export const MAX_FOLLOW_UPS = 3;
+export const MAX_FOLLOW_UP_LENGTH = 300;
+
+export { COACH_MODEL };
+
+const FOLLOW_UP_PROMPT = `You are the StockStreak Coach, a friendly tutor inside a financial-literacy app for Indian college students and fresh graduates. The student has just answered a lesson quiz question — the correct answer and its explanation are already on their screen — and is asking you a follow-up.
+
+- Reply in plain, friendly language: 2-4 short sentences, under 100 words. Plain text only: no markdown, lists, headings or emojis.
+- Help them understand: why an answer is right or wrong, a simpler explanation, or a fresh everyday Indian example with ₹ amounts.
+- Stay grounded in the lesson text you're given. If the question goes beyond the lesson, say so briefly and point them to the lesson or a trusted official source.
+- This is education, not personal financial advice: never recommend specific stocks, funds, cards, loans or other products, never tell the student what to do with their own money, never promise or predict returns, and never ask for personal or financial details.
+- If they've clearly got it, say so warmly. If they still seem unsure, suggest revisiting the lesson — questions they missed also come back in Revision.
+
+Latency-sensitive; begin your answer immediately.`;
+
+export type FollowUpInput = {
+  lessonTitle: string;
+  lessonContent: string;
+  prompt: string;
+  options: { text: string; isCorrect: boolean }[];
+  explanation: string;
+  /** What the student picked, in order. */
+  picks: string[];
+  history: { message: string; reply: string }[];
+  message: string;
+};
+
+/** The Coach's reply to a follow-up question, or null when the AI is unavailable. */
+export async function answerFollowUp(input: FollowUpInput): Promise<string | null> {
+  try {
+    client ??= new Anthropic({ timeout: 20_000, maxRetries: 1 });
+    const context = `<lesson title="${input.lessonTitle}">
+${input.lessonContent}
+</lesson>
+
+<question>${input.prompt}</question>
+<options>
+${input.options.map((o, i) => `${LETTERS[i]}. ${o.text}${o.isCorrect ? " (correct)" : ""}`).join("\n")}
+</options>
+<course_explanation>${input.explanation}</course_explanation>
+<student_picks>${input.picks.join(" → ")}</student_picks>`;
+
+    const turns = [...input.history.map((h) => h.message), input.message];
+    const messages: Anthropic.Beta.BetaMessageParam[] = [];
+    turns.forEach((message, i) => {
+      messages.push({ role: "user", content: i === 0 ? `${context}\n\nMy question: ${message}` : message });
+      if (i < input.history.length) messages.push({ role: "assistant", content: input.history[i].reply });
+    });
+
+    const response = await client.beta.messages.create({
+      model: COACH_MODEL,
+      max_tokens: 16000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: { effort: "low" },
+      system: FOLLOW_UP_PROMPT,
+      messages,
+    });
+    if (response.stop_reason !== "end_turn") {
+      console.warn(`[coach] no follow-up reply: stop_reason=${response.stop_reason}`);
+      return null;
+    }
+    const text = response.content
+      .flatMap((block) => (block.type === "text" ? [block.text] : []))
+      .join("")
+      .trim();
+    return text || null;
+  } catch (err) {
+    if (err instanceof Anthropic.AuthenticationError) {
+      console.error("[coach] Anthropic rejected the API key — check ANTHROPIC_API_KEY");
+    } else if (err instanceof Anthropic.RateLimitError) {
+      console.warn("[coach] rate limited by the Anthropic API");
+    } else if (err instanceof Anthropic.APIError) {
+      console.error(`[coach] Anthropic API error ${err.status}: ${err.message}`);
+    } else {
+      console.warn(`[coach] follow-up unavailable: ${err instanceof Error ? err.message : err}`);
+    }
+    return null;
+  }
+}
+
 function buildPrompt(input: CoachHintInput, level: number): string {
   const letterOf = (id: string) => LETTERS[input.options.findIndex((o) => o.id === id)];
   const correct = input.options.find((o) => o.isCorrect);

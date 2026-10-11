@@ -13,9 +13,10 @@ import {
   scoreLabel,
   type ScenarioDef,
   type StepAnswer,
-  type StepResult,
+  type StepCheck,
 } from "@/lib/scenarios";
 import { recordStreakDay } from "@/lib/streak";
+import { awardScenarioBadges, findBadge } from "@/lib/badges";
 import { awardXp, lockUser, xpKeys } from "@/lib/xp";
 
 async function openScenario(userId: string, slug: string): Promise<ScenarioDef> {
@@ -29,8 +30,6 @@ async function openScenario(userId: string, slug: string): Promise<ScenarioDef> 
   return scenario;
 }
 
-export type StepCheck = ({ status: "checked" } & StepResult) | { status: "slow-down" };
-
 /** Feedback for one step, worked out on the server so the browser never holds the answers. */
 export async function checkScenarioStep(slug: string, stepIndex: number, answer: StepAnswer): Promise<StepCheck> {
   const user = await requireOnboardedUser();
@@ -42,7 +41,16 @@ export async function checkScenarioStep(slug: string, stepIndex: number, answer:
 }
 
 export type ScenarioCompletion =
-  | { status: "completed"; score: number; maxScore: number; label: string; xpAwarded: number; firstTime: boolean }
+  | {
+      status: "completed";
+      score: number;
+      maxScore: number;
+      label: string;
+      xpAwarded: number;
+      firstTime: boolean;
+      /** Badges this run unlocked. */
+      newBadges: { id: string; name: string; icon: string }[];
+    }
   | { status: "slow-down" };
 
 /** Re-scores the whole run on the server and saves it. +50 XP the first time only. */
@@ -52,7 +60,7 @@ export async function completeScenario(slug: string, answers: StepAnswer[]): Pro
   const scenario = await openScenario(user.id, slug);
   const { score, maxScore } = evaluateRun(scenario, answers);
 
-  const { xpAwarded, firstTime } = await db.$transaction(async (tx) => {
+  const { xpAwarded, firstTime, badgeIds } = await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
     const earlier = await tx.scenarioRun.count({ where: { userId: user.id, scenarioSlug: slug } });
     await tx.scenarioRun.create({
@@ -68,10 +76,16 @@ export async function completeScenario(slug: string, answers: StepAnswer[]): Pro
             description: `Scenario: "${scenario.title}"`,
           })
         : 0;
+    // Only a first run of a scenario can complete the set.
+    const badgeIds = earlier === 0 ? await awardScenarioBadges(tx, user.id) : [];
     await recordStreakDay(tx, user.id);
-    return { xpAwarded: awarded, firstTime: earlier === 0 };
+    return { xpAwarded: awarded, firstTime: earlier === 0, badgeIds };
   }, SLOW_DB_TRANSACTION);
 
   revalidatePath("/", "layout");
-  return { status: "completed", score, maxScore, label: scoreLabel(score, maxScore), xpAwarded, firstTime };
+  const newBadges = badgeIds.flatMap((id) => {
+    const badge = findBadge(id);
+    return badge ? [{ id, name: badge.name, icon: badge.icon }] : [];
+  });
+  return { status: "completed", score, maxScore, label: scoreLabel(score, maxScore), xpAwarded, firstTime, newBadges };
 }

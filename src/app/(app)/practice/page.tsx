@@ -2,12 +2,14 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getTodaysChallenge } from "@/lib/challenge";
+import { getTodaysQuestion } from "@/lib/daily-question";
+import { dailyChallengeInfo } from "@/lib/daily-challenge";
+import { istDay } from "@/lib/ist-date";
 import { countDueRevision } from "@/lib/revision";
 import { REWARDS } from "@/lib/rewards";
 import { SCENARIOS, SCENARIO_XP, maxScore } from "@/lib/scenarios";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
-import { DAILY_CHALLENGE_XP } from "@/lib/constants";
+import { DAILY_CHALLENGE_XP, QUESTION_OF_THE_DAY_XP } from "@/lib/constants";
 import { card, heroChip, heroSurface, primaryButton, softButton, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
 
@@ -15,8 +17,11 @@ export const metadata: Metadata = { title: "Practice — StockStreak" };
 
 export default async function PracticePage() {
   const user = await requireOnboardedUser();
-  const [today, due, runs, unlocks, nextItem] = await Promise.all([
-    getTodaysChallenge(user.id),
+  const day = istDay();
+  const challenge = dailyChallengeInfo(day);
+  const [question, challengeRun, due, runs, unlocks, nextItem] = await Promise.all([
+    getTodaysQuestion(user.id),
+    db.dailyChallengeRun.findUnique({ where: { userId_day: { userId: user.id, day } }, select: { id: true } }),
     countDueRevision(user.id),
     db.scenarioRun.groupBy({ by: ["scenarioSlug"], where: { userId: user.id }, _max: { score: true } }),
     db.rewardUnlock.findMany({ where: { userId: user.id }, select: { rewardId: true } }),
@@ -38,25 +43,44 @@ export default async function PracticePage() {
         </p>
         <h1 className="relative mt-3 text-3xl font-extrabold">Practise real money decisions</h1>
         <p className="relative mt-3 flex flex-wrap gap-2">
-          <span className={heroChip}>{today?.answer ? "✅ Today's challenge done" : "⚡ Today's challenge waiting"}</span>
+          <span className={heroChip}>{question?.answer ? "✅ Question of the Day done" : "❓ Question of the Day waiting"}</span>
+          <span className={heroChip}>{challengeRun ? "✅ Daily Challenge done" : "⚡ Daily Challenge waiting"}</span>
           <span className={heroChip}>
             {due ? `🔁 ${due} revision ${due === 1 ? "question" : "questions"} due` : "🔁 No revision due"}
           </span>
         </p>
       </section>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <section className={`${card} flex flex-col p-5 sm:p-6`} aria-labelledby="today-challenge">
-          <h2 id="today-challenge" className="text-lg font-extrabold text-slate-900">
-            ⚡ Today&apos;s Challenge
+      <div className="grid gap-5 md:grid-cols-3">
+        <section className={`${card} flex flex-col p-5 sm:p-6`} aria-labelledby="question-heading">
+          <h2 id="question-heading" className="text-lg font-extrabold text-slate-900">
+            ❓ Question of the Day
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            One fresh money decision a day — picked from what you&apos;ve been learning. +{DAILY_CHALLENGE_XP} XP.
+            One quick real-life question a day, picked from what you&apos;ve been learning. +{QUESTION_OF_THE_DAY_XP} XP.
           </p>
-          {today && <p className="mt-3 line-clamp-3 font-semibold text-slate-900">“{today.challenge.prompt}”</p>}
+          {question && <p className="mt-3 line-clamp-3 font-semibold text-slate-900">“{question.question.prompt}”</p>}
           <div className="mt-auto pt-5">
-            <Link href="/challenge" className={today?.answer ? softButton : primaryButton}>
-              {today?.answer ? "See today's answer" : "Take Today's Challenge"}
+            <Link href="/question" className={question?.answer ? softButton : primaryButton}>
+              {question?.answer ? "See today's answer" : "Answer it"}
+              <ArrowRightIcon className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
+
+        <section className={`${card} flex flex-col p-5 sm:p-6`} aria-labelledby="challenge-heading">
+          <h2 id="challenge-heading" className="text-lg font-extrabold text-slate-900">
+            ⚡ Daily Challenge
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">
+            A few quick questions on a new topic each day — harder in topics you&apos;ve mastered. +{DAILY_CHALLENGE_XP} XP.
+          </p>
+          <p className="mt-3 font-semibold text-slate-900">
+            <span aria-hidden>{challenge.icon}</span> {challenge.title}
+          </p>
+          <div className="mt-auto pt-5">
+            <Link href="/challenge" className={challengeRun ? softButton : primaryButton}>
+              {challengeRun ? "See your result" : "Take the challenge"}
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
           </div>

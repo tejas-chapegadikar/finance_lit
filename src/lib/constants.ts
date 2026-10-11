@@ -3,7 +3,12 @@ export const QUESTIONS_PER_QUIZ = 5;
 // the answer is revealed with its explanation.
 export const MAX_TRIES_PER_QUESTION = 3;
 
+// The single Question of the Day — quick, so a small reward.
+export const QUESTION_OF_THE_DAY_XP = 10;
+// The multi-step Daily Challenge.
 export const DAILY_CHALLENGE_XP = 25;
+// Finishing all three daily missions.
+export const MISSION_BONUS_XP = 30;
 // Awarded once, the first time a student has completed every Level 1 lesson.
 export const LEVEL_COMPLETION_XP = 200;
 
@@ -13,7 +18,7 @@ export const LEVEL_2_NAME = "Real-World Money";
 
 // User-facing copy for empty and error states.
 export const NO_LESSONS_MESSAGE = "Lessons are being prepared. Please check back soon!";
-export const NO_CHALLENGE_MESSAGE = "Today's challenge is being prepared. Please check back soon!";
+export const NO_QUESTION_MESSAGE = "Today's question is being prepared. Please check back soon!";
 export const COACH_UNAVAILABLE_MESSAGE =
   "Your AI Coach is temporarily unavailable. You can still use the lesson hint and explanation to continue learning.";
 export const GENERIC_ERROR_MESSAGE = "Something went wrong. Please try again.";

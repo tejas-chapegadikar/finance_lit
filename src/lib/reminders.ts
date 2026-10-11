@@ -58,10 +58,11 @@ export async function sendDueReminders(now = new Date()) {
   for (const student of students) {
     const due = await countDueRevision(student.id, today);
     const name = student.displayName ?? student.name ?? "there";
+    // Friendly and short — never guilt or alarm about streaks.
     const text = [
       `Hi ${name},`,
       "",
-      `Today's 2-minute money challenge is waiting for you.${due ? ` You also have ${due} revision ${due === 1 ? "question" : "questions"} due.` : ""}`,
+      `Today's Question of the Day and Daily Challenge are ready — a couple of minutes, whenever suits you.${due ? ` You also have ${due} revision ${due === 1 ? "question" : "questions"} due.` : ""}`,
       "",
       `Open StockStreak: ${siteUrl()}/dashboard`,
       "",
@@ -69,7 +70,7 @@ export async function sendDueReminders(now = new Date()) {
     ].join("\n");
     // Marked first so a slow or failed email is never sent twice in a day.
     await db.user.update({ where: { id: student.id }, data: { reminderLastSentDay: today } });
-    if (await sendEmail(student.email, "Your daily money challenge is ready", text)) sent++;
+    if (await sendEmail(student.email, "Today's money question is ready", text)) sent++;
   }
   return { sent };
 }

@@ -26,7 +26,7 @@ const STEPS = [
   { icon: "✍️", title: "Take a Quiz", text: "Five quick questions at the end of every lesson." },
   { icon: "💡", title: "Get Feedback", text: "Miss one and the AI Coach gives a hint, lets you retry, then checks you've got it." },
   { icon: "🔁", title: "Revise", text: "Missed ideas come back after 1, 3 and 7 days, so they stick." },
-  { icon: "🎁", title: "Earn & Unlock", text: "Earn XP for real learning and spend it on titles, themes and bonus scenarios." },
+  { icon: "🎁", title: "Earn & Unlock", text: "Earn XP for real learning, keep a streak, and dress up your avatar." },
 ];
 
 const DIFFERENCES = [
@@ -49,6 +49,16 @@ const DIFFERENCES = [
     icon: "🧠",
     title: "Revision that makes it stick",
     text: "We track what you've mastered and bring back what you missed, so you remember it when it matters.",
+  },
+  {
+    icon: "🔥",
+    title: "A daily habit, without the pressure",
+    text: "A fresh question, challenge and three missions every day — and earned streak freezes for the days life gets busy.",
+  },
+  {
+    icon: "🧑‍🎓",
+    title: "Your journey, your avatar",
+    text: "Climb from Money Rookie to Money Master on a map of your journey, and unlock avatar gear as you learn.",
   },
 ];
 
@@ -235,7 +245,7 @@ export default async function HomePage() {
             eyebrow="What makes StockStreak different?"
             title="Learning that feels like real life"
           />
-          <ul className="mx-auto mt-10 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mx-auto mt-10 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {DIFFERENCES.map((item) => (
               <li
                 key={item.title}

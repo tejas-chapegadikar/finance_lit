@@ -14,7 +14,11 @@ type AwardXpParams = {
 /** One key per reward. A second award with the same key pays nothing. */
 export const xpKeys = {
   lessonComplete: (userId: string, lessonId: string) => `lesson-complete:${userId}:${lessonId}`,
+  questionOfTheDay: (userId: string, day: string) => `question-of-the-day:${userId}:${day}`,
   dailyChallenge: (userId: string, day: string) => `daily-challenge:${userId}:${day}`,
+  missionBonus: (userId: string, day: string) => `missions:${userId}:${day}`,
+  // Each streak milestone pays once per student, ever.
+  streakMilestone: (userId: string, days: number) => `streak-milestone:${userId}:${days}`,
   levelComplete: (userId: string, level: number) => `level-complete:${userId}:${level}`,
   scenarioComplete: (userId: string, slug: string) => `scenario-complete:${userId}:${slug}`,
   // One reward per time an item comes due.

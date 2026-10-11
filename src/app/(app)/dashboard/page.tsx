@@ -3,141 +3,129 @@ import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDisplayName } from "@/lib/user";
-import { COMPLETION_POINTS, QUIZ_POINTS, getProgress, type Progress } from "@/lib/progress";
-import { getTodaysChallenge } from "@/lib/challenge";
-import { countDueRevision } from "@/lib/revision";
-import { getWeeklySummary, learnedToday, nextMilestone } from "@/lib/activity";
-import { displayStreak } from "@/lib/streak";
-import { BADGES } from "@/lib/badges";
+import { COMPLETION_POINTS, QUIZ_POINTS, getProgress } from "@/lib/progress";
+import { getTodaysQuestion } from "@/lib/daily-question";
+import { dailyChallengeInfo } from "@/lib/daily-challenge";
+import { getDailyMissions } from "@/lib/missions";
+import { getTodaysWins, getWeeklySummary, nextBadge } from "@/lib/activity";
+import { MAX_STREAK_FREEZES, getActivityDays, nextStreakMilestone, streakStatus } from "@/lib/streak";
+import { BADGES, getBadges } from "@/lib/badges";
+import { rankFor } from "@/lib/ranks";
+import { nextReward, spendableXp } from "@/lib/rewards";
+import { readAvatar } from "@/lib/avatar";
+import { istDay, shiftDay } from "@/lib/ist-date";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
 import {
   DAILY_CHALLENGE_XP,
   LEVEL_1_NAME,
   LEVEL_2_NAME,
-  NO_CHALLENGE_MESSAGE,
+  MISSION_BONUS_XP,
   NO_LESSONS_MESSAGE,
+  NO_QUESTION_MESSAGE,
+  QUESTION_OF_THE_DAY_XP,
 } from "@/lib/constants";
 import { ReadinessRing } from "@/components/dashboard/ReadinessRing";
-import { card, heroChip, heroSurface, primaryButton, softButton } from "@/components/ui/button-styles";
+import { ClaimBonusButton } from "@/components/dashboard/ClaimBonusButton";
+import { StreakWeek } from "@/components/streak/StreakCalendar";
+import { Avatar } from "@/components/avatar/Avatar";
+import { card, heroChip, heroSurface, primaryButton, softButton, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, CheckIcon, ChevronRightIcon, ClockIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Dashboard — StockStreak" };
 
-type NextStepCard = { icon: string; title: string; text: string; href: string; cta: string };
-
-// "What should I do right now?" — simple rules, in priority order: revision
-// that's due (the exact questions they missed), then a review of an area the
-// student's quiz answers show they're struggling with, then today's
-// challenge, then the next lesson.
-function recommendNextStep(progress: Progress, challengeOpen: boolean, due: number): NextStepCard | null {
-  const { review, next } = progress;
-  if (due > 0) {
-    return {
-      icon: "🔁",
-      title: "Do today's revision",
-      text: `${due} ${due === 1 ? "question you missed is" : "questions you missed are"} due — a couple of minutes keeps them fresh.`,
-      href: "/revision",
-      cta: "Start revision",
-    };
-  }
-  if (review) {
-    return {
-      icon: "💡",
-      title: `Review ${review.area.label}`,
-      text: `You've answered ${review.area.quizAccuracy}% of ${review.area.label} questions correctly so far. Retaking “${review.lesson.title}” will help it stick.`,
-      href: `/lessons/${review.lesson.slug}`,
-      cta: "Review lesson",
-    };
-  }
-  if (challengeOpen) {
-    return {
-      icon: "⚡",
-      title: "Take today's challenge",
-      text: `One real-life money decision — about 2 minutes, +${DAILY_CHALLENGE_XP} XP.`,
-      href: "/challenge",
-      cta: "Take Today's Challenge",
-    };
-  }
-  if (next && !next.isRetake) {
-    return {
-      icon: "📚",
-      title: `Keep going with Lesson ${String(next.lesson.number).padStart(2, "0")}`,
-      text: `${next.lesson.title} takes about ${next.lesson.estimatedMinutes} minutes and builds your ${READINESS_AREA_META[next.lesson.area].label} score.`,
-      href: `/lessons/${next.lesson.slug}`,
-      cta: "Open lesson",
-    };
-  }
-  return null;
-}
+type ForYou = { icon: string; text: string; href: string };
 
 export default async function DashboardPage() {
   const user = await requireOnboardedUser();
+  const today = istDay();
 
-  const [progress, today, earnedBadges, due, didLearn, week, unlocks] = await Promise.all([
-    getProgress(user.id),
-    getTodaysChallenge(user.id),
-    db.userBadge.findMany({ where: { userId: user.id }, select: { badgeId: true, earnedAt: true } }),
-    countDueRevision(user.id),
-    learnedToday(user.id),
-    getWeeklySummary(user.id),
-    db.rewardUnlock.findMany({ where: { userId: user.id }, select: { rewardId: true } }),
-  ]);
-  const badgesEarned = earnedBadges.length;
-  const streak = displayStreak(user);
-  const milestone = nextMilestone(progress.lessons, earnedBadges, user, unlocks.map((u) => u.rewardId));
-  const todayPlan = [
-    {
-      icon: "⚡",
-      label: "Today's challenge",
-      detail: today?.answer ? "Done" : `+${DAILY_CHALLENGE_XP} XP · about 2 minutes`,
-      done: !!today?.answer,
-      href: "/challenge",
-    },
-    {
-      icon: "🔁",
-      label: "Revision",
-      detail: due ? `${due} ${due === 1 ? "question" : "questions"} due` : "Nothing due today",
-      done: due === 0,
-      href: due ? "/revision" : "/practice",
-    },
-    {
-      icon: "📚",
-      label: "Learn something new",
-      detail: didLearn ? "Done — a lesson or scenario today" : "A lesson or a money scenario",
-      done: didLearn,
-      href: progress.next && !progress.next.isRetake ? `/lessons/${progress.next.lesson.slug}` : "/practice",
-    },
-  ];
-  const { next, overall, areas, completedCount, totalLessons, levelComplete, lessons } = progress;
+  const [progress, question, challengeRun, earnedBadges, due, firstDue, missions, week, unlocks, weekMarks, wins] =
+    await Promise.all([
+      getProgress(user.id),
+      getTodaysQuestion(user.id),
+      db.dailyChallengeRun.findUnique({ where: { userId_day: { userId: user.id, day: today } }, select: { xpAwarded: true } }),
+      db.userBadge.findMany({ where: { userId: user.id }, select: { badgeId: true, earnedAt: true } }),
+      db.revisionItem.count({ where: { userId: user.id, status: "ACTIVE", dueDay: { lte: today } } }),
+      db.revisionItem.findFirst({
+        where: { userId: user.id, status: "ACTIVE", dueDay: { lte: today } },
+        orderBy: { dueDay: "asc" },
+        select: { lesson: { select: { title: true } } },
+      }),
+      getDailyMissions(user.id, today),
+      getWeeklySummary(user.id, today),
+      db.rewardUnlock.findMany({ where: { userId: user.id }, select: { rewardId: true } }),
+      getActivityDays(db, user.id, shiftDay(today, -6), today),
+      getTodaysWins(user.id, today),
+    ]);
+
+  const { next, overall, areas, completedCount, totalLessons, levelComplete, lessons, review } = progress;
   const name = getDisplayName(user);
   const isNew = lessons.every((lesson) => lesson.status === "not-started");
+  const streak = streakStatus(user, today);
+  const milestone = nextStreakMilestone(streak.streak);
+  const rank = rankFor(completedCount, overall, totalLessons);
+  const balance = spendableXp(user);
+  const reward = nextReward(new Set(unlocks.map((u) => u.rewardId)));
+  // Badges whose progress is known without extra queries.
+  const badges = getBadges(
+    { lessons, perfectQuizzes: 0, longestStreak: user.longestStreak, coreScenarios: 0, retained: 0 },
+    earnedBadges,
+  );
+  const badgeSoon = nextBadge(badges, ["lessons", "area", "level", "streak"]);
+  const badgesToday = BADGES.filter((badge) =>
+    earnedBadges.some((b) => b.badgeId === badge.id && istDay(b.earnedAt) === today),
+  );
+  const challenge = dailyChallengeInfo(today);
+  const avatar = readAvatar(user.avatar);
   const levelPercent = totalLessons ? Math.round((completedCount / totalLessons) * 100) : 0;
-  const nextStep = recommendNextStep(progress, !!today && !today.answer, due);
 
-  // White cards that overlap the bottom of the header, each with its own colour.
-  const quickStats = [
-    {
-      label: "Total XP",
-      value: user.xpTotal.toLocaleString("en-IN"),
-      icon: "⭐",
-      href: "/profile",
-      style: "ring-orange-200 shadow-[0_4px_0_0_var(--color-orange-200)]",
-    },
-    {
-      label: "Lessons",
-      value: `${completedCount}/${totalLessons}`,
+  const greeting = isNew
+    ? `Your first lesson takes about ${next?.lesson.estimatedMinutes ?? 5} minutes.`
+    : streak.doneToday
+      ? `🔥 ${streak.streak}-day streak — today's done!`
+      : streak.freezesNeeded > 0
+        ? `🧊 You missed a day — a streak freeze keeps your ${streak.streak}-day streak when you learn today.`
+        : streak.needsToday
+          ? `🔥 Your streak is at ${streak.streak} ${streak.streak === 1 ? "day" : "days"} — one activity today keeps it going.`
+          : levelComplete
+            ? "Level 1 done — keep sharp with today's question and challenge."
+            : "Small steps add up — one activity today starts a streak.";
+
+  // "For you today": real next steps from the student's own data.
+  const forYou: ForYou[] = [];
+  if (firstDue) forYou.push({ icon: "🔁", text: `Let's revisit the ${firstDue.lesson.title} question you missed.`, href: "/revision" });
+  if (review) {
+    forYou.push({
+      icon: "💡",
+      text: `Review ${review.area.label}: you've got ${review.area.quizAccuracy}% right so far — a retake of “${review.lesson.title}” will help.`,
+      href: `/lessons/${review.lesson.slug}`,
+    });
+  }
+  if (next && !next.isRetake) {
+    forYou.push({
       icon: "📚",
-      href: "/lessons",
-      style: "ring-emerald-200 shadow-[0_4px_0_0_var(--color-emerald-200)]",
-    },
-    {
-      label: "Readiness",
-      value: `${overall}/100`,
-      icon: "🎯",
-      href: "#readiness",
-      style: "ring-brand-200 shadow-[0_4px_0_0_var(--color-brand-200)]",
-    },
+      text: `Your next lesson, ${next.lesson.title}, takes about ${next.lesson.estimatedMinutes} minutes.`,
+      href: `/lessons/${next.lesson.slug}`,
+    });
+  }
+  if (reward) {
+    forYou.push({
+      icon: "🎁",
+      text: balance >= reward.cost ? `You can unlock ${reward.name} now.` : `Your next reward, ${reward.name}, is ${reward.cost - balance} XP away.`,
+      href: "/rewards",
+    });
+  }
+  if (rank.toNext) forYou.push({ icon: rank.next?.icon ?? "🏅", text: `${rank.toNext}.`, href: "/lessons" });
+  if (badgeSoon) {
+    forYou.push({ icon: badgeSoon.icon, text: `${badgeSoon.name} badge: ${badgeSoon.ruleText.toLowerCase()} (${badgeSoon.done}/${badgeSoon.required}).`, href: "/profile#badges-heading" });
+  }
+
+  const quickStats = [
+    { label: "Day streak", value: String(streak.streak), icon: "🔥", href: "/profile#streak", style: "ring-orange-200 shadow-[0_4px_0_0_var(--color-orange-200)]" },
+    { label: "Total XP", value: user.xpTotal.toLocaleString("en-IN"), icon: "⭐", href: "/rewards", style: "ring-amber-200 shadow-[0_4px_0_0_var(--color-amber-200)]" },
+    { label: "Readiness", value: `${overall}/100`, icon: "🎯", href: "#readiness", style: "ring-brand-200 shadow-[0_4px_0_0_var(--color-brand-200)]" },
   ];
+  const hasWins = wins.milestones.length > 0 || wins.frozenDays > 0 || badgesToday.length > 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -147,24 +135,19 @@ export default async function DashboardPage() {
           <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-28 h-72 w-72 rounded-full bg-white/5" />
           <div aria-hidden className="pointer-events-none absolute right-24 -bottom-16 h-32 w-32 rounded-full bg-white/5" />
           <div className="relative flex items-center gap-4">
-            <span
-              aria-hidden
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl font-extrabold text-brand-700 uppercase shadow-[0_4px_0_0_var(--color-brand-800)]"
+            <Link
+              href="/profile/avatar"
+              aria-label="Edit your avatar"
+              className="flex h-16 w-16 shrink-0 items-end justify-center overflow-hidden rounded-2xl bg-white shadow-[0_4px_0_0_var(--color-brand-800)] transition hover:-translate-y-0.5"
             >
-              {name.charAt(0)}
-            </span>
+              <Avatar config={avatar} crop="head" className="h-16 w-16" />
+            </Link>
             <div className="min-w-0">
               <h1 className="text-2xl font-extrabold text-balance sm:text-3xl">
                 Hey, {name}! {isNew ? "Welcome to StockStreak." : "Welcome back."} <span aria-hidden>👋</span>
               </h1>
               <p className="mt-2">
-                <span className={heroChip}>
-                  {isNew
-                    ? "Your first lesson takes about 5 minutes."
-                    : levelComplete
-                      ? "Level 1 done — keep sharp with today's challenge."
-                      : "Small steps add up — keep going!"}
-                </span>
+                <span className={`${heroChip} max-w-full whitespace-normal`}>{greeting}</span>
               </p>
             </div>
           </div>
@@ -191,8 +174,149 @@ export default async function DashboardPage() {
         </ul>
       </div>
 
+      {hasWins && (
+        <section aria-labelledby="wins-heading" className="rounded-3xl bg-gradient-to-br from-amber-100 via-orange-100 to-amber-50 p-5 ring-2 ring-amber-200">
+          <h2 id="wins-heading" className="font-extrabold text-slate-900">
+            🎉 Today&apos;s wins
+          </h2>
+          <ul className="mt-2 flex flex-col gap-1 text-sm font-semibold text-slate-800">
+            {wins.milestones.map((m) => (
+              <li key={m.description}>
+                🔥 {m.description} — +{m.xp} XP
+              </li>
+            ))}
+            {badgesToday.map((badge) => (
+              <li key={badge.id}>
+                <span aria-hidden>{badge.icon}</span> New badge: {badge.name}
+              </li>
+            ))}
+            {wins.frozenDays > 0 && (
+              <li>
+                🧊 A streak freeze covered {wins.frozenDays === 1 ? "the day you missed" : `the ${wins.frozenDays} days you missed`} — your
+                streak is safe.
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
+
+      {user.avatar === null && (
+        <Link href="/profile/avatar" className={`${tile} flex items-center gap-4 p-4 transition hover:-translate-y-0.5`}>
+          <span aria-hidden className="text-3xl">
+            🎨
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-extrabold text-slate-900">Create your avatar</span>
+            <span className="block text-sm text-slate-600">Pick your look — more outfits unlock as you learn.</span>
+          </span>
+          <ArrowRightIcon className="h-5 w-5 shrink-0 text-brand-700" />
+        </Link>
+      )}
+
+      {/* Today's missions + streak */}
       <div className="grid gap-5 lg:grid-cols-5">
-        {/* Continue Learning — the main thing to do */}
+        <section className={`${card} p-5 sm:p-6 lg:col-span-3`} aria-labelledby="missions-heading">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="missions-heading" className="text-lg font-extrabold text-slate-900">
+              Today&apos;s missions
+            </h2>
+            <span className="text-sm font-bold text-slate-600">
+              {missions.missions.filter((m) => m.done).length}/{missions.missions.length} done
+            </span>
+          </div>
+          <ul className="mt-4 flex flex-col gap-2.5">
+            {missions.missions.map((mission) => (
+              <li key={mission.id}>
+                <Link
+                  href={mission.href}
+                  className={`flex items-center gap-3 rounded-2xl p-3 ring-1 transition hover:-translate-y-0.5 ${
+                    mission.done ? "bg-emerald-50 ring-emerald-200" : "bg-white ring-slate-200 shadow-[0_3px_0_0_var(--color-slate-200)]"
+                  }`}
+                >
+                  <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-xl ring-1 ring-slate-200">
+                    {mission.icon}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-bold text-slate-900">{mission.title}</span>
+                    <span className="block text-sm text-slate-600">
+                      {mission.target > 1 ? `${mission.progress}/${mission.target} · ` : ""}
+                      {mission.detail}
+                    </span>
+                    {mission.target > 1 && !mission.done && (
+                      <span aria-hidden className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-slate-100">
+                        <span className="block h-full rounded-full bg-brand-500" style={{ width: `${(mission.progress / mission.target) * 100}%` }} />
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                      mission.done ? "bg-emerald-700 text-white" : "ring-2 ring-slate-300"
+                    }`}
+                  >
+                    {mission.done && <CheckIcon className="h-4 w-4" />}
+                    <span className="sr-only">{mission.done ? "Done" : "Not done yet"}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 rounded-2xl bg-orange-50 p-4 ring-1 ring-orange-200">
+            {missions.bonusClaimed ? (
+              <p className="text-sm font-bold text-emerald-800">✅ All missions done — +{MISSION_BONUS_XP} XP bonus claimed. New missions tomorrow!</p>
+            ) : missions.allDone ? (
+              <ClaimBonusButton xp={MISSION_BONUS_XP} />
+            ) : (
+              <p className="text-sm font-semibold text-slate-800">
+                ⭐ Finish all three for a <span className="font-extrabold text-orange-800">+{MISSION_BONUS_XP} XP bonus</span>.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section id="streak-card" className={`${card} flex flex-col p-5 sm:p-6 lg:col-span-2`} aria-labelledby="streak-heading">
+          <div className="flex items-center gap-3">
+            <span aria-hidden className={`text-4xl ${streak.streak ? "" : "opacity-40 grayscale"}`}>
+              🔥
+            </span>
+            <div>
+              <h2 id="streak-heading" className="text-lg font-extrabold text-slate-900">
+                {streak.streak ? `${streak.streak}-day learning streak` : "Start a streak today"}
+              </h2>
+              <p className="text-sm text-slate-600">
+                {streak.doneToday ? "Today counts — see you tomorrow!" : "Any lesson, scenario, revision or daily question counts."}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <StreakWeek marks={weekMarks} today={today} />
+          </div>
+          <ul className="mt-4 flex flex-col gap-2 text-sm">
+            <li className="flex items-center justify-between gap-3 rounded-xl bg-brand-50 px-3 py-2 ring-1 ring-brand-100">
+              <span className="font-semibold text-slate-700">🧊 Streak freezes</span>
+              <span className="font-extrabold text-slate-900 tabular-nums">
+                {user.streakFreezes}/{MAX_STREAK_FREEZES}
+              </span>
+            </li>
+            {milestone && (
+              <li className="rounded-xl bg-amber-50 px-3 py-2 ring-1 ring-amber-200">
+                <span className="font-semibold text-slate-800">
+                  {milestone.days - streak.streak} more {milestone.days - streak.streak === 1 ? "day" : "days"} to your {milestone.days}-day milestone:{" "}
+                  <span className="font-extrabold text-orange-800">+{milestone.xp} XP</span>
+                </span>
+              </li>
+            )}
+          </ul>
+          <p className="mt-3 text-xs text-slate-600">
+            A freeze covers a missed day automatically. You earn one every 7 days of streak — never by paying.
+          </p>
+          <Link href="/profile#streak" className="mt-auto pt-3 text-sm font-bold text-brand-700 hover:underline">
+            See your streak calendar →
+          </Link>
+        </section>
+      </div>
+
+      {/* Continue learning + the two daily activities */}
+      <div className="grid gap-5 lg:grid-cols-5">
         {next ? (
           <section className={`${card} flex flex-col p-5 sm:p-6 lg:col-span-3`} aria-labelledby="continue-heading">
             <div className="flex items-center justify-between gap-3">
@@ -200,7 +324,7 @@ export default async function DashboardPage() {
                 {next.isRetake ? "Practice next" : isNew ? "Start learning" : "Continue learning"}
               </p>
               <Link href="/lessons" className="inline-flex items-center gap-0.5 text-sm font-bold text-brand-700 hover:underline">
-                All lessons
+                Journey map
                 <ChevronRightIcon className="h-4 w-4" />
               </Link>
             </div>
@@ -258,105 +382,101 @@ export default async function DashboardPage() {
           <p className={`${card} p-6 text-center font-semibold text-slate-700 lg:col-span-3`}>{NO_LESSONS_MESSAGE}</p>
         )}
 
-        {/* Today's Challenge */}
-        <section className={`${card} flex flex-col p-5 sm:p-6 lg:col-span-2`} aria-labelledby="challenge-heading">
-          <div className="flex items-center justify-between gap-3">
-            <h2 id="challenge-heading" className="text-lg font-extrabold text-slate-900">
-              Today&apos;s Challenge
-            </h2>
-            {today && !today.answer && (
-              <span className="rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-extrabold text-orange-700 ring-2 ring-orange-200">
-                +{DAILY_CHALLENGE_XP} XP
-              </span>
-            )}
-          </div>
-          {today ? (
-            <>
-              <div className="mt-4 flex flex-col items-center rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 p-4 text-center ring-1 ring-orange-100">
-                <span
-                  aria-hidden
-                  className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-orange-500 text-3xl shadow-[0_4px_0_0_var(--color-orange-700)]"
-                >
-                  ⚡
+        <div className="flex flex-col gap-4 lg:col-span-2">
+          <section className={`${card} flex flex-1 flex-col p-5`} aria-labelledby="question-heading">
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="question-heading" className="font-extrabold text-slate-900">
+                ❓ Question of the Day
+              </h2>
+              {question && !question.answer && (
+                <span className="rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-extrabold text-orange-700 ring-2 ring-orange-200">
+                  +{QUESTION_OF_THE_DAY_XP} XP
                 </span>
-                <p className="mt-3 line-clamp-4 font-semibold text-slate-900">“{today.challenge.prompt}”</p>
-              </div>
-              <div className="mt-auto pt-5">
-                {today.answer ? (
-                  <p className="text-center text-sm font-bold text-emerald-800">
-                    ✅ Done for today · +{today.answer.xpAwarded} XP earned.{" "}
-                    <Link href="/challenge" className="underline underline-offset-2 hover:text-emerald-900">
-                      See the explanation
+              )}
+            </div>
+            {question ? (
+              <>
+                <p className="mt-2 line-clamp-3 text-sm text-slate-700">“{question.question.prompt}”</p>
+                <div className="mt-auto pt-3">
+                  {question.answer ? (
+                    <p className="text-sm font-bold text-emerald-800">
+                      ✅ Answered · +{question.answer.xpAwarded} XP.{" "}
+                      <Link href="/question" className="underline underline-offset-2">
+                        See the explanation
+                      </Link>
+                    </p>
+                  ) : (
+                    <Link href="/question" className={`${primaryButton} w-full`}>
+                      Answer it — about 1 minute
                     </Link>
-                  </p>
-                ) : (
-                  <Link href="/challenge" className={`${primaryButton} w-full py-3.5 text-base`}>
-                    Take Today&apos;s Challenge
-                    <ArrowRightIcon className="h-5 w-5" />
+                  )}
+                </div>
+              </>
+            ) : (
+              <p className="mt-2 text-sm font-semibold text-slate-700">{NO_QUESTION_MESSAGE}</p>
+            )}
+          </section>
+
+          <section className={`${card} flex flex-1 flex-col p-5`} aria-labelledby="daily-challenge-heading">
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="daily-challenge-heading" className="font-extrabold text-slate-900">
+                ⚡ Daily Challenge
+              </h2>
+              {!challengeRun && (
+                <span className="rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-extrabold text-orange-700 ring-2 ring-orange-200">
+                  +{DAILY_CHALLENGE_XP} XP
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-sm text-slate-700">
+              <span aria-hidden>{challenge.icon}</span> Today: <span className="font-bold text-slate-900">{challenge.title}</span>
+            </p>
+            <div className="mt-auto pt-3">
+              {challengeRun ? (
+                <p className="text-sm font-bold text-emerald-800">
+                  ✅ Done today · +{challengeRun.xpAwarded} XP.{" "}
+                  <Link href="/challenge" className="underline underline-offset-2">
+                    See your result
                   </Link>
-                )}
-              </div>
-            </>
-          ) : (
-            <p className="mt-3 font-semibold text-slate-700">{NO_CHALLENGE_MESSAGE}</p>
-          )}
-        </section>
+                </p>
+              ) : (
+                <Link href="/challenge" className={`${softButton} w-full`}>
+                  Take the challenge
+                  <ArrowRightIcon className="h-4 w-4" />
+                </Link>
+              )}
+            </div>
+          </section>
+        </div>
       </div>
 
-      {/* Today's habit loop + this week */}
+      {/* For you today + this week */}
       <div className="grid gap-5 lg:grid-cols-5">
-        <section className={`${card} p-5 sm:p-6 lg:col-span-3`} aria-labelledby="today-heading">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 id="today-heading" className="text-lg font-extrabold text-slate-900">
-              Today
-            </h2>
-            <span className="rounded-full bg-orange-50 px-3 py-1 text-sm font-extrabold text-orange-700 ring-2 ring-orange-200">
-              🔥 {streak ? `${streak}-day learning streak` : "Start a streak today"}
-            </span>
-          </div>
-          <ul className="mt-4 flex flex-col gap-2.5">
-            {todayPlan.map((item) => (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center gap-3 rounded-2xl p-3 ring-1 transition hover:-translate-y-0.5 ${
-                    item.done ? "bg-emerald-50 ring-emerald-200" : "bg-white ring-slate-200 shadow-[0_3px_0_0_var(--color-slate-200)]"
-                  }`}
-                >
-                  <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-xl ring-1 ring-slate-200">
-                    {item.icon}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-bold text-slate-900">{item.label}</span>
-                    <span className="block text-sm text-slate-600">{item.detail}</span>
-                  </span>
-                  <span
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-                      item.done ? "bg-emerald-700 text-white" : "ring-2 ring-slate-300"
-                    }`}
-                  >
-                    {item.done && <CheckIcon className="h-4 w-4" />}
-                    <span className="sr-only">{item.done ? "Done" : "Not done yet"}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          {milestone && (
-            <Link
-              href={milestone.href}
-              className="mt-4 flex items-center gap-3 rounded-2xl bg-amber-50 p-3 ring-1 ring-amber-200 transition hover:-translate-y-0.5"
-            >
-              <span aria-hidden className="text-2xl">
-                {milestone.icon}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-xs font-extrabold tracking-wider text-amber-800 uppercase">Next milestone</span>
-                <span className="block font-bold text-slate-900">{milestone.title}</span>
-                <span className="block text-sm text-slate-700">{milestone.text}</span>
-              </span>
-              <ChevronRightIcon className="h-5 w-5 shrink-0 text-slate-500" />
-            </Link>
+        <section className={`${card} p-5 sm:p-6 lg:col-span-3`} aria-labelledby="for-you-heading">
+          <h2 id="for-you-heading" className="text-lg font-extrabold text-slate-900">
+            For you today
+          </h2>
+          {forYou.length === 0 ? (
+            <p className="mt-2 text-sm text-slate-600">You&apos;re all caught up. 🎉</p>
+          ) : (
+            <ul className="mt-3 flex flex-col gap-2">
+              {forYou.slice(0, 4).map((item) => (
+                <li key={item.text}>
+                  <Link href={item.href} className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200 transition hover:bg-brand-50 hover:ring-brand-200">
+                    <span aria-hidden className="text-xl">
+                      {item.icon}
+                    </span>
+                    <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800">{item.text}</span>
+                    <ChevronRightIcon className="h-4 w-4 shrink-0 text-slate-500" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+          {due > 0 && (
+            <p className="mt-3 text-xs font-semibold text-slate-600">
+              {due} revision {due === 1 ? "question is" : "questions are"} due today.
+            </p>
           )}
         </section>
 
@@ -379,7 +499,7 @@ export default async function DashboardPage() {
                     : undefined,
               },
               { label: "Revision correct", value: week.revisionTotal ? `${week.revisionCorrect}/${week.revisionTotal}` : "—" },
-              { label: "Challenges", value: String(week.challenges) },
+              { label: "Daily question & challenge", value: String(week.daily) },
               { label: "Scenarios", value: String(week.scenarios) },
               { label: "XP earned", value: `+${week.xpEarned}` },
             ].map((stat) => (
@@ -395,32 +515,6 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      {/* Recommended next step */}
-      {nextStep && (
-        <section
-          className={`${card} flex flex-col gap-4 p-5 sm:flex-row sm:items-center`}
-          aria-labelledby="next-step-heading"
-        >
-          <span
-            aria-hidden
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl ring-1 ring-brand-100"
-          >
-            {nextStep.icon}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p id="next-step-heading" className="text-xs font-bold tracking-wider text-brand-700 uppercase">
-              Recommended next step
-            </p>
-            <p className="font-extrabold text-slate-900">{nextStep.title}</p>
-            <p className="mt-0.5 text-sm text-slate-700">{nextStep.text}</p>
-          </div>
-          <Link href={nextStep.href} className={`${softButton} shrink-0`}>
-            {nextStep.cta}
-            <ArrowRightIcon className="h-4 w-4" />
-          </Link>
-        </section>
-      )}
-
       {/* Your progress */}
       <section aria-labelledby="progress-heading" className="flex flex-col gap-4">
         <h2 id="progress-heading" className="text-lg font-extrabold text-slate-900">
@@ -428,7 +522,6 @@ export default async function DashboardPage() {
         </h2>
 
         <div className="grid gap-5 lg:grid-cols-5">
-          {/* Financial Readiness Score */}
           <div id="readiness" className={`${card} scroll-mt-20 p-5 sm:p-6 lg:col-span-3`}>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
               <ReadinessRing score={overall} size="sm" />
@@ -473,12 +566,14 @@ export default async function DashboardPage() {
             </ul>
           </div>
 
-          {/* Level progress, badges */}
           <div className={`${card} flex flex-col p-5 sm:p-6 lg:col-span-2`}>
-            <p className="text-xs font-bold tracking-wider text-brand-700 uppercase">Current level</p>
-            <h3 className="mt-1 text-lg font-extrabold text-slate-900">Level 1 — {LEVEL_1_NAME}</h3>
-            <p className="mt-1 text-sm font-semibold text-slate-700">
-              Progress: {completedCount}/{totalLessons} lessons completed
+            <p className="text-xs font-bold tracking-wider text-brand-700 uppercase">Your rank</p>
+            <h3 className="mt-1 text-lg font-extrabold text-slate-900">
+              <span aria-hidden>{rank.current.icon}</span> {rank.current.name}
+            </h3>
+            {rank.toNext && <p className="mt-1 text-sm text-slate-700">{rank.toNext}.</p>}
+            <p className="mt-4 text-sm font-semibold text-slate-700">
+              Level 1 — {LEVEL_1_NAME}: {completedCount}/{totalLessons} lessons
             </p>
             <div
               role="progressbar"
@@ -486,7 +581,7 @@ export default async function DashboardPage() {
               aria-valuemin={0}
               aria-valuemax={totalLessons}
               aria-valuenow={completedCount}
-              className="mt-3 h-3 overflow-hidden rounded-full bg-brand-100"
+              className="mt-2 h-3 overflow-hidden rounded-full bg-brand-100"
             >
               <div className="h-full rounded-full bg-brand-600" style={{ width: `${levelPercent}%` }} />
             </div>
@@ -496,7 +591,7 @@ export default async function DashboardPage() {
                 className="rounded-2xl bg-amber-50 p-3 ring-1 ring-amber-200 shadow-[0_3px_0_0_var(--color-amber-200)] transition hover:-translate-y-0.5"
               >
                 <p className="text-xl font-extrabold text-slate-900 tabular-nums">
-                  <span aria-hidden>🏅</span> {badgesEarned}/{BADGES.length}
+                  <span aria-hidden>🏅</span> {earnedBadges.length}/{BADGES.length}
                 </p>
                 <p className="text-xs font-semibold text-slate-600">Badges earned</p>
               </Link>
@@ -507,7 +602,7 @@ export default async function DashboardPage() {
             </div>
             <div className="mt-auto pt-5">
               <Link href="/lessons" className={softButton}>
-                View all lessons
+                Open the journey map
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
             </div>

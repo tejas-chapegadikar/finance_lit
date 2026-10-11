@@ -1,8 +1,8 @@
 import { SCENARIOS } from "./content";
-import type { PublicScenario, ScenarioDef, StepAnswer, StepDef, StepResult } from "./types";
+import type { PublicScenario, PublicStep, ScenarioDef, StepAnswer, StepDef, StepResult } from "./types";
 
 export { SCENARIOS, SCENARIO_XP } from "./content";
-export type { PublicScenario, ScenarioDef, StepAnswer, StepResult } from "./types";
+export type { PublicScenario, PublicStep, ScenarioDef, StepAnswer, StepCheck, StepResult } from "./types";
 
 const MAX_STEP_POINTS = 2;
 
@@ -12,21 +12,23 @@ export function getScenario(slug: string): ScenarioDef | undefined {
 
 export const CORE_SCENARIOS = SCENARIOS.filter((scenario) => !scenario.bonus);
 
-/** The scenario without answers, points or feedback — safe to send to the browser. */
-export function publicScenario(def: ScenarioDef): PublicScenario {
-  return {
-    ...def,
-    steps: def.steps.map((step) => {
-      if (step.kind === "allocate") {
-        const { kind, prompt, total, increment, buckets } = step;
-        return { kind, prompt, total, increment, buckets };
-      }
-      return { kind: step.kind, prompt: step.prompt, options: step.options.map((o) => o.text) };
-    }),
-  };
+/** Steps without answers, points or feedback — safe to send to the browser. */
+export function publicSteps(steps: StepDef[]): PublicStep[] {
+  return steps.map((step) => {
+    if (step.kind === "allocate") {
+      const { kind, prompt, total, increment, buckets } = step;
+      return { kind, prompt, total, increment, buckets };
+    }
+    return { kind: step.kind, prompt: step.prompt, options: step.options.map((o) => o.text) };
+  });
 }
 
-export function maxScore(def: ScenarioDef): number {
+/** The scenario without answers, points or feedback — safe to send to the browser. */
+export function publicScenario(def: ScenarioDef): PublicScenario {
+  return { ...def, steps: publicSteps(def.steps) };
+}
+
+export function maxScore(def: { steps: StepDef[] }): number {
   return def.steps.length * MAX_STEP_POINTS;
 }
 
@@ -68,7 +70,7 @@ export function evaluateStep(step: StepDef, answer: StepAnswer): StepResult {
 }
 
 /** Scores a whole run — the server's own check before saving a completion. */
-export function evaluateRun(def: ScenarioDef, answers: StepAnswer[]) {
+export function evaluateRun(def: { steps: StepDef[] }, answers: StepAnswer[]) {
   if (answers.length !== def.steps.length) throw new Error("Answer every step");
   const results = def.steps.map((step, i) => evaluateStep(step, answers[i]));
   return { score: results.reduce((sum, r) => sum + r.points, 0), maxScore: maxScore(def), results };

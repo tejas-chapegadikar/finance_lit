@@ -5,6 +5,7 @@ import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { isAllowed, rewardRatelimit } from "@/lib/ratelimit";
 import { findReward } from "@/lib/rewards";
+import { readAvatar } from "@/lib/avatar";
 import { lockUser, spendXp, xpKeys } from "@/lib/xp";
 
 export type RedeemResult = { status: "unlocked" | "owned" | "not-enough-xp" | "slow-down" };
@@ -32,7 +33,11 @@ export async function redeemReward(rewardId: string): Promise<RedeemResult> {
     });
     if (!paid) return "not-enough-xp";
     await tx.rewardUnlock.create({ data: { userId: user.id, rewardId, costXp: reward.cost } });
-    // Wear a first title or theme straight away.
+    // Wear a new avatar item, or a first title or theme, straight away.
+    if (reward.kind === "avatar" && reward.slot) {
+      const avatar = { ...readAvatar(user.avatar), [reward.slot]: reward.id };
+      await tx.user.update({ where: { id: user.id }, data: { avatar } });
+    }
     if (reward.kind === "title" && !user.title) await tx.user.update({ where: { id: user.id }, data: { title: rewardId } });
     if (reward.kind === "theme" && !user.theme) await tx.user.update({ where: { id: user.id }, data: { theme: rewardId } });
     return "unlocked";

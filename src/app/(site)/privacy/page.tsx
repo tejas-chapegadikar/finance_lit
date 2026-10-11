@@ -11,7 +11,9 @@ This policy explains what personal data StockStreak ("we", "us") collects when y
 
 - **Account details** — your name, email address and, if you sign in with Google, your profile picture. Sign-in is handled by our authentication provider, Clerk; we never see your password.
 - **Profile details you give us** — your display name, your stage (year of study or graduate/working), your college (optional) and your learning goal (optional).
-- **Learning activity** — the lessons you open, your answers to scenarios, quizzes, revision questions and Today's Challenge, your scores, topic mastery, XP, badges, Rewards Store unlocks, and any lesson feedback you send.
+- **Learning activity** — the lessons you open, your answers to scenarios, quizzes, revision questions, the Question of the Day and the Daily Challenge, your scores, topic mastery, the days you learned (your streak), daily missions, XP, badges, Rewards Store unlocks, and any lesson feedback you send.
+- **Your avatar** — the look you pick in the avatar studio.
+- **Questions you ask the AI Coach** — the follow-up questions you type during a quiz, and the Coach's replies.
 - **Reminder settings** — whether you want a daily reminder and at what time.
 - **Technical data** — your IP address and basic device and browser information, processed by our hosting and security providers to run and protect the service.
 
@@ -29,6 +31,8 @@ We **don't** collect bank account numbers, card details, UPI IDs or PINs, Aadhaa
 ## The AI Coach
 
 When you ask for a hint, we send the quiz question, its answer options, the lesson's explanation and the lesson text to our AI provider, Anthropic, to write the hint. We **don't** send your name, email or other personal details. Hints may be saved and shown to other students who make the same mistake.
+
+When you ask the Coach a follow-up question, we also send the words you type (and your earlier follow-ups on that question) to Anthropic to write the reply, and we save the question and reply with your account. Please don't type personal or financial details into it.
 
 ## Who we share data with
 

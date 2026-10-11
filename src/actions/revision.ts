@@ -8,6 +8,7 @@ import { readChoiceOptions } from "@/lib/lesson-content";
 import { isAllowed, practiceRatelimit } from "@/lib/ratelimit";
 import { REVISION_XP, nextSchedule, revisionQuestion, whenDue } from "@/lib/revision";
 import { recordStreakDay } from "@/lib/streak";
+import { awardRevisionBadges, findBadge } from "@/lib/badges";
 import { awardXp, lockUser, xpKeys } from "@/lib/xp";
 
 export type RevisionResult =
@@ -57,14 +58,14 @@ export async function answerRevision(itemId: string, optionIndex: number): Promi
     return { status: "answered", isCorrect, correctIndex, explanation: question.explanation, note, xpAwarded: 0 };
   }
 
-  const xpAwarded = await db.$transaction(async (tx) => {
+  const { xpAwarded, badgeIds } = await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
     // Only the request that moves the item on gets to record and reward it.
     const { count } = await tx.revisionItem.updateMany({
       where: { id: item.id, status: "ACTIVE", stage: item.stage, dueDay: item.dueDay },
       data: next,
     });
-    if (count === 0) return 0;
+    if (count === 0) return { xpAwarded: 0, badgeIds: [] };
     await tx.revisionAnswer.create({
       data: { itemId: item.id, userId: user.id, context: "REVIEW", stage: item.stage, optionIndex, isCorrect },
     });
@@ -75,10 +76,16 @@ export async function answerRevision(itemId: string, optionIndex: number): Promi
       idempotencyKey: xpKeys.revision(item.id, item.stage, item.dueDay),
       description: "Revision practice",
     });
+    const badgeIds = next.status === "DONE" ? await awardRevisionBadges(tx, user.id) : [];
     await recordStreakDay(tx, user.id);
-    return awarded;
+    return { xpAwarded: awarded, badgeIds };
   }, SLOW_DB_TRANSACTION);
 
   revalidatePath("/", "layout");
-  return { status: "answered", isCorrect, correctIndex, explanation: question.explanation, note, xpAwarded };
+  const badgeNote = badgeIds
+    .map((id) => findBadge(id))
+    .filter((badge) => badge !== undefined)
+    .map((badge) => ` New badge: ${badge.icon} ${badge.name}!`)
+    .join("");
+  return { status: "answered", isCorrect, correctIndex, explanation: question.explanation, note: note + badgeNote, xpAwarded };
 }

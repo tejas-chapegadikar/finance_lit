@@ -4,21 +4,30 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
 import { equipReward, redeemReward } from "@/actions/rewards";
+import { wearAvatarItem } from "@/actions/avatar";
 import type { Reward } from "@/lib/rewards";
+import { HEAD_SLOTS, type AvatarConfig } from "@/lib/avatar";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { primaryButton, secondaryButton, softButton, tile } from "@/components/ui/button-styles";
+import { Avatar } from "@/components/avatar/Avatar";
 
-/** One Rewards Store item: unlock it with XP, then wear it (titles, themes) or play it (scenarios). */
+/**
+ * One Rewards Store item: unlock it with XP, then wear it (avatar items,
+ * titles, themes) or play it (bonus scenarios).
+ */
 export function RewardCard({
   reward,
   owned,
   equipped,
   balance,
+  avatar,
 }: {
   reward: Reward;
   owned: boolean;
   equipped: boolean;
   balance: number;
+  /** The student's avatar, to preview avatar items on. */
+  avatar: AvatarConfig;
 }) {
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -43,23 +52,36 @@ export function RewardCard({
       setConfirming(false);
       if (result.status === "not-enough-xp") setMessage("You don't have enough XP for this yet.");
       if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);
-      if (result.status === "unlocked") setMessage("Unlocked! 🎉");
+      if (result.status === "unlocked") setMessage(reward.kind === "avatar" ? "Unlocked — your avatar is wearing it! 🎉" : "Unlocked! 🎉");
     });
   }
 
   return (
     <li className={`${tile} flex flex-col p-4`}>
       <div className="flex items-start gap-3">
-        <span
-          aria-hidden
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl ${
-            reward.gradient ?? "bg-brand-50"
-          }`}
-        >
-          {reward.icon}
-        </span>
+        {reward.kind === "avatar" && reward.slot ? (
+          <span aria-hidden className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-brand-50 ring-1 ring-brand-100">
+            <Avatar
+              config={{ ...avatar, [reward.slot]: reward.id }}
+              crop={HEAD_SLOTS.includes(reward.slot) ? "head" : "full"}
+              className="h-full w-auto"
+            />
+          </span>
+        ) : (
+          <span
+            aria-hidden
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl ${reward.gradient ?? "bg-brand-50"}`}
+          >
+            {reward.icon}
+          </span>
+        )}
         <div className="min-w-0 flex-1">
-          <p className="font-extrabold text-slate-900">{reward.name}</p>
+          <p className="font-extrabold text-slate-900">
+            {reward.name}
+            {reward.rare && (
+              <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 align-middle text-xs font-extrabold text-amber-900">Rare</span>
+            )}
+          </p>
           <p className="text-sm text-slate-600">{reward.description}</p>
           <p className="mt-1 text-sm font-extrabold text-orange-700">⭐ {reward.cost} XP</p>
         </div>
@@ -91,7 +113,12 @@ export function RewardCard({
             Play it
           </Link>
         )}
-        {owned && reward.kind !== "scenario" && (
+        {owned && reward.kind === "avatar" && !equipped && (
+          <button type="button" disabled={isPending} onClick={() => run(() => wearAvatarItem(reward.id))} className={softButton}>
+            {isPending ? "Saving…" : "Wear it"}
+          </button>
+        )}
+        {owned && (reward.kind === "title" || reward.kind === "theme") && (
           <button
             type="button"
             disabled={isPending}

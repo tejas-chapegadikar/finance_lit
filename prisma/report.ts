@@ -4,8 +4,8 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 // `npm run report` — the launch metrics, read straight from the database.
 // Students = everyone who finished onboarding. A "meaningful learning
-// action" is a completed lesson quiz, a completed scenario, a Today's
-// Challenge answer or a revision answer. Days are IST calendar days.
+// action" is a completed lesson quiz, a completed scenario, a Question of the
+// Day answer, a Daily Challenge or a revision answer. Days are IST calendar days.
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
@@ -15,26 +15,31 @@ const istDayNumber = (d: Date) => Math.floor((d.getTime() + IST_MS) / DAY_MS);
 
 const pct = (n: number, d: number) => (d ? `${Math.round((100 * n) / d)}%` : "—");
 const row = (name: string, value: string, detail: string) =>
-  console.log(`${name.padEnd(34)} ${value.padStart(6)}   ${detail}`);
+  console.log(`${name.padEnd(36)} ${value.padStart(6)}   ${detail}`);
 
 async function main() {
   const students = await db.user.findMany({
     where: { onboardingCompletedAt: { not: null } },
-    select: { id: true, createdAt: true },
+    select: { id: true, createdAt: true, longestStreak: true, avatar: true },
   });
   const ids = students.map((s) => s.id);
   const mine = { userId: { in: ids } };
 
-  const [views, attempts, answers, runs, challenges, revision, unlocks, lessons] = await Promise.all([
-    db.lessonView.findMany({ where: mine, select: { userId: true, lessonId: true } }),
-    db.quizAttempt.findMany({ where: mine, select: { userId: true, lessonId: true, status: true, mastery: true, completedAt: true } }),
-    db.quizAnswer.findMany({ where: { attempt: mine }, select: { attemptId: true, questionId: true, tryNumber: true, isCorrect: true } }),
-    db.scenarioRun.findMany({ where: mine, select: { userId: true, completedAt: true } }),
-    db.challengeAnswer.findMany({ where: mine, select: { userId: true, answeredAt: true } }),
-    db.revisionAnswer.findMany({ where: mine, select: { userId: true, answeredAt: true, isCorrect: true, context: true } }),
-    db.rewardUnlock.findMany({ where: mine, select: { userId: true } }),
-    db.lesson.count({ where: { isPublished: true } }),
-  ]);
+  const [views, attempts, answers, runs, questions, challenges, revision, unlocks, bonuses, activeDays, followUps, lessons] =
+    await Promise.all([
+      db.lessonView.findMany({ where: mine, select: { userId: true, lessonId: true } }),
+      db.quizAttempt.findMany({ where: mine, select: { userId: true, lessonId: true, status: true, mastery: true, completedAt: true } }),
+      db.quizAnswer.findMany({ where: { attempt: mine }, select: { attemptId: true, questionId: true, tryNumber: true, isCorrect: true } }),
+      db.scenarioRun.findMany({ where: mine, select: { userId: true, completedAt: true } }),
+      db.dailyQuestionAnswer.findMany({ where: mine, select: { userId: true, answeredAt: true } }),
+      db.dailyChallengeRun.findMany({ where: mine, select: { userId: true, completedAt: true } }),
+      db.revisionAnswer.findMany({ where: mine, select: { userId: true, answeredAt: true, isCorrect: true, context: true, itemId: true } }),
+      db.rewardUnlock.findMany({ where: mine, select: { userId: true, rewardId: true } }),
+      db.xPTransaction.findMany({ where: { ...mine, type: "MISSION_BONUS" }, select: { userId: true } }),
+      db.activityDay.findMany({ where: { ...mine, frozen: false }, select: { userId: true, day: true } }),
+      db.coachFollowUp.findMany({ where: mine, select: { userId: true, questionId: true, createdAt: true } }),
+      db.lesson.count({ where: { isPublished: true } }),
+    ]);
   const completed = attempts.filter((a) => a.status === "COMPLETED");
 
   // Funnel
@@ -75,7 +80,8 @@ async function main() {
   };
   completed.forEach((a) => add(a.userId, a.completedAt));
   runs.forEach((r) => add(r.userId, r.completedAt));
-  challenges.forEach((c) => add(c.userId, c.answeredAt));
+  questions.forEach((q) => add(q.userId, q.answeredAt));
+  challenges.forEach((c) => add(c.userId, c.completedAt));
   revision.filter((r) => r.context === "REVIEW").forEach((r) => add(r.userId, r.answeredAt));
   const today = istDayNumber(new Date());
   const retention = (from: number, to: number) => {
@@ -94,8 +100,24 @@ async function main() {
   const recentlyActive = new Set(
     [...actions.entries()].filter(([, days]) => days.some((d) => today - d < 7)).map(([id]) => id),
   );
-  const challengers7 = new Set(challenges.filter((c) => today - istDayNumber(c.answeredAt) < 7).map((c) => c.userId));
+  const dailyDoers7 = new Set(
+    [...questions.map((q) => ({ userId: q.userId, at: q.answeredAt })), ...challenges.map((c) => ({ userId: c.userId, at: c.completedAt }))]
+      .filter((x) => today - istDayNumber(x.at) < 7)
+      .map((x) => x.userId),
+  );
   const redeemers = new Set(unlocks.map((u) => u.userId));
+  const avatarItems = unlocks.filter((u) => !u.rewardId.startsWith("title-") && !u.rewardId.startsWith("theme-") && !u.rewardId.startsWith("scenario-"));
+
+  // Streaks: of students who reached a 2-day streak, how many kept going to 3 and to 7.
+  const twoPlus = students.filter((s) => s.longestStreak >= 2).length;
+  const threePlusStreak = students.filter((s) => s.longestStreak >= 3).length;
+  const sevenPlusStreak = students.filter((s) => s.longestStreak >= 7).length;
+
+  // Daily missions: bonus days out of all active days.
+  const activeDayCount = activeDays.length;
+
+  // AI Coach follow-ups: how many, on how many distinct questions.
+  const followUpQuestions = new Set(followUps.map((f) => `${f.userId}|${f.questionId}`));
 
   console.log(`\nStockStreak launch metrics — ${students.length} students\n`);
   row("Signup → opened first lesson", pct(viewed.size, students.length), `${viewed.size} of ${students.length}`);
@@ -106,11 +128,15 @@ async function main() {
   row("Quiz improvement on retakes", pct(improved, retaken.length), `${improved} of ${retaken.length} retaken lessons improved`);
   row("Day-1 retention", pct(d1.n, d1.d), `${d1.n} of ${d1.d} came back the day after signing up`);
   row("Day-7 retention (days 7–13)", pct(d7.n, d7.d), `${d7.n} of ${d7.d} came back in their second week`);
+  row("Daily mission completion", pct(bonuses.length, activeDayCount), `${bonuses.length} all-missions days of ${activeDayCount} active days`);
+  row("Streak continuation (2 → 3 days)", pct(threePlusStreak, twoPlus), `${threePlusStreak} of ${twoPlus} students; ${sevenPlusStreak} reached 7 days`);
+  row("Daily question/challenge (7d)", pct(dailyDoers7.size, recentlyActive.size), `${dailyDoers7.size} of ${recentlyActive.size} recently active students`);
   row("Revision accuracy", pct(reviews.filter((r) => r.isCorrect).length, reviews.length), `${reviews.length} revision answers`);
   row("AI Coach retry success", pct(recovered, coached), `${recovered} of ${coached} missed questions solved after a hint`);
   row("Coach check accuracy", pct(checks.filter((r) => r.isCorrect).length, checks.length), `${checks.length} follow-up checks`);
-  row("Daily challenge (active, last 7d)", pct(challengers7.size, recentlyActive.size), `${challengers7.size} of ${recentlyActive.size} recently active students`);
-  row("Reward redemption", pct(redeemers.size, students.length), `${unlocks.length} unlocks by ${redeemers.size} students`);
+  row("AI Coach follow-ups asked", String(followUps.length), `about ${followUpQuestions.size} questions, by ${new Set(followUps.map((f) => f.userId)).size} students`);
+  row("Reward redemption", pct(redeemers.size, students.length), `${unlocks.length} unlocks by ${redeemers.size} students (${avatarItems.length} avatar items)`);
+  row("Custom avatars", pct(students.filter((s) => s.avatar !== null).length, students.length), "students who saved an avatar");
   console.log("\nVisitor → signup needs page analytics (e.g. Vercel Web Analytics) once deployed.\n");
 }
 

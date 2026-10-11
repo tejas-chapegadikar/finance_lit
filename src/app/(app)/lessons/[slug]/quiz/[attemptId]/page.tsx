@@ -38,10 +38,17 @@ export default async function QuizPage(props: PageProps<"/lessons/[slug]/quiz/[a
     redirect(`/lessons/${slug}`);
   }
 
-  const checks = await db.revisionAnswer.findMany({
-    where: { quizAttemptId: attempt.id, context: "COACH_CHECK" },
-    select: { optionIndex: true, isCorrect: true, item: { select: { questionId: true } } },
-  });
+  const [checks, followUps] = await Promise.all([
+    db.revisionAnswer.findMany({
+      where: { quizAttemptId: attempt.id, context: "COACH_CHECK" },
+      select: { optionIndex: true, isCorrect: true, item: { select: { questionId: true } } },
+    }),
+    db.coachFollowUp.findMany({
+      where: { attemptId: attempt.id },
+      orderBy: { createdAt: "asc" },
+      select: { questionId: true, message: true, reply: true },
+    }),
+  ]);
 
   // Correct answers only go to the browser for questions already resolved.
   const questions: QuizQuestion[] = attempt.lesson.questions.map((question) => {
@@ -58,6 +65,7 @@ export default async function QuizPage(props: PageProps<"/lessons/[slug]/quiz/[a
       options: question.options.map(({ id, text }) => ({ id, text })),
       wrongOptionIds: tries.filter((t) => !t.isCorrect).map((t) => t.selectedOptionId),
       practice: practice ? { prompt: practice.prompt, options: practiceOptions.map((o) => o.text) } : null,
+      followUps: followUps.filter((f) => f.questionId === question.id).map(({ message, reply }) => ({ message, reply })),
       coachCheck:
         practice && check
           ? {

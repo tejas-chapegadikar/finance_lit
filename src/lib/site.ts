@@ -4,7 +4,7 @@
 // before launch — it's printed in the Privacy Policy and Terms.
 export const CONTACT_EMAIL = "hello@stockstreak.in";
 
-export const LEGAL_LAST_UPDATED = "9 October 2026";
+export const LEGAL_LAST_UPDATED = "11 October 2026";
 
 export const LEGAL_LINKS = [
   { href: "/about", label: "About" },
