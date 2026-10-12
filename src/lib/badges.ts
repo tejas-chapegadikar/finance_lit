@@ -1,6 +1,6 @@
 import type { Prisma, ReadinessArea } from "@prisma/client";
 import type { LessonProgress } from "./progress";
-import { LEVEL_1_NAME, QUESTIONS_PER_QUIZ } from "./constants";
+import { PATH_NAME, QUESTIONS_PER_QUIZ } from "./constants";
 import { READINESS_AREA_META } from "./readiness-areas";
 import { CORE_SCENARIOS } from "./scenarios";
 
@@ -18,19 +18,21 @@ export type BadgeRule =
 
 export type Badge = { id: string; icon: string; name: string; rule: BadgeRule };
 
+// Names celebrate what was achieved. Ids are permanent (stored in UserBadge),
+// so a badge can be renamed without anyone losing it.
 export const BADGES: Badge[] = [
-  { id: "first-lesson", icon: "🌱", name: "First Lesson", rule: { kind: "lessons", count: 1 } },
-  { id: "budget-beginner", icon: "💰", name: "Budget Beginner", rule: { kind: "area", area: "BUDGETING" } },
+  { id: "first-lesson", icon: "🌱", name: "First Steps", rule: { kind: "lessons", count: 1 } },
+  { id: "budget-beginner", icon: "💰", name: "Budget Pro", rule: { kind: "area", area: "BUDGETING" } },
   { id: "scam-spotter", icon: "🛡️", name: "Scam Spotter", rule: { kind: "area", area: "DIGITAL_SAFETY" } },
-  { id: "banking-beginner", icon: "🏦", name: "Banking Beginner", rule: { kind: "area", area: "BANKING" } },
-  { id: "credit-ready", icon: "💳", name: "Credit Score Pro", rule: { kind: "area", area: "CREDIT" } },
+  { id: "banking-beginner", icon: "🏦", name: "Banking Ace", rule: { kind: "area", area: "BANKING" } },
+  { id: "credit-ready", icon: "💳", name: "Credit Savvy", rule: { kind: "area", area: "CREDIT" } },
   { id: "tax-smart", icon: "🧾", name: "Tax Smart", rule: { kind: "area", area: "TAX" } },
   { id: "quiz-champion", icon: "🏆", name: "Quiz Champion", rule: { kind: "perfect-quizzes", count: 3 } },
-  { id: "seven-day-learner", icon: "🔥", name: "Seven-Day Learner", rule: { kind: "streak", days: 7 } },
-  { id: "thirty-day-learner", icon: "🌟", name: "Thirty-Day Learner", rule: { kind: "streak", days: 30 } },
+  { id: "seven-day-learner", icon: "🔥", name: "Consistency Champion", rule: { kind: "streak", days: 7 } },
+  { id: "thirty-day-learner", icon: "🌟", name: "Habit Hero", rule: { kind: "streak", days: 30 } },
   { id: "scenario-solver", icon: "🧭", name: "Scenario Solver", rule: { kind: "scenarios", count: CORE_SCENARIOS.length } },
   { id: "memory-master", icon: "🧠", name: "Memory Master", rule: { kind: "retained", count: 10 } },
-  { id: "financial-foundations", icon: "🎓", name: `${LEVEL_1_NAME} Graduate`, rule: { kind: "level" } },
+  { id: "financial-foundations", icon: "🎓", name: `${PATH_NAME} Graduate`, rule: { kind: "level" } },
 ];
 
 export function findBadge(id: string): Badge | undefined {
@@ -88,7 +90,7 @@ function ruleText(rule: BadgeRule, required: number): string {
       return `Complete all ${required} ${label} lessons`;
     }
     case "level":
-      return `Complete all ${required} Level 1 lessons`;
+      return `Complete all ${required} ${PATH_NAME} lessons`;
     case "perfect-quizzes":
       return `Get every question right first try in ${required} quizzes`;
     case "streak":
@@ -151,7 +153,7 @@ const ofKind = <K extends BadgeRule["kind"]>(kind: K) =>
   BADGES.filter((b): b is Badge & { rule: Extract<BadgeRule, { kind: K }> } => b.rule.kind === kind);
 
 /**
- * After a quiz is completed (inside its transaction): lesson, area, Level 1
+ * After a quiz is completed (inside its transaction): lesson, area, path
  * and Quiz Champion badges. `quizAttemptId` lets the completion screen
  * celebrate what it unlocked.
  */
@@ -177,7 +179,7 @@ export async function awardLessonBadges(tx: Prisma.TransactionClient, userId: st
   return grant(tx, userId, eligible.map((b) => b.id), quizAttemptId);
 }
 
-/** When the streak grows: Seven-Day and Thirty-Day Learner. */
+/** When the streak grows: Consistency Champion (7 days) and Habit Hero (30). */
 export async function awardStreakBadges(tx: Prisma.TransactionClient, userId: string, longestStreak: number) {
   return grant(tx, userId, ofKind("streak").filter((b) => longestStreak >= b.rule.days).map((b) => b.id));
 }

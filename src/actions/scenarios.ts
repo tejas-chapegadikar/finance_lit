@@ -5,6 +5,7 @@ import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { isAllowed, practiceRatelimit } from "@/lib/ratelimit";
 import { rewardForScenario } from "@/lib/rewards";
+import { lessonAccess } from "@/lib/progress";
 import {
   SCENARIO_XP,
   evaluateRun,
@@ -26,6 +27,13 @@ async function openScenario(userId: string, slug: string): Promise<ScenarioDef> 
     const reward = rewardForScenario(slug);
     const unlocked = reward && (await db.rewardUnlock.count({ where: { userId, rewardId: reward.id } }));
     if (!unlocked) throw new Error("Unlock this scenario in the Rewards Store first");
+  }
+  // A scenario opens with the level of the lesson it practises.
+  if (scenario.lessonSlug) {
+    const { unlocked } = await lessonAccess(userId);
+    if (!unlocked.some((lesson) => lesson.slug === scenario.lessonSlug)) {
+      throw new Error("This scenario's level is locked — finish the previous level first");
+    }
   }
   return scenario;
 }

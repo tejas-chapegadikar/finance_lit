@@ -31,7 +31,7 @@ export function DailyChallengeResult({
         You scored <span className="font-extrabold text-slate-900">{score}/{maxScore}</span> on today&apos;s Daily Challenge.
       </p>
       {xpAwarded > 0 && (
-        <p className="mt-3 inline-flex rounded-full bg-orange-50 px-3 py-1 text-sm font-extrabold text-orange-700 ring-2 ring-orange-200">
+        <p className="mt-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-sm font-extrabold text-amber-800 ring-2 ring-amber-200">
           ⭐ +{xpAwarded} XP
         </p>
       )}
@@ -45,7 +45,7 @@ export function DailyChallengeResult({
           Back to dashboard
           <ArrowRightIcon className="h-4 w-4" />
         </Link>
-        <Link href="/practice" className={secondaryButton}>
+        <Link href="/lessons#practise" className={secondaryButton}>
           More practice
         </Link>
       </div>

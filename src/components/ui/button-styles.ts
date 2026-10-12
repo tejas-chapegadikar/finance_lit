@@ -3,12 +3,16 @@
 const pressable =
   "inline-flex items-center justify-center gap-2 font-bold transition-[transform,box-shadow,background-color] duration-100 active:translate-y-[3px] disabled:pointer-events-none disabled:opacity-50";
 
-// Orange is the action colour. orange-700 is the lightest step where white
-// button text still clears WCAG AA (5.2:1 — orange-600 is only 3.6:1).
-export const primaryButton = `${pressable} rounded-2xl bg-orange-700 px-6 py-3 text-sm text-white shadow-[0_4px_0_0_var(--color-orange-900)] hover:bg-orange-800 active:shadow-[0_1px_0_0_var(--color-orange-900)]`;
+// Colour meanings, used the same way everywhere: brand blue for actions and
+// navigation, orange only for streaks, gold (amber) for XP and achievements.
+// brand-600 is the lightest blue where white button text clears WCAG AA (4.7:1).
+export const primaryButton = `${pressable} rounded-2xl bg-brand-600 px-6 py-3 text-sm text-white shadow-[0_4px_0_0_var(--color-brand-800)] hover:bg-brand-700 active:shadow-[0_1px_0_0_var(--color-brand-800)]`;
 
-// Sky blue, for moving through a quiz (Next question / Finish quiz).
-export const skyButton = `${pressable} rounded-2xl bg-brand-600 px-6 py-3 text-sm text-white shadow-[0_4px_0_0_var(--color-brand-800)] hover:bg-brand-700 active:shadow-[0_1px_0_0_var(--color-brand-800)]`;
+// The same blue action — kept as its own name for quiz and scenario steps.
+export const skyButton = primaryButton;
+
+// A white action button for use on the blue hero surfaces.
+export const lightButton = `${pressable} rounded-2xl bg-white px-6 py-3 text-sm text-brand-800 shadow-[0_4px_0_0_var(--color-brand-900)] hover:bg-brand-50 active:shadow-[0_1px_0_0_var(--color-brand-900)]`;
 
 export const secondaryButton = `${pressable} rounded-2xl border-2 border-slate-200 bg-white px-6 py-3 text-sm text-slate-700 shadow-[0_4px_0_0_var(--color-slate-200)] hover:bg-slate-50 active:shadow-[0_1px_0_0_var(--color-slate-200)]`;
 

@@ -39,9 +39,9 @@ export default async function QuestionOfTheDayPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
-      <Link href="/practice" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
+      <Link href="/lessons#daily" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
         <ArrowLeftIcon className="h-4 w-4" />
-        Practice
+        Learn
       </Link>
 
       <section className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
@@ -77,7 +77,7 @@ export default async function QuestionOfTheDayPage() {
               {area.label}
             </span>
             {!today.answer && (
-              <span className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-extrabold text-orange-700 ring-2 ring-orange-200">
+              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-extrabold text-amber-800 ring-2 ring-amber-200">
                 +{QUESTION_OF_THE_DAY_XP} XP
               </span>
             )}

@@ -7,7 +7,7 @@ import { questionOutcome, summarizeAttempt, type QuestionOutcome } from "@/lib/q
 import { getProgress } from "@/lib/progress";
 import { BADGES } from "@/lib/badges";
 import { readKeyTerms } from "@/lib/lesson-content";
-import { LEVEL_1_NAME, LEVEL_2_NAME } from "@/lib/constants";
+import { PATH_NAME, NEXT_PATH_NAME } from "@/lib/constants";
 import { beginQuiz } from "@/actions/quiz";
 import { saveLessonFeedback } from "@/actions/feedback";
 import { LessonFeedbackForm } from "@/components/lessons/LessonFeedbackForm";
@@ -88,15 +88,44 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   const practiceScenario = CORE_SCENARIOS.find((scenario) => scenario.lessonSlug === slug);
   const retake = beginQuiz.bind(null, attempt.lessonId);
 
+  // Did this attempt finish a level (and so unlock the next one)? It did if it
+  // was this lesson's first completion and every other lesson in the level
+  // was already done before it.
+  const thisLevel = progress.levels.find((level) => level.slugs.includes(slug));
+  const firstCompletion = progress.lessons.find((l) => l.id === attempt.lessonId)?.firstCompletedAt?.getTime() === attempt.completedAt?.getTime();
+  const levelFinishedNow =
+    !!thisLevel &&
+    thisLevel.status === "completed" &&
+    firstCompletion &&
+    progress.lessons
+      .filter((l) => thisLevel.slugs.includes(l.slug) && l.id !== attempt.lessonId)
+      .every((l) => l.firstCompletedAt && attempt.completedAt && l.firstCompletedAt < attempt.completedAt);
+  const unlockedLevel = levelFinishedNow ? progress.levels[progress.levels.indexOf(thisLevel!) + 1] : undefined;
+
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
+      {levelFinishedNow && !levelJustCompleted && (
+        <section className="rounded-3xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 p-6 text-center text-white shadow-lg shadow-brand-900/20">
+          <span aria-hidden className="text-5xl">
+            🔓
+          </span>
+          <p className="mt-2 text-xs font-extrabold tracking-[0.2em] uppercase">Level {thisLevel!.chapter.number} complete</p>
+          <h2 className="mt-1 text-2xl font-extrabold">
+            {unlockedLevel ? `Level ${unlockedLevel.chapter.number} unlocked: ${unlockedLevel.chapter.title}` : "Level complete!"}
+          </h2>
+          <p className="mx-auto mt-2 max-w-sm text-sm font-semibold">
+            You finished every lesson in “{thisLevel!.chapter.title}”. The next level is open on your learning path.
+          </p>
+        </section>
+      )}
+
       {levelJustCompleted && (
-        <section className="rounded-3xl bg-gradient-to-br from-amber-300 via-orange-300 to-orange-400 p-6 text-center shadow-lg shadow-orange-900/20">
+        <section className="rounded-3xl bg-gradient-to-br from-amber-300 via-amber-300 to-amber-400 p-6 text-center shadow-lg shadow-amber-900/20">
           <span aria-hidden className="text-5xl">
             🎓
           </span>
-          <p className="mt-2 text-xs font-extrabold tracking-[0.2em] text-slate-900 uppercase">Level 1 complete</p>
-          <h2 className="mt-1 text-2xl font-extrabold text-slate-900">🏆 {LEVEL_1_NAME} Graduate</h2>
+          <p className="mt-2 text-xs font-extrabold tracking-[0.2em] text-slate-900 uppercase">All 4 levels complete</p>
+          <h2 className="mt-1 text-2xl font-extrabold text-slate-900">🏆 {PATH_NAME} Graduate</h2>
           <ul className="mt-4 flex flex-wrap justify-center gap-2 text-sm font-bold text-slate-900">
             <li className="rounded-full bg-white/70 px-3 py-1">
               {progress.completedCount}/{progress.totalLessons} lessons
@@ -104,10 +133,10 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
             <li className="rounded-full bg-white/70 px-3 py-1">{user.xpTotal.toLocaleString("en-IN")} XP</li>
             <li className="rounded-full bg-white/70 px-3 py-1">Readiness {progress.overall}/100</li>
           </ul>
-          {levelBonus > 0 && <p className="mt-4 text-sm font-bold text-slate-900">+{levelBonus} XP level bonus</p>}
+          {levelBonus > 0 && <p className="mt-4 text-sm font-bold text-slate-900">+{levelBonus} XP completion bonus</p>}
           <p className="mx-auto mt-2 max-w-sm text-sm font-semibold text-slate-900">
-            Next: Level 2 — {LEVEL_2_NAME} is coming soon. Until then, keep your skills sharp with the daily
-            question and challenge.
+            Next: the {NEXT_PATH_NAME} path is coming soon. Until then, keep your skills sharp with the daily question and
+            challenge.
           </p>
         </section>
       )}
@@ -142,9 +171,9 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
                 {summary.firstTry}/{attempt.totalQuestions}
               </dd>
             </div>
-            <div className="flex flex-col-reverse justify-end rounded-2xl bg-orange-50 p-3 ring-2 ring-orange-200 shadow-[0_4px_0_0_var(--color-orange-200)]">
+            <div className="flex flex-col-reverse justify-end rounded-2xl bg-amber-50 p-3 ring-2 ring-amber-200 shadow-[0_4px_0_0_var(--color-amber-200)]">
               <dt className="text-xs font-semibold text-slate-600">
-                <span className="block font-extrabold tracking-wider text-orange-800 uppercase">XP earned</span>
+                <span className="block font-extrabold tracking-wider text-amber-800 uppercase">XP earned</span>
                 {lessonXp ? "for your first completion" : "retakes earn no XP"}
               </dt>
               <dd className="text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">⭐ +{lessonXp}</dd>

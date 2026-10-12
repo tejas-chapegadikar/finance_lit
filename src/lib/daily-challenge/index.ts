@@ -4,6 +4,7 @@ import { dayNumber, istDayStart } from "../ist-date";
 import { readChoiceOptions } from "../lesson-content";
 import { READINESS_AREA_META } from "../readiness-areas";
 import { seededShuffle } from "../seeded";
+import { lessonAccess } from "../progress";
 import { publicSteps } from "../scenarios";
 import type { AllocateStep, ChoiceStep, MultiStep, PublicStep, StepDef } from "../scenarios/types";
 import { BUDGET_FOLLOW_UPS, BUDGET_VARIANTS, SCAM_FOLLOW_UPS, SCAM_MESSAGES } from "./content";
@@ -47,12 +48,28 @@ const QUICKFIRE_QUESTIONS = 5;
 // At or above this quiz accuracy in a topic (before today), questions get harder.
 const MASTERED_ACCURACY = 80;
 
+// Quick-fire questions come only from lessons the student could open before
+// today, so locked levels stay locked. When today's topic isn't open to them
+// yet, it's a mixed review of everything they have unlocked.
+type QuickFireTopic = { area: ReadinessArea; mixed: boolean; lessonIds: string[] };
+
+async function quickFireTopic(userId: string, day: string, area: ReadinessArea): Promise<QuickFireTopic> {
+  const { unlocked } = await lessonAccess(userId, istDayStart(day));
+  const inArea = unlocked.filter((lesson) => lesson.area === area);
+  if (inArea.length > 0) return { area, mixed: false, lessonIds: inArea.map((lesson) => lesson.id) };
+  return { area: unlocked[0]?.area ?? area, mixed: true, lessonIds: unlocked.map((lesson) => lesson.id) };
+}
+
+const quickFireTitle = (topic: QuickFireTopic) =>
+  topic.mixed ? "Quick-fire review" : `${READINESS_AREA_META[topic.area].label} quick-fire`;
+
 /** Today's challenge name and icon, without building it — for cards and links. */
-export function dailyChallengeInfo(day: string): { title: string; icon: string } {
+export async function dailyChallengeInfo(userId: string, day: string): Promise<{ title: string; icon: string }> {
   const slot = WEEK[dayNumber(day) % WEEK.length];
   if (slot.kind === "scams") return { title: "Spot the scams", icon: "🕵️" };
   if (slot.kind === "budget") return { title: "Build a budget", icon: "🧮" };
-  return { title: `${READINESS_AREA_META[slot.area].label} quick-fire`, icon: READINESS_AREA_META[slot.area].icon };
+  const topic = await quickFireTopic(userId, day, slot.area);
+  return { title: quickFireTitle(topic), icon: topic.mixed ? "⚡" : READINESS_AREA_META[topic.area].icon };
 }
 
 /** Today's Daily Challenge for this student. */
@@ -62,7 +79,7 @@ export async function getDailyChallenge(userId: string, day: string): Promise<Da
   const week = Math.floor(n / WEEK.length);
   if (slot.kind === "scams") return spotTheScams(day);
   if (slot.kind === "budget") return buildABudget(week);
-  return quickFire(slot.area, LEVELS[week % LEVELS.length], userId, day);
+  return quickFire(await quickFireTopic(userId, day, slot.area), LEVELS[week % LEVELS.length], userId, day);
 }
 
 function spotTheScams(day: string): DailyChallengeDef {
@@ -134,16 +151,17 @@ function buildABudget(week: number): DailyChallengeDef {
 
 type PoolQuestion = { prompt: string; options: { text: string; isCorrect: boolean }[]; explanation: string; difficulty: Difficulty };
 
-async function quickFire(area: ReadinessArea, level: Difficulty, userId: string, day: string): Promise<DailyChallengeDef> {
+async function quickFire(topic: QuickFireTopic, level: Difficulty, userId: string, day: string): Promise<DailyChallengeDef> {
+  const { area, lessonIds } = topic;
   const [questions, attempts] = await Promise.all([
     db.question.findMany({
-      where: { lesson: { area, isPublished: true } },
+      where: { lessonId: { in: lessonIds } },
       orderBy: [{ lesson: { order: "asc" } }, { order: "asc" }],
       include: { options: { orderBy: { order: "asc" } } },
     }),
     // Only what happened before today, so the set stays the same all day.
     db.quizAttempt.findMany({
-      where: { userId, status: "COMPLETED", completedAt: { lt: istDayStart(day) }, lesson: { area } },
+      where: { userId, status: "COMPLETED", completedAt: { lt: istDayStart(day) }, lessonId: { in: lessonIds } },
       select: { lessonId: true, mastery: true },
     }),
   ]);
@@ -169,7 +187,7 @@ async function quickFire(area: ReadinessArea, level: Difficulty, userId: string,
     .sort((a, b) => distance(a) - distance(b))
     .slice(0, QUICKFIRE_QUESTIONS);
 
-  const label = READINESS_AREA_META[area].label;
+  const label = topic.mixed ? "review" : READINESS_AREA_META[area].label;
   const steps: ChoiceStep[] = picked.map((q) => {
     const correct = q.options.find((o) => o.isCorrect);
     return {
@@ -184,16 +202,20 @@ async function quickFire(area: ReadinessArea, level: Difficulty, userId: string,
   });
 
   return {
-    key: `quickfire-${area}`,
-    title: `${label} quick-fire`,
-    icon: READINESS_AREA_META[area].icon,
+    key: topic.mixed ? "quickfire-review" : `quickfire-${area}`,
+    title: quickFireTitle(topic),
+    icon: topic.mixed ? "⚡" : READINESS_AREA_META[area].icon,
     area,
     difficulty: LEVEL_LABEL[target],
-    intro: mastered
-      ? `Five quick ${label} questions — a step harder, because you've been acing this topic.`
-      : `Five quick ${label} questions. How many can you get right?`,
+    intro: topic.mixed
+      ? "Five quick questions from the levels you've unlocked so far. How many can you get right?"
+      : mastered
+        ? `Five quick ${label} questions — a step harder, because you've been acing this topic.`
+        : `Five quick ${label} questions. How many can you get right?`,
     steps,
-    takeaway: `Missed one? Revisit the ${label} lessons — and Revision brings back anything you miss in a lesson quiz.`,
+    takeaway: topic.mixed
+      ? "Missed one? Revisit that lesson — and Revision brings back anything you miss in a lesson quiz."
+      : `Missed one? Revisit the ${label} lessons — and Revision brings back anything you miss in a lesson quiz.`,
   };
 }
 

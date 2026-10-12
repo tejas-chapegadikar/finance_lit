@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { readChoiceOptions } from "@/lib/lesson-content";
 import { isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit";
+import { assertLessonUnlocked, lessonAccess } from "@/lib/progress";
 
 export async function recordLessonView(lessonId: string) {
   const user = await requireOnboardedUser();
@@ -15,6 +16,9 @@ export async function recordLessonView(lessonId: string) {
   if (!lesson?.isPublished) {
     return;
   }
+  // A locked lesson's page shows no content, so there's no view to record.
+  const { unlocked } = await lessonAccess(user.id);
+  if (!unlocked.some((l) => l.id === lessonId)) return;
 
   await Promise.all([
     db.lessonView.upsert({
@@ -49,6 +53,7 @@ export async function answerScenario(lessonId: string, optionIndex: number): Pro
   if (!lesson?.isPublished) {
     throw new Error("Lesson not found");
   }
+  await assertLessonUnlocked(user.id, lessonId);
 
   const options = readChoiceOptions(lesson.scenarioOptions);
   const picked = options[optionIndex];

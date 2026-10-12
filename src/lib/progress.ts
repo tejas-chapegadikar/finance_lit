@@ -2,7 +2,7 @@ import { cache } from "react";
 import type { Lesson, ReadinessArea } from "@prisma/client";
 import { db } from "./db";
 import { READINESS_AREA_META, READINESS_AREA_VALUES } from "./readiness-areas";
-import { chapterOf, focusFor, recommendedOrder } from "./journey";
+import { chapterOf, focusFor, isLessonUnlocked, levelAccess, type LevelAccess } from "./journey";
 
 export type LessonSummary = Pick<
   Lesson,
@@ -13,8 +13,12 @@ export type LessonSummary = Pick<
 export type LessonStatus = "not-started" | "in-progress" | "completed";
 
 export type LessonProgress = LessonSummary & {
-  /** 1-based position in Level 1 — the 01–12 numbers in the library. */
+  /** 1-based position in the path — the 01–12 numbers in the library. */
   number: number;
+  /** The level (1–4) the lesson belongs to; 0 for lessons outside the levels. */
+  level: number;
+  /** In a level the student hasn't unlocked yet. */
+  locked: boolean;
   status: LessonStatus;
   /** Quiz accuracy (0-100) on the student's best attempt; null until completed. */
   quizScore: number | null;
@@ -42,6 +46,10 @@ export type ReviewSuggestion = { area: AreaReadiness; lesson: LessonProgress };
 
 export type Progress = {
   lessons: LessonProgress[];
+  /** The four levels in order, with their status. */
+  levels: LevelAccess[];
+  /** The level to work on now; null once every level is complete. */
+  currentLevel: LevelAccess | null;
   areas: AreaReadiness[];
   /** Financial Readiness, 0-100. */
   overall: number;
@@ -85,9 +93,8 @@ const lessonScore = (quizScore: number | null) =>
 /**
  * Everything the dashboard, library and profile show about a student's
  * progress, computed from their lesson views and quiz attempts (nothing here
- * is stored). Every lesson is open; the next one is recommended along the
- * college-to-first-salary journey, starting from the chapter that fits the
- * student's goal or stage.
+ * is stored). Levels open in order (see levelAccess); the next lesson is the
+ * one already started, else the next one in the current level.
  */
 export async function fetchProgress(userId: string): Promise<Progress> {
   const [student, lessons, attempts, views] = await Promise.all([
@@ -116,11 +123,18 @@ export async function fetchProgress(userId: string): Promise<Progress> {
     }
   }
 
+  const levels = levelAccess(
+    new Set(lessons.map((l) => l.slug)),
+    new Set(lessons.filter((l) => bestMastery.has(l.id)).map((l) => l.slug)),
+  );
+
   const lessonProgress = lessons.map((lesson, i): LessonProgress => {
     const quizScore = bestMastery.get(lesson.id) ?? null;
     return {
       ...lesson,
       number: i + 1,
+      level: chapterOf(lesson.slug)?.number ?? 0,
+      locked: !isLessonUnlocked(lesson.slug, levels),
       status: quizScore !== null ? "completed" : started.has(lesson.id) ? "in-progress" : "not-started",
       quizScore,
       score: lessonScore(quizScore),
@@ -147,22 +161,21 @@ export async function fetchProgress(userId: string): Promise<Progress> {
   });
 
   const completedCount = lessonProgress.filter((lesson) => lesson.status === "completed").length;
-  // An unfinished lesson the student already started comes first; then the
-  // journey, from the chapter that fits their goal or stage.
-  const order = recommendedOrder(
-    lessonProgress.map((lesson) => ({ slug: lesson.slug, area: lesson.area })),
-    student?.stage ?? null,
-    student?.goal ?? null,
-  );
-  const unfinished = order
-    .map((slug) => lessonProgress.find((lesson) => lesson.slug === slug)!)
-    .filter((lesson) => lesson.status !== "completed");
-  const upNext = unfinished.find((lesson) => lesson.status === "in-progress") ?? unfinished[0] ?? null;
+  const currentLevel = levels.find((level) => level.status === "current") ?? null;
   const focus = focusFor(student?.stage ?? null, student?.goal ?? null);
+  // An open lesson the student already started comes first; then the current
+  // level in order — with the student's goal topic first when it's this level.
+  const open = lessonProgress.filter((lesson) => !lesson.locked && lesson.status !== "completed");
+  const inCurrent = open
+    .filter((lesson) => currentLevel?.slugs.includes(lesson.slug))
+    .sort((a, b) => Number(b.area === focus?.area) - Number(a.area === focus?.area) || a.number - b.number);
+  const upNext = open.find((lesson) => lesson.status === "in-progress") ?? inCurrent[0] ?? open[0] ?? null;
   const review = weakestArea(areas, lessonProgress);
 
   return {
     lessons: lessonProgress,
+    levels,
+    currentLevel,
     areas,
     overall: average(lessonProgress.map((lesson) => lesson.score)),
     completedCount,
@@ -175,6 +188,33 @@ export async function fetchProgress(userId: string): Promise<Progress> {
 
 /** Per-request cached progress for pages; actions call fetchProgress directly. */
 export const getProgress = cache(fetchProgress);
+
+/**
+ * Which published lessons a student can open — the server's own check for
+ * locked levels. With `before`, only quizzes completed before that moment
+ * count (so daily content built from it stays the same all day).
+ */
+export async function lessonAccess(userId: string, before?: Date) {
+  const [lessons, completed] = await Promise.all([
+    db.lesson.findMany({ where: { isPublished: true }, select: { id: true, slug: true, area: true } }),
+    db.quizAttempt.findMany({
+      where: { userId, status: "COMPLETED", ...(before ? { completedAt: { lt: before } } : {}) },
+      select: { lessonId: true },
+      distinct: ["lessonId"],
+    }),
+  ]);
+  const done = new Set(completed.map((a) => a.lessonId));
+  const levels = levelAccess(new Set(lessons.map((l) => l.slug)), new Set(lessons.filter((l) => done.has(l.id)).map((l) => l.slug)));
+  return { levels, unlocked: lessons.filter((lesson) => isLessonUnlocked(lesson.slug, levels)) };
+}
+
+/** Throws when the lesson is in a level the student hasn't unlocked. */
+export async function assertLessonUnlocked(userId: string, lessonId: string) {
+  const { unlocked } = await lessonAccess(userId);
+  if (!unlocked.some((lesson) => lesson.id === lessonId)) {
+    throw new Error("This lesson is locked — finish the previous level first");
+  }
+}
 
 /**
  * Financial Readiness once a quiz finished with `mastery` counts — the
@@ -203,8 +243,8 @@ function weakestArea(areas: AreaReadiness[], lessons: LessonProgress[]): ReviewS
 }
 
 // Students never have to decide what to learn next: it's the next lesson in
-// their journey (their focus chapter first, with the reason), then — once
-// everything is done — a review of their weakest area.
+// their current level (with the reason), then — once everything is done — a
+// review of their weakest area.
 function recommendNext(
   upNext: LessonProgress | null,
   review: ReviewSuggestion | null,
@@ -216,11 +256,11 @@ function recommendNext(
     const reason =
       upNext.status === "in-progress"
         ? "You've started this one — pick up where you left off"
-        : focus && chapter?.id === focus.chapter.id
-          ? `Recommended because ${focus.why}`
-          : completedCount === 0
-            ? "Start here — the foundation for everything else"
-            : `Next in your journey${chapter ? ` · Chapter ${chapter.number}: ${chapter.title}` : ""}`;
+        : completedCount === 0
+          ? "Start here — the foundation for everything else"
+          : focus && chapter?.id === focus.chapter.id
+            ? `Recommended because ${focus.why}`
+            : `Next in Level ${chapter?.number ?? ""}: ${chapter?.title ?? "your path"}`;
     return { lesson: upNext, isRetake: false, reason };
   }
   if (review) {

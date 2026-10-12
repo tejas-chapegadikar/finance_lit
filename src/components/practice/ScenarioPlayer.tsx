@@ -32,7 +32,7 @@ export function ScenarioPlayer({ scenario, xpReward, firstRun }: { scenario: Pub
           You scored <span className="font-extrabold text-slate-900">{completion.score}/{completion.maxScore}</span> on “{scenario.title}”.
         </p>
         {completion.xpAwarded > 0 ? (
-          <p className="mt-3 inline-flex rounded-full bg-orange-50 px-3 py-1 text-sm font-extrabold text-orange-700 ring-2 ring-orange-200">
+          <p className="mt-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-sm font-extrabold text-amber-800 ring-2 ring-amber-200">
             ⭐ +{completion.xpAwarded} XP for your first run
           </p>
         ) : (
@@ -48,8 +48,8 @@ export function ScenarioPlayer({ scenario, xpReward, firstRun }: { scenario: Pub
           <p className="mt-1 font-semibold text-slate-900">{scenario.takeaway}</p>
         </div>
         <div className="mt-6 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-          <Link href="/practice" className={primaryButton}>
-            Back to Practice
+          <Link href="/lessons#scenarios" className={primaryButton}>
+            Back to Learn
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
           <button

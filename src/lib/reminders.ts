@@ -2,11 +2,16 @@ import { db } from "./db";
 import { istDay, istHour } from "./ist-date";
 import { countDueRevision } from "./revision";
 
-// Optional daily reminders, entirely in the student's control: they pick an
-// IST hour on their profile and can turn them off any time. Emails go out
+// Optional daily reminders, entirely in the student's control. Emails go out
 // only when an email provider is configured (RESEND_API_KEY and
 // REMINDER_FROM_EMAIL); without them, nothing is sent. A scheduler calls
 // /api/cron/reminders once an hour.
+//
+// The settings form was removed from the Profile page on 2026-10-12 at the
+// founder's request, so no student can switch reminders on right now. The
+// data, this sender and the calendar file stay, ready for when a settings
+// screen returns — it must come back (with a way to turn them off) before
+// emails are switched on.
 
 export const REMINDER_HOURS = Array.from({ length: 17 }, (_, i) => i + 6); // 6 AM – 10 PM
 

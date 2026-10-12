@@ -7,7 +7,8 @@ export const metadata: Metadata = { title: "Sign up — StockStreak" };
 export default function SignUpPage() {
   return (
     <AuthBackdrop>
-      <SignUp />
+      {/* New accounts go to the dashboard, which sends them through onboarding first. */}
+      <SignUp fallbackRedirectUrl="/dashboard" signInUrl="/sign-in" />
     </AuthBackdrop>
   );
 }

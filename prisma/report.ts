@@ -124,7 +124,7 @@ async function main() {
   row("Signup → completed first lesson", pct(finishedOne.size, students.length), `${finishedOne.size} of ${students.length}`);
   row("Lesson completion rate", pct(completedPairs.size, startedPairs.size), `${completedPairs.size} of ${startedPairs.size} started lessons`);
   row("3+ lessons completed", pct(threePlus, students.length), `${threePlus} students`);
-  row("Level 1 completed", pct(levelOne, students.length), `${levelOne} students`);
+  row("All 4 levels completed", pct(levelOne, students.length), `${levelOne} students`);
   row("Quiz improvement on retakes", pct(improved, retaken.length), `${improved} of ${retaken.length} retaken lessons improved`);
   row("Day-1 retention", pct(d1.n, d1.d), `${d1.n} of ${d1.d} came back the day after signing up`);
   row("Day-7 retention (days 7–13)", pct(d7.n, d7.d), `${d7.n} of ${d7.d} came back in their second week`);

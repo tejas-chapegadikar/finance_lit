@@ -83,7 +83,7 @@ export function RewardCard({
             )}
           </p>
           <p className="text-sm text-slate-600">{reward.description}</p>
-          <p className="mt-1 text-sm font-extrabold text-orange-700">⭐ {reward.cost} XP</p>
+          <p className="mt-1 text-sm font-extrabold text-amber-800">⭐ {reward.cost} XP</p>
         </div>
       </div>
 

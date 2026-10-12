@@ -14,7 +14,8 @@ import { LessonFinale } from "@/components/lessons/LessonFinale";
 import { LessonProgressBar, type LessonStep } from "@/components/lessons/LessonProgressBar";
 import { StepLabel } from "@/components/lessons/StepLabel";
 import { Markdown } from "@/components/ui/Markdown";
-import { card, heroChip, heroSurface, tile } from "@/components/ui/button-styles";
+import { chapterOf } from "@/lib/journey";
+import { card, heroChip, heroSurface, primaryButton, tile } from "@/components/ui/button-styles";
 import { ArrowLeftIcon, ArrowRightIcon, ClockIcon } from "@/components/ui/icons";
 
 const STATUS_LABEL: Record<LessonStatus, string> = {
@@ -44,13 +45,14 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
 
   const area = READINESS_AREA_META[lesson.area];
   const number = String(lessonProgress.number).padStart(2, "0");
+  const level = chapterOf(lesson.slug);
 
   const header = (
     <header className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
       <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-20 h-56 w-56 rounded-full bg-white/5" />
       <p className="relative">
         <span className={heroChip}>
-          Lesson {number} · {area.label}
+          {level ? `Level ${level.number} · ` : ""}Lesson {number} · {area.label}
         </span>
       </p>
       <div className="relative mt-4 flex items-center gap-4">
@@ -81,9 +83,52 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
       className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900"
     >
       <ArrowLeftIcon className="h-4 w-4" />
-      All lessons
+      Learning path
     </Link>
   );
+
+  // Levels open in order: a locked lesson shows what it is, not its content.
+  if (lessonProgress.locked) {
+    const previous = progress.levels.find((l) => l.chapter.number === (level?.number ?? 1) - 1);
+    const next = progress.next;
+    return (
+      <article className="mx-auto flex max-w-2xl flex-col gap-5">
+        {backLink}
+        <header className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
+          <p>
+            <span className={heroChip}>
+              🔒 Level {level?.number} · Lesson {number}
+            </span>
+          </p>
+          <div className="mt-4 flex items-center gap-4">
+            <span aria-hidden className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/90 text-4xl grayscale">
+              {lesson.icon}
+            </span>
+            <h1 className="min-w-0 text-2xl leading-tight font-extrabold sm:text-3xl">{lesson.title}</h1>
+          </div>
+        </header>
+        <section className={`${card} p-6 text-center sm:p-8`} aria-labelledby="locked-heading">
+          <span aria-hidden className="text-4xl">
+            🔒
+          </span>
+          <h2 id="locked-heading" className="mt-2 text-xl font-extrabold text-slate-900">
+            This lesson is in Level {level?.number} — {level?.title}
+          </h2>
+          <p className="mx-auto mt-1 max-w-md text-slate-600">
+            {previous
+              ? `Finish Level ${previous.chapter.number} (${previous.completed}/${previous.slugs.length} lessons done) to unlock it. Levels open in order, so each one builds on the last.`
+              : "Finish the previous level to unlock it."}
+          </p>
+          {next && (
+            <Link href={`/lessons/${next.lesson.slug}`} className={`${primaryButton} mt-5`}>
+              Continue with {next.lesson.title}
+              <ArrowRightIcon className="h-4 w-4" />
+            </Link>
+          )}
+        </section>
+      </article>
+    );
+  }
 
   const sections = splitLearnSections(lesson.contentMarkdown);
   const sources = readSources(lesson.sources);

@@ -9,12 +9,14 @@ export const QUESTION_OF_THE_DAY_XP = 10;
 export const DAILY_CHALLENGE_XP = 25;
 // Finishing all three daily missions.
 export const MISSION_BONUS_XP = 30;
-// Awarded once, the first time a student has completed every Level 1 lesson.
+// Awarded once, the first time a student has completed every lesson in the
+// path (all four levels).
 export const LEVEL_COMPLETION_XP = 200;
 
-export const LEVEL_1_NAME = "Financial Foundations";
-// Shown as "coming soon" until its curriculum is ready.
-export const LEVEL_2_NAME = "Real-World Money";
+// The learning path: four levels that open in order (src/lib/journey.ts).
+export const PATH_NAME = "Financial Foundations";
+// The next path — shown as "coming soon" until its curriculum is ready.
+export const NEXT_PATH_NAME = "Real-World Money";
 
 // User-facing copy for empty and error states.
 export const NO_LESSONS_MESSAGE = "Lessons are being prepared. Please check back soon!";

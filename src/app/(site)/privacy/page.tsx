@@ -14,7 +14,6 @@ This policy explains what personal data StockStreak ("we", "us") collects when y
 - **Learning activity** — the lessons you open, your answers to scenarios, quizzes, revision questions, the Question of the Day and the Daily Challenge, your scores, topic mastery, the days you learned (your streak), daily missions, XP, badges, Rewards Store unlocks, and any lesson feedback you send.
 - **Your avatar** — the look you pick in the avatar studio.
 - **Questions you ask the AI Coach** — the follow-up questions you type during a quiz, and the Coach's replies.
-- **Reminder settings** — whether you want a daily reminder and at what time.
 - **Technical data** — your IP address and basic device and browser information, processed by our hosting and security providers to run and protect the service.
 
 We **don't** collect bank account numbers, card details, UPI IDs or PINs, Aadhaar or PAN numbers, or any payment information. Never share these with us.
@@ -23,7 +22,6 @@ We **don't** collect bank account numbers, card details, UPI IDs or PINs, Aadhaa
 
 - To run StockStreak: save your progress, award XP and badges, calculate your Financial Readiness Score and recommend what to learn next
 - To give AI Coach hints when you get a quiz question wrong, and to schedule revision of what you missed
-- To send the daily reminder email, only if you turn it on
 - To improve our lessons, using overall statistics and the feedback you send
 - To keep the service secure — for example, limiting how fast requests can be made
 - To contact you about your account, if we ever need to
@@ -36,7 +34,7 @@ When you ask the Coach a follow-up question, we also send the words you type (an
 
 ## Who we share data with
 
-We use trusted service providers to run StockStreak: **Clerk** (sign-in), **Neon** (database), **Vercel** (hosting), **Upstash** (rate limiting), **Anthropic** (AI hints) and, if you turn on email reminders, an email delivery provider. If you choose Google sign-in, Google shares your basic profile with us. These providers only process data to provide their service to us.
+We use trusted service providers to run StockStreak: **Clerk** (sign-in), **Neon** (database), **Vercel** (hosting), **Upstash** (rate limiting), **Anthropic** (AI hints). If you choose Google sign-in, Google shares your basic profile with us. These providers only process data to provide their service to us.
 
 We **don't sell** your personal data or use it for advertising. We may disclose data if the law requires it.
 

@@ -18,7 +18,7 @@ import {
   getOrCreateCoachHint,
   type CoachHint,
 } from "@/lib/coach";
-import { fetchProgress, readinessAfterQuiz } from "@/lib/progress";
+import { assertLessonUnlocked, fetchProgress, readinessAfterQuiz } from "@/lib/progress";
 import { recordStreakDay } from "@/lib/streak";
 import { coachCheckNote, dueDayFor, revisionQuestion, scheduleRevisionForAttempt } from "@/lib/revision";
 import { readChoiceOptions } from "@/lib/lesson-content";
@@ -36,6 +36,8 @@ export async function beginQuiz(lessonId: string) {
   if (!lesson?.isPublished) {
     throw new Error("Lesson not found");
   }
+  // Levels open in order — checked here, not just hidden in the page.
+  await assertLessonUnlocked(user.id, lesson.id);
 
   // Abandon any stale in-progress attempt for this lesson (e.g. from a
   // refresh mid-quiz) so we don't accumulate dangling IN_PROGRESS rows.

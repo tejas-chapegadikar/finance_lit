@@ -120,7 +120,7 @@ export function StepRunner({
           {stepNoun} {stepIndex + 1} of {steps.length}
         </p>
         {xpNote && (
-          <span className="rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-extrabold text-orange-700 ring-2 ring-orange-200">
+          <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-extrabold text-amber-800 ring-2 ring-amber-200">
             {xpNote}
           </span>
         )}

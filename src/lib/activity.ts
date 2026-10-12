@@ -1,6 +1,5 @@
 import { db } from "./db";
 import { istDay, istDayStart, shiftDay } from "./ist-date";
-import type { BadgeProgress } from "./badges";
 
 const average = (values: number[]) =>
   values.length ? Math.round(values.reduce((sum, v) => sum + v, 0) / values.length) : null;
@@ -75,13 +74,4 @@ export async function getTodaysWins(userId: string, today = istDay()): Promise<T
     db.activityDay.count({ where: { userId, frozen: true, createdAt: { gte: since } } }),
   ]);
   return { milestones: milestones.map((m) => ({ description: m.description ?? "Streak milestone", xp: m.amount })), frozenDays };
-}
-
-/** The unearned badge that's closest to done — "your next badge". */
-export function nextBadge(badges: BadgeProgress[], kinds?: string[]): BadgeProgress | null {
-  return (
-    badges
-      .filter((b) => !b.earnedAt && b.required > 0 && b.done < b.required && (!kinds || kinds.includes(b.rule.kind)))
-      .sort((a, b) => b.done / b.required - a.done / a.required || a.required - a.done - (b.required - b.done))[0] ?? null
-  );
 }

@@ -165,7 +165,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
                       )}
                     </span>
                     <span className="mt-1.5 line-clamp-2 text-xs font-bold text-slate-900">{item.name}</span>
-                    <span className={`text-[11px] font-bold ${item.unlocked ? "text-emerald-800" : "text-orange-700"}`}>
+                    <span className={`text-[11px] font-bold ${item.unlocked ? "text-emerald-800" : "text-amber-800"}`}>
                       {item.unlocked ? "Unlocked" : item.cost ? `⭐ ${item.cost}` : "Milestone"}
                     </span>
                   </button>

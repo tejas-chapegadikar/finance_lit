@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { LEVEL_2_NAME, LEVEL_COMPLETION_XP } from "@/lib/constants";
+import { NEXT_PATH_NAME, LEVEL_COMPLETION_XP } from "@/lib/constants";
+import type { LevelStatus } from "@/lib/journey";
 import { LockIcon } from "@/components/ui/icons";
 
-// The Level 1 journey as a game map: a winding road through the four
-// chapters, one stop per lesson, starting at home and ending at the Level 1
-// trophy, with Level 2 waiting (locked) beyond it. Every lesson is open —
-// the map shows progress and the recommended next stop, it doesn't gate.
+// The learning path as a game map: a winding road through the four levels,
+// one stop per lesson, starting at home and ending at the trophy, with the
+// next path waiting (locked) beyond it. Levels open in order — stops in a
+// locked level are shown but can't be opened (the server enforces it too).
 
 export type MapLesson = {
   id: string;
@@ -15,6 +16,7 @@ export type MapLesson = {
   number: number;
   minutes: number;
   status: "not-started" | "in-progress" | "completed";
+  locked: boolean;
   /** 1-3 for completed lessons (from the best quiz), else 0. */
   stars: number;
   /** Topic mastery label for completed lessons, e.g. "Retained". */
@@ -28,9 +30,26 @@ export type MapChapter = {
   title: string;
   stage: string;
   icon: string;
-  recommended: boolean;
+  status: LevelStatus;
+  completed: number;
+  /** The student's onboarding goal points to this level. */
+  isGoal: boolean;
   lessons: MapLesson[];
 };
+
+const LEVEL_CHIP: Record<LevelStatus, string> = {
+  completed: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+  current: "bg-brand-50 text-brand-800 ring-brand-200",
+  available: "bg-brand-50 text-brand-800 ring-brand-200",
+  locked: "bg-slate-100 text-slate-600 ring-slate-200",
+};
+
+function levelChipText(chapter: MapChapter): string {
+  const total = chapter.lessons.length;
+  if (chapter.status === "completed") return "✓ Completed";
+  if (chapter.status === "locked") return `🔒 Finish Level ${chapter.number - 1} to unlock`;
+  return `${chapter.status === "current" ? "You're here" : "Open"} · ${chapter.completed}/${total} done`;
+}
 
 const START_H = 130;
 const BANNER_H = 96;
@@ -86,27 +105,31 @@ function Stars({ count }: { count: number }) {
 
 function LessonStop({ lesson }: { lesson: MapLesson }) {
   const done = lesson.status === "completed";
-  const face = done
-    ? "bg-orange-600 text-white shadow-[0_5px_0_0_var(--color-orange-800)]"
-    : lesson.isNext
-      ? "bg-brand-600 text-white shadow-[0_5px_0_0_var(--color-brand-800)]"
-      : lesson.status === "in-progress"
-        ? "bg-brand-100 text-brand-800 shadow-[0_5px_0_0_var(--color-brand-300)]"
-        : "bg-white text-brand-700 shadow-[0_5px_0_0_var(--color-brand-300)]";
+  const face = lesson.locked
+    ? "bg-slate-200 text-slate-500 shadow-[0_5px_0_0_var(--color-slate-300)]"
+    : done
+      ? "bg-amber-400 text-amber-950 shadow-[0_5px_0_0_var(--color-amber-600)]"
+      : lesson.isNext
+        ? "bg-brand-600 text-white shadow-[0_5px_0_0_var(--color-brand-800)]"
+        : lesson.status === "in-progress"
+          ? "bg-brand-100 text-brand-800 shadow-[0_5px_0_0_var(--color-brand-300)]"
+          : "bg-white text-brand-700 shadow-[0_5px_0_0_var(--color-brand-300)]";
   return (
     <span className="relative flex h-16 w-16 shrink-0 items-center justify-center">
       {lesson.isNext && !done && (
         <>
           <span className="absolute inset-0 rounded-full bg-brand-400 opacity-40 motion-safe:animate-ping" />
-          <span className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-lg bg-orange-700 px-2 py-0.5 text-xs font-extrabold whitespace-nowrap text-white shadow-[0_3px_0_0_var(--color-orange-900)]">
+          <span className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-lg bg-brand-800 px-2 py-0.5 text-xs font-extrabold whitespace-nowrap text-white shadow-[0_3px_0_0_var(--color-brand-900)]">
             GO!
           </span>
         </>
       )}
       <span
-        className={`relative flex h-16 w-16 items-center justify-center rounded-full text-2xl font-extrabold ring-4 ring-white transition group-hover:-translate-y-0.5 ${face}`}
+        className={`relative flex h-16 w-16 items-center justify-center rounded-full text-2xl font-extrabold ring-4 ring-white transition ${
+          lesson.locked ? "" : "group-hover:-translate-y-0.5"
+        } ${face}`}
       >
-        {lesson.number}
+        {lesson.locked ? <LockIcon className="h-6 w-6" /> : lesson.number}
       </span>
       {done && <Stars count={lesson.stars} />}
     </span>
@@ -116,24 +139,39 @@ function LessonStop({ lesson }: { lesson: MapLesson }) {
 function LessonLabel({ lesson, alignRight }: { lesson: MapLesson; alignRight: boolean }) {
   return (
     <span
-      className={`min-w-0 rounded-2xl bg-white/95 px-3 py-2 shadow-[0_3px_0_0_var(--color-brand-200)] ring-1 ring-brand-100 transition group-hover:ring-brand-300 ${
-        alignRight ? "text-right" : "text-left"
-      }`}
+      className={`min-w-0 rounded-2xl px-3 py-2 ring-1 transition ${
+        lesson.locked
+          ? "bg-white/70 ring-slate-200"
+          : "bg-white/95 shadow-[0_3px_0_0_var(--color-brand-200)] ring-brand-100 group-hover:ring-brand-300"
+      } ${alignRight ? "text-right" : "text-left"}`}
     >
-      <span className="line-clamp-3 text-sm leading-snug font-extrabold text-slate-900">{lesson.title}</span>
+      <span className={`line-clamp-3 text-sm leading-snug font-extrabold ${lesson.locked ? "text-slate-600" : "text-slate-900"}`}>
+        {lesson.title}
+      </span>
       <span className={`mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-slate-600 ${alignRight ? "justify-end" : ""}`}>
-        <span aria-hidden>{lesson.icon}</span>
+        <span aria-hidden className={lesson.locked ? "grayscale" : ""}>
+          {lesson.icon}
+        </span>
         <span>{lesson.minutes} min</span>
-        {lesson.mastery ? (
+        {lesson.locked ? (
+          <span className="font-bold">Locked</span>
+        ) : lesson.mastery ? (
           <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold ${lesson.mastery.className}`}>{lesson.mastery.label}</span>
         ) : lesson.isNext ? (
-          <span className="font-extrabold text-orange-700">Up next</span>
+          <span className="font-extrabold text-brand-700">Up next</span>
         ) : lesson.status === "in-progress" ? (
           <span className="font-bold text-brand-700">In progress</span>
         ) : null}
       </span>
     </span>
   );
+}
+
+// Places a stop so its node is centred on the road at x%, label on the roomier side.
+function stopStyle(x: number, labelLeft: boolean): React.CSSProperties {
+  return labelLeft
+    ? { right: `calc(${100 - x}% - 32px)`, flexDirection: "row-reverse", maxWidth: `calc(${x}% + 20px)` }
+    : { left: `calc(${x}% - 32px)`, maxWidth: `calc(${100 - x}% + 20px)` };
 }
 
 function Cloud({ width }: { width: number }) {
@@ -192,15 +230,18 @@ export function JourneyMap({ chapters, levelComplete }: { chapters: MapChapter[]
       className="relative mx-auto w-full max-w-xl overflow-hidden rounded-[2rem] bg-brand-100 shadow-[0_6px_0_0_var(--color-brand-200)] ring-1 ring-brand-200"
       style={{ height }}
     >
-      {/* Chapter regions: alternating bands with a wavy top edge */}
-      {laidOut.map(({ chapter, bandTop, bandHeight }, c) => (
-        <div key={chapter.id} aria-hidden className="absolute inset-x-0" style={{ top: bandTop, height: bandHeight }}>
-          <svg viewBox="0 0 100 10" preserveAspectRatio="none" className="absolute -top-4 h-4 w-full">
-            <path d="M0 10 Q12 0 25 5 T50 5 T75 4 T100 6 L100 10 Z" className={c % 2 ? "fill-brand-50" : "fill-white/60"} />
-          </svg>
-          <div className={`h-full ${c % 2 ? "bg-brand-50" : "bg-white/60"}`} />
-        </div>
-      ))}
+      {/* Level regions: alternating bands with a wavy top edge; locked levels in grey */}
+      {laidOut.map(({ chapter, bandTop, bandHeight }, c) => {
+        const tone = chapter.status === "locked" ? ["fill-slate-100", "bg-slate-100"] : c % 2 ? ["fill-brand-50", "bg-brand-50"] : ["fill-white/60", "bg-white/60"];
+        return (
+          <div key={chapter.id} aria-hidden className="absolute inset-x-0" style={{ top: bandTop, height: bandHeight }}>
+            <svg viewBox="0 0 100 10" preserveAspectRatio="none" className="absolute -top-4 h-4 w-full">
+              <path d="M0 10 Q12 0 25 5 T50 5 T75 4 T100 6 L100 10 Z" className={tone[0]} />
+            </svg>
+            <div className={`h-full ${tone[1]}`} />
+          </div>
+        );
+      })}
 
       {CLOUDS.filter((cloud) => cloud.top < height - 60).map((cloud) => (
         <div
@@ -241,21 +282,27 @@ export function JourneyMap({ chapters, levelComplete }: { chapters: MapChapter[]
       {laidOut.map(({ chapter, bannerY, stops }) => (
         <section key={chapter.id} aria-labelledby={`chapter-${chapter.id}`}>
           <div className="absolute left-1/2 z-10 w-max max-w-[88%] -translate-x-1/2 -translate-y-1/2" style={{ top: bannerY }}>
-            <div className="rounded-2xl bg-white px-4 py-2 text-center shadow-[0_4px_0_0_var(--color-brand-200)] ring-2 ring-brand-200">
-              <p className="text-[11px] font-extrabold tracking-wider text-brand-700 uppercase">
-                Chapter {chapter.number} · {chapter.stage}
+            <div
+              className={`rounded-2xl bg-white px-4 py-2 text-center ring-2 ${
+                chapter.status === "locked" ? "ring-slate-200" : "shadow-[0_4px_0_0_var(--color-brand-200)] ring-brand-200"
+              }`}
+            >
+              <p className={`text-[11px] font-extrabold tracking-wider uppercase ${chapter.status === "locked" ? "text-slate-600" : "text-brand-700"}`}>
+                Level {chapter.number} · {chapter.stage}
               </p>
               <h2 id={`chapter-${chapter.id}`} className="font-extrabold text-slate-900">
-                <span aria-hidden>{chapter.icon}</span> {chapter.title}
+                <span aria-hidden className={chapter.status === "locked" ? "grayscale" : ""}>
+                  {chapter.icon}
+                </span>{" "}
+                {chapter.title}
               </h2>
             </div>
-            {chapter.recommended && (
-              <p className="mt-1.5 text-center">
-                <span className="rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-extrabold text-orange-700 ring-2 ring-orange-200">
-                  ⭐ Recommended for you
-                </span>
-              </p>
-            )}
+            <p className="mt-1.5 flex flex-wrap justify-center gap-1.5 text-center">
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-extrabold ring-2 ${LEVEL_CHIP[chapter.status]}`}>{levelChipText(chapter)}</span>
+              {chapter.isGoal && chapter.status !== "completed" && (
+                <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-extrabold text-amber-900 ring-2 ring-amber-200">⭐ Your goal</span>
+              )}
+            </p>
           </div>
 
           <ol className="m-0 list-none p-0" aria-label={chapter.title}>
@@ -277,19 +324,26 @@ export function JourneyMap({ chapters, levelComplete }: { chapters: MapChapter[]
                     <span className="text-[28px] leading-none">{scenery}</span>
                     <span className="mt-0.5 h-1.5 w-9 rounded-full bg-brand-300/50" />
                   </span>
-                  <Link
-                    href={`/lessons/${lesson.slug}`}
-                    aria-label={`Lesson ${lesson.number}: ${lesson.title}${lesson.status === "completed" ? `, completed, ${lesson.stars} of 3 stars` : lesson.isNext ? ", up next" : ""}`}
-                    className="group absolute top-1/2 flex -translate-y-1/2 items-center gap-3 rounded-2xl outline-offset-4"
-                    style={
-                      labelLeft
-                        ? { right: `calc(${100 - point.x}% - 32px)`, flexDirection: "row-reverse", maxWidth: `calc(${point.x}% + 20px)` }
-                        : { left: `calc(${point.x}% - 32px)`, maxWidth: `calc(${100 - point.x}% + 20px)` }
-                    }
-                  >
-                    <LessonStop lesson={lesson} />
-                    <LessonLabel lesson={lesson} alignRight={labelLeft} />
-                  </Link>
+                  {lesson.locked ? (
+                    <div
+                      aria-label={`Lesson ${lesson.number}: ${lesson.title}, locked until Level ${chapter.number - 1} is complete`}
+                      className="absolute top-1/2 flex -translate-y-1/2 items-center gap-3"
+                      style={stopStyle(point.x, labelLeft)}
+                    >
+                      <LessonStop lesson={lesson} />
+                      <LessonLabel lesson={lesson} alignRight={labelLeft} />
+                    </div>
+                  ) : (
+                    <Link
+                      href={`/lessons/${lesson.slug}`}
+                      aria-label={`Lesson ${lesson.number}: ${lesson.title}${lesson.status === "completed" ? `, completed, ${lesson.stars} of 3 stars` : lesson.isNext ? ", up next" : ""}`}
+                      className="group absolute top-1/2 flex -translate-y-1/2 items-center gap-3 rounded-2xl outline-offset-4"
+                      style={stopStyle(point.x, labelLeft)}
+                    >
+                      <LessonStop lesson={lesson} />
+                      <LessonLabel lesson={lesson} alignRight={labelLeft} />
+                    </Link>
+                  )}
                 </li>
               );
             })}
@@ -297,7 +351,7 @@ export function JourneyMap({ chapters, levelComplete }: { chapters: MapChapter[]
         </section>
       ))}
 
-      {/* Level 1 trophy */}
+      {/* The path's trophy */}
       <div className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${finish.x}%`, top: finish.y }}>
         <span
           aria-hidden
@@ -308,11 +362,11 @@ export function JourneyMap({ chapters, levelComplete }: { chapters: MapChapter[]
           🏆
         </span>
         <span className="mt-2 rounded-full bg-white px-3 py-1 text-center text-xs font-extrabold text-slate-900 shadow-sm ring-1 ring-brand-200">
-          {levelComplete ? "Level 1 complete!" : `Finish Level 1 · +${LEVEL_COMPLETION_XP} XP`}
+          {levelComplete ? "All 4 levels complete!" : `Finish all 4 levels · +${LEVEL_COMPLETION_XP} XP`}
         </span>
       </div>
 
-      {/* Level 2, coming soon */}
+      {/* The next path, coming soon */}
       {locked.map((point, i) => (
         <div
           key={point.y}
@@ -324,7 +378,7 @@ export function JourneyMap({ chapters, levelComplete }: { chapters: MapChapter[]
           </span>
           {i === 0 && (
             <span className="rounded-2xl bg-white/90 px-3 py-2 text-xs ring-1 ring-slate-200">
-              <span className="block font-extrabold text-slate-700">Level 2 · {LEVEL_2_NAME}</span>
+              <span className="block font-extrabold text-slate-700">Next path · {NEXT_PATH_NAME}</span>
               <span className="text-slate-600">Coming soon</span>
             </span>
           )}

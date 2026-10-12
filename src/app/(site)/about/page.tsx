@@ -14,7 +14,7 @@ Most of us leave college without learning how budgets, bank accounts, credit sco
 
 ## How it works
 
-- **A college-to-first-salary journey** — 12 short written lessons in four chapters, with Indian examples
+- **A college-to-first-salary journey** — 12 short written lessons in four levels — each unlocks the next — with Indian examples
 - **Interactive money scenarios** — manage a ₹15,000 stipend, handle a credit-card bill, spot a fake UPI request, read your first payslip
 - **5-question quizzes** with an **AI Coach** that gives a hint, lets you retry, checks you've got it and answers your follow-up questions — instead of just revealing the answer
 - **Smart revision** that brings back what you missed after 1, 3 and 7 days, and tracks your topic mastery
@@ -30,7 +30,7 @@ StockStreak is not a trading app, a bank, a wallet or an investment adviser. We 
 
 ## Where we are
 
-This is our first version. We're piloting **Level 1 — Financial Foundations** with a small group of students, measuring whether they come back, improve and remember — and improving it before we build more. Tell us what works and what doesn't: [get in touch](/contact).
+This is our first version. We're piloting the **Financial Foundations** path with a small group of students, measuring whether they come back, improve and remember — and improving it before we build more. Tell us what works and what doesn't: [get in touch](/contact).
 `;
 
 export default function AboutPage() {

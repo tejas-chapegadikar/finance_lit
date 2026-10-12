@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { heroSurface, primaryButton, secondaryButton, tile } from "@/components/ui/button-styles";
+import { heroSurface, lightButton, primaryButton, secondaryButton, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, SparklesIcon } from "@/components/ui/icons";
 import { Logo } from "@/components/ui/Logo";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -65,7 +65,7 @@ const DIFFERENCES = [
 function HeroPreview() {
   return (
     <div aria-hidden className="relative mx-auto w-full max-w-sm select-none">
-      <div className="absolute -top-4 -right-2 z-10 rotate-6 rounded-2xl bg-white px-3 py-2 text-sm font-extrabold text-orange-700 ring-2 ring-orange-200 shadow-[0_4px_0_0_var(--color-orange-200)]">
+      <div className="absolute -top-4 -right-2 z-10 rotate-6 rounded-2xl bg-white px-3 py-2 text-sm font-extrabold text-amber-800 ring-2 ring-amber-200 shadow-[0_4px_0_0_var(--color-amber-200)]">
         ⭐ +75 XP
       </div>
       <div className="absolute -bottom-5 -left-4 z-10 -rotate-6 rounded-2xl bg-white px-3 py-2 text-sm font-extrabold text-emerald-800 ring-2 ring-emerald-200 shadow-[0_4px_0_0_var(--color-emerald-200)]">
@@ -133,11 +133,16 @@ export default async function HomePage() {
           />
           <div aria-hidden className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-brand-200/50 blur-3xl" />
 
-          <header className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+          <header className="relative mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
             <Logo />
-            <Link href="/sign-in" className={`${secondaryButton} px-5 py-2`}>
-              Log in
-            </Link>
+            <nav aria-label="Account" className="flex items-center gap-2">
+              <Link href="/sign-in" className={`${secondaryButton} px-4 py-2 sm:px-5`}>
+                Log in
+              </Link>
+              <Link href="/sign-up" className={`${primaryButton} hidden px-5 py-2 sm:inline-flex`}>
+                Sign up free
+              </Link>
+            </nav>
           </header>
 
           <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pt-8 pb-20 sm:px-6 lg:grid-cols-2 lg:pt-14 lg:pb-28">
@@ -155,14 +160,19 @@ export default async function HomePage() {
               </p>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Link href="/sign-up" className={`${primaryButton} px-8 py-4 text-base`}>
-                  Start Learning
+                  Get started — it&apos;s free
                   <ArrowRightIcon className="h-5 w-5" />
                 </Link>
-                <a href="#how-it-works" className={`${secondaryButton} px-8 py-4 text-base`}>
-                  How It Works
-                </a>
+                <Link href="/sign-in" className={`${secondaryButton} px-8 py-4 text-base`}>
+                  Log in
+                </Link>
               </div>
-              <p className="text-sm font-semibold text-slate-600">Free to start · Your first lesson takes about 5 minutes</p>
+              <p className="text-sm font-semibold text-slate-600">
+                Your first lesson takes about 5 minutes ·{" "}
+                <a href="#how-it-works" className="text-brand-700 underline-offset-2 hover:underline">
+                  See how it works
+                </a>
+              </p>
             </div>
             <HeroPreview />
           </div>
@@ -199,7 +209,7 @@ export default async function HomePage() {
             id="journey-heading"
             eyebrow="Your journey"
             title="From your first stipend to your first salary"
-            text="Level 1 is 12 short lessons in four chapters. Start with the one that fits where you are."
+            text="12 short lessons in four levels. Each level unlocks the next, so every step builds on the last."
           />
           <ol className="mx-auto mt-10 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {CHAPTERS.map((chapter) => (
@@ -207,7 +217,7 @@ export default async function HomePage() {
                 <span aria-hidden className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-2xl">
                   {chapter.icon}
                 </span>
-                <p className="mt-4 text-xs font-bold tracking-wider text-brand-700 uppercase">Chapter {chapter.number}</p>
+                <p className="mt-4 text-xs font-bold tracking-wider text-brand-700 uppercase">Level {chapter.number}</p>
                 <h3 className="font-extrabold text-slate-900">{chapter.title}</h3>
                 <p className="mt-1 text-sm text-slate-600">{chapter.stage}</p>
               </li>
@@ -275,10 +285,15 @@ export default async function HomePage() {
             <p className="relative mx-auto mt-3 max-w-xl text-xl font-bold">
               12 lessons, 4 money scenarios, a daily challenge and smart revision — free to start.
             </p>
-            <Link href="/sign-up" className={`${primaryButton} relative mt-8 px-8 py-4 text-base`}>
-              Start Learning
-              <ArrowRightIcon className="h-5 w-5" />
-            </Link>
+            <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link href="/sign-up" className={`${lightButton} px-8 py-4 text-base`}>
+                Get started — it&apos;s free
+                <ArrowRightIcon className="h-5 w-5" />
+              </Link>
+              <Link href="/sign-in" className="rounded-xl px-4 py-2 font-bold text-white underline-offset-4 hover:underline">
+                I already have an account
+              </Link>
+            </div>
           </div>
         </section>
       </main>

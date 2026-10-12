@@ -17,13 +17,13 @@ const LEARN: MissionDef[] = [
 ];
 
 const ANSWER: MissionDef[] = [
-  { id: "answer-3", icon: "✍️", title: "Answer 3 questions", detail: "Quizzes, revision or the daily question", target: 3, href: "/practice" },
-  { id: "correct-3", icon: "🎯", title: "Get 3 answers right", detail: "Quizzes, revision or the daily question", target: 3, href: "/practice" },
+  { id: "answer-3", icon: "✍️", title: "Answer 3 questions", detail: "Quizzes, revision or the daily question", target: 3, href: "/lessons#daily" },
+  { id: "correct-3", icon: "🎯", title: "Get 3 answers right", detail: "Quizzes, revision or the daily question", target: 3, href: "/lessons#daily" },
   { id: "question", icon: "❓", title: "Answer the Question of the Day", detail: "About 1 minute", target: 1, href: "/question" },
 ];
 
 const PRACTISE: MissionDef[] = [
-  { id: "scenario", icon: "🎮", title: "Play a money scenario", detail: "Replays count too", target: 1, href: "/practice#scenarios-heading" },
+  { id: "scenario", icon: "🎮", title: "Play a money scenario", detail: "Replays count too", target: 1, href: "/lessons#scenarios" },
   { id: "challenge", icon: "⚡", title: "Finish the Daily Challenge", detail: "A few quick questions", target: 1, href: "/challenge" },
 ];
 

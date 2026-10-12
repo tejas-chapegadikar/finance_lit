@@ -1,6 +1,7 @@
-// The college-to-first-salary journey: Level 1's 12 lessons in four chapters,
-// each tied to a life stage. Kept free of Prisma imports so client
-// components can use it too.
+// The Financial Foundations path: 12 lessons in four levels, each tied to a
+// life stage. Levels open in order — Level N once Level N−1 is complete.
+// Kept free of Prisma imports so client components can use it.
+// (In code a level is a "chapter"; students see "Level 1–4".)
 
 export type Chapter = {
   id: string;
@@ -47,10 +48,9 @@ export const CHAPTERS: Chapter[] = [
   },
 ];
 
-// The chapter to start with, why, and (for a goal) the topic to put first in it.
+// The level a student's goal (or, without one, their stage) points to, and why.
 type Focus = { chapterId: string; why: string; area?: string };
 
-// A learning goal picks the chapter to start with; without one, the stage does.
 const GOAL_FOCUS: Record<string, Focus> = {
   MANAGING_MONEY: { chapterId: "first-stipend", why: "you want to get better at managing money", area: "BUDGETING" },
   AVOIDING_SCAMS: { chapterId: "pay-safely", why: "you want to avoid financial scams", area: "DIGITAL_SAFETY" },
@@ -68,31 +68,54 @@ export function chapterOf(slug: string): Chapter | undefined {
   return CHAPTERS.find((chapter) => chapter.lessonSlugs.includes(slug));
 }
 
-/** The chapter to recommend first for this student, and why — or null to follow the journey in order. */
+/** The level that matches the student's goal or stage, and why — or null. */
 export function focusFor(stage: string | null, goal: string | null): (Focus & { chapter: Chapter }) | null {
   const focus = (goal && GOAL_FOCUS[goal]) || (stage && STAGE_FOCUS[stage]) || null;
   const chapter = focus && CHAPTERS.find((c) => c.id === focus.chapterId);
   return focus && chapter ? { ...focus, chapter } : null;
 }
 
+/** completed · current (the one to work on now) · available (opened early) · locked. */
+export type LevelStatus = "completed" | "current" | "available" | "locked";
+
+export type LevelAccess = {
+  chapter: Chapter;
+  /** Published lessons in this level, in order. */
+  slugs: string[];
+  completed: number;
+  status: LevelStatus;
+};
+
 /**
- * Lesson slugs in the order to recommend them: the focus chapter first (with
- * the goal's own topic leading it), then the rest of the journey in order.
- * Lessons in no chapter (future lessons) go last, in their own order.
+ * Sequential levels. Level 1 is always open; Level N opens once every lesson
+ * in Level N−1 is completed (its quiz finished — the existing completion
+ * rule). A level where the student has already completed a lesson stays
+ * open, so progress made before levels were locked is never taken away.
  */
-export function recommendedOrder(
-  lessons: { slug: string; area: string }[],
-  stage: string | null,
-  goal: string | null,
-): string[] {
-  const focus = focusFor(stage, goal);
-  const chapters = focus ? [focus.chapter, ...CHAPTERS.filter((c) => c.id !== focus.chapterId)] : CHAPTERS;
-  const known = new Set(lessons.map((l) => l.slug));
-  const ordered = chapters.flatMap((chapter) => {
-    const slugs = chapter.lessonSlugs.filter((slug) => known.has(slug));
-    if (chapter.id !== focus?.chapterId || !focus.area) return slugs;
-    const first = slugs.filter((slug) => lessons.find((l) => l.slug === slug)?.area === focus.area);
-    return [...first, ...slugs.filter((slug) => !first.includes(slug))];
-  });
-  return [...ordered, ...lessons.map((l) => l.slug).filter((slug) => !ordered.includes(slug))];
+export function levelAccess(published: Set<string>, completed: Set<string>): LevelAccess[] {
+  let previousComplete = true;
+  let currentFound = false;
+  return CHAPTERS.map((chapter) => ({ chapter, slugs: chapter.lessonSlugs.filter((slug) => published.has(slug)) }))
+    .filter((level) => level.slugs.length > 0)
+    .map(({ chapter, slugs }) => {
+      const done = slugs.filter((slug) => completed.has(slug)).length;
+      const isComplete = done === slugs.length;
+      const unlocked = previousComplete || done > 0;
+      previousComplete = isComplete;
+      let status: LevelStatus;
+      if (isComplete) status = "completed";
+      else if (!unlocked) status = "locked";
+      else if (!currentFound) {
+        status = "current";
+        currentFound = true;
+      } else status = "available";
+      return { chapter, slugs, completed: done, status };
+    });
+}
+
+/** Whether a lesson is open. Lessons outside every level open once all levels are done. */
+export function isLessonUnlocked(slug: string, levels: LevelAccess[]): boolean {
+  const level = levels.find((l) => l.slugs.includes(slug));
+  if (level) return level.status !== "locked";
+  return levels.every((l) => l.status === "completed");
 }

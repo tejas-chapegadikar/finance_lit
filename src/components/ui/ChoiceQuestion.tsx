@@ -120,7 +120,7 @@ export function ChoiceQuestion({
           <p className="mt-1 text-sm leading-relaxed text-slate-800">{result.explanation}</p>
           {result.note && <p className="mt-2 text-sm font-bold text-slate-900">{result.note}</p>}
           {result.xpAwarded ? (
-            <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-extrabold text-orange-700 ring-2 ring-orange-200">
+            <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-extrabold text-amber-800 ring-2 ring-amber-200">
               ⭐ +{result.xpAwarded} XP
             </p>
           ) : null}

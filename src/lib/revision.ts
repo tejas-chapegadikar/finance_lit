@@ -128,7 +128,7 @@ export const MASTERY_META: Record<MasteryStatus, { label: string; className: str
   },
   practising: {
     label: "Practising",
-    className: "bg-orange-100 text-orange-800",
+    className: "bg-amber-100 text-amber-900",
     rule: "You missed something here and it's scheduled for revision.",
   },
   "needs-revision": {

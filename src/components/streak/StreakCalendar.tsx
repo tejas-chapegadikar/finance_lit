@@ -9,14 +9,14 @@ const weekdayOf = (day: string) => (new Date(`${day}T00:00:00Z`).getUTCDay() + 6
 const formatDay = (day: string) =>
   new Date(`${day}T00:00:00Z`).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
 
-function Cell({ day, mark, today, compact }: { day: string; mark: DayMark | undefined; today: string; compact?: boolean }) {
+function Cell({ day, mark, today }: { day: string; mark: DayMark | undefined; today: string }) {
   const isToday = day === today;
   const future = day > today;
   const label = `${formatDay(day)}: ${mark === "active" ? "learned" : mark === "frozen" ? "covered by a streak freeze" : future ? "upcoming" : "no activity"}`;
   return (
     <span
       title={label}
-      className={`flex items-center justify-center rounded-xl font-bold ${compact ? "h-9 w-9 text-base" : "aspect-square w-full text-sm"} ${
+      className={`flex aspect-square w-full items-center justify-center rounded-xl text-sm font-bold ${
         mark === "active"
           ? "bg-orange-100 ring-2 ring-orange-300"
           : mark === "frozen"
@@ -26,25 +26,9 @@ function Cell({ day, mark, today, compact }: { day: string; mark: DayMark | unde
               : "bg-slate-100 text-slate-500"
       } ${isToday && !mark ? "outline-2 outline-offset-1 outline-orange-400 outline-dashed" : ""}`}
     >
-      <span aria-hidden>{mark === "active" ? "🔥" : mark === "frozen" ? "🧊" : compact ? "" : Number(day.slice(8))}</span>
+      <span aria-hidden>{mark === "active" ? "🔥" : mark === "frozen" ? "🧊" : Number(day.slice(8))}</span>
       <span className="sr-only">{label}</span>
     </span>
-  );
-}
-
-/** This week, Monday to Sunday — for the dashboard. */
-export function StreakWeek({ marks, today }: { marks: Map<string, DayMark>; today: string }) {
-  const monday = shiftDay(today, -weekdayOf(today));
-  const days = WEEKDAYS.map((_, i) => shiftDay(monday, i));
-  return (
-    <ol className="flex justify-between gap-1" aria-label="This week">
-      {days.map((day, i) => (
-        <li key={day} className="flex flex-col items-center gap-1">
-          <span className={`text-xs font-bold ${day === today ? "text-orange-700" : "text-slate-600"}`}>{WEEKDAYS[i].charAt(0)}</span>
-          <Cell day={day} mark={marks.get(day)} today={today} compact />
-        </li>
-      ))}
-    </ol>
   );
 }
 

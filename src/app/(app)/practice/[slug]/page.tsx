@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { rewardForScenario } from "@/lib/rewards";
+import { lessonAccess } from "@/lib/progress";
+import { chapterOf } from "@/lib/journey";
 import { SCENARIO_XP, getScenario, publicScenario } from "@/lib/scenarios";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
 import { ScenarioPlayer } from "@/components/practice/ScenarioPlayer";
@@ -22,17 +24,21 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
   if (!scenario) notFound();
 
   const reward = scenario.bonus ? rewardForScenario(slug) : undefined;
-  const [unlocked, runs] = await Promise.all([
+  const [unlocked, runs, access] = await Promise.all([
     reward ? db.rewardUnlock.count({ where: { userId: user.id, rewardId: reward.id } }) : Promise.resolve(1),
     db.scenarioRun.count({ where: { userId: user.id, scenarioSlug: slug } }),
+    lessonAccess(user.id),
   ]);
   const area = READINESS_AREA_META[scenario.area];
+  // A scenario opens with the level of the lesson it practises.
+  const level = scenario.lessonSlug ? chapterOf(scenario.lessonSlug) : undefined;
+  const levelLocked = !!scenario.lessonSlug && !access.unlocked.some((lesson) => lesson.slug === scenario.lessonSlug);
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
-      <Link href="/practice" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
+      <Link href="/lessons#scenarios" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
         <ArrowLeftIcon className="h-4 w-4" />
-        Practice
+        Learn
       </Link>
 
       <header className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
@@ -56,7 +62,21 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
         </ul>
       </header>
 
-      {unlocked ? (
+      {levelLocked ? (
+        <section className={`${card} p-8 text-center`}>
+          <span aria-hidden className="text-4xl">
+            🔒
+          </span>
+          <h2 className="mt-3 text-xl font-extrabold text-slate-900">Opens with Level {level?.number}</h2>
+          <p className="mx-auto mt-1 max-w-sm text-slate-600">
+            This scenario practises a lesson in Level {level?.number} — {level?.title}. Finish Level {(level?.number ?? 2) - 1} to
+            unlock it.
+          </p>
+          <Link href="/lessons" className={`${primaryButton} mt-5`}>
+            Back to your learning path
+          </Link>
+        </section>
+      ) : unlocked ? (
         <ScenarioPlayer scenario={publicScenario(scenario)} xpReward={SCENARIO_XP} firstRun={runs === 0} />
       ) : (
         <section className={`${card} p-8 text-center`}>

@@ -13,12 +13,11 @@ import { Avatar } from "@/components/avatar/Avatar";
 import { StreakCalendar } from "@/components/streak/StreakCalendar";
 import { stageLabel } from "@/lib/learner-profile";
 import { LEGAL_LINKS } from "@/lib/site";
-import { LEVEL_1_NAME } from "@/lib/constants";
+import { PATH_NAME } from "@/lib/constants";
 import { ProfileForm } from "@/components/profile/ProfileForm";
-import { ReminderForm } from "@/components/profile/ReminderForm";
 import { getMastery, MASTERY_META } from "@/lib/revision";
 import { findReward } from "@/lib/rewards";
-import { REMINDER_HOURS, emailRemindersConfigured, formatHour } from "@/lib/reminders";
+import { getWeeklySummary } from "@/lib/activity";
 import { AccountActions } from "@/components/account/AccountActions";
 import { Medal } from "@/components/ui/Medal";
 import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/MenuRow";
@@ -41,7 +40,7 @@ const formatDate = (date: Date) =>
 export default async function ProfilePage() {
   const user = await requireOnboardedUser();
   const today = istDay();
-  const [progress, earnedBadges, xpHistory, revisionByLesson, calendar] = await Promise.all([
+  const [progress, earnedBadges, xpHistory, revisionByLesson, calendar, week] = await Promise.all([
     getProgress(user.id),
     db.userBadge.findMany({ where: { userId: user.id }, select: { badgeId: true, earnedAt: true } }),
     db.xPTransaction.findMany({
@@ -55,6 +54,7 @@ export default async function ProfilePage() {
       select: { isCorrect: true, item: { select: { lessonId: true } } },
     }),
     getActivityDays(db, user.id, shiftDay(today, -41), today),
+    getWeeklySummary(user.id, today),
   ]);
   const [badgeStats, mastery] = await Promise.all([
     loadBadgeStats(db, user.id, progress.lessons),
@@ -120,8 +120,11 @@ export default async function ProfilePage() {
                 <span aria-hidden>{rank.current.icon}</span> {rank.current.name}
               </span>
               <span className={chip}>
-                Level 1 · {LEVEL_1_NAME}
-                {progress.levelComplete && " · 🎓 Graduate"}
+                {progress.levelComplete
+                  ? `🎓 ${PATH_NAME} Graduate`
+                  : progress.currentLevel
+                    ? `Level ${progress.currentLevel.chapter.number} · ${progress.currentLevel.chapter.title}`
+                    : PATH_NAME}
               </span>
               {subtitle && <span className={chip}>{subtitle}</span>}
             </p>
@@ -187,7 +190,7 @@ export default async function ProfilePage() {
                     <span className="font-semibold text-slate-800">
                       {reached ? "✅" : "🔒"} {m.days} days
                     </span>
-                    <span className="font-extrabold text-orange-800">+{m.xp} XP</span>
+                    <span className="font-extrabold text-amber-800">+{m.xp} XP</span>
                   </li>
                 );
               })}
@@ -261,12 +264,17 @@ export default async function ProfilePage() {
             );
           })}
         </ul>
-        <h3 className="mt-5 text-sm font-extrabold text-slate-900">Accuracy by topic</h3>
-        <div className="mt-2 overflow-hidden rounded-2xl ring-1 ring-slate-200">
+        <h3 className="mt-5 text-sm font-extrabold text-slate-900">Readiness and accuracy by topic</h3>
+        <p className="text-xs text-slate-600">
+          Readiness (0–100) tracks how much of each topic you&apos;ve learned and shown in quizzes — it isn&apos;t an
+          assessment of your actual finances.
+        </p>
+        <div className="mt-2 overflow-x-auto rounded-2xl ring-1 ring-slate-200">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-600">
               <tr>
                 <th scope="col" className="px-3 py-2 font-bold">Topic</th>
+                <th scope="col" className="px-3 py-2 text-right font-bold">Readiness</th>
                 <th scope="col" className="px-3 py-2 text-right font-bold">Quiz accuracy</th>
                 <th scope="col" className="px-3 py-2 text-right font-bold">Revision</th>
               </tr>
@@ -277,6 +285,7 @@ export default async function ProfilePage() {
                   <th scope="row" className="px-3 py-2 font-semibold text-slate-800">
                     <span aria-hidden>{area.icon}</span> {area.label}
                   </th>
+                  <td className="px-3 py-2 text-right font-bold text-slate-900 tabular-nums">{area.score}</td>
                   <td className="px-3 py-2 text-right font-bold text-slate-900 tabular-nums">
                     {area.quizAccuracy === null ? "—" : `${area.quizAccuracy}%`}
                   </td>
@@ -300,6 +309,38 @@ export default async function ProfilePage() {
         </details>
       </section>
 
+      <section className={`${card} p-5 sm:p-6`} aria-labelledby="week-heading">
+        <h2 id="week-heading" className="text-lg font-extrabold text-slate-900">
+          Your week
+        </h2>
+        <p className="text-sm text-slate-600">The last 7 days · active on {week.activeDays} of 7</p>
+        <dl className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+          {[
+            { label: "Lessons completed", value: String(week.lessonsCompleted) },
+            {
+              label: "Quiz accuracy",
+              value: week.quizAccuracy === null ? "—" : `${week.quizAccuracy}%`,
+              note:
+                week.quizAccuracy !== null && week.previousQuizAccuracy !== null
+                  ? `${week.quizAccuracy >= week.previousQuizAccuracy ? "↑" : "↓"} from ${week.previousQuizAccuracy}%`
+                  : undefined,
+            },
+            { label: "Revision correct", value: week.revisionTotal ? `${week.revisionCorrect}/${week.revisionTotal}` : "—" },
+            { label: "Daily question & challenge", value: String(week.daily) },
+            { label: "Scenarios", value: String(week.scenarios) },
+            { label: "XP earned", value: `+${week.xpEarned}` },
+          ].map((stat) => (
+            <div key={stat.label} className="flex flex-col-reverse justify-end rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
+              <dt className="text-xs font-semibold text-slate-600">
+                {stat.label}
+                {stat.note && <span className="block font-bold text-brand-700">{stat.note}</span>}
+              </dt>
+              <dd className="text-xl font-extrabold text-slate-900 tabular-nums">{stat.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
       <section className={`${card} p-5 sm:p-6`} aria-labelledby="xp-heading">
         <h2 id="xp-heading" className="text-lg font-extrabold text-slate-900">
           Recent XP
@@ -314,7 +355,7 @@ export default async function ProfilePage() {
               <li key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span
                   aria-hidden
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-50 ring-1 ring-orange-200"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 ring-1 ring-amber-200"
                 >
                   {tx.amount < 0 ? "🎁" : "⭐"}
                 </span>
@@ -322,7 +363,7 @@ export default async function ProfilePage() {
                   <span className="block truncate font-semibold text-slate-900">{tx.description ?? "XP"}</span>
                   <span className="text-xs text-slate-600">{formatDate(tx.createdAt)}</span>
                 </span>
-                <span className={`shrink-0 font-extrabold tabular-nums ${tx.amount < 0 ? "text-slate-700" : "text-orange-700"}`}>
+                <span className={`shrink-0 font-extrabold tabular-nums ${tx.amount < 0 ? "text-slate-700" : "text-amber-800"}`}>
                   {tx.amount < 0 ? `−${-tx.amount}` : `+${tx.amount}`} XP
                 </span>
               </li>
@@ -344,23 +385,6 @@ export default async function ProfilePage() {
             goal={user.goal ?? ""}
           />
         </div>
-      </section>
-
-      <section id="reminders" className={`${card} scroll-mt-20 p-5 sm:p-6`} aria-labelledby="reminders-heading">
-        <h2 id="reminders-heading" className="text-lg font-extrabold text-slate-900">
-          Daily reminder
-        </h2>
-        <p className="mb-4 text-sm text-slate-600">
-          An optional nudge when today&apos;s question and challenge are ready, with any revision that&apos;s due. At most
-          one a day, only at the hour you pick (never between 10 PM and 6 AM), and only if you haven&apos;t learned yet
-          that day.
-        </p>
-        <ReminderForm
-          enabled={user.reminderEnabled}
-          hour={user.reminderHour}
-          hours={REMINDER_HOURS.map((h) => ({ value: h, label: formatHour(h) }))}
-          emailReady={emailRemindersConfigured()}
-        />
       </section>
 
       <section className={`${card} flex flex-col gap-4 p-5 sm:p-6`} aria-labelledby="account-heading">

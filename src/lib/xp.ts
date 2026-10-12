@@ -1,5 +1,5 @@
 import type { Prisma, XPTransactionType } from "@prisma/client";
-import { LEVEL_1_NAME, LEVEL_COMPLETION_XP } from "./constants";
+import { PATH_NAME, LEVEL_COMPLETION_XP } from "./constants";
 
 type AwardXpParams = {
   userId: string;
@@ -88,7 +88,7 @@ export async function spendXp(
 }
 
 /**
- * Awards the one-time Level 1 bonus if the student has now finished every
+ * Awards the one-time path bonus if the student has now finished every
  * published lesson. Returns the XP awarded (0 if not complete or already paid).
  */
 export async function awardLevelBonusIfComplete(
@@ -113,6 +113,6 @@ export async function awardLevelBonusIfComplete(
     type: "LEVEL_COMPLETION",
     idempotencyKey: xpKeys.levelComplete(userId, 1),
     quizAttemptId,
-    description: `Level 1 complete — ${LEVEL_1_NAME}`,
+    description: `${PATH_NAME} complete — all 4 levels`,
   });
 }
