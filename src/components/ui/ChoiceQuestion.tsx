@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { OptionButton, type OptionState } from "./OptionButton";
+import { StarIcon } from "./icons";
 
 export type ChoiceResult =
   | {
@@ -38,7 +39,7 @@ export function ChoiceQuestion({
   answer,
   initialAnswer,
   onAnswered,
-  labels = { right: "✅ Great choice!", wrong: "❌ Not quite — here's why" },
+  labels = { right: "Correct", wrong: "Not quite — here's why" },
 }: {
   labels?: { right: string; wrong: string };
   prompt: string;
@@ -110,8 +111,8 @@ export function ChoiceQuestion({
           role="status"
           className={`rounded-2xl border-2 p-4 ${
             result.isCorrect
-              ? "border-emerald-300 bg-emerald-50 shadow-[0_4px_0_0_var(--color-emerald-200)]"
-              : "border-rose-200 bg-rose-50 shadow-[0_4px_0_0_var(--color-rose-200)]"
+              ? "border-emerald-300 bg-emerald-50"
+              : "border-rose-200 bg-rose-50"
           }`}
         >
           <p className={`font-extrabold ${result.isCorrect ? "text-emerald-800" : "text-rose-800"}`}>
@@ -120,8 +121,8 @@ export function ChoiceQuestion({
           <p className="mt-1 text-sm leading-relaxed text-slate-800">{result.explanation}</p>
           {result.note && <p className="mt-2 text-sm font-bold text-slate-900">{result.note}</p>}
           {result.xpAwarded ? (
-            <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-extrabold text-amber-800 ring-2 ring-amber-200">
-              ⭐ +{result.xpAwarded} XP
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-bold text-amber-900">
+              <StarIcon className="h-4 w-4 text-amber-600" /> +{result.xpAwarded} XP
             </p>
           ) : null}
         </div>

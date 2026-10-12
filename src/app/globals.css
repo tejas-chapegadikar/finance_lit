@@ -50,14 +50,6 @@
   }
 }
 
-/* Soft light rays, like a game's welcome screen. Decoration only. */
-@utility sunburst {
-  background-image: repeating-conic-gradient(
-    from 0deg at 50% 50%,
-    color-mix(in oklch, var(--color-brand-100) 70%, transparent) 0deg 8deg,
-    transparent 8deg 16deg
-  );
-}
 
 body {
   background: var(--background);

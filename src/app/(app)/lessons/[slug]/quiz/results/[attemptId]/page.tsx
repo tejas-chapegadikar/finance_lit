@@ -13,7 +13,6 @@ import { saveLessonFeedback } from "@/actions/feedback";
 import { LessonFeedbackForm } from "@/components/lessons/LessonFeedbackForm";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Medal } from "@/components/ui/Medal";
-import { Confetti } from "@/components/ui/Confetti";
 import { card, primaryButton, secondaryButton, tile } from "@/components/ui/button-styles";
 import { CORE_SCENARIOS } from "@/lib/scenarios";
 import { ArrowRightIcon } from "@/components/ui/icons";
@@ -104,106 +103,94 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
+      {/* Completing the lesson */}
+      <header className="flex flex-col items-center text-center">
+        <span className="motion-safe:animate-pop">
+          <Medal icon={levelJustCompleted ? "🎓" : "⭐"} />
+        </span>
+        <p className="mt-3 text-sm font-semibold text-brand-700">
+          {lessonXp > 0
+            ? `Lesson ${lessonNumber ? String(lessonNumber).padStart(2, "0") : ""} completed`
+            : "Already completed — this retake can raise your readiness"}
+        </p>
+        <h1 className="mt-1 text-3xl font-extrabold text-slate-900 sm:text-4xl">Lesson Complete!</h1>
+        <p className="mt-1 text-slate-600">{attempt.lesson.title}</p>
+      </header>
+
       {levelFinishedNow && !levelJustCompleted && (
-        <section className="rounded-3xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 p-6 text-center text-white shadow-lg shadow-brand-900/20">
-          <span aria-hidden className="text-5xl">
-            🔓
-          </span>
-          <p className="mt-2 text-xs font-extrabold tracking-[0.2em] uppercase">Level {thisLevel!.chapter.number} complete</p>
-          <h2 className="mt-1 text-2xl font-extrabold">
+        <section className="rounded-2xl border-2 border-brand-200 bg-brand-50 p-5 text-center">
+          <p className="text-sm font-semibold text-brand-700">Level {thisLevel!.chapter.number} complete</p>
+          <h2 className="mt-0.5 text-xl font-extrabold text-slate-900">
             {unlockedLevel ? `Level ${unlockedLevel.chapter.number} unlocked: ${unlockedLevel.chapter.title}` : "Level complete!"}
           </h2>
-          <p className="mx-auto mt-2 max-w-sm text-sm font-semibold">
+          <p className="mx-auto mt-1 max-w-sm text-sm text-slate-700">
             You finished every lesson in “{thisLevel!.chapter.title}”. The next level is open on your learning path.
           </p>
         </section>
       )}
 
       {levelJustCompleted && (
-        <section className="rounded-3xl bg-gradient-to-br from-amber-300 via-amber-300 to-amber-400 p-6 text-center shadow-lg shadow-amber-900/20">
-          <span aria-hidden className="text-5xl">
-            🎓
-          </span>
-          <p className="mt-2 text-xs font-extrabold tracking-[0.2em] text-slate-900 uppercase">All 4 levels complete</p>
-          <h2 className="mt-1 text-2xl font-extrabold text-slate-900">🏆 {PATH_NAME} Graduate</h2>
-          <ul className="mt-4 flex flex-wrap justify-center gap-2 text-sm font-bold text-slate-900">
-            <li className="rounded-full bg-white/70 px-3 py-1">
-              {progress.completedCount}/{progress.totalLessons} lessons
-            </li>
-            <li className="rounded-full bg-white/70 px-3 py-1">{user.xpTotal.toLocaleString("en-IN")} XP</li>
-            <li className="rounded-full bg-white/70 px-3 py-1">Readiness {progress.overall}/100</li>
-          </ul>
-          {levelBonus > 0 && <p className="mt-4 text-sm font-bold text-slate-900">+{levelBonus} XP completion bonus</p>}
-          <p className="mx-auto mt-2 max-w-sm text-sm font-semibold text-slate-900">
+        <section className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-5 text-center">
+          <p className="text-sm font-semibold text-amber-900">All 4 levels complete</p>
+          <h2 className="mt-0.5 text-xl font-extrabold text-slate-900">{PATH_NAME} Graduate</h2>
+          <p className="mt-2 text-sm text-slate-700">
+            {progress.completedCount}/{progress.totalLessons} lessons · {user.xpTotal.toLocaleString("en-IN")} XP · Readiness{" "}
+            {progress.overall}/100
+          </p>
+          {levelBonus > 0 && <p className="mt-2 text-sm font-semibold text-amber-900">+{levelBonus} XP completion bonus</p>}
+          <p className="mx-auto mt-2 max-w-sm text-sm text-slate-700">
             Next: the {NEXT_PATH_NAME} path is coming soon. Until then, keep your skills sharp with the daily question and
             challenge.
           </p>
         </section>
       )}
 
-      {/* The celebration: confetti, a medal, then the scores on a white card */}
-      <div>
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-slate-900 via-brand-900 to-brand-800 px-6 pt-8 pb-24 text-center text-white shadow-lg shadow-brand-900/30 sm:px-8">
-          <Confetti />
-          <div className="relative flex justify-center motion-safe:animate-pop">
-            <Medal icon={levelJustCompleted ? "🎓" : "⭐"} size="lg" />
+      <section className={card} aria-labelledby="performance-heading">
+        <h2 id="performance-heading" className="sr-only">
+          Your performance
+        </h2>
+        <dl className="grid grid-cols-3 divide-x divide-slate-200">
+          <div className="flex flex-col-reverse justify-end p-4">
+            <dt className="text-xs text-slate-600">
+              <span className="block font-semibold text-slate-800">Score</span>
+              {percent}% first try
+            </dt>
+            <dd className="font-display text-2xl font-extrabold text-slate-900 tabular-nums">
+              {summary.firstTry}/{attempt.totalQuestions}
+            </dd>
           </div>
-          <h1 className="relative mt-4 text-3xl font-extrabold sm:text-4xl">Lesson Complete!</h1>
-          <p className="relative mt-1 font-semibold">
-            <span aria-hidden>{attempt.lesson.icon}</span> {attempt.lesson.title}
-          </p>
-          <p className="relative mt-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-sm font-semibold ring-1 ring-white/20">
-            {lessonXp > 0
-              ? `✅ Lesson ${lessonNumber ? String(lessonNumber).padStart(2, "0") : ""} completed`
-              : "✅ Already completed — this retake can raise your readiness"}
-          </p>
-        </section>
-
-        <div className="relative z-10 mx-3 -mt-16 rounded-3xl bg-white p-4 shadow-lg shadow-slate-900/10 ring-1 ring-slate-900/5 sm:mx-6 sm:p-5">
-          <h2 className="text-center text-sm font-extrabold tracking-wider text-slate-600 uppercase">Your performance</h2>
-          <dl className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
-            <div className="flex flex-col-reverse justify-end rounded-2xl bg-emerald-50 p-3 ring-2 ring-emerald-200 shadow-[0_4px_0_0_var(--color-emerald-200)]">
-              <dt className="text-xs font-semibold text-slate-600">
-                <span className="block font-extrabold tracking-wider text-emerald-800 uppercase">Score</span>
-                {percent}% correct first try
-              </dt>
-              <dd className="font-display text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">
-                {summary.firstTry}/{attempt.totalQuestions}
-              </dd>
-            </div>
-            <div className="flex flex-col-reverse justify-end rounded-2xl bg-amber-50 p-3 ring-2 ring-amber-200 shadow-[0_4px_0_0_var(--color-amber-200)]">
-              <dt className="text-xs font-semibold text-slate-600">
-                <span className="block font-extrabold tracking-wider text-amber-800 uppercase">XP earned</span>
-                {lessonXp ? "for your first completion" : "retakes earn no XP"}
-              </dt>
-              <dd className="font-display text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">⭐ +{lessonXp}</dd>
-            </div>
-            <div className="flex flex-col-reverse justify-end rounded-2xl bg-brand-50 p-3 ring-2 ring-brand-200 shadow-[0_4px_0_0_var(--color-brand-200)]">
-              <dt className="text-xs font-semibold text-slate-600">
-                <span className="block font-extrabold tracking-wider text-brand-800 uppercase">Readiness</span>
-                out of 100
-              </dt>
-              <dd className="font-display text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">
-                {readinessBefore} → {readinessAfter}
-              </dd>
-            </div>
-          </dl>
-          {summary.withCoach > 0 && (
-            <p className="mt-3 text-center text-sm font-semibold text-slate-700">
-              {summary.withCoach} more solved with the Coach&apos;s help 💪
-            </p>
-          )}
-          {previousBest !== null && (attempt.mastery ?? 0) > previousBest && (
-            <p className="mt-3 text-center text-sm font-extrabold text-emerald-800">
-              📈 You improved — quiz accuracy {previousBest}% → {attempt.mastery}%. That&apos;s learning sticking!
-            </p>
-          )}
-        </div>
-      </div>
+          <div className="flex flex-col-reverse justify-end p-4">
+            <dt className="text-xs text-slate-600">
+              <span className="block font-semibold text-slate-800">XP earned</span>
+              {lessonXp ? "first completion" : "retakes earn no XP"}
+            </dt>
+            <dd className="font-display text-2xl font-extrabold text-amber-700 tabular-nums">+{lessonXp}</dd>
+          </div>
+          <div className="flex flex-col-reverse justify-end p-4">
+            <dt className="text-xs text-slate-600">
+              <span className="block font-semibold text-slate-800">Readiness</span>
+              out of 100
+            </dt>
+            <dd className="font-display text-2xl font-extrabold text-slate-900 tabular-nums">
+              {readinessBefore} → {readinessAfter}
+            </dd>
+          </div>
+        </dl>
+        {(summary.withCoach > 0 || (previousBest !== null && (attempt.mastery ?? 0) > previousBest)) && (
+          <div className="border-t border-slate-200 px-4 py-3 text-center text-sm">
+            {summary.withCoach > 0 && <p className="text-slate-700">{summary.withCoach} more solved with the Coach&apos;s help.</p>}
+            {previousBest !== null && (attempt.mastery ?? 0) > previousBest && (
+              <p className="font-semibold text-emerald-800">
+                You improved — quiz accuracy {previousBest}% → {attempt.mastery}%.
+              </p>
+            )}
+          </div>
+        )}
+      </section>
 
       {shownBadges.length > 0 && (
         <section className={`${card} p-5 sm:p-6`}>
-          <h2 className="text-lg font-extrabold text-slate-900">🏅 New badge unlocked</h2>
+          <h2 className="text-lg font-extrabold text-slate-900">New badge unlocked</h2>
           <ul className="mt-4 flex flex-wrap gap-4">
             {shownBadges
               .map((badge) => (
@@ -233,9 +220,6 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
 
       {summary.withCoach + summary.revealed > 0 && (
         <section className={`${card} flex items-start gap-4 p-5 sm:p-6`} aria-labelledby="revision-note">
-          <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
-            🔁
-          </span>
           <div>
             <h2 id="revision-note" className="font-extrabold text-slate-900">
               Revision scheduled
@@ -252,13 +236,13 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
       {practiceScenario && (
         <Link
           href={`/practice/${practiceScenario.slug}`}
-          className={`${tile} flex items-center gap-4 p-4 transition hover:-translate-y-0.5`}
+          className={`${tile} flex items-center gap-4 p-4`}
         >
           <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
             {practiceScenario.icon}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-xs font-bold tracking-wider text-brand-700 uppercase">Practise it for real</span>
+            <span className="block text-sm font-semibold text-brand-700">Practise it for real</span>
             <span className="block font-extrabold text-slate-900">{practiceScenario.title}</span>
           </span>
           <ArrowRightIcon className="h-5 w-5 shrink-0 text-brand-700" />
@@ -267,7 +251,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
 
       {next ? (
         <section className={`${card} p-5 sm:p-6`}>
-          <p className="text-xs font-bold tracking-wider text-brand-700 uppercase">
+          <p className="text-sm font-semibold text-brand-700">
             {next.isRetake ? "Recommended next" : "Next recommended lesson"}
           </p>
           <div className="mt-3 flex items-center gap-4">

@@ -6,7 +6,8 @@ import { istDay } from "@/lib/ist-date";
 import { readChoiceOptions } from "@/lib/lesson-content";
 import { REVISION_XP, revisionQuestion } from "@/lib/revision";
 import { RevisionRunner, type RevisionCard } from "@/components/practice/RevisionRunner";
-import { card, heroChip, heroSurface, primaryButton } from "@/components/ui/button-styles";
+import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
+import { card, primaryButton } from "@/components/ui/button-styles";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Revision — StockStreak" };
@@ -45,26 +46,26 @@ export default async function RevisionPage() {
         <ArrowLeftIcon className="h-4 w-4" />
         Learn
       </Link>
-      <header className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
-        <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-20 h-56 w-56 rounded-full bg-white/5" />
-        <p className="relative">
-          <span className={heroChip}>Smart revision</span>
-        </p>
-        <h1 className="relative mt-3 text-3xl font-extrabold">🔁 Revision</h1>
-        <p className="relative mt-3 flex flex-wrap gap-2">
-          <span className={heroChip}>{cards.length ? `${cards.length} due today` : "Nothing due"}</span>
-          <span className={heroChip}>+{REVISION_XP} XP each</span>
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Review & revise"
+        title="Revision"
+        description="Questions you missed come back after 1, 3 and 7 days, each time with a fresh example."
+      >
+        <MetaRow
+          items={[
+            cards.length ? `${cards.length} due today` : "Nothing due",
+            <span key="xp" className="font-semibold text-amber-800">
+              +{REVISION_XP} XP each
+            </span>,
+          ]}
+        />
+      </PageHeader>
 
       {cards.length ? (
         <RevisionRunner cards={cards} />
       ) : (
         <section className={`${card} p-8 text-center`}>
-          <span aria-hidden className="text-4xl">
-            ✨
-          </span>
-          <h2 className="mt-3 text-xl font-extrabold text-slate-900">You&apos;re all caught up</h2>
+          <h2 className="text-xl font-extrabold text-slate-900">You&apos;re all caught up</h2>
           <p className="mx-auto mt-1 max-w-sm text-slate-600">
             Questions you miss in quizzes come back here after 1, 3 and 7 days, each time with a fresh example.
           </p>

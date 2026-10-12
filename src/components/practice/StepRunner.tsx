@@ -116,11 +116,11 @@ export function StepRunner({
   return (
     <section className={`${card} p-5 sm:p-6`} aria-labelledby="step-heading">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-extrabold tracking-wider text-brand-700 uppercase">
+        <p className="text-sm font-semibold text-brand-700">
           {stepNoun} {stepIndex + 1} of {steps.length}
         </p>
         {xpNote && (
-          <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-extrabold text-amber-800 ring-2 ring-amber-200">
+          <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-900">
             {xpNote}
           </span>
         )}
@@ -176,9 +176,9 @@ export function StepRunner({
                     onClick={() => setPicks(on ? picks.filter((p) => p !== i) : [...picks, i])}
                     className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left text-sm font-semibold transition-[transform,box-shadow] duration-100 sm:text-base ${
                       on
-                        ? "border-brand-500 bg-brand-50 text-slate-900 shadow-[0_4px_0_0_var(--color-brand-300)]"
-                        : "border-slate-200 bg-white text-slate-800 shadow-[0_4px_0_0_var(--color-slate-200)] enabled:hover:border-brand-300"
-                    } enabled:active:translate-y-[3px] disabled:opacity-80`}
+                        ? "border-brand-500 bg-brand-50 text-slate-900"
+                        : "border-slate-200 bg-white text-slate-800 enabled:hover:border-brand-300"
+                    } disabled:opacity-80`}
                   >
                     <span
                       aria-hidden
@@ -240,7 +240,7 @@ export function StepRunner({
               }`}
             >
               {left === 0
-                ? "✅ Every rupee has a job."
+                ? "Every rupee has a job."
                 : left > 0
                   ? `${rupees(left)} still to plan`
                   : `${rupees(-left)} over your budget — take some out`}

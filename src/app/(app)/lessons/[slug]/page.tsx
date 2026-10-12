@@ -15,11 +15,12 @@ import { LessonProgressBar, type LessonStep } from "@/components/lessons/LessonP
 import { StepLabel } from "@/components/lessons/StepLabel";
 import { Markdown } from "@/components/ui/Markdown";
 import { chapterOf } from "@/lib/journey";
-import { card, heroChip, heroSurface, primaryButton, tile } from "@/components/ui/button-styles";
-import { ArrowLeftIcon, ArrowRightIcon, ClockIcon } from "@/components/ui/icons";
+import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
+import { card, primaryButton, tile } from "@/components/ui/button-styles";
+import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
 
 const STATUS_LABEL: Record<LessonStatus, string> = {
-  completed: "✅ Completed — retakes can raise your readiness but don't give XP",
+  completed: "Completed · retakes can raise your readiness but don't give XP",
   "in-progress": "In progress",
   "not-started": "Not started",
 };
@@ -48,33 +49,24 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
   const level = chapterOf(lesson.slug);
 
   const header = (
-    <header className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
-      <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-20 h-56 w-56 rounded-full bg-white/5" />
-      <p className="relative">
-        <span className={heroChip}>
-          {level ? `Level ${level.number} · ` : ""}Lesson {number} · {area.label}
-        </span>
-      </p>
-      <div className="relative mt-4 flex items-center gap-4">
-        <span
-          aria-hidden
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-4xl shadow-[0_4px_0_0_var(--color-brand-800)]"
-        >
-          {lesson.icon}
-        </span>
-        <h1 className="min-w-0 text-2xl leading-tight font-extrabold sm:text-3xl">{lesson.title}</h1>
-      </div>
-      <ul className="relative mt-4 flex flex-wrap gap-2">
-        <li className={heroChip}>
-          <ClockIcon className="h-4 w-4" />
-          {lesson.estimatedMinutes} minutes
-        </li>
-        <li className={heroChip}>
-          <span aria-hidden>⭐</span>+{lesson.xpReward} XP
-        </li>
-        <li className={heroChip}>{STATUS_LABEL[lessonProgress.status]}</li>
-      </ul>
-    </header>
+    <PageHeader
+      icon={lesson.icon}
+      eyebrow={`${level ? `Level ${level.number} · ` : ""}Lesson ${number} · ${area.label}`}
+      title={lesson.title}
+    >
+      <MetaRow
+        items={[
+          <>
+            <ClockIcon className="h-4 w-4" />
+            {lesson.estimatedMinutes} minutes
+          </>,
+          <span key="xp" className="font-semibold text-amber-800">
+            +{lesson.xpReward} XP
+          </span>,
+          STATUS_LABEL[lessonProgress.status],
+        ]}
+      />
+    </PageHeader>
   );
 
   const backLink = (
@@ -94,24 +86,12 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
     return (
       <article className="mx-auto flex max-w-2xl flex-col gap-5">
         {backLink}
-        <header className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
-          <p>
-            <span className={heroChip}>
-              🔒 Level {level?.number} · Lesson {number}
-            </span>
-          </p>
-          <div className="mt-4 flex items-center gap-4">
-            <span aria-hidden className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/90 text-4xl grayscale">
-              {lesson.icon}
-            </span>
-            <h1 className="min-w-0 text-2xl leading-tight font-extrabold sm:text-3xl">{lesson.title}</h1>
-          </div>
-        </header>
+        <PageHeader icon={<span className="grayscale">{lesson.icon}</span>} eyebrow={`Level ${level?.number} · Lesson ${number} · Locked`} title={lesson.title} />
         <section className={`${card} p-6 text-center sm:p-8`} aria-labelledby="locked-heading">
-          <span aria-hidden className="text-4xl">
-            🔒
+          <span aria-hidden className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+            <LockIcon className="h-6 w-6" />
           </span>
-          <h2 id="locked-heading" className="mt-2 text-xl font-extrabold text-slate-900">
+          <h2 id="locked-heading" className="mt-3 text-xl font-extrabold text-slate-900">
             This lesson is in Level {level?.number} — {level?.title}
           </h2>
           <p className="mx-auto mt-1 max-w-md text-slate-600">
@@ -190,7 +170,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
           <div key={i} className={`${card} p-5 sm:p-6`}>
             {section.title && (
               <h3 className="flex items-start gap-2 text-lg font-bold text-slate-900">
-                <span className="mt-0.5 rounded-lg bg-brand-50 px-2 py-0.5 text-xs font-extrabold text-brand-700">
+                <span className="mt-0.5 rounded-lg bg-brand-50 px-2 py-0.5 text-sm font-semibold text-brand-700">
                   {i + 1}/{sections.length}
                 </span>
                 {section.title}
@@ -203,7 +183,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
 
       {lesson.example && (
         <section
-          className="rounded-3xl bg-amber-50 p-5 ring-1 ring-amber-200 shadow-[0_4px_0_0_var(--color-amber-200)] sm:p-6"
+          className="rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6"
           aria-labelledby="example-heading"
         >
           <StepLabel id="example-heading" step={stepNumber("example-heading")} title="Real-life example" icon="📍" />
@@ -221,7 +201,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
             {keyTerms.map((term) => (
               <div
                 key={term.term}
-                className="rounded-2xl bg-brand-50 p-4 ring-1 ring-brand-100 shadow-[0_3px_0_0_var(--color-brand-100)]"
+                className="rounded-2xl bg-brand-50 p-4 ring-1 ring-brand-100"
               >
                 <dt className="font-bold text-brand-800">{term.term}</dt>
                 <dd className="mt-1 text-sm leading-relaxed text-slate-700">{term.definition}</dd>
@@ -245,13 +225,13 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
       {practiceScenario && (
         <Link
           href={`/practice/${practiceScenario.slug}`}
-          className={`${tile} flex items-center gap-4 p-4 transition hover:-translate-y-0.5`}
+          className={`${tile} flex items-center gap-4 p-4`}
         >
           <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
             {practiceScenario.icon}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-xs font-bold tracking-wider text-brand-700 uppercase">Try it for real</span>
+            <span className="block text-sm font-semibold text-brand-700">Try it for real</span>
             <span className="block font-extrabold text-slate-900">{practiceScenario.title}</span>
             <span className="block text-sm text-slate-600">An interactive scenario that puts this lesson into practice.</span>
           </span>

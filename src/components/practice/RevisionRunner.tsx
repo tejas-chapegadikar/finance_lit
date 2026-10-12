@@ -27,10 +27,7 @@ export function RevisionRunner({ cards }: { cards: RevisionCard[] }) {
   if (done || !current) {
     return (
       <section className={`${card} flex flex-col items-center p-8 text-center`}>
-        <span aria-hidden className="text-5xl">
-          🎉
-        </span>
-        <h2 className="mt-3 text-2xl font-extrabold text-slate-900">Revision done for today</h2>
+        <h2 className="text-2xl font-extrabold text-slate-900">Revision done for today</h2>
         <p className="mt-1 text-slate-600">
           You got <span className="font-extrabold text-slate-900">{correct}</span> of {cards.length} right. Anything you
           missed comes back tomorrow.
@@ -46,7 +43,7 @@ export function RevisionRunner({ cards }: { cards: RevisionCard[] }) {
   return (
     <section className={`${card} p-5 sm:p-6`} aria-labelledby="revision-question">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p id="revision-question" className="text-xs font-extrabold tracking-wider text-brand-700 uppercase">
+        <p id="revision-question" className="text-sm font-semibold text-brand-700">
           Question {index + 1} of {cards.length}
         </p>
         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">

@@ -7,7 +7,7 @@ import { redeemReward } from "@/actions/rewards";
 import { AVATAR_SLOTS, HEAD_SLOTS, type AvatarConfig, type AvatarSlot } from "@/lib/avatar";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { card, primaryButton, secondaryButton, skyButton } from "@/components/ui/button-styles";
-import { CheckIcon, LockIcon } from "@/components/ui/icons";
+import { CheckIcon, LockIcon, StarIcon } from "@/components/ui/icons";
 import { Avatar } from "./Avatar";
 
 export type StudioItem = {
@@ -60,7 +60,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
       if (result.status === "not-enough-xp") setMessage("You don't have enough XP for this yet.");
       if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);
       if (result.status === "unlocked" || result.status === "owned") {
-        setMessage(`Unlocked ${item.name}! 🎉`);
+        setMessage(`Unlocked ${item.name}.`);
         router.refresh();
       }
     });
@@ -71,7 +71,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
       const result = await saveAvatar(config);
       if (result.status === "locked") setMessage(`Unlock ${result.itemName} before saving.`);
       else {
-        setMessage("Avatar saved! ✨");
+        setMessage("Avatar saved.");
         router.refresh();
       }
     });
@@ -83,11 +83,11 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
         <h2 id="preview-heading" className="sr-only">
           Preview
         </h2>
-        <div className="flex w-full justify-center rounded-3xl bg-gradient-to-b from-brand-100 to-brand-50 py-4 ring-1 ring-brand-100">
+        <div className="flex w-full justify-center rounded-2xl border border-slate-200 bg-slate-50 py-4">
           <Avatar config={config} className="h-56 w-auto sm:h-64" label="Your avatar preview" />
         </div>
-        <p className="mt-3 text-sm font-semibold text-slate-600">
-          ⭐ {balance.toLocaleString("en-IN")} XP to spend
+        <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600">
+          <StarIcon className="h-4 w-4 text-amber-600" /> {balance.toLocaleString("en-IN")} XP to spend
         </p>
         {locked.length > 0 && (
           <p className="mt-2 text-center text-sm font-semibold text-amber-900">
@@ -124,7 +124,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
                 setConfirming(false);
               }}
               className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition ${
-                slot === s ? "bg-brand-600 text-white shadow-[0_3px_0_0_var(--color-brand-800)]" : "bg-slate-100 text-slate-700 hover:bg-brand-50"
+                slot === s ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-brand-50"
               }`}
             >
               {label}
@@ -144,7 +144,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
                     aria-pressed={isOn}
                     onClick={() => choose(item)}
                     className={`flex w-full flex-col items-center rounded-2xl border-2 p-2 text-center transition ${
-                      isOn ? "border-brand-500 bg-brand-50 shadow-[0_3px_0_0_var(--color-brand-300)]" : "border-slate-200 bg-white hover:border-brand-300"
+                      isOn ? "border-brand-500 bg-brand-50" : "border-slate-200 bg-white hover:border-brand-300"
                     }`}
                   >
                     <span className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-brand-50">
@@ -166,7 +166,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
                     </span>
                     <span className="mt-1.5 line-clamp-2 text-xs font-bold text-slate-900">{item.name}</span>
                     <span className={`text-[11px] font-bold ${item.unlocked ? "text-emerald-800" : "text-amber-800"}`}>
-                      {item.unlocked ? "Unlocked" : item.cost ? `⭐ ${item.cost}` : "Milestone"}
+                      {item.unlocked ? "Unlocked" : item.cost ? `${item.cost} XP` : "Milestone"}
                     </span>
                   </button>
                 </li>
@@ -178,7 +178,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
           <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200 sm:flex-row sm:items-center">
             <p className="flex-1 text-sm font-semibold text-slate-800">
               <span className="font-extrabold text-slate-900">{selected.name}</span>
-              {selected.rare && " · Rare"} — {selected.cost ? `${selected.cost} XP in the Rewards Store.` : `🔒 ${selected.how} to unlock it.`}
+              {selected.rare && " · Rare"} — {selected.cost ? `${selected.cost} XP in the Rewards Store.` : `${selected.how} to unlock it.`}
             </p>
             {selected.cost !== null &&
               (confirming ? (

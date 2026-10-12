@@ -21,8 +21,8 @@ import { getWeeklySummary } from "@/lib/activity";
 import { AccountActions } from "@/components/account/AccountActions";
 import { Medal } from "@/components/ui/Medal";
 import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/MenuRow";
-import { card, heroChip, heroSurface, primaryButton } from "@/components/ui/button-styles";
-import { AlertIcon, ArrowRightIcon, DocumentIcon, InfoIcon, LockIcon, MailIcon } from "@/components/ui/icons";
+import { card, primaryButton, secondaryButton } from "@/components/ui/button-styles";
+import { AlertIcon, ArrowRightIcon, DocumentIcon, GiftIcon, InfoIcon, LockIcon, MailIcon, StarIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Profile — StockStreak" };
 
@@ -66,8 +66,6 @@ export default async function ProfilePage() {
   const avatar = readAvatar(user.avatar);
   const streak = streakStatus(user, today);
   const rank = rankFor(progress.completedCount, progress.overall, progress.totalLessons);
-  // On a reward theme, chips sit on a neutral dark overlay instead of brand blue.
-  const chip = theme ? heroChip.replace("bg-brand-900/40", "bg-black/25") : heroChip;
   const earnedCount = badges.filter((b) => b.earnedAt).length;
   const displayName = getDisplayName(user);
   const subtitle = [stageLabel(user.stage), user.collegeName].filter(Boolean).join(" · ");
@@ -87,7 +85,7 @@ export default async function ProfilePage() {
   const stats = [
     { label: "Total XP", value: user.xpTotal.toLocaleString("en-IN") },
     { label: "Lessons completed", value: `${progress.completedCount}/${progress.totalLessons}` },
-    { label: "Learning streak", value: `🔥 ${streak.streak}` },
+    { label: "Learning streak", value: `${streak.streak} ${streak.streak === 1 ? "day" : "days"}` },
     { label: "Rank", value: rank.current.name },
     { label: "Financial Readiness", value: `${progress.overall}/100` },
     { label: "Badges earned", value: `${earnedCount}/${badges.length}` },
@@ -95,62 +93,53 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5">
-      <section
-        className={`${theme?.gradient ? `rounded-3xl text-white shadow-lg shadow-slate-900/20 ${theme.gradient}` : heroSurface} relative overflow-hidden p-6 sm:p-8`}
-      >
-        <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-24 h-64 w-64 rounded-full bg-white/5" />
-        <div className="relative flex items-center gap-4">
-          <div className="flex shrink-0 flex-col items-center gap-2">
-            <span className="flex h-32 w-28 items-end justify-center overflow-hidden rounded-3xl bg-white/90 shadow-[0_4px_0_0_rgb(0_0_0/0.25)]">
-              <Avatar config={avatar} className="h-28 w-auto" label={`${displayName}'s avatar`} />
+      <section className={`${card} overflow-hidden`} aria-labelledby="profile-name">
+        {/* The cover strip shows a profile theme from the Rewards Store, if one is on. */}
+        <div aria-hidden className={`h-24 sm:h-28 ${theme?.gradient ?? "bg-brand-100"}`} />
+        <div className="px-5 pb-5 sm:px-6 sm:pb-6">
+          <div className="-mt-12 flex flex-wrap items-end gap-4">
+            <span className="flex h-28 w-24 shrink-0 items-end justify-center overflow-hidden rounded-2xl border-4 border-white bg-brand-50">
+              <Avatar config={avatar} className="h-24 w-auto" label={`${displayName}'s avatar`} />
             </span>
-            <Link href="/profile/avatar" className={`${chip} hover:bg-white/25`}>
-              🎨 Edit avatar
+            <div className="min-w-0 flex-1 pb-1">
+              <h1 id="profile-name" className="truncate text-2xl font-extrabold text-slate-900 sm:text-3xl">
+                {displayName}
+              </h1>
+              {title && <p className="font-semibold text-slate-700">{title.name}</p>}
+            </div>
+            <Link href="/profile/avatar" className={`${secondaryButton} mb-1`}>
+              Edit avatar
             </Link>
           </div>
-          <div className="min-w-0">
-            <h1 className="truncate text-2xl font-extrabold sm:text-3xl">{displayName}</h1>
-            {title && (
-              <p className="text-lg font-extrabold">
-                <span aria-hidden>{title.icon}</span> {title.name}
-              </p>
-            )}
-            <p className="mt-1.5 flex flex-wrap gap-1.5">
-              <span className={chip}>
-                <span aria-hidden>{rank.current.icon}</span> {rank.current.name}
-              </span>
-              <span className={chip}>
-                {progress.levelComplete
-                  ? `🎓 ${PATH_NAME} Graduate`
-                  : progress.currentLevel
-                    ? `Level ${progress.currentLevel.chapter.number} · ${progress.currentLevel.chapter.title}`
-                    : PATH_NAME}
-              </span>
-              {subtitle && <span className={chip}>{subtitle}</span>}
-            </p>
-          </div>
-        </div>
+          <p className="mt-3 text-sm text-slate-600">
+            {[
+              rank.current.name,
+              progress.levelComplete
+                ? `${PATH_NAME} Graduate`
+                : progress.currentLevel
+                  ? `Level ${progress.currentLevel.chapter.number} · ${progress.currentLevel.chapter.title}`
+                  : PATH_NAME,
+              subtitle,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
 
-        <h2 className="sr-only">Learning statistics</h2>
-        <dl className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {stats.map((stat) => (
-            // Label first for screen readers; shown under the number.
-            <div
-              key={stat.label}
-              className={`flex flex-col-reverse justify-end rounded-2xl p-4 ring-1 ring-white/15 ${theme ? "bg-black/25" : "bg-brand-900/40"}`}
-            >
-              <dt className="mt-0.5 text-xs font-semibold">{stat.label}</dt>
-              <dd className="font-display text-2xl font-extrabold tabular-nums">{stat.value}</dd>
-            </div>
-          ))}
-        </dl>
+          <h2 className="sr-only">Learning statistics</h2>
+          <dl className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-3">
+            {stats.map((stat) => (
+              // Label first for screen readers; shown under the number.
+              <div key={stat.label} className="flex flex-col-reverse justify-end bg-white p-4">
+                <dt className="mt-0.5 text-xs font-medium text-slate-600">{stat.label}</dt>
+                <dd className="font-display text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </section>
 
       {progress.completedCount === 0 && progress.next && (
         <section className={`${card} flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-6`}>
-          <span aria-hidden className="text-4xl">
-            🌱
-          </span>
           <div className="flex-1">
             <h2 className="font-extrabold text-slate-900">Your journey starts with one lesson</h2>
             <p className="text-sm text-slate-600">
@@ -168,7 +157,7 @@ export default async function ProfilePage() {
       <section id="streak" className={`${card} scroll-mt-20 p-5 sm:p-6`} aria-labelledby="streak-heading">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="streak-heading" className="text-lg font-extrabold text-slate-900">
-            🔥 Learning streak
+            Learning streak
           </h2>
           <span className="text-sm font-semibold text-slate-600">Longest: {user.longestStreak} days</span>
         </div>
@@ -176,7 +165,7 @@ export default async function ProfilePage() {
           {streak.streak
             ? `${streak.streak} ${streak.streak === 1 ? "day" : "days"} in a row${streak.doneToday ? " — today counts." : "."}`
             : "Do one lesson, scenario, revision or daily question to start a streak."}{" "}
-          🧊 {user.streakFreezes} of {MAX_STREAK_FREEZES} streak freezes ready.
+          {user.streakFreezes} of {MAX_STREAK_FREEZES} streak freezes ready.
         </p>
         <div className="mt-4 grid gap-5 sm:grid-cols-[minmax(0,1fr)_14rem]">
           <StreakCalendar marks={calendar} today={today} />
@@ -188,7 +177,7 @@ export default async function ProfilePage() {
                 return (
                   <li key={m.days} className={`flex items-center justify-between rounded-xl px-3 py-1.5 ring-1 ${reached ? "bg-orange-50 ring-orange-200" : "bg-slate-50 ring-slate-200"}`}>
                     <span className="font-semibold text-slate-800">
-                      {reached ? "✅" : "🔒"} {m.days} days
+                      {m.days} days{reached ? " · reached" : ""}
                     </span>
                     <span className="font-extrabold text-amber-800">+{m.xp} XP</span>
                   </li>
@@ -220,8 +209,8 @@ export default async function ProfilePage() {
                 key={badge.id}
                 className={`flex flex-col items-center rounded-2xl p-4 text-center ring-1 ${
                   earned
-                    ? "bg-amber-50 ring-amber-200 shadow-[0_4px_0_0_var(--color-amber-200)]"
-                    : "bg-slate-50 ring-slate-200 shadow-[0_4px_0_0_var(--color-slate-200)]"
+                    ? "bg-amber-50 ring-amber-200"
+                    : "bg-slate-50 ring-slate-200"
                 }`}
               >
                 <Medal icon={badge.icon} earned={earned} />
@@ -230,7 +219,7 @@ export default async function ProfilePage() {
                 <p className={`mt-1.5 text-xs font-bold ${earned ? "text-emerald-800" : "text-slate-600"}`}>
                   {badge.earnedAt
                     ? `✓ Earned ${formatDate(badge.earnedAt)}`
-                    : `🔒 ${badge.done}/${badge.required} done`}
+                    : `${badge.done}/${badge.required} done`}
                 </p>
               </li>
             );
@@ -355,9 +344,9 @@ export default async function ProfilePage() {
               <li key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span
                   aria-hidden
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 ring-1 ring-amber-200"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100"
                 >
-                  {tx.amount < 0 ? "🎁" : "⭐"}
+                  {tx.amount < 0 ? <GiftIcon className="h-4 w-4 text-slate-600" /> : <StarIcon className="h-4 w-4 text-amber-600" />}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold text-slate-900">{tx.description ?? "XP"}</span>

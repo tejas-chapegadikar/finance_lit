@@ -30,7 +30,7 @@ export function QuestionCard({
     <div className="flex flex-col gap-4">
       <div className={`${card} p-5 sm:p-7`}>
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-bold tracking-wider text-brand-700 uppercase">Pick one answer</p>
+          <p className="text-sm font-semibold text-brand-700">Pick one answer</p>
           {level && (
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${level.className}`}>{level.label}</span>
           )}

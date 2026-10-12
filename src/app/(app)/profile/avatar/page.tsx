@@ -5,7 +5,7 @@ import { AVATAR_ITEMS, isAvatarItemUnlocked, readAvatar, unlockText } from "@/li
 import { getAvatarUnlocks } from "@/lib/avatar-unlocks";
 import { spendableXp } from "@/lib/rewards";
 import { AvatarStudio, type StudioItem } from "@/components/avatar/AvatarStudio";
-import { heroChip, heroSurface } from "@/components/ui/button-styles";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Avatar studio — StockStreak" };
@@ -29,16 +29,11 @@ export default async function AvatarStudioPage() {
         <ArrowLeftIcon className="h-4 w-4" />
         Profile
       </Link>
-      <section className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
-        <div aria-hidden className="pointer-events-none absolute -right-14 -bottom-24 h-64 w-64 rounded-full bg-white/5" />
-        <p className="relative">
-          <span className={heroChip}>Avatar studio</span>
-        </p>
-        <h1 className="relative mt-3 text-3xl font-extrabold">Make it yours</h1>
-        <p className="relative mt-2">
-          <span className={heroChip}>Basics are free · store items cost XP · special items unlock with milestones</span>
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="Avatar studio"
+        title="Make it yours"
+        description="Basics are free, store items cost XP, and special items unlock with streaks and badges. Try anything on before you unlock it."
+      />
       <AvatarStudio initial={readAvatar(user.avatar)} items={items} balance={spendableXp(user)} />
     </div>
   );

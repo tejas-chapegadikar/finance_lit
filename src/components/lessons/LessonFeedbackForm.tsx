@@ -44,7 +44,7 @@ export function LessonFeedbackForm({
     return (
       <div role="status" className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold text-slate-700">
-          🙏 Thanks — your feedback helps us make StockStreak clearer.
+          Thanks — your feedback helps us make StockStreak clearer.
         </p>
         <button type="button" onClick={() => setSaved(false)} className="text-sm font-bold text-brand-700 hover:underline">
           Edit feedback
@@ -59,10 +59,10 @@ export function LessonFeedbackForm({
       role="radio"
       aria-checked={helpful === value}
       onClick={() => setHelpful(value)}
-      className={`inline-flex items-center gap-2 rounded-2xl border-2 px-4 py-2 text-sm font-bold transition-[transform,box-shadow] duration-100 active:translate-y-[3px] ${
+      className={`inline-flex items-center gap-2 rounded-2xl border-2 px-4 py-2 text-sm font-bold transition-[transform,box-shadow] duration-100 ${
         helpful === value
-          ? "border-brand-500 bg-brand-50 text-brand-800 shadow-[0_4px_0_0_var(--color-brand-300)] active:shadow-[0_1px_0_0_var(--color-brand-300)]"
-          : "border-slate-200 bg-white text-slate-700 shadow-[0_4px_0_0_var(--color-slate-200)] hover:border-brand-300 active:shadow-[0_1px_0_0_var(--color-slate-200)]"
+          ? "border-brand-500 bg-brand-50 text-brand-800"
+          : "border-slate-200 bg-white text-slate-700 hover:border-brand-300"
       }`}
     >
       <span aria-hidden>{icon}</span>

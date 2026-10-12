@@ -7,7 +7,8 @@ import { READINESS_AREA_META } from "@/lib/readiness-areas";
 import { NO_QUESTION_MESSAGE, QUESTION_OF_THE_DAY_XP } from "@/lib/constants";
 import { answerQuestionOfTheDay } from "@/actions/daily-question";
 import { ChoiceQuestion } from "@/components/ui/ChoiceQuestion";
-import { card, heroChip, heroSurface, softButton } from "@/components/ui/button-styles";
+import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
+import { card, softButton } from "@/components/ui/button-styles";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Question of the Day — StockStreak" };
@@ -44,45 +45,21 @@ export default async function QuestionOfTheDayPage() {
         Learn
       </Link>
 
-      <section className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
-        <div aria-hidden className="pointer-events-none absolute -right-14 -bottom-20 h-56 w-56 rounded-full bg-white/5" />
-        <div className="relative flex items-center gap-4">
-          <span
-            aria-hidden
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-orange-500 text-4xl shadow-[0_4px_0_0_var(--color-orange-800)]"
-          >
-            ❓
-          </span>
-          <div className="min-w-0">
-            <p>
-              <span className={heroChip}>{today ? formatIstDay(today.day) : "Question of the Day"}</span>
-            </p>
-            <h1 className="mt-2 text-2xl font-extrabold sm:text-3xl">Question of the Day</h1>
-          </div>
-        </div>
-        <p className="relative mt-4">
-          <span className={heroChip}>
-            {today?.answer ? `✅ Answered today · +${today.answer.xpAwarded} XP` : "One quick question · about 1 minute"}
-          </span>
-        </p>
-      </section>
+      <PageHeader eyebrow={today ? formatIstDay(today.day) : undefined} title="Question of the Day">
+        <MetaRow
+          items={[
+            area ? area.label : "Money basics",
+            today?.answer ? "Answered today" : "About 1 minute",
+            <span key="xp" className="font-semibold text-amber-800">
+              {today?.answer ? `+${today.answer.xpAwarded} XP earned` : `+${QUESTION_OF_THE_DAY_XP} XP`}
+            </span>,
+          ]}
+        />
+      </PageHeader>
 
       {today && area ? (
         <section className={`${card} p-5 sm:p-6`}>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${area.chipBg} ${area.labelText}`}
-            >
-              <span aria-hidden>{area.icon}</span>
-              {area.label}
-            </span>
-            {!today.answer && (
-              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-extrabold text-amber-800 ring-2 ring-amber-200">
-                +{QUESTION_OF_THE_DAY_XP} XP
-              </span>
-            )}
-          </div>
-          <p className="mt-3 text-sm text-slate-600">
+          <p className="text-sm text-slate-600">
             A new real-life money question every day. Your first answer earns +{QUESTION_OF_THE_DAY_XP} XP — right or
             wrong, you&apos;ll see the explanation.
           </p>

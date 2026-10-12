@@ -8,7 +8,7 @@ export function ScenarioExhibit({ exhibit }: { exhibit: PublicScenario["exhibit"
     const total = exhibit.essentials.reduce((sum, e) => sum + e.amount, 0);
     return (
       <div className="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-200">
-        <p className="text-xs font-extrabold tracking-wider text-emerald-800 uppercase">Monthly stipend</p>
+        <p className="text-sm font-semibold text-emerald-800">Monthly stipend</p>
         <p className="font-display text-3xl font-extrabold text-slate-900">{rupees(exhibit.amount)}</p>
         <p className="mt-3 text-sm font-bold text-slate-800">Your essentials this month</p>
         <ul className="mt-1 divide-y divide-emerald-100 text-sm">
@@ -29,7 +29,7 @@ export function ScenarioExhibit({ exhibit }: { exhibit: PublicScenario["exhibit"
 
   if (exhibit.kind === "statement") {
     return (
-      <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-4 text-white shadow-[0_4px_0_0_var(--color-slate-400)]">
+      <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-4 text-white">
         <p className="text-xs font-bold text-slate-200">{exhibit.bank}</p>
         <dl className="mt-3 grid grid-cols-2 gap-2">
           {exhibit.rows.map((row) => (
@@ -45,7 +45,7 @@ export function ScenarioExhibit({ exhibit }: { exhibit: PublicScenario["exhibit"
 
   if (exhibit.kind === "phone") {
     return (
-      <div className="mx-auto w-full max-w-xs rounded-[2rem] bg-slate-900 p-3 shadow-[0_6px_0_0_var(--color-slate-400)]">
+      <div className="mx-auto w-full max-w-xs rounded-[2rem] bg-slate-900 p-3">
         <div className="flex flex-col gap-2.5 rounded-[1.5rem] bg-slate-100 p-3">
           <div className="rounded-2xl bg-white p-3 shadow-sm">
             <p className="text-xs font-bold text-slate-600">UPI app · {exhibit.request.action}</p>
@@ -69,8 +69,8 @@ export function ScenarioExhibit({ exhibit }: { exhibit: PublicScenario["exhibit"
 
   if (exhibit.kind === "payslip") {
     return (
-      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 shadow-[0_4px_0_0_var(--color-slate-200)]">
-        <p className="text-xs font-extrabold tracking-wider text-slate-600 uppercase">Payslip · illustrative</p>
+      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <p className="text-sm font-semibold text-slate-600">Payslip · illustrative</p>
         <p className="text-sm font-bold text-slate-900">{exhibit.employee}</p>
         <p className="text-sm text-slate-700">
           CTC: <span className="font-bold">{exhibit.ctc}</span>
@@ -89,8 +89,8 @@ export function ScenarioExhibit({ exhibit }: { exhibit: PublicScenario["exhibit"
   }
 
   return (
-    <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 shadow-[0_4px_0_0_var(--color-slate-200)]">
-      <p className="text-xs font-extrabold tracking-wider text-slate-600 uppercase">{exhibit.title}</p>
+    <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+      <p className="text-sm font-semibold text-slate-600">{exhibit.title}</p>
       <dl className="mt-2 divide-y divide-slate-100 text-sm">
         {exhibit.lines.map((line) => (
           <div key={line.label} className="flex justify-between gap-3 py-2">

@@ -156,3 +156,21 @@ export const SparklesIcon = (p: IconProps) => (
     <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" />
   </Svg>
 );
+
+export const FlameIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 3c.5 3.5 4.5 5.5 4.5 10a4.5 4.5 0 0 1-9 0c0-2 1-3.5 2-4.5.3 1.6 1.1 2.6 2 3-.4-3.2.3-6 .5-8.5z" />
+  </Svg>
+);
+
+export const StarIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />
+  </Svg>
+);
+
+export const TrophyIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4" />
+  </Svg>
+);

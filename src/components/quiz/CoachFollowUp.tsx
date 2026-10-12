@@ -62,15 +62,15 @@ export function CoachFollowUp({
         onClick={() => setOpen(true)}
         className="self-start rounded-xl px-1 text-sm font-bold text-brand-700 underline-offset-2 hover:underline"
       >
-        💬 Still unsure? Ask the AI Coach a follow-up
+        Still unsure? Ask the AI Coach a follow-up
       </button>
     );
   }
 
   return (
-    <section aria-labelledby={`ask-${questionId}`} className="rounded-3xl bg-brand-50 p-5 ring-1 ring-brand-100">
+    <section aria-labelledby={`ask-${questionId}`} className="rounded-2xl border border-brand-200 bg-brand-50/60 p-5">
       <h2 id={`ask-${questionId}`} className="text-sm font-extrabold text-brand-800">
-        💬 Ask the AI Coach
+        Ask the AI Coach
       </h2>
       <p className="text-xs text-slate-600">
         Plain-language help with this question — not personal financial advice. Please don&apos;t share personal details.
@@ -96,7 +96,7 @@ export function CoachFollowUp({
                 type="button"
                 disabled={isPending}
                 onClick={() => ask(s)}
-                className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100 disabled:opacity-50"
+                className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100 disabled:opacity-50"
               >
                 {s}
               </button>

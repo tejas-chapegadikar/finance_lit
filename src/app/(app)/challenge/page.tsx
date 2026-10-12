@@ -9,7 +9,8 @@ import { scoreLabel } from "@/lib/scenarios";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
 import { DailyChallengePlayer } from "@/components/practice/DailyChallengePlayer";
 import { DailyChallengeResult } from "@/components/practice/DailyChallengeResult";
-import { card, heroChip, heroSurface } from "@/components/ui/button-styles";
+import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
+import { card } from "@/components/ui/button-styles";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Daily Challenge — StockStreak" };
@@ -30,23 +31,17 @@ export default async function DailyChallengePage() {
         Learn
       </Link>
 
-      <header className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
-        <div aria-hidden className="pointer-events-none absolute -right-16 -bottom-20 h-56 w-56 rounded-full bg-white/5" />
-        <p className="relative">
-          <span className={heroChip}>⚡ Daily Challenge · {area.label}</span>
-        </p>
-        <div className="relative mt-4 flex items-center gap-4">
-          <span aria-hidden className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-4xl shadow-[0_4px_0_0_var(--color-brand-800)]">
-            {challenge.icon}
-          </span>
-          <h1 className="min-w-0 text-2xl leading-tight font-extrabold sm:text-3xl">{challenge.title}</h1>
-        </div>
-        <ul className="relative mt-4 flex flex-wrap gap-2">
-          <li className={heroChip}>{challenge.steps.length} questions</li>
-          <li className={heroChip}>{challenge.difficulty}</li>
-          <li className={heroChip}>{run ? `✅ Done today · +${run.xpAwarded} XP` : `+${DAILY_CHALLENGE_XP} XP for finishing`}</li>
-        </ul>
-      </header>
+      <PageHeader icon={challenge.icon} eyebrow={`Daily Challenge · ${area.label}`} title={challenge.title}>
+        <MetaRow
+          items={[
+            `${challenge.steps.length} questions`,
+            challenge.difficulty,
+            <span key="xp" className="font-semibold text-amber-800">
+              {run ? `Done today · +${run.xpAwarded} XP` : `+${DAILY_CHALLENGE_XP} XP for finishing`}
+            </span>,
+          ]}
+        />
+      </PageHeader>
 
       {run ? (
         <DailyChallengeResult

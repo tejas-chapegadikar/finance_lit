@@ -6,8 +6,9 @@ import { REWARDS, REWARD_KIND_LABEL, findReward, nextReward, spendableXp, type R
 import { findAvatarItem, readAvatar } from "@/lib/avatar";
 import { RewardCard } from "@/components/rewards/RewardCard";
 import { Avatar } from "@/components/avatar/Avatar";
-import { card, heroChip, heroSurface, softButton } from "@/components/ui/button-styles";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { card, softButton, tile } from "@/components/ui/button-styles";
+import { ArrowRightIcon, StarIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Rewards — StockStreak" };
 
@@ -26,48 +27,45 @@ export default async function RewardsPage() {
   const next = nextReward(owned);
 
   return (
-    <div className="flex flex-col gap-6">
-      <section className={`${heroSurface} relative overflow-hidden p-6 sm:p-8`}>
-        <div aria-hidden className="pointer-events-none absolute -right-14 -bottom-24 h-64 w-64 rounded-full bg-white/5" />
-        <div className="relative flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p>
-              <span className={heroChip}>Rewards Store</span>
-            </p>
-            <h1 className="mt-3 text-3xl font-extrabold">Spend XP on things you&apos;ll like</h1>
+    <div className="flex flex-col gap-8">
+      <PageHeader
+        eyebrow="Rewards"
+        title="Spend your XP"
+        description="Avatar items, profile titles, themes and bonus scenarios. Spending never lowers your lifetime XP, badges or readiness — and nothing here has cash value or gives an advantage."
+      >
+        <dl className={`${card} grid max-w-xl grid-cols-2 divide-x divide-slate-200`}>
+          <div className="flex flex-col-reverse justify-end p-4">
+            <dt className="mt-0.5 text-sm text-slate-600">Available to spend</dt>
+            <dd className="flex items-center gap-1.5 font-display text-3xl font-extrabold text-slate-900 tabular-nums">
+              <StarIcon className="h-6 w-6 text-amber-500" />
+              {balance.toLocaleString("en-IN")}
+            </dd>
           </div>
-          <span aria-hidden className="hidden h-28 w-24 shrink-0 items-end justify-center rounded-2xl bg-white/15 ring-1 ring-white/20 sm:flex">
-            <Avatar config={avatar} className="h-24 w-auto" />
-          </span>
-        </div>
-        <dl className="relative mt-5 grid grid-cols-2 gap-3 sm:max-w-md">
-          <div className="flex flex-col-reverse justify-end rounded-2xl bg-brand-900/40 p-4 ring-1 ring-white/15">
-            <dt className="mt-0.5 text-xs font-semibold">Available to spend</dt>
-            <dd className="font-display text-3xl font-extrabold tabular-nums">⭐ {balance.toLocaleString("en-IN")}</dd>
-          </div>
-          <div className="flex flex-col-reverse justify-end rounded-2xl bg-brand-900/40 p-4 ring-1 ring-white/15">
-            <dt className="mt-0.5 text-xs font-semibold">Lifetime XP earned</dt>
-            <dd className="font-display text-3xl font-extrabold tabular-nums">{user.xpTotal.toLocaleString("en-IN")}</dd>
+          <div className="flex flex-col-reverse justify-end p-4">
+            <dt className="mt-0.5 text-sm text-slate-600">Lifetime XP earned</dt>
+            <dd className="font-display text-3xl font-extrabold text-slate-900 tabular-nums">{user.xpTotal.toLocaleString("en-IN")}</dd>
           </div>
         </dl>
         {next && (
-          <p className="relative mt-4">
-            <span className={heroChip}>
-              {balance >= next.cost
-                ? `🎁 You can unlock ${next.name} now`
-                : `🎁 Next reward: ${next.name} — ${next.cost - balance} XP to go`}
-            </span>
+          <p className="text-sm text-slate-700">
+            {balance >= next.cost ? (
+              <>
+                You can unlock <span className="font-semibold">{next.name}</span> now.
+              </>
+            ) : (
+              <>
+                Next reward: <span className="font-semibold">{next.name}</span> — {next.cost - balance} XP to go.
+              </>
+            )}
           </p>
         )}
-      </section>
+      </PageHeader>
 
-      <p className={`${card} p-4 text-sm text-slate-700`}>
-        <span className="font-bold text-slate-900">How it works:</span> you earn XP only for real learning — lessons,
-        scenarios, revision, daily missions and the daily question and challenge. Spending XP never lowers your lifetime
-        XP, badges or readiness score. Everything here is cosmetic or extra practice — no cash value, no advantages.
+      <p className="text-sm text-slate-600">
+        You earn XP only for real learning — lessons, scenarios, revision, daily missions and the daily question and challenge.
       </p>
 
-      <Link href="/profile/avatar" className={`${card} flex items-center gap-4 p-4 transition hover:-translate-y-0.5`}>
+      <Link href="/profile/avatar" className={`${tile} flex items-center gap-4 p-4`}>
         <span aria-hidden className="flex h-16 w-14 shrink-0 items-end justify-center overflow-hidden rounded-2xl bg-brand-50 ring-1 ring-brand-100">
           <Avatar config={avatar} className="h-14 w-auto" />
         </span>
@@ -106,15 +104,10 @@ export default async function RewardsPage() {
         </section>
       ))}
 
-      <section className="flex items-center gap-4 rounded-3xl border-2 border-dashed border-slate-300 bg-white/60 p-5 text-slate-600">
-        <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
-          🎟️
-        </span>
-        <div>
-          <p className="text-xs font-bold tracking-wider uppercase">Coming later</p>
-          <p className="font-extrabold text-slate-700">Student vouchers</p>
-          <p className="text-sm">Partner-funded discounts may come later — only once partners are confirmed. No cash rewards.</p>
-        </div>
+      <section className="rounded-2xl border border-dashed border-slate-300 p-5 text-slate-600">
+        <p className="text-sm font-semibold text-slate-500">Coming later</p>
+        <p className="font-bold text-slate-800">Student vouchers</p>
+        <p className="text-sm">Partner-funded discounts may come later — only once partners are confirmed. No cash rewards.</p>
       </section>
 
       <section className={`${card} p-5 sm:p-6`} aria-labelledby="history-heading">

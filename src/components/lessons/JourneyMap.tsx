@@ -47,7 +47,7 @@ const LEVEL_CHIP: Record<LevelStatus, string> = {
 function levelChipText(chapter: MapChapter): string {
   const total = chapter.lessons.length;
   if (chapter.status === "completed") return "✓ Completed";
-  if (chapter.status === "locked") return `🔒 Finish Level ${chapter.number - 1} to unlock`;
+  if (chapter.status === "locked") return `Finish Level ${chapter.number - 1} to unlock`;
   return `${chapter.status === "current" ? "You're here" : "Open"} · ${chapter.completed}/${total} done`;
 }
 

@@ -21,17 +21,17 @@ export function CoachPanel({
 
   return (
     <section aria-live="polite" aria-label="AI Coach" className="flex flex-col gap-3">
-      <p className="text-base font-extrabold text-rose-700">❌ Not quite.</p>
+      <p className="text-base font-extrabold text-rose-700">Not quite.</p>
 
-      <div className="flex gap-3 rounded-2xl border-2 border-brand-200 bg-white p-4 shadow-[0_4px_0_0_var(--color-brand-100)]">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-[0_3px_0_0_var(--color-brand-800)]">
+      <div className="flex gap-3 rounded-2xl border-2 border-brand-200 bg-white p-4">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white">
           <SparklesIcon className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-extrabold text-slate-900">💡 AI Coach</p>
+            <p className="text-sm font-extrabold text-slate-900">AI Coach</p>
             {hint && !loading && (
-              <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700 ring-1 ring-brand-100">
+              <span className="rounded-full bg-brand-50 px-2 py-0.5 text-sm font-semibold text-brand-700 ring-1 ring-brand-100">
                 Hint {hint.level} of 2
               </span>
             )}

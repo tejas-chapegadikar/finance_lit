@@ -7,7 +7,7 @@ import { submitAnswer, getCoachHint, completeAttempt, answerCoachCheck } from "@
 import { ChoiceQuestion, type ChoiceAnswer } from "@/components/ui/ChoiceQuestion";
 import type { CoachHint } from "@/lib/coach";
 import { GENERIC_ERROR_MESSAGE, MAX_TRIES_PER_QUESTION, SLOW_DOWN_MESSAGE } from "@/lib/constants";
-import { heroChip, heroSurface, primaryButton, skyButton } from "@/components/ui/button-styles";
+import { primaryButton, skyButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon, XIcon } from "@/components/ui/icons";
 import type { OptionState } from "@/components/ui/OptionButton";
 import { QuestionCard } from "./QuestionCard";
@@ -175,7 +175,7 @@ export function QuizRunner({
 
   if (restarted) {
     return (
-      <div className="rounded-3xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-900/5">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center">
         <p className="font-bold text-slate-900">You restarted this quiz in another tab.</p>
         <p className="mt-1 text-sm text-slate-600">Carry on there, or start a fresh attempt from the lesson.</p>
         <Link href={`/lessons/${lessonSlug}`} className={`${primaryButton} mt-4`}>
@@ -187,20 +187,21 @@ export function QuizRunner({
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
-      <div className={`${heroSurface} relative overflow-hidden px-4 pt-4 pb-5 sm:px-6`}>
-        <div aria-hidden className="pointer-events-none absolute -right-12 -bottom-20 h-44 w-44 rounded-full bg-white/5" />
-        <div className="relative flex items-center gap-3">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
           <Link
             href={`/lessons/${lessonSlug}`}
             aria-label="Exit quiz"
-            className="rounded-xl p-1.5 text-white transition hover:bg-white/15"
+            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
           >
-            <XIcon className="h-6 w-6" />
+            <XIcon className="h-5 w-5" />
           </Link>
-          <p className="font-display flex-1 text-center text-xl font-extrabold">
-            Question {index + 1} of {questions.length}
-          </p>
-          <span aria-hidden className="w-9" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm text-slate-600">{lessonTitle} · Quiz</p>
+            <p className="font-display text-lg font-extrabold text-slate-900">
+              Question {index + 1} of {questions.length}
+            </p>
+          </div>
         </div>
         <div
           role="progressbar"
@@ -209,18 +210,13 @@ export function QuizRunner({
           aria-valuemax={questions.length}
           aria-valuenow={answeredCount}
           aria-valuetext={`${answeredCount} of ${questions.length} answered`}
-          className="relative mt-4 h-3 overflow-hidden rounded-full bg-brand-900/30"
+          className="h-2 overflow-hidden rounded-full bg-slate-200"
         >
           <div
-            className="h-full rounded-full bg-white transition-all duration-500"
+            className="h-full rounded-full bg-brand-600 transition-all duration-500"
             style={{ width: `${(answeredCount / questions.length) * 100}%` }}
           />
         </div>
-        <p className="relative mt-3 flex justify-center">
-          <span className={`${heroChip} max-w-full min-w-0`}>
-            <span className="truncate">{lessonTitle} · Quiz</span>
-          </span>
-        </p>
       </div>
 
       <QuestionCard
@@ -250,10 +246,10 @@ export function QuizRunner({
         <section
           key={question.id}
           aria-labelledby="coach-check-heading"
-          className="rounded-3xl border-2 border-brand-200 bg-white p-5 shadow-[0_4px_0_0_var(--color-brand-100)]"
+          className="rounded-2xl border-2 border-brand-200 bg-white p-5"
         >
           <p id="coach-check-heading" className="text-sm font-extrabold text-brand-700">
-            💡 AI Coach · Check you&apos;ve got it
+            AI Coach · Check you&apos;ve got it
           </p>
           <p className="mb-3 text-sm text-slate-600">Same idea, different example. This one doesn&apos;t change your score.</p>
           <ChoiceQuestion
@@ -262,7 +258,7 @@ export function QuizRunner({
             answer={answerCoachCheck.bind(null, attemptId, question.id)}
             initialAnswer={question.coachCheck}
             onAnswered={() => setCheckDone(true)}
-            labels={{ right: "🎯 You've got it!", wrong: "❌ Not yet" }}
+            labels={{ right: "You've got it!", wrong: "Not yet" }}
           />
         </section>
       )}

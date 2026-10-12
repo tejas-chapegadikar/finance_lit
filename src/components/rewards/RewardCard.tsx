@@ -10,6 +10,7 @@ import { HEAD_SLOTS, type AvatarConfig } from "@/lib/avatar";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { primaryButton, secondaryButton, softButton, tile } from "@/components/ui/button-styles";
 import { Avatar } from "@/components/avatar/Avatar";
+import { StarIcon } from "@/components/ui/icons";
 
 /**
  * One Rewards Store item: unlock it with XP, then wear it (avatar items,
@@ -52,7 +53,7 @@ export function RewardCard({
       setConfirming(false);
       if (result.status === "not-enough-xp") setMessage("You don't have enough XP for this yet.");
       if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);
-      if (result.status === "unlocked") setMessage(reward.kind === "avatar" ? "Unlocked — your avatar is wearing it! 🎉" : "Unlocked! 🎉");
+      if (result.status === "unlocked") setMessage(reward.kind === "avatar" ? "Unlocked — your avatar is wearing it." : "Unlocked.");
     });
   }
 
@@ -79,11 +80,13 @@ export function RewardCard({
           <p className="font-extrabold text-slate-900">
             {reward.name}
             {reward.rare && (
-              <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 align-middle text-xs font-extrabold text-amber-900">Rare</span>
+              <span className="ml-2 rounded-md bg-amber-100 px-2 py-0.5 align-middle text-xs font-semibold text-amber-900">Rare</span>
             )}
           </p>
           <p className="text-sm text-slate-600">{reward.description}</p>
-          <p className="mt-1 text-sm font-extrabold text-amber-800">⭐ {reward.cost} XP</p>
+          <p className="mt-1 inline-flex items-center gap-1 text-sm font-bold text-amber-800">
+            <StarIcon className="h-4 w-4 text-amber-600" /> {reward.cost} XP
+          </p>
         </div>
       </div>
 
@@ -129,7 +132,7 @@ export function RewardCard({
           </button>
         )}
         {owned && (
-          <span className="text-xs font-extrabold text-emerald-800">{equipped ? "✓ In use" : "✓ Unlocked"}</span>
+          <span className="text-sm font-semibold text-emerald-800">{equipped ? "✓ In use" : "✓ Unlocked"}</span>
         )}
       </div>
       {message && (

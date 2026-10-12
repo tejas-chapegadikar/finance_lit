@@ -15,7 +15,7 @@ export function ClaimBonusButton({ xp }: { xp: number }) {
     startTransition(async () => {
       try {
         const result = await claimMissionBonus();
-        if (result.status === "claimed") setMessage(`🎉 +${result.xpAwarded} XP — all missions done!`);
+        if (result.status === "claimed") setMessage(`+${result.xpAwarded} XP — all missions done!`);
         if (result.status === "already") setMessage("Bonus already claimed today.");
         if (result.status === "not-yet") setMessage("Finish all three missions first.");
         if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);

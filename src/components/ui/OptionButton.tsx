@@ -6,10 +6,10 @@ export const OPTION_LETTERS = ["A", "B", "C", "D"];
 
 // Each tile sits on a hard edge (the box-shadow) like a game button.
 const TILE: Record<OptionState, string> = {
-  idle: "border-slate-200 bg-white text-slate-800 shadow-[0_4px_0_0_var(--color-slate-200)] enabled:hover:border-brand-300 enabled:hover:bg-brand-50 enabled:active:translate-y-[3px] enabled:active:shadow-[0_1px_0_0_var(--color-slate-200)]",
-  pending: "border-brand-500 bg-brand-50 text-slate-900 shadow-[0_4px_0_0_var(--color-brand-300)]",
-  wrong: "border-rose-300 bg-rose-50 text-rose-800 shadow-[0_4px_0_0_var(--color-rose-200)]",
-  correct: "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-[0_4px_0_0_var(--color-emerald-300)]",
+  idle: "border-slate-200 bg-white text-slate-800 enabled:hover:border-brand-300 enabled:hover:bg-brand-50",
+  pending: "border-brand-500 bg-brand-50 text-slate-900",
+  wrong: "border-rose-300 bg-rose-50 text-rose-800",
+  correct: "border-emerald-500 bg-emerald-50 text-emerald-900",
   dimmed: "border-slate-200 bg-white text-slate-500 opacity-70",
 };
 

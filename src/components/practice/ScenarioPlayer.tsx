@@ -7,7 +7,7 @@ import type { PublicScenario } from "@/lib/scenarios";
 import { Markdown } from "@/components/ui/Markdown";
 import { Medal } from "@/components/ui/Medal";
 import { card, primaryButton, secondaryButton } from "@/components/ui/button-styles";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, StarIcon } from "@/components/ui/icons";
 import { ScenarioExhibit } from "./ScenarioExhibit";
 import { StepRunner } from "./StepRunner";
 
@@ -32,19 +32,19 @@ export function ScenarioPlayer({ scenario, xpReward, firstRun }: { scenario: Pub
           You scored <span className="font-extrabold text-slate-900">{completion.score}/{completion.maxScore}</span> on “{scenario.title}”.
         </p>
         {completion.xpAwarded > 0 ? (
-          <p className="mt-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-sm font-extrabold text-amber-800 ring-2 ring-amber-200">
-            ⭐ +{completion.xpAwarded} XP for your first run
+          <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-bold text-amber-900">
+            <StarIcon className="h-4 w-4 text-amber-600" /> +{completion.xpAwarded} XP for your first run
           </p>
         ) : (
           <p className="mt-3 text-sm font-semibold text-slate-600">Replays don&apos;t earn XP — but they&apos;re great practice.</p>
         )}
         {completion.newBadges.map((badge) => (
-          <p key={badge.id} className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-sm font-extrabold text-amber-900 ring-2 ring-amber-200">
+          <p key={badge.id} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-bold text-amber-900">
             <span aria-hidden>{badge.icon}</span> New badge: {badge.name}
           </p>
         ))}
         <div className="mt-5 w-full rounded-2xl bg-brand-50 p-4 text-left ring-1 ring-brand-100">
-          <p className="text-xs font-extrabold tracking-wider text-brand-800 uppercase">Takeaway</p>
+          <p className="text-sm font-semibold text-brand-700">Takeaway</p>
           <p className="mt-1 font-semibold text-slate-900">{scenario.takeaway}</p>
         </div>
         <div className="mt-6 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">

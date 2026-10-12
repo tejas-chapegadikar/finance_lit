@@ -10,7 +10,7 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-slate-900/5 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_20px_-12px_rgb(15_23_42/0.25)] backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
       <ul className="mx-auto flex max-w-lg justify-around px-1 pt-1">
         {NAV_ITEMS.map(({ href, shortLabel, Icon, also }) => {
@@ -26,7 +26,7 @@ export function MobileTabBar() {
               >
                 <span
                   className={`flex h-8 w-14 items-center justify-center rounded-full transition ${
-                    active ? "bg-brand-500 text-white shadow-[0_3px_0_0_var(--color-brand-700)]" : ""
+                    active ? "bg-brand-100 text-brand-800" : ""
                   }`}
                 >
                   <Icon className="h-5 w-5" />

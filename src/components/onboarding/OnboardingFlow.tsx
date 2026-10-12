@@ -28,10 +28,10 @@ function ChoiceTile({
       role="radio"
       aria-checked={selected}
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition-[transform,box-shadow,background-color,border-color] duration-100 active:translate-y-[3px] ${
+      className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition-[transform,box-shadow,background-color,border-color] duration-100 ${
         selected
-          ? "border-brand-500 bg-brand-50 text-brand-800 shadow-[0_4px_0_0_var(--color-brand-300)] active:shadow-[0_1px_0_0_var(--color-brand-300)]"
-          : "border-slate-200 bg-white text-slate-800 shadow-[0_4px_0_0_var(--color-slate-200)] hover:border-brand-300 hover:bg-brand-50/50 active:shadow-[0_1px_0_0_var(--color-slate-200)]"
+          ? "border-brand-500 bg-brand-50 text-brand-800"
+          : "border-slate-200 bg-white text-slate-800 hover:border-brand-300 hover:bg-brand-50/50"
       }`}
     >
       <span className="flex-1">{children}</span>
