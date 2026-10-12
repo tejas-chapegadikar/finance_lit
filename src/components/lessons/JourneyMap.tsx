@@ -125,7 +125,7 @@ function LessonStop({ lesson }: { lesson: MapLesson }) {
         </>
       )}
       <span
-        className={`relative flex h-16 w-16 items-center justify-center rounded-full text-2xl font-extrabold ring-4 ring-white transition ${
+        className={`relative flex h-16 w-16 items-center justify-center rounded-full font-display text-2xl font-extrabold ring-4 ring-white transition ${
           lesson.locked ? "" : "group-hover:-translate-y-0.5"
         } ${face}`}
       >

@@ -9,7 +9,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-roboto);
+  /* Body text: Figtree. Headings and big numbers: Bricolage Grotesque (font-display). */
+  --font-sans: var(--font-figtree);
+  --font-display: var(--font-bricolage);
 }
 
 /*
@@ -61,4 +63,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Every heading uses the display face, slightly tightened so big titles feel crafted. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.015em;
 }

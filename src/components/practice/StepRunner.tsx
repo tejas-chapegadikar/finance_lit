@@ -216,7 +216,7 @@ export function StepRunner({
                     <label htmlFor={`alloc-${bucket.id}`} className="font-bold text-slate-900">
                       {bucket.label}
                     </label>
-                    <span className="text-lg font-extrabold text-slate-900 tabular-nums">{rupees(value)}</span>
+                    <span className="font-display text-lg font-extrabold text-slate-900 tabular-nums">{rupees(value)}</span>
                   </div>
                   <p className="text-xs text-slate-600">{bucket.hint}</p>
                   <input

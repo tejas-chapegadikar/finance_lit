@@ -128,7 +128,7 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/profile#streak"
-          className="rounded-full bg-orange-50 px-3 py-1.5 text-sm font-extrabold text-orange-800 ring-2 ring-orange-200 hover:bg-orange-100"
+          className="w-full rounded-full bg-orange-50 px-3 py-1.5 text-center text-sm font-extrabold text-orange-800 ring-2 ring-orange-200 hover:bg-orange-100 sm:w-auto"
         >
           {streakText}
         </Link>
@@ -149,7 +149,7 @@ export default async function DashboardPage() {
         {stats.map((stat) => (
           <div key={stat.label} className={`flex flex-col-reverse justify-end rounded-2xl bg-white p-3 ring-2 sm:p-4 ${stat.ring}`}>
             <dt className="mt-0.5 text-xs font-semibold text-slate-600">{stat.label}</dt>
-            <dd className="flex items-center gap-1.5 text-lg font-extrabold text-slate-900 tabular-nums sm:text-xl">
+            <dd className="flex items-center gap-1 font-display text-base font-extrabold whitespace-nowrap text-slate-900 tabular-nums sm:gap-1.5 sm:text-xl">
               <span aria-hidden>{stat.icon}</span>
               {stat.value}
             </dd>

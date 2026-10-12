@@ -279,7 +279,7 @@ export default async function LearnPage() {
                 <p className="mt-1 text-sm text-slate-600">
                   Questions you missed come back after 1, 3 and 7 days — with a fresh example each time — so they stick.
                 </p>
-                <p className="mt-3 text-3xl font-extrabold text-slate-900 tabular-nums">
+                <p className="mt-3 font-display text-3xl font-extrabold text-slate-900 tabular-nums">
                   {due} <span className="text-base font-bold text-slate-600">due now</span>
                 </p>
                 {!due && nextItem && <p className="text-sm text-slate-600">Next one comes back on {formatDay(nextItem.dueDay)}.</p>}

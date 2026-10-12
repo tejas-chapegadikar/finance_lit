@@ -10,7 +10,7 @@ export function Logo({ tone = "dark" }: { tone?: "dark" | "light" }) {
           <path d="M17.5 6 9 18h5.5l-1 8L23 14h-5.5l0-8z" fill="#fdba74" />
         </svg>
       </span>
-      <span className={`text-lg font-extrabold tracking-tight ${light ? "text-white" : "text-slate-900"}`}>
+      <span className={`font-display text-xl font-extrabold tracking-tight ${light ? "text-white" : "text-slate-900"}`}>
         Stock<span className={light ? "text-white" : "text-brand-700"}>Streak</span>
       </span>
     </span>

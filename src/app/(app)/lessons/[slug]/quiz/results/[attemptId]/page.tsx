@@ -167,7 +167,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
                 <span className="block font-extrabold tracking-wider text-emerald-800 uppercase">Score</span>
                 {percent}% correct first try
               </dt>
-              <dd className="text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">
+              <dd className="font-display text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">
                 {summary.firstTry}/{attempt.totalQuestions}
               </dd>
             </div>
@@ -176,14 +176,14 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
                 <span className="block font-extrabold tracking-wider text-amber-800 uppercase">XP earned</span>
                 {lessonXp ? "for your first completion" : "retakes earn no XP"}
               </dt>
-              <dd className="text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">⭐ +{lessonXp}</dd>
+              <dd className="font-display text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">⭐ +{lessonXp}</dd>
             </div>
             <div className="flex flex-col-reverse justify-end rounded-2xl bg-brand-50 p-3 ring-2 ring-brand-200 shadow-[0_4px_0_0_var(--color-brand-200)]">
               <dt className="text-xs font-semibold text-slate-600">
                 <span className="block font-extrabold tracking-wider text-brand-800 uppercase">Readiness</span>
                 out of 100
               </dt>
-              <dd className="text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">
+              <dd className="font-display text-xl font-extrabold text-slate-900 tabular-nums sm:text-2xl">
                 {readinessBefore} → {readinessAfter}
               </dd>
             </div>

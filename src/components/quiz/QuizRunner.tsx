@@ -197,7 +197,7 @@ export function QuizRunner({
           >
             <XIcon className="h-6 w-6" />
           </Link>
-          <p className="flex-1 text-center text-xl font-extrabold">
+          <p className="font-display flex-1 text-center text-xl font-extrabold">
             Question {index + 1} of {questions.length}
           </p>
           <span aria-hidden className="w-9" />

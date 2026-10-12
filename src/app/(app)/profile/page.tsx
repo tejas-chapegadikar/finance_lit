@@ -140,7 +140,7 @@ export default async function ProfilePage() {
               className={`flex flex-col-reverse justify-end rounded-2xl p-4 ring-1 ring-white/15 ${theme ? "bg-black/25" : "bg-brand-900/40"}`}
             >
               <dt className="mt-0.5 text-xs font-semibold">{stat.label}</dt>
-              <dd className="text-2xl font-extrabold tabular-nums">{stat.value}</dd>
+              <dd className="font-display text-2xl font-extrabold tabular-nums">{stat.value}</dd>
             </div>
           ))}
         </dl>
@@ -335,7 +335,7 @@ export default async function ProfilePage() {
                 {stat.label}
                 {stat.note && <span className="block font-bold text-brand-700">{stat.note}</span>}
               </dt>
-              <dd className="text-xl font-extrabold text-slate-900 tabular-nums">{stat.value}</dd>
+              <dd className="font-display text-xl font-extrabold text-slate-900 tabular-nums">{stat.value}</dd>
             </div>
           ))}
         </dl>

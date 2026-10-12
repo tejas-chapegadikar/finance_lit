@@ -49,7 +49,7 @@ export function ReadinessRing({
         )}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={`leading-none font-extrabold ${colors.value} ${size === "sm" ? "text-3xl" : "text-4xl"}`}>
+        <span className={`font-display leading-none font-extrabold ${colors.value} ${size === "sm" ? "text-3xl" : "text-4xl"}`}>
           {clamped}
         </span>
         <span className={`mt-1 text-xs font-semibold ${colors.caption}`}>/ 100</span>

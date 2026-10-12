@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Roboto } from "next/font/google";
+import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-// Variable font, so every weight the UI uses (400–800) comes from one file.
-// latin-ext carries the ₹ sign, which the plain latin subset doesn't.
-const roboto = Roboto({
-  variable: "--font-roboto",
+// Two variable fonts: Bricolage Grotesque for headings and big numbers (a
+// distinctive display face), Figtree for everything else (simple and very
+// readable). Both include the ₹ sign — it's in their latin-ext subset.
+const display = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin", "latin-ext"],
+});
+
+const body = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin", "latin-ext"],
 });
 
@@ -23,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <ClerkProvider appearance={{ variables: { colorPrimary: "#007aba", borderRadius: "0.75rem" } }}>
       <html
         lang="en"
-        className={`${roboto.variable} h-full antialiased`}
+        className={`${display.variable} ${body.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col">
           {children}

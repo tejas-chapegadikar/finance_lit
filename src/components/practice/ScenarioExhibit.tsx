@@ -9,7 +9,7 @@ export function ScenarioExhibit({ exhibit }: { exhibit: PublicScenario["exhibit"
     return (
       <div className="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-200">
         <p className="text-xs font-extrabold tracking-wider text-emerald-800 uppercase">Monthly stipend</p>
-        <p className="text-3xl font-extrabold text-slate-900">{rupees(exhibit.amount)}</p>
+        <p className="font-display text-3xl font-extrabold text-slate-900">{rupees(exhibit.amount)}</p>
         <p className="mt-3 text-sm font-bold text-slate-800">Your essentials this month</p>
         <ul className="mt-1 divide-y divide-emerald-100 text-sm">
           {exhibit.essentials.map((e) => (
@@ -51,7 +51,7 @@ export function ScenarioExhibit({ exhibit }: { exhibit: PublicScenario["exhibit"
             <p className="text-xs font-bold text-slate-600">UPI app · {exhibit.request.action}</p>
             <p className="mt-1 font-extrabold text-slate-900">{exhibit.request.from}</p>
             <p className="text-xs text-slate-600">{exhibit.request.handle}</p>
-            <p className="mt-2 text-2xl font-extrabold text-slate-900">{exhibit.request.amount}</p>
+            <p className="mt-2 font-display text-2xl font-extrabold text-slate-900">{exhibit.request.amount}</p>
             <p className="mt-1 text-sm text-slate-700">{exhibit.request.note}</p>
             <div className="mt-3 grid grid-cols-2 gap-2 text-center text-sm font-bold">
               <span className="rounded-xl bg-slate-100 py-2 text-slate-700">Decline</span>

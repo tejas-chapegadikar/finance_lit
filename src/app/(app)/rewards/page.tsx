@@ -43,11 +43,11 @@ export default async function RewardsPage() {
         <dl className="relative mt-5 grid grid-cols-2 gap-3 sm:max-w-md">
           <div className="flex flex-col-reverse justify-end rounded-2xl bg-brand-900/40 p-4 ring-1 ring-white/15">
             <dt className="mt-0.5 text-xs font-semibold">Available to spend</dt>
-            <dd className="text-3xl font-extrabold tabular-nums">⭐ {balance.toLocaleString("en-IN")}</dd>
+            <dd className="font-display text-3xl font-extrabold tabular-nums">⭐ {balance.toLocaleString("en-IN")}</dd>
           </div>
           <div className="flex flex-col-reverse justify-end rounded-2xl bg-brand-900/40 p-4 ring-1 ring-white/15">
             <dt className="mt-0.5 text-xs font-semibold">Lifetime XP earned</dt>
-            <dd className="text-3xl font-extrabold tabular-nums">{user.xpTotal.toLocaleString("en-IN")}</dd>
+            <dd className="font-display text-3xl font-extrabold tabular-nums">{user.xpTotal.toLocaleString("en-IN")}</dd>
           </div>
         </dl>
         {next && (
