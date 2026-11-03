@@ -60,7 +60,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
             <ClockIcon className="h-4 w-4" />
             {lesson.estimatedMinutes} minutes
           </>,
-          <span key="xp" className="font-semibold text-amber-800">
+          <span key="xp" className="font-semibold text-amber-200">
             +{lesson.xpReward} XP
           </span>,
           STATUS_LABEL[lessonProgress.status],

@@ -2,38 +2,46 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #f2f6fa;
+  --background: #f4f3fd;
   --foreground: #0f172a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Body text: Figtree. Headings and big numbers: Bricolage Grotesque (font-display). */
-  --font-sans: var(--font-figtree);
-  --font-display: var(--font-bricolage);
+  /* One rounded, friendly face for everything: Rubik (has ₹ in latin-ext). */
+  --font-sans: var(--font-rubik);
+  --font-display: var(--font-rubik);
 }
 
 /*
- * The brand sky blue, used as `brand-*` everywhere (bg-brand-600, text-brand-700…).
- * Change the hue here to re-colour the whole app. 400 and 500 are the bright
- * sky of a game UI; contrast notes:
- * - white text: small text needs brand-600 or darker (4.7:1 on 600, 6.1:1 on 700);
- *   brand-500 (3.2:1) only carries large text (20px+ bold) and icons.
+ * The brand violet, used as `brand-*` everywhere (bg-brand-600, text-brand-700…).
+ * Change the hue here to re-colour the whole app. Contrast notes:
+ * - white text: brand-600 or darker (brand-600 is the main panel colour);
+ *   white/70 labels are only used on brand-600 at 11px+ medium.
  * - coloured text on white or brand-50 needs brand-700 or darker.
- * - brand-400 is decoration only (fills, glows, rays).
+ * - brand-400 is decoration only.
+ * `peach-*` is the warm accent for streak callouts (orange = streaks).
  */
 @theme {
-  --color-brand-50: oklch(97.6% 0.012 228);
-  --color-brand-100: oklch(94.8% 0.028 228);
-  --color-brand-200: oklch(89.8% 0.055 229);
-  --color-brand-300: oklch(82.6% 0.095 230);
-  --color-brand-400: oklch(73.5% 0.128 231);
-  --color-brand-500: oklch(65.2% 0.135 238);
-  --color-brand-600: oklch(55.6% 0.134 242);
-  --color-brand-700: oklch(49.5% 0.124 246);
-  --color-brand-800: oklch(43% 0.112 249);
-  --color-brand-900: oklch(37% 0.092 252);
+  --color-brand-50: oklch(97% 0.016 288);
+  --color-brand-100: oklch(94% 0.034 287);
+  --color-brand-200: oklch(88.5% 0.064 286);
+  --color-brand-300: oklch(80.5% 0.105 285);
+  --color-brand-400: oklch(71% 0.15 284);
+  --color-brand-500: oklch(62% 0.185 283);
+  --color-brand-600: oklch(54.5% 0.205 282);
+  --color-brand-700: oklch(48% 0.195 282);
+  --color-brand-800: oklch(41% 0.165 283);
+  --color-brand-900: oklch(34% 0.125 284);
+
+  --color-peach-100: #ffeadd;
+  --color-peach-200: #ffd6bd;
+  --color-peach-300: #fdb88f;
+
+  /* Rubik reads heavy at 800; these keep "bold" and "extrabold" friendly. */
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 650;
 
   --animate-pop: pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
@@ -57,10 +65,10 @@ body {
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Every heading uses the display face, slightly tightened so big titles feel crafted. */
+/* Headings: same face, slightly tightened. */
 h1,
 h2,
 h3 {
   font-family: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
 }

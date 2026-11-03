@@ -53,7 +53,7 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
             runs ? (
               `Played ${runs} ${runs === 1 ? "time" : "times"}`
             ) : (
-              <span key="xp" className="font-semibold text-amber-800">
+              <span key="xp" className="font-semibold text-amber-200">
                 +{SCENARIO_XP} XP first time
               </span>
             ),

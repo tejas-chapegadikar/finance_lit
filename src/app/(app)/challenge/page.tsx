@@ -36,7 +36,7 @@ export default async function DailyChallengePage() {
           items={[
             `${challenge.steps.length} questions`,
             challenge.difficulty,
-            <span key="xp" className="font-semibold text-amber-800">
+            <span key="xp" className="font-semibold text-amber-200">
               {run ? `Done today · +${run.xpAwarded} XP` : `+${DAILY_CHALLENGE_XP} XP for finishing`}
             </span>,
           ]}

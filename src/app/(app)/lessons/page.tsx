@@ -105,11 +105,11 @@ export default async function LearnPage() {
             aria-valuemax={totalLessons}
             aria-valuenow={completedCount}
             aria-valuetext={`${completedCount} of ${totalLessons} lessons completed`}
-            className="h-2 overflow-hidden rounded-full bg-slate-200"
+            className="h-2.5 overflow-hidden rounded-full bg-brand-800/40"
           >
-            <div className="h-full rounded-full bg-brand-600" style={{ width: `${percent}%` }} />
+            <div className="h-full rounded-full bg-white" style={{ width: `${percent}%` }} />
           </div>
-          <p className="mt-1.5 text-sm text-slate-600">
+          <p className="mt-1.5 text-sm text-white/85">
             {completedCount} of {totalLessons} lessons completed
           </p>
         </div>
