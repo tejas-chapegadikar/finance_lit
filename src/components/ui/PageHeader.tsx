@@ -115,7 +115,7 @@ export function Callout({
   return href ? (
     <Link href={href} className={`${className} transition hover:bg-peach-200`}>
       {body}
-    </a>
+    </Link>
   ) : (
     <div className={className}>{body}</div>
   );
