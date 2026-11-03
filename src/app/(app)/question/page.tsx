@@ -50,7 +50,7 @@ export default async function QuestionOfTheDayPage() {
           items={[
             area ? area.label : "Money basics",
             today?.answer ? "Answered today" : "About 1 minute",
-            <span key="xp" className="font-semibold text-amber-200">
+            <span key="xp" className="font-semibold text-orange-700">
               {today?.answer ? `+${today.answer.xpAwarded} XP earned` : `+${QUESTION_OF_THE_DAY_XP} XP`}
             </span>,
           ]}

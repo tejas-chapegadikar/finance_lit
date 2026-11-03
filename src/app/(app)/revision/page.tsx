@@ -54,7 +54,7 @@ export default async function RevisionPage() {
         <MetaRow
           items={[
             cards.length ? `${cards.length} due today` : "Nothing due",
-            <span key="xp" className="font-semibold text-amber-200">
+            <span key="xp" className="font-semibold text-orange-700">
               +{REVISION_XP} XP each
             </span>,
           ]}

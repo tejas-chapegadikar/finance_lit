@@ -1,18 +1,21 @@
 import Link from "next/link";
+import type { ReadinessAreaValue } from "@/lib/readiness-areas";
 import { Medal } from "@/components/ui/Medal";
+import { Burst } from "@/components/ui/Burst";
+import { AreaIcon } from "@/components/ui/topic-icons";
 import { card, primaryButton, secondaryButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon, StarIcon } from "@/components/ui/icons";
 
 /** The Daily Challenge result — right after finishing, and for the rest of the day. */
 export function DailyChallengeResult({
-  icon,
+  area,
   label,
   score,
   maxScore,
   xpAwarded,
   takeaway,
 }: {
-  icon: string;
+  area: ReadinessAreaValue;
   label: string;
   score: number;
   maxScore: number;
@@ -20,27 +23,28 @@ export function DailyChallengeResult({
   takeaway: string;
 }) {
   return (
-    <section className={`${card} flex flex-col items-center p-6 text-center sm:p-8`} aria-labelledby="challenge-done">
-      <span className="motion-safe:animate-pop">
-        <Medal icon={icon} earned={score > 0} />
+    <section className={`${card} flex flex-col items-center p-6 text-center sm:p-10`} aria-labelledby="challenge-done">
+      <span className="relative animate-pop">
+        {score > 0 && <Burst />}
+        <Medal icon={<AreaIcon area={area} />} earned={score > 0} size="lg" />
       </span>
-      <h2 id="challenge-done" className="mt-3 text-2xl font-extrabold text-slate-900">
+      <h2 id="challenge-done" className="mt-4 text-3xl text-slate-900">
         {label}
       </h2>
-      <p className="mt-1 text-slate-700">
-        You scored <span className="font-extrabold text-slate-900">{score}/{maxScore}</span> on today&apos;s Daily Challenge.
+      <p className="mt-1.5 text-slate-600">
+        You scored <span className="font-semibold text-slate-900">{score}/{maxScore}</span> on today&apos;s Daily Challenge.
       </p>
       {xpAwarded > 0 && (
-        <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-bold text-amber-900">
-          <StarIcon className="h-4 w-4 text-amber-600" /> +{xpAwarded} XP
+        <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3.5 py-1 text-sm font-semibold text-orange-800 ring-1 ring-orange-100">
+          <StarIcon className="h-4 w-4 text-orange-500" /> +{xpAwarded} XP
         </p>
       )}
-      <div className="mt-5 w-full rounded-2xl bg-brand-50 p-4 text-left ring-1 ring-brand-100">
-        <p className="text-sm font-semibold text-brand-700">Takeaway</p>
-        <p className="mt-1 font-semibold text-slate-900">{takeaway}</p>
+      <div className="mt-6 w-full border-l-2 border-brand-300 bg-slate-50 py-3 pr-4 pl-4 text-left">
+        <p className="text-[13px] font-medium text-slate-500">Takeaway</p>
+        <p className="mt-0.5 font-semibold text-slate-900">{takeaway}</p>
       </div>
-      <p className="mt-4 text-sm font-semibold text-slate-600">A new challenge — on a new topic — arrives at midnight.</p>
-      <div className="mt-5 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+      <p className="mt-4 text-sm text-slate-500">A new challenge — on a new topic — arrives at midnight.</p>
+      <div className="mt-6 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
         <Link href="/dashboard" className={primaryButton}>
           Back to dashboard
           <ArrowRightIcon className="h-4 w-4" />

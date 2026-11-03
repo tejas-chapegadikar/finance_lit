@@ -10,6 +10,7 @@ import { SCENARIO_XP, getScenario, publicScenario } from "@/lib/scenarios";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
 import { ScenarioPlayer } from "@/components/practice/ScenarioPlayer";
 import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
+import { IconTile, ScenarioIcon } from "@/components/ui/topic-icons";
 import { card, primaryButton } from "@/components/ui/button-styles";
 import { ArrowLeftIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
 
@@ -42,7 +43,13 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
         Learn
       </Link>
 
-      <PageHeader icon={scenario.icon} eyebrow={scenario.bonus ? "Bonus scenario" : `Scenario · ${area.label}`} title={scenario.title}>
+      <PageHeader
+        icon={
+          <IconTile area={scenario.area} size="lg">
+            <ScenarioIcon slug={scenario.slug} area={scenario.area} />
+          </IconTile>
+        }
+        eyebrow={scenario.bonus ? "Bonus scenario" : `Scenario · ${area.label}`} title={scenario.title}>
         <MetaRow
           items={[
             <>
@@ -53,7 +60,7 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
             runs ? (
               `Played ${runs} ${runs === 1 ? "time" : "times"}`
             ) : (
-              <span key="xp" className="font-semibold text-amber-200">
+              <span key="xp" className="font-semibold text-orange-700">
                 +{SCENARIO_XP} XP first time
               </span>
             ),

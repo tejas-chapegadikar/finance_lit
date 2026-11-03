@@ -6,12 +6,22 @@ import { completeOnboarding } from "@/actions/onboarding";
 import { LEARNER_STAGES, LEARNING_GOALS } from "@/lib/learner-profile";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 import { primaryButton } from "@/components/ui/button-styles";
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from "@/components/ui/icons";
+import { ArrowLeftIcon, ArrowRightIcon, CardIcon, CheckIcon, ReceiptIcon, ShieldIcon, SparklesIcon, TrendingUpIcon, WalletIcon } from "@/components/ui/icons";
+
+// One icon per learning goal, from the app's icon family.
+const GOAL_ICONS: Record<string, (p: { className?: string }) => React.ReactNode> = {
+  MANAGING_MONEY: WalletIcon,
+  CREDIT: CardIcon,
+  AVOIDING_SCAMS: ShieldIcon,
+  SALARY_TAXES: ReceiptIcon,
+  INVESTING: TrendingUpIcon,
+  EVERYTHING: SparklesIcon,
+};
 
 const TOTAL_STEPS = 4;
 
 const inputClass =
-  "w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3.5 text-base text-slate-900 outline-none focus:border-brand-500";
+  "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
 function ChoiceTile({
   selected,
@@ -28,10 +38,10 @@ function ChoiceTile({
       role="radio"
       aria-checked={selected}
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition-[transform,box-shadow,background-color,border-color] duration-100 ${
+      className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3.5 text-left font-medium transition duration-150 active:scale-[0.99] ${
         selected
-          ? "border-brand-500 bg-brand-50 text-brand-800"
-          : "border-slate-200 bg-white text-slate-800 hover:border-brand-300 hover:bg-brand-50/50"
+          ? "border-brand-500 bg-brand-50 text-slate-900 ring-2 ring-brand-100"
+          : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
       }`}
     >
       <span className="flex-1">{children}</span>
@@ -41,9 +51,18 @@ function ChoiceTile({
           selected ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300"
         }`}
       >
-        {selected && <CheckIcon className="h-3.5 w-3.5" />}
+        {selected && <CheckIcon className="h-3.5 w-3.5 animate-check" />}
       </span>
     </button>
+  );
+}
+
+function GoalIcon({ value }: { value: string }) {
+  const Glyph = GOAL_ICONS[value] ?? SparklesIcon;
+  return (
+    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+      <Glyph className="h-4 w-4" />
+    </span>
   );
 }
 
@@ -108,7 +127,7 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
           className="flex flex-1 gap-1.5"
         >
           {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-            <span key={i} className={`h-2.5 flex-1 rounded-full ${i < step ? "bg-brand-600" : "bg-brand-100"}`} />
+            <span key={i} className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${i < step ? "bg-emerald-500" : "bg-slate-200"}`} />
           ))}
         </div>
         <span className="text-xs font-bold text-slate-600 tabular-nums">
@@ -118,7 +137,7 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
 
       {step === 1 && (
         <div className="flex flex-col gap-3">
-          <h1 className="text-2xl font-extrabold text-slate-900">What should we call you?</h1>
+          <h1 className="animate-fade-up text-3xl leading-tight text-slate-900">What should we call you?</h1>
           <label htmlFor="displayName" className="sr-only">
             Your name
           </label>
@@ -137,7 +156,7 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
 
       {step === 2 && (
         <div className="flex flex-col gap-3">
-          <h1 className="text-2xl font-extrabold text-slate-900">Where are you right now?</h1>
+          <h1 className="animate-fade-up text-3xl leading-tight text-slate-900">Where are you right now?</h1>
           <div role="radiogroup" aria-label="Your current stage" className="flex flex-col gap-2.5">
             {LEARNER_STAGES.map((s) => (
               <ChoiceTile key={s.value} selected={stage === s.value} onClick={() => setStage(s.value)}>
@@ -150,7 +169,7 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
 
       {step === 3 && (
         <div className="flex flex-col gap-3">
-          <h1 className="text-2xl font-extrabold text-slate-900">Which college do you attend?</h1>
+          <h1 className="animate-fade-up text-3xl leading-tight text-slate-900">Which college do you attend?</h1>
           <label htmlFor="collegeName" className="sr-only">
             College name
           </label>
@@ -169,15 +188,15 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
 
       {step === 4 && (
         <div className="flex flex-col gap-3">
-          <h1 className="text-2xl font-extrabold text-slate-900">What do you want to get better at?</h1>
+          <h1 className="animate-fade-up text-3xl leading-tight text-slate-900">What do you want to get better at?</h1>
           <p className="-mt-1 text-sm text-slate-600">Optional — pick one, or skip and decide later in your profile.</p>
           <div role="radiogroup" aria-label="Your goal" className="flex flex-col gap-2.5">
             {LEARNING_GOALS.map((g) => (
               <ChoiceTile key={g.value} selected={goal === g.value} onClick={() => setGoal(g.value)}>
-                <span aria-hidden className="mr-2">
-                  {g.icon}
+                <span className="inline-flex items-center gap-3">
+                  <GoalIcon value={g.value} />
+                  {g.label}
                 </span>
-                {g.label}
               </ChoiceTile>
             ))}
           </div>

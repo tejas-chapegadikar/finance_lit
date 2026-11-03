@@ -24,11 +24,11 @@ export default async function AppLayout({
       {/* Bottom padding below desktop keeps content clear of the fixed tab bar. */}
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-5 pb-28 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10 lg:pb-12">
         {children}
-        <footer className="mt-12 flex flex-col items-center gap-2 text-center text-xs text-slate-600">
+        <footer className="mt-16 flex flex-col items-center gap-2 border-t border-slate-200 pt-6 text-center text-xs text-slate-500">
           <p>{DISCLAIMER_SHORT}</p>
           <nav aria-label="Legal" className="flex flex-wrap justify-center gap-x-4 gap-y-1">
             {LEGAL_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="font-semibold hover:text-slate-900">
+              <Link key={link.href} href={link.href} className="font-medium text-slate-600 hover:text-slate-900">
                 {link.label}
               </Link>
             ))}

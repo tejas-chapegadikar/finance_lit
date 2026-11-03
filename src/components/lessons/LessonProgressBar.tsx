@@ -44,10 +44,10 @@ export function LessonProgressBar({ steps }: { steps: LessonStep[] }) {
     // The outer strip (page colour, edge to edge) hides lesson text scrolling
     // past between the top bar and the progress card.
     <div className="sticky top-14 z-20 -mx-4 bg-background/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0 lg:mx-0 lg:px-0 lg:pt-4">
-      <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-2.5 shadow-sm shadow-slate-900/5 ring-1 ring-slate-900/5">
-        <p className="shrink-0 text-xs font-bold text-slate-700 tabular-nums">
+      <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5">
+        <p className="shrink-0 text-xs font-semibold text-slate-800 tabular-nums">
           Step {current + 1} of {steps.length}
-          <span className="font-semibold text-slate-600"> · {step.title}</span>
+          <span className="font-medium text-slate-500"> · {step.title}</span>
         </p>
         <div
           role="progressbar"
@@ -56,10 +56,10 @@ export function LessonProgressBar({ steps }: { steps: LessonStep[] }) {
           aria-valuemax={steps.length}
           aria-valuenow={current + 1}
           aria-valuetext={`Step ${current + 1} of ${steps.length}: ${step.title}`}
-          className="h-2 min-w-12 flex-1 overflow-hidden rounded-full bg-brand-100"
+          className="h-1.5 min-w-12 flex-1 overflow-hidden rounded-full bg-slate-100"
         >
           <div
-            className="h-full rounded-full bg-brand-600 transition-[width] duration-300"
+            className="h-full rounded-full bg-emerald-500 transition-[width] duration-500 ease-out"
             style={{ width: `${((current + 1) / steps.length) * 100}%` }}
           />
         </div>

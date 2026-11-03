@@ -1,4 +1,4 @@
-import { Ratelimit, type Duration } from "@upstash/ratelimit";
+import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
 // Sign-in/sign-up abuse is covered by Clerk's own Attack Protection
@@ -7,31 +7,57 @@ import { Redis } from "@upstash/redis";
 // we never see those requests server-side to rate-limit them ourselves.
 // These limiters cover the actions we DO control.
 //
-// Until the Upstash env vars are set (local dev, or before the founder has
-// created the Redis database) every limiter is null and requests are allowed:
-// missing rate-limit infra shouldn't take the app down.
+// With the Upstash env vars set, limits are shared across every server
+// instance. Without them (local dev, or before the founder has created the
+// Redis database) each server process keeps its own in-memory count — weaker
+// on a multi-instance host, but scripted hammering is still slowed down.
 const redis =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN ? Redis.fromEnv() : null;
 
-function limiter(prefix: string, tokens: number, window: Duration) {
+const WINDOW_MS = 60_000;
+
+type Limiter = { limit: (identifier: string) => Promise<{ success: boolean }> };
+
+/** A sliding-window limiter for one server process: recent request times per identifier. */
+function memoryLimiter(tokens: number): Limiter {
+  const hits = new Map<string, number[]>();
+  return {
+    async limit(identifier) {
+      const now = Date.now();
+      const recent = (hits.get(identifier) ?? []).filter((t) => now - t < WINDOW_MS);
+      const success = recent.length < tokens;
+      if (success) recent.push(now);
+      hits.set(identifier, recent);
+      // Forget idle identifiers so the map can't grow without bound.
+      if (hits.size > 5_000) {
+        for (const [key, times] of hits) if (!times.some((t) => now - t < WINDOW_MS)) hits.delete(key);
+      }
+      return { success };
+    },
+  };
+}
+
+/** `tokens` requests per minute, per student. */
+function limiter(prefix: string, tokens: number): Limiter {
   return redis
-    ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(tokens, window), prefix: `ratelimit:${prefix}` })
-    : null;
+    ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(tokens, "1 m"), prefix: `ratelimit:${prefix}` })
+    : memoryLimiter(tokens);
 }
 
 // A quiz is 5 questions × up to 3 tries; this leaves room for retakes while
 // stopping scripted hammering.
-export const quizAnswerRatelimit = limiter("quiz-answer", 60, "1 m");
+export const quizAnswerRatelimit = limiter("quiz-answer", 60);
 // Each AI Coach hint can cost a model call, so it gets the tightest budget.
-export const coachRatelimit = limiter("coach", 20, "1 m");
-export const challengeRatelimit = limiter("challenge", 10, "1 m");
-export const feedbackRatelimit = limiter("feedback", 10, "1 m");
-export const rewardRatelimit = limiter("reward", 10, "1 m");
-export const practiceRatelimit = limiter("practice", 60, "1 m");
+export const coachRatelimit = limiter("coach", 20);
+export const challengeRatelimit = limiter("challenge", 10);
+export const feedbackRatelimit = limiter("feedback", 10);
+export const rewardRatelimit = limiter("reward", 10);
+export const practiceRatelimit = limiter("practice", 60);
+// Profile edits and avatar saves: no XP, but each one is a database write.
+export const accountRatelimit = limiter("account", 30);
 
 /** True when the request may proceed. Fails open if Redis is unreachable. */
-export async function isAllowed(limit: Ratelimit | null, identifier: string): Promise<boolean> {
-  if (!limit) return true;
+export async function isAllowed(limit: Limiter, identifier: string): Promise<boolean> {
   try {
     const { success } = await limit.limit(identifier);
     return success;

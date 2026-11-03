@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { askCoach } from "@/actions/quiz";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { skyButton } from "@/components/ui/button-styles";
+import { SparklesIcon } from "@/components/ui/icons";
+import { CoachAvatar } from "./CoachPanel";
 
 const MAX_FOLLOW_UPS = 3;
 const MAX_LENGTH = 300;
@@ -60,19 +62,23 @@ export function CoachFollowUp({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="self-start rounded-xl px-1 text-sm font-bold text-brand-700 underline-offset-2 hover:underline"
+        className="inline-flex items-center gap-1.5 self-start rounded-xl px-1 text-sm font-semibold text-brand-700 underline-offset-4 hover:underline"
       >
+        <SparklesIcon className="h-4 w-4" />
         Still unsure? Ask the AI Coach a follow-up
       </button>
     );
   }
 
   return (
-    <section aria-labelledby={`ask-${questionId}`} className="rounded-2xl border border-brand-200 bg-brand-50/60 p-5">
-      <h2 id={`ask-${questionId}`} className="text-sm font-extrabold text-brand-800">
-        Ask the AI Coach
-      </h2>
-      <p className="text-xs text-slate-600">
+    <section aria-labelledby={`ask-${questionId}`} className="animate-fade-up rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <div className="flex items-center gap-3">
+        <CoachAvatar />
+        <h2 id={`ask-${questionId}`} className="font-sans text-sm font-semibold tracking-normal text-slate-900">
+          Ask the AI Coach
+        </h2>
+      </div>
+      <p className="mt-2 text-xs text-slate-600">
         Plain-language help with this question — not personal financial advice. Please don&apos;t share personal details.
       </p>
 
@@ -81,7 +87,7 @@ export function CoachFollowUp({
           {history.map((turn, i) => (
             <li key={i} className="flex flex-col gap-1.5">
               <p className="self-end rounded-2xl rounded-br-md bg-brand-600 px-3 py-2 font-semibold text-white">{turn.message}</p>
-              <p className="self-start rounded-2xl rounded-bl-md bg-white px-3 py-2 text-slate-800 ring-1 ring-brand-100">{turn.reply}</p>
+              <p className="animate-fade-up self-start rounded-2xl rounded-tl-md bg-slate-50 px-3 py-2 text-slate-800 ring-1 ring-slate-200">{turn.reply}</p>
             </li>
           ))}
         </ol>
@@ -96,7 +102,7 @@ export function CoachFollowUp({
                 type="button"
                 disabled={isPending}
                 onClick={() => ask(s)}
-                className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100 disabled:opacity-50"
+                className="rounded-full bg-white px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98] disabled:opacity-50"
               >
                 {s}
               </button>
@@ -118,7 +124,7 @@ export function CoachFollowUp({
               maxLength={MAX_LENGTH}
               onChange={(e) => setDraft(e.target.value)}
               placeholder="Type your question…"
-              className="min-w-0 flex-1 rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+              className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none"
             />
             <button type="submit" disabled={isPending || !draft.trim()} className={`${skyButton} px-4 py-2`}>
               {isPending ? "Thinking…" : "Ask"}

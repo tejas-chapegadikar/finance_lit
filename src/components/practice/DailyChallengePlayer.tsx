@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { checkDailyChallengeStep, completeDailyChallenge, type DailyChallengeCompletion } from "@/actions/daily-challenge";
 import type { PublicStep } from "@/lib/scenarios";
+import type { ReadinessAreaValue } from "@/lib/readiness-areas";
 import { StepRunner } from "./StepRunner";
 import { DailyChallengeResult } from "./DailyChallengeResult";
 
@@ -12,13 +13,13 @@ type Completed = Extract<DailyChallengeCompletion, { status: "completed" }>;
 export function DailyChallengePlayer({
   day,
   steps,
-  icon,
+  area,
   takeaway,
   xpReward,
 }: {
   day: string;
   steps: PublicStep[];
-  icon: string;
+  area: ReadinessAreaValue;
   takeaway: string;
   xpReward: number;
 }) {
@@ -27,7 +28,7 @@ export function DailyChallengePlayer({
   if (completion) {
     return (
       <DailyChallengeResult
-        icon={icon}
+        area={area}
         label={completion.label}
         score={completion.score}
         maxScore={completion.maxScore}

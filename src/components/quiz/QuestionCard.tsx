@@ -1,12 +1,11 @@
 import { OptionButton, type OptionState } from "@/components/ui/OptionButton";
-import { card } from "@/components/ui/button-styles";
 
 type Option = { id: string; text: string };
 
 const DIFFICULTY: Record<string, { label: string; className: string }> = {
-  EASY: { label: "Easy", className: "bg-emerald-100 text-emerald-800" },
-  MEDIUM: { label: "Medium", className: "bg-amber-100 text-amber-800" },
-  HARD: { label: "Hard", className: "bg-rose-100 text-rose-800" },
+  EASY: { label: "Easy", className: "bg-emerald-50 text-emerald-800" },
+  MEDIUM: { label: "Medium", className: "bg-amber-50 text-amber-800" },
+  HARD: { label: "Hard", className: "bg-rose-50 text-rose-800" },
 };
 
 export function QuestionCard({
@@ -28,14 +27,12 @@ export function QuestionCard({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className={`${card} p-5 sm:p-7`}>
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-brand-700">Pick one answer</p>
-          {level && (
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${level.className}`}>{level.label}</span>
-          )}
+      <div className="animate-fade-up py-2">
+        <div className="flex items-center gap-2">
+          <p className="text-[13px] font-medium text-slate-500">Pick one answer</p>
+          {level && <span className={`rounded-full px-2 py-px text-[11px] font-semibold ${level.className}`}>{level.label}</span>}
         </div>
-        <h2 className="mt-2 text-xl leading-snug font-bold text-slate-900 sm:text-2xl">{prompt}</h2>
+        <h2 className="mt-2 text-2xl leading-snug text-slate-900 sm:text-[1.75rem]">{prompt}</h2>
       </div>
 
       <div className="flex flex-col gap-3" role="group" aria-label="Answer options">

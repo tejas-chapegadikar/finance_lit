@@ -11,12 +11,14 @@ import { answerScenario } from "@/actions/lessons";
 import { beginQuiz } from "@/actions/quiz";
 import { RecordLessonView } from "@/components/lessons/RecordLessonView";
 import { LessonFinale } from "@/components/lessons/LessonFinale";
+import { LessonVisual } from "@/components/lessons/LessonVisual";
 import { LessonProgressBar, type LessonStep } from "@/components/lessons/LessonProgressBar";
 import { StepLabel } from "@/components/lessons/StepLabel";
 import { Markdown } from "@/components/ui/Markdown";
 import { chapterOf } from "@/lib/journey";
 import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
-import { card, primaryButton, tile } from "@/components/ui/button-styles";
+import { IconTile, LessonIcon, ScenarioIcon } from "@/components/ui/topic-icons";
+import { primaryButton, tile } from "@/components/ui/button-styles";
 import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
 
 const STATUS_LABEL: Record<LessonStatus, string> = {
@@ -50,7 +52,11 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
 
   const header = (
     <PageHeader
-      icon={lesson.icon}
+      icon={
+        <IconTile area={lesson.area} size="lg">
+          <LessonIcon slug={lesson.slug} area={lesson.area} />
+        </IconTile>
+      }
       eyebrow={`${level ? `Level ${level.number} · ` : ""}Lesson ${number} · ${area.label}`}
       title={lesson.title}
     >
@@ -60,7 +66,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
             <ClockIcon className="h-4 w-4" />
             {lesson.estimatedMinutes} minutes
           </>,
-          <span key="xp" className="font-semibold text-amber-200">
+          <span key="xp" className="font-semibold text-orange-700">
             +{lesson.xpReward} XP
           </span>,
           STATUS_LABEL[lessonProgress.status],
@@ -86,12 +92,20 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
     return (
       <article className="mx-auto flex max-w-2xl flex-col gap-5">
         {backLink}
-        <PageHeader icon={<span className="grayscale">{lesson.icon}</span>} eyebrow={`Level ${level?.number} · Lesson ${number} · Locked`} title={lesson.title} />
-        <section className={`${card} p-6 text-center sm:p-8`} aria-labelledby="locked-heading">
+        <PageHeader
+          icon={
+            <IconTile size="lg" muted>
+              <LessonIcon slug={lesson.slug} area={lesson.area} />
+            </IconTile>
+          }
+          eyebrow={`Level ${level?.number} · Lesson ${number} · Locked`}
+          title={lesson.title}
+        />
+        <section className="rounded-2xl border border-dashed border-slate-300 p-6 text-center sm:p-10" aria-labelledby="locked-heading">
           <span aria-hidden className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
             <LockIcon className="h-6 w-6" />
           </span>
-          <h2 id="locked-heading" className="mt-3 text-xl font-extrabold text-slate-900">
+          <h2 id="locked-heading" className="mt-4 text-2xl text-slate-900">
             This lesson is in Level {level?.number} — {level?.title}
           </h2>
           <p className="mx-auto mt-1 max-w-md text-slate-600">
@@ -146,7 +160,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
   const stepNumber = (id: string) => steps.findIndex((step) => step.id === id) + 1;
 
   return (
-    <article className="mx-auto flex max-w-2xl flex-col gap-5">
+    <article className="mx-auto flex max-w-2xl flex-col gap-8">
       {backLink}
       {header}
       <LessonProgressBar steps={steps} />
@@ -154,57 +168,54 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
       <RecordLessonView lessonId={lesson.id} />
 
       {lesson.hook && (
-        <section className={`${card} p-5 sm:p-6`} aria-labelledby="hook-heading">
-          <StepLabel id="hook-heading" step={stepNumber("hook-heading")} title="Think about it" icon="💭" />
-          <div className="mt-4 rounded-2xl bg-brand-50 p-5 ring-1 ring-brand-100">
-            <Markdown variant="plain" className="text-lg font-semibold text-slate-900 prose-p:my-2">
+        <section className="pt-2" aria-labelledby="hook-heading">
+          <StepLabel id="hook-heading" step={stepNumber("hook-heading")} title="Think about it" />
+          <div className="mt-5 border-l-[3px] border-brand-500 pl-5">
+            <Markdown variant="plain" className="font-display text-[1.35rem] leading-snug text-slate-900 prose-p:my-2 sm:text-2xl">
               {lesson.hook}
             </Markdown>
           </div>
         </section>
       )}
 
-      <section className="flex flex-col gap-3" aria-labelledby="learn-heading">
-        <StepLabel id="learn-heading" step={stepNumber("learn-heading")} title="Learn" icon="📖" />
-        {sections.map((section, i) => (
-          <div key={i} className={`${card} p-5 sm:p-6`}>
-            {section.title && (
-              <h3 className="flex items-start gap-2 text-lg font-bold text-slate-900">
-                <span className="mt-0.5 rounded-lg bg-brand-50 px-2 py-0.5 text-sm font-semibold text-brand-700">
-                  {i + 1}/{sections.length}
-                </span>
-                {section.title}
-              </h3>
-            )}
-            {section.body && <Markdown className="mt-2">{section.body}</Markdown>}
-          </div>
-        ))}
+      <section className="border-t border-slate-200 pt-8" aria-labelledby="learn-heading">
+        <StepLabel id="learn-heading" step={stepNumber("learn-heading")} title="Learn" />
+        <div className="mt-6 flex flex-col">
+          {sections.map((section, i) => (
+            <div key={i} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3 border-b border-slate-200 py-6 first:pt-0 last:border-b-0 sm:grid-cols-[2.5rem_minmax(0,1fr)]">
+              <span aria-hidden className="pt-1 font-display text-sm font-semibold text-slate-400 tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="min-w-0">
+                {section.title && <h3 className="text-xl leading-snug text-slate-900">{section.title}</h3>}
+                {section.body && <Markdown className={section.title ? "mt-2" : ""}>{section.body}</Markdown>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-2">
+          <LessonVisual slug={lesson.slug} />
+        </div>
       </section>
 
       {lesson.example && (
-        <section
-          className="rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6"
-          aria-labelledby="example-heading"
-        >
-          <StepLabel id="example-heading" step={stepNumber("example-heading")} title="Real-life example" icon="📍" />
-          <Markdown variant="plain" className="mt-3">
+        <section className="rounded-3xl bg-peach-100/70 p-6 sm:p-8" aria-labelledby="example-heading">
+          <StepLabel id="example-heading" step={stepNumber("example-heading")} title="Real-life example" />
+          <Markdown variant="plain" className="mt-4">
             {lesson.example}
           </Markdown>
         </section>
       )}
 
       {keyTerms.length > 0 && (
-        <section className={`${card} p-5 sm:p-6`} aria-labelledby="concepts-heading">
-          <StepLabel id="concepts-heading" step={stepNumber("concepts-heading")} title="Key concepts" icon="📌" />
-          <p className="mt-1 text-sm text-slate-600">The ideas to remember from this lesson.</p>
-          <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        <section className="pt-2" aria-labelledby="concepts-heading">
+          <StepLabel id="concepts-heading" step={stepNumber("concepts-heading")} title="Key concepts" />
+          <p className="mt-1.5 text-sm text-slate-600">The ideas to remember from this lesson.</p>
+          <dl className="mt-5 grid gap-x-8 border-t border-slate-200 sm:grid-cols-2">
             {keyTerms.map((term) => (
-              <div
-                key={term.term}
-                className="rounded-2xl bg-brand-50 p-4 ring-1 ring-brand-100"
-              >
-                <dt className="font-bold text-brand-800">{term.term}</dt>
-                <dd className="mt-1 text-sm leading-relaxed text-slate-700">{term.definition}</dd>
+              <div key={term.term} className="border-b border-slate-200 py-4">
+                <dt className="font-semibold text-slate-900">{term.term}</dt>
+                <dd className="mt-1 text-sm leading-relaxed text-slate-600">{term.definition}</dd>
               </div>
             ))}
           </dl>
@@ -227,20 +238,20 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
           href={`/practice/${practiceScenario.slug}`}
           className={`${tile} flex items-center gap-4 p-4`}
         >
-          <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
-            {practiceScenario.icon}
-          </span>
+          <IconTile area={practiceScenario.area} size="md">
+            <ScenarioIcon slug={practiceScenario.slug} area={practiceScenario.area} />
+          </IconTile>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold text-brand-700">Try it for real</span>
-            <span className="block font-extrabold text-slate-900">{practiceScenario.title}</span>
+            <span className="block text-[13px] font-medium text-brand-700">Try it for real</span>
+            <span className="block font-semibold text-slate-900">{practiceScenario.title}</span>
             <span className="block text-sm text-slate-600">An interactive scenario that puts this lesson into practice.</span>
           </span>
           <ArrowRightIcon className="h-5 w-5 shrink-0 text-brand-700" />
         </Link>
       )}
 
-      <footer className="rounded-2xl bg-white/70 p-4 text-sm text-slate-600 ring-1 ring-slate-200" aria-label="Sources and review">
-        <p className="font-bold text-slate-800">Sources &amp; review</p>
+      <footer className="border-t border-slate-200 pt-6 text-sm text-slate-600" aria-label="Sources and review">
+        <p className="font-semibold text-slate-900">Sources &amp; review</p>
         {lesson.reviewedAt && (
           <p className="mt-1">
             Last reviewed:{" "}

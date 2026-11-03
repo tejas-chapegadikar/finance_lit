@@ -4,15 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS, isActive } from "./nav-items";
 
+/** The bottom tab bar on phones and tablets: big touch targets, violet for where you are. */
 export function MobileTabBar() {
   const pathname = usePathname();
 
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
-      <ul className="mx-auto flex max-w-lg justify-around px-1 pt-1">
+      <ul className="mx-auto flex max-w-lg justify-around px-2">
         {NAV_ITEMS.map(({ href, shortLabel, Icon, also }) => {
           const active = isActive(pathname, href, also);
           return (
@@ -20,16 +21,16 @@ export function MobileTabBar() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-col items-center gap-0.5 py-2 text-xs font-bold ${
-                  active ? "text-brand-700" : "text-slate-600"
+                className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] transition ${
+                  active ? "font-semibold text-slate-900" : "font-medium text-slate-500"
                 }`}
               >
                 <span
-                  className={`flex h-8 w-14 items-center justify-center rounded-full transition ${
-                    active ? "bg-brand-100 text-brand-800" : ""
+                  className={`flex h-7 w-12 items-center justify-center rounded-full transition duration-200 ${
+                    active ? "bg-brand-50 text-brand-600" : "text-slate-400"
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-[22px] w-[22px]" />
                 </span>
                 {shortLabel}
               </Link>

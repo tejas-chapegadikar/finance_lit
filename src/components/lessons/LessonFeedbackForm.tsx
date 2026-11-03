@@ -5,6 +5,7 @@ import type { FeedbackResult } from "@/actions/feedback";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 import { FEEDBACK_COMMENT_MAX } from "@/lib/validations/feedback";
 import { secondaryButton } from "@/components/ui/button-styles";
+import { ThumbDownIcon, ThumbUpIcon } from "@/components/ui/icons";
 
 type Feedback = { helpful: boolean; comment: string };
 
@@ -46,23 +47,23 @@ export function LessonFeedbackForm({
         <p className="text-sm font-semibold text-slate-700">
           Thanks — your feedback helps us make StockStreak clearer.
         </p>
-        <button type="button" onClick={() => setSaved(false)} className="text-sm font-bold text-brand-700 hover:underline">
+        <button type="button" onClick={() => setSaved(false)} className="text-sm font-semibold text-brand-700 hover:underline">
           Edit feedback
         </button>
       </div>
     );
   }
 
-  const choice = (value: boolean, label: string, icon: string) => (
+  const choice = (value: boolean, label: string, icon: React.ReactNode) => (
     <button
       type="button"
       role="radio"
       aria-checked={helpful === value}
       onClick={() => setHelpful(value)}
-      className={`inline-flex items-center gap-2 rounded-2xl border-2 px-4 py-2 text-sm font-bold transition-[transform,box-shadow] duration-100 ${
+      className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition active:scale-[0.98] ${
         helpful === value
           ? "border-brand-500 bg-brand-50 text-brand-800"
-          : "border-slate-200 bg-white text-slate-700 hover:border-brand-300"
+          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
       }`}
     >
       <span aria-hidden>{icon}</span>
@@ -73,8 +74,8 @@ export function LessonFeedbackForm({
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
       <div role="radiogroup" aria-label="Was this lesson clear and useful?" className="flex flex-wrap gap-2">
-        {choice(true, "Yes, it was", "👍")}
-        {choice(false, "Not really", "👎")}
+        {choice(true, "Yes, it was", <ThumbUpIcon className="h-4 w-4" />)}
+        {choice(false, "Not really", <ThumbDownIcon className="h-4 w-4" />)}
       </div>
       {helpful !== null && (
         <>
@@ -88,7 +89,7 @@ export function LessonFeedbackForm({
             onChange={(e) => setComment(e.target.value)}
             maxLength={FEEDBACK_COMMENT_MAX}
             rows={3}
-            className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-brand-500"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
           />
           <button type="submit" disabled={isPending} className={`${secondaryButton} self-start`}>
             {isPending ? "Sending…" : "Send feedback"}

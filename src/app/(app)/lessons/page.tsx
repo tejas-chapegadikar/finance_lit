@@ -12,18 +12,15 @@ import { REWARDS } from "@/lib/rewards";
 import { SCENARIOS, SCENARIO_XP, maxScore } from "@/lib/scenarios";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
 import { istDay } from "@/lib/ist-date";
-import {
-  DAILY_CHALLENGE_XP,
-  MISSION_BONUS_XP,
-  NO_LESSONS_MESSAGE,
-  PATH_NAME,
-  QUESTION_OF_THE_DAY_XP,
-} from "@/lib/constants";
+import { NO_LESSONS_MESSAGE, PATH_NAME } from "@/lib/constants";
 import { JourneyMap, type MapChapter } from "@/components/lessons/JourneyMap";
-import { ClaimBonusButton } from "@/components/dashboard/ClaimBonusButton";
+import { TodayPanel } from "@/components/dashboard/TodayPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { card, primaryButton, softButton, tile } from "@/components/ui/button-styles";
-import { ArrowRightIcon, CheckIcon, ChevronRightIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
+import { ProgressRing } from "@/components/ui/ProgressBar";
+import { TrophyIllustration } from "@/components/ui/illustrations";
+import { IconTile, LessonIcon, ScenarioIcon } from "@/components/ui/topic-icons";
+import { card, primaryButton, secondaryButton, tile } from "@/components/ui/button-styles";
+import { ArrowRightIcon, CheckIcon, ClockIcon, LockIcon, RefreshIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Learn — StockStreak" };
 
@@ -51,7 +48,6 @@ export default async function LearnPage() {
 
   const { lessons, levels, currentLevel, completedCount, totalLessons, levelComplete, next, review } = progress;
   const focus = focusFor(user.stage, user.goal);
-  const percent = totalLessons ? Math.round((completedCount / totalLessons) * 100) : 0;
   const upNext = next && !next.isRetake ? next.lesson : null;
   const best = new Map(runs.map((r) => [r.scenarioSlug, r._max.score ?? 0]));
   const owned = new Set(unlocks.map((u) => u.rewardId));
@@ -73,6 +69,7 @@ export default async function LearnPage() {
           slug: lesson.slug,
           title: lesson.title,
           icon: lesson.icon,
+          area: lesson.area,
           number: lesson.number,
           minutes: lesson.estimatedMinutes,
           status: lesson.status,
@@ -85,7 +82,7 @@ export default async function LearnPage() {
   }));
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-12">
       <PageHeader
         eyebrow={
           levelComplete
@@ -96,24 +93,18 @@ export default async function LearnPage() {
         }
         title={PATH_NAME}
         description="From your first stipend to your first salary — four levels, each one unlocking the next."
-      >
-        <div className="max-w-md">
-          <div
-            role="progressbar"
-            aria-label={`${PATH_NAME} progress`}
-            aria-valuemin={0}
-            aria-valuemax={totalLessons}
-            aria-valuenow={completedCount}
-            aria-valuetext={`${completedCount} of ${totalLessons} lessons completed`}
-            className="h-2.5 overflow-hidden rounded-full bg-brand-800/40"
-          >
-            <div className="h-full rounded-full bg-white" style={{ width: `${percent}%` }} />
+        aside={
+          <div className="flex items-center gap-3">
+            <ProgressRing value={completedCount} max={totalLessons} label={`${PATH_NAME} progress`} />
+            <p className="text-sm leading-snug text-slate-600">
+              <span className="block font-semibold text-slate-900">
+                {completedCount} of {totalLessons} lessons completed
+              </span>
+              {levels.filter((l) => l.status === "completed").length} of {levels.length} levels done
+            </p>
           </div>
-          <p className="mt-1.5 text-sm text-white/85">
-            {completedCount} of {totalLessons} lessons completed
-          </p>
-        </div>
-      </PageHeader>
+        }
+      />
 
       {lessons.length === 0 ? (
         <p className={`${card} p-8 text-center font-semibold text-slate-700`}>{NO_LESSONS_MESSAGE}</p>
@@ -121,167 +112,133 @@ export default async function LearnPage() {
         <>
           {/* Continue learning */}
           {upNext ? (
-            <section id="continue" className={`${card} flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-6`} aria-labelledby="continue-heading">
-              <span aria-hidden className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl ${READINESS_AREA_META[upNext.area].chipBg}`}>
-                {upNext.icon}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-brand-700">
-                  {upNext.status === "in-progress" ? "Continue learning" : "Up next"} · Level {upNext.level}
-                </p>
-                <h2 id="continue-heading" className="text-xl font-extrabold text-slate-900">
-                  {upNext.title}
-                </h2>
-                <p className="mt-0.5 text-sm text-slate-600">{next?.reason}</p>
-                <p className="mt-2 flex flex-wrap gap-x-4 text-sm text-slate-600">
-                  <span className="inline-flex items-center gap-1">
-                    <ClockIcon className="h-4 w-4" /> {upNext.estimatedMinutes} min
-                  </span>
-                  <span className="font-semibold text-amber-800">+{upNext.xpReward} XP</span>
-                </p>
+            <section
+              id="continue"
+              className={`${card} flex animate-fade-up flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-5`}
+              aria-labelledby="continue-heading"
+              style={{ animationDelay: "60ms" }}
+            >
+              <div className="flex min-w-0 flex-1 items-center gap-4">
+                <IconTile area={upNext.area} size="lg">
+                  <LessonIcon slug={upNext.slug} area={upNext.area} />
+                </IconTile>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-medium text-brand-700">
+                    {upNext.status === "in-progress" ? "Continue learning" : "Up next"} · Level {upNext.level} · Lesson{" "}
+                    {String(upNext.number).padStart(2, "0")}
+                  </p>
+                  <h2 id="continue-heading" className="text-xl leading-tight text-slate-900 sm:text-2xl">
+                    {upNext.title}
+                  </h2>
+                  <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-slate-600">
+                    <span className="inline-flex items-center gap-1">
+                      <ClockIcon className="h-4 w-4" /> {upNext.estimatedMinutes} min
+                    </span>
+                    <span className="font-semibold text-orange-700">+{upNext.xpReward} XP</span>
+                    {next?.reason && <span className="text-slate-500">{next.reason}</span>}
+                  </p>
+                </div>
               </div>
-              <Link href={`/lessons/${upNext.slug}`} className={`${primaryButton} shrink-0`}>
+              <Link href={`/lessons/${upNext.slug}`} className={`${primaryButton} group shrink-0`}>
                 {upNext.status === "in-progress" ? "Continue Learning" : "Start Learning"}
-                <ArrowRightIcon className="h-4 w-4" />
+                <ArrowRightIcon className="h-4 w-4 transition group-hover:translate-x-0.5" />
               </Link>
             </section>
           ) : levelComplete ? (
-            <section id="continue" className={`${card} p-6 text-center`}>
-              <h2 className="text-xl font-extrabold text-slate-900">You&apos;ve finished all {levels.length} levels</h2>
-              <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">
-                Keep it sharp: revise what you missed, take today&apos;s challenge, or retake a lesson to raise your stars.
-              </p>
+            <section id="continue" className={`${card} flex items-center gap-4 p-5`}>
+              <TrophyIllustration won className="h-16 w-16 shrink-0" />
+              <div>
+                <h2 className="text-xl text-slate-900">You&apos;ve finished all {levels.length} levels</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Keep it sharp: revise what you missed, take today&apos;s challenge, or retake a lesson to raise your stars.
+                </p>
+              </div>
             </section>
           ) : null}
 
           {/* Learning path */}
           <section id="path" className="scroll-mt-6" aria-labelledby="path-heading">
-            <h2 id="path-heading" className="mb-4 text-xl font-extrabold text-slate-900">
-              Learning path
-            </h2>
+            <div className="mb-5">
+              <p className="text-[13px] font-medium text-slate-500">
+                {levels.length} levels · {totalLessons} lessons
+              </p>
+              <h2 id="path-heading" className="text-2xl text-slate-900 sm:text-3xl">
+                Learning path
+              </h2>
+            </div>
             <JourneyMap chapters={chapters} levelComplete={levelComplete} />
           </section>
 
           {/* Practise and revise — everything that used to be under Practice */}
-          <section id="practise" className="flex scroll-mt-6 flex-col gap-5" aria-labelledby="practise-heading">
-            <div>
-              <h2 id="practise-heading" className="text-xl font-extrabold text-slate-900">
+          <section id="practise" className="scroll-mt-6" aria-labelledby="practise-heading">
+            <div className="max-w-2xl">
+              <h2 id="practise-heading" className="text-2xl text-slate-900 sm:text-3xl">
                 Practise &amp; revise
               </h2>
-              <p className="text-sm text-slate-600">Lock in what you&apos;ve learned — revision, daily challenges and real-life money scenarios.</p>
+              <p className="mt-1.5 text-[15px] text-slate-600">Lock in what you&apos;ve learned — revision, daily challenges and real-life money scenarios.</p>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-2">
-              <section id="review" className={`${card} flex scroll-mt-6 flex-col p-5 sm:p-6`} aria-labelledby="review-heading">
-                <h3 id="review-heading" className="text-lg font-extrabold text-slate-900">
+            <div className="mt-7 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-12">
+              <section id="review" className="flex scroll-mt-6 flex-col" aria-labelledby="review-heading">
+                <h3 id="review-heading" className="text-xl text-slate-900">
                   Review &amp; revise
                 </h3>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm leading-relaxed text-slate-600">
                   Questions you missed come back after 1, 3 and 7 days — with a fresh example each time — so they stick.
                 </p>
-                <p className="mt-4 font-display text-3xl font-extrabold text-slate-900 tabular-nums">
-                  {due} <span className="font-sans text-base font-semibold text-slate-600">due now</span>
+                <p className="mt-5 flex items-baseline gap-3 border-t border-slate-200 pt-5">
+                  <span className="font-display text-6xl leading-none font-semibold text-slate-900 tabular-nums">{due}</span>
+                  <span className="text-[15px] text-slate-600">due now</span>
                 </p>
-                {!due && nextItem && <p className="text-sm text-slate-600">Next one comes back on {formatDay(nextItem.dueDay)}.</p>}
-                {!due && !nextItem && <p className="text-sm text-slate-600">Nothing to revise yet — missed quiz questions will show up here.</p>}
+                {!due && nextItem && <p className="mt-2 text-sm text-slate-600">Next one comes back on {formatDay(nextItem.dueDay)}.</p>}
+                {!due && !nextItem && <p className="mt-2 text-sm text-slate-600">Nothing to revise yet — missed quiz questions will show up here.</p>}
                 {review && (
-                  <Link href={`/lessons/${review.lesson.slug}`} className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-slate-800 hover:bg-amber-100">
-                    <span className="font-semibold">Review {review.area.label}:</span> you&apos;ve got {review.area.quizAccuracy}% right so far — retake “
-                    {review.lesson.title}”.
+                  <Link href={`/lessons/${review.lesson.slug}`} className={`${tile} mt-4 flex items-start gap-3 p-3.5 text-sm text-slate-700`}>
+                    <IconTile area={review.lesson.area} size="sm">
+                      <RefreshIcon />
+                    </IconTile>
+                    <span>
+                      <span className="font-semibold text-slate-900">Review {review.area.label}:</span> you&apos;ve got {review.area.quizAccuracy}% right so far — retake “
+                      {review.lesson.title}”.
+                    </span>
                   </Link>
                 )}
-                <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                <div className="mt-5 flex flex-wrap gap-2">
                   {due > 0 && (
                     <Link href="/revision" className={primaryButton}>
                       Start revision
                       <ArrowRightIcon className="h-4 w-4" />
                     </Link>
                   )}
-                  <Link href="/profile#mastery-heading" className={softButton}>
+                  <Link href="/profile#mastery-heading" className={secondaryButton}>
                     Topic mastery
                   </Link>
                 </div>
               </section>
 
-              <section id="daily" className={`${card} flex scroll-mt-6 flex-col p-5 sm:p-6`} aria-labelledby="daily-heading">
-                <h3 id="daily-heading" className="text-lg font-extrabold text-slate-900">
-                  Today
-                </h3>
-                <ul className="mt-3 flex flex-col divide-y divide-slate-100 rounded-xl border border-slate-200">
-                  <li>
-                    <Link href="/question" className="flex items-center gap-3 p-3 hover:bg-slate-50">
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-semibold text-slate-900">Question of the Day</span>
-                        <span className="block text-sm text-slate-600">
-                          {question?.answer ? `Answered · +${question.answer.xpAwarded} XP` : `About 1 minute · +${QUESTION_OF_THE_DAY_XP} XP`}
-                        </span>
-                      </span>
-                      {question?.answer ? <CheckIcon className="h-5 w-5 text-emerald-700" /> : <ChevronRightIcon className="h-5 w-5 text-slate-400" />}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/challenge" className="flex items-center gap-3 p-3 hover:bg-slate-50">
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-semibold text-slate-900">Daily Challenge: {challenge.title}</span>
-                        <span className="block text-sm text-slate-600">
-                          {challengeRun ? `Done · +${challengeRun.xpAwarded} XP` : `A few minutes · +${DAILY_CHALLENGE_XP} XP`}
-                        </span>
-                      </span>
-                      {challengeRun ? <CheckIcon className="h-5 w-5 text-emerald-700" /> : <ChevronRightIcon className="h-5 w-5 text-slate-400" />}
-                    </Link>
-                  </li>
-                </ul>
-                <div className="mt-5" aria-labelledby="missions-heading">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <h4 id="missions-heading" className="text-sm font-bold text-slate-900">
-                      Today&apos;s missions
-                    </h4>
-                    <span className="text-xs font-semibold text-slate-600">
-                      {missions.missions.filter((m) => m.done).length}/{missions.missions.length} done
-                    </span>
-                  </div>
-                  <ul className="mt-2 flex flex-col gap-1.5 text-sm">
-                    {missions.missions.map((mission) => (
-                      <li key={mission.id} className="flex items-center gap-2">
-                        <span
-                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${mission.done ? "bg-emerald-700 text-white" : "border-2 border-slate-300"}`}
-                        >
-                          {mission.done && <CheckIcon className="h-3 w-3" />}
-                          <span className="sr-only">{mission.done ? "Done:" : "To do:"}</span>
-                        </span>
-                        <Link href={mission.href} className="min-w-0 flex-1 text-slate-800 hover:text-brand-700">
-                          {mission.title}
-                          {mission.target > 1 && !mission.done ? ` (${mission.progress}/${mission.target})` : ""}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-3">
-                    {missions.bonusClaimed ? (
-                      <p className="text-sm font-semibold text-emerald-800">+{MISSION_BONUS_XP} XP bonus claimed — new missions tomorrow.</p>
-                    ) : missions.allDone ? (
-                      <ClaimBonusButton xp={MISSION_BONUS_XP} />
-                    ) : (
-                      <p className="text-sm text-slate-600">
-                        Finish all three for a <span className="font-semibold text-amber-800">+{MISSION_BONUS_XP} XP bonus</span>.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </section>
+              <TodayPanel
+                id="daily"
+                headingLevel="h3"
+                layout="stack"
+                questionXp={question?.answer ? question.answer.xpAwarded : null}
+                questionPrompt={question?.question.prompt}
+                challengeTitle={challenge.title}
+                challengeXp={challengeRun ? challengeRun.xpAwarded : null}
+                missions={missions}
+              />
             </div>
 
-            <section id="scenarios" className="flex scroll-mt-6 flex-col gap-3" aria-labelledby="scenarios-heading">
-              <div>
-                <h3 id="scenarios-heading" className="text-lg font-extrabold text-slate-900">
+            <section id="scenarios" className="mt-14 scroll-mt-6" aria-labelledby="scenarios-heading">
+              <div className="max-w-2xl">
+                <h3 id="scenarios-heading" className="text-xl text-slate-900">
                   Money scenarios
                 </h3>
-                <p className="text-sm text-slate-600">
+                <p className="mt-1 text-sm text-slate-600">
                   Real-life decisions with consequences. Each opens with its lesson&apos;s level · +{SCENARIO_XP} XP the first time
                   · numbers are illustrative.
                 </p>
               </div>
-              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {SCENARIOS.map((scenario) => {
                   const reward = scenario.bonus ? REWARDS.find((r) => r.scenarioSlug === scenario.slug) : undefined;
                   const lesson = lessons.find((l) => l.slug === scenario.lessonSlug);
@@ -292,29 +249,31 @@ export default async function LearnPage() {
                   const level = scenario.lessonSlug ? chapterOf(scenario.lessonSlug) : undefined;
                   const body = (
                     <>
-                      <span aria-hidden className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl ${levelLocked || rewardLocked ? "bg-slate-100 grayscale" : area.chipBg}`}>
-                        {scenario.icon}
-                      </span>
+                      <IconTile area={scenario.area} muted={levelLocked || rewardLocked}>
+                        <ScenarioIcon slug={scenario.slug} area={scenario.area} />
+                      </IconTile>
                       <span className="min-w-0 flex-1">
-                        <span className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                          <span className={levelLocked || rewardLocked ? "text-slate-600" : area.labelText}>{scenario.bonus ? "Bonus" : area.label}</span>
-                          <span className="inline-flex items-center gap-1 text-slate-600">
+                        <span className="flex flex-wrap items-center gap-2 text-xs font-medium">
+                          <span className={levelLocked || rewardLocked ? "text-slate-500" : area.labelText}>{scenario.bonus ? "Bonus" : area.label}</span>
+                          <span className="inline-flex items-center gap-1 text-slate-500">
                             <ClockIcon className="h-3.5 w-3.5" />
                             {scenario.minutes} min
                           </span>
                         </span>
-                        <span className="mt-0.5 block font-bold text-slate-900">{scenario.title}</span>
-                        <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold">
+                        <span className={`mt-1 block leading-snug font-semibold ${levelLocked ? "text-slate-600" : "text-slate-900"}`}>{scenario.title}</span>
+                        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold">
                           {levelLocked ? (
-                            <span className="inline-flex items-center gap-1 text-slate-600">
+                            <span className="inline-flex items-center gap-1 text-slate-500">
                               <LockIcon className="h-3.5 w-3.5" /> Opens with Level {level?.number}
                             </span>
                           ) : rewardLocked ? (
-                            <span className="inline-flex items-center gap-1 text-slate-600">
+                            <span className="inline-flex items-center gap-1 text-orange-700">
                               <LockIcon className="h-3.5 w-3.5" /> Unlock for {reward!.cost} XP in Rewards
                             </span>
                           ) : score !== undefined ? (
-                            <span className="text-emerald-800">Done · best score {score}/{maxScore(scenario)}</span>
+                            <span className="inline-flex items-center gap-1 text-emerald-700">
+                              <CheckIcon className="h-3.5 w-3.5" /> Done · best score {score}/{maxScore(scenario)}
+                            </span>
                           ) : (
                             <span className="text-brand-700">Play · +{SCENARIO_XP} XP</span>
                           )}
@@ -325,7 +284,7 @@ export default async function LearnPage() {
                   return (
                     <li key={scenario.slug}>
                       {levelLocked ? (
-                        <div className={`${card} flex h-full items-start gap-3 bg-slate-50 p-4`}>{body}</div>
+                        <div className="flex h-full items-start gap-3 rounded-2xl border border-dashed border-slate-300 p-4">{body}</div>
                       ) : (
                         <Link href={rewardLocked ? "/rewards" : `/practice/${scenario.slug}`} className={`${tile} flex h-full items-start gap-3 p-4`}>
                           {body}

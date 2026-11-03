@@ -10,7 +10,8 @@ import { READINESS_AREA_META } from "@/lib/readiness-areas";
 import { DailyChallengePlayer } from "@/components/practice/DailyChallengePlayer";
 import { DailyChallengeResult } from "@/components/practice/DailyChallengeResult";
 import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
-import { card } from "@/components/ui/button-styles";
+import { AreaIcon, IconTile } from "@/components/ui/topic-icons";
+
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Daily Challenge — StockStreak" };
@@ -31,12 +32,18 @@ export default async function DailyChallengePage() {
         Learn
       </Link>
 
-      <PageHeader icon={challenge.icon} eyebrow={`Daily Challenge · ${area.label}`} title={challenge.title}>
+      <PageHeader
+        icon={
+          <IconTile area={challenge.area} size="lg">
+            <AreaIcon area={challenge.area} />
+          </IconTile>
+        }
+        eyebrow={`Daily Challenge · ${area.label}`} title={challenge.title}>
         <MetaRow
           items={[
             `${challenge.steps.length} questions`,
             challenge.difficulty,
-            <span key="xp" className="font-semibold text-amber-200">
+            <span key="xp" className="font-semibold text-orange-700">
               {run ? `Done today · +${run.xpAwarded} XP` : `+${DAILY_CHALLENGE_XP} XP for finishing`}
             </span>,
           ]}
@@ -45,7 +52,7 @@ export default async function DailyChallengePage() {
 
       {run ? (
         <DailyChallengeResult
-          icon={challenge.icon}
+          area={challenge.area}
           label={scoreLabel(run.score, run.maxScore)}
           score={run.score}
           maxScore={run.maxScore}
@@ -54,11 +61,11 @@ export default async function DailyChallengePage() {
         />
       ) : (
         <>
-          <p className={`${card} p-5 text-slate-700`}>{challenge.intro}</p>
+          <p className="border-l-2 border-brand-300 pl-4 text-[15px] leading-relaxed text-slate-700">{challenge.intro}</p>
           <DailyChallengePlayer
             day={day}
             steps={publicDailyChallenge(challenge).steps}
-            icon={challenge.icon}
+            area={challenge.area}
             takeaway={challenge.takeaway}
             xpReward={DAILY_CHALLENGE_XP}
           />

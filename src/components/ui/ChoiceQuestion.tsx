@@ -91,7 +91,7 @@ export function ChoiceQuestion({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-lg leading-snug font-bold text-slate-900">{prompt}</p>
+      <p className="text-lg leading-snug font-semibold text-slate-900">{prompt}</p>
 
       <div className="flex flex-col gap-3" role="group" aria-label="Answer options">
         {options.map((option, i) => (
@@ -109,20 +109,16 @@ export function ChoiceQuestion({
       {result && (
         <div
           role="status"
-          className={`rounded-2xl border-2 p-4 ${
-            result.isCorrect
-              ? "border-emerald-300 bg-emerald-50"
-              : "border-rose-200 bg-rose-50"
-          }`}
+          className={`animate-fade-up rounded-2xl p-4 ring-1 ${result.isCorrect ? "bg-emerald-50 ring-emerald-200" : "bg-rose-50 ring-rose-200"}`}
         >
-          <p className={`font-extrabold ${result.isCorrect ? "text-emerald-800" : "text-rose-800"}`}>
+          <p className={`font-semibold ${result.isCorrect ? "text-emerald-900" : "text-rose-900"}`}>
             {result.isCorrect ? labels.right : labels.wrong}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-slate-800">{result.explanation}</p>
-          {result.note && <p className="mt-2 text-sm font-bold text-slate-900">{result.note}</p>}
+          {result.note && <p className="mt-2 text-sm font-semibold text-slate-900">{result.note}</p>}
           {result.xpAwarded ? (
-            <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-bold text-amber-900">
-              <StarIcon className="h-4 w-4 text-amber-600" /> +{result.xpAwarded} XP
+            <p className="mt-3 inline-flex animate-pop items-center gap-1.5 rounded-full bg-white px-3 py-1 text-sm font-semibold text-orange-800 ring-1 ring-orange-200">
+              <StarIcon className="h-4 w-4 text-orange-500" /> +{result.xpAwarded} XP
             </p>
           ) : null}
         </div>

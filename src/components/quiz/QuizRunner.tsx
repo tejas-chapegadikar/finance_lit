@@ -11,7 +11,7 @@ import { primaryButton, skyButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon, XIcon } from "@/components/ui/icons";
 import type { OptionState } from "@/components/ui/OptionButton";
 import { QuestionCard } from "./QuestionCard";
-import { CoachPanel } from "./CoachPanel";
+import { CoachAvatar, CoachPanel } from "./CoachPanel";
 import { AnswerBanner } from "./AnswerBanner";
 import { CoachFollowUp, type FollowUp } from "./CoachFollowUp";
 
@@ -198,7 +198,7 @@ export function QuizRunner({
           </Link>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm text-slate-600">{lessonTitle} · Quiz</p>
-            <p className="font-display text-lg font-extrabold text-slate-900">
+            <p className="font-display text-xl font-semibold text-slate-900 tabular-nums">
               Question {index + 1} of {questions.length}
             </p>
           </div>
@@ -210,10 +210,10 @@ export function QuizRunner({
           aria-valuemax={questions.length}
           aria-valuenow={answeredCount}
           aria-valuetext={`${answeredCount} of ${questions.length} answered`}
-          className="h-2 overflow-hidden rounded-full bg-slate-200"
+          className="h-1.5 overflow-hidden rounded-full bg-slate-200"
         >
           <div
-            className="h-full rounded-full bg-brand-600 transition-all duration-500"
+            className="h-full rounded-full bg-emerald-500 transition-all duration-500 ease-out"
             style={{ width: `${(answeredCount / questions.length) * 100}%` }}
           />
         </div>
@@ -246,12 +246,15 @@ export function QuizRunner({
         <section
           key={question.id}
           aria-labelledby="coach-check-heading"
-          className="rounded-2xl border-2 border-brand-200 bg-white p-5"
+          className="animate-fade-up rounded-2xl border border-slate-200 bg-white p-5"
         >
-          <p id="coach-check-heading" className="text-sm font-extrabold text-brand-700">
-            AI Coach · Check you&apos;ve got it
-          </p>
-          <p className="mb-3 text-sm text-slate-600">Same idea, different example. This one doesn&apos;t change your score.</p>
+          <div className="flex items-center gap-3">
+            <CoachAvatar />
+            <p id="coach-check-heading" className="text-sm font-semibold text-slate-900">
+              AI Coach · Check you&apos;ve got it
+            </p>
+          </div>
+          <p className="mt-2 mb-4 text-sm text-slate-600">Same idea, different example. This one doesn&apos;t change your score.</p>
           <ChoiceQuestion
             prompt={question.practice.prompt}
             options={question.practice.options}

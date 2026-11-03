@@ -4,11 +4,14 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { profileSchema, reminderSchema } from "@/lib/validations/profile";
+import { accountRatelimit, isAllowed } from "@/lib/ratelimit";
+import { SLOW_DOWN_MESSAGE } from "@/lib/constants";
 
 export type ProfileState = { error?: string; success?: boolean };
 
 export async function updateProfile(_prevState: ProfileState, formData: FormData): Promise<ProfileState> {
   const user = await requireOnboardedUser();
+  if (!(await isAllowed(accountRatelimit, user.id))) return { error: SLOW_DOWN_MESSAGE };
 
   const parsed = profileSchema.safeParse({
     displayName: formData.get("displayName") ?? "",

@@ -1169,7 +1169,7 @@ Even when TDS is deducted, file your **Income Tax Return (ITR)** on incometax.go
     { term: "Tax regime", definition: "The set of tax rules you pick — new (default, lower rates) or old (more deductions)." },
     { term: "ITR", definition: "Income Tax Return — the yearly form where you report your income to the tax department." },
   ],
-  example: `**Neha, 22, Pune** accepts an offer of **₹6 LPA** — ₹50,000 a month on paper. Her first payslip:
+  example: `**Kavya, 22, Pune** accepts an offer of **₹6 LPA** — ₹50,000 a month on paper. Her first payslip:
 
 - Employer's PF share (part of her CTC): **−₹1,800**
 - Her own PF contribution: **−₹1,800**
@@ -1178,7 +1178,7 @@ Even when TDS is deducted, file your **Income Tax Return (ITR)** on incometax.go
 
 **In-hand: about ₹46,200.**
 
-**Which of these deductions still belong to Neha, even though she can't spend them now?**`,
+**Which of these deductions still belong to Kavya, even though she can't spend them now?**`,
   scenario: {
     prompt:
       "You have two job offers: Company A offers ₹7 LPA CTC and Company B offers ₹6.5 LPA CTC. You want to know which one actually pays more each month. What would you do?",

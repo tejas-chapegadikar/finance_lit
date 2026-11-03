@@ -6,6 +6,7 @@ import type { PublicStep, StepAnswer, StepCheck } from "@/lib/scenarios";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { OptionButton, type OptionState } from "@/components/ui/OptionButton";
 import { card, skyButton } from "@/components/ui/button-styles";
+import { StepBar } from "@/components/ui/ProgressBar";
 import { ArrowRightIcon, CheckIcon } from "@/components/ui/icons";
 
 type Checked = Extract<StepCheck, { status: "checked" }>;
@@ -13,9 +14,9 @@ type Checked = Extract<StepCheck, { status: "checked" }>;
 const rupees = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 function verdict(points: number) {
-  if (points >= 2) return { text: "Smart move", className: "border-emerald-300 bg-emerald-50 text-emerald-900", edge: "var(--color-emerald-200)" };
-  if (points === 1) return { text: "Partly there", className: "border-amber-300 bg-amber-50 text-amber-900", edge: "var(--color-amber-200)" };
-  return { text: "Not the best call", className: "border-rose-200 bg-rose-50 text-rose-900", edge: "var(--color-rose-200)" };
+  if (points >= 2) return { text: "Smart move", className: "bg-emerald-50 text-emerald-900 ring-emerald-200" };
+  if (points === 1) return { text: "Partly there", className: "bg-amber-50 text-amber-900 ring-amber-200" };
+  return { text: "Not the best call", className: "bg-rose-50 text-rose-900 ring-rose-200" };
 }
 
 function initialAllocation(steps: PublicStep[], stepIndex: number): Record<string, number> {
@@ -116,29 +117,17 @@ export function StepRunner({
   return (
     <section className={`${card} p-5 sm:p-6`} aria-labelledby="step-heading">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-brand-700">
+        <p className="text-[13px] font-medium text-slate-500 tabular-nums">
           {stepNoun} {stepIndex + 1} of {steps.length}
         </p>
         {xpNote && (
-          <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-900">
+          <span className="rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-semibold text-orange-800 ring-1 ring-orange-100">
             {xpNote}
           </span>
         )}
       </div>
-      <div
-        role="progressbar"
-        aria-label="Progress"
-        aria-valuemin={0}
-        aria-valuemax={steps.length}
-        aria-valuenow={stepIndex + (checked ? 1 : 0)}
-        className="mt-3 h-2 overflow-hidden rounded-full bg-brand-100"
-      >
-        <div
-          className="h-full rounded-full bg-brand-600 transition-all duration-500"
-          style={{ width: `${((stepIndex + (checked ? 1 : 0)) / steps.length) * 100}%` }}
-        />
-      </div>
-      <h2 id="step-heading" className="mt-4 text-lg leading-snug font-bold text-slate-900 sm:text-xl">
+      <StepBar done={stepIndex + (checked ? 1 : 0)} total={steps.length} current={!checked} label="Progress" className="mt-3" />
+      <h2 key={stepIndex} id="step-heading" className="mt-5 animate-fade-up text-xl leading-snug text-slate-900 sm:text-2xl">
         {step.prompt}
       </h2>
 
@@ -174,19 +163,19 @@ export function StepRunner({
                     aria-checked={on}
                     disabled={isPending || !!checked}
                     onClick={() => setPicks(on ? picks.filter((p) => p !== i) : [...picks, i])}
-                    className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left text-sm font-semibold transition-[transform,box-shadow] duration-100 sm:text-base ${
+                    className={`flex w-full items-center gap-3.5 rounded-2xl border px-4 py-3.5 text-left text-[15px] leading-snug font-medium transition duration-150 active:scale-[0.99] sm:text-base ${
                       on
                         ? "border-brand-500 bg-brand-50 text-slate-900"
-                        : "border-slate-200 bg-white text-slate-800 enabled:hover:border-brand-300"
+                        : "border-slate-200 bg-white text-slate-800 enabled:hover:border-slate-300"
                     } disabled:opacity-80`}
                   >
                     <span
                       aria-hidden
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 ${
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 transition ${
                         on ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 bg-white"
                       }`}
                     >
-                      {on && <CheckIcon className="h-4 w-4" />}
+                      {on && <CheckIcon className="h-4 w-4 animate-check" />}
                     </span>
                     <span className="flex-1">{option}</span>
                   </button>
@@ -213,10 +202,10 @@ export function StepRunner({
               return (
                 <div key={bucket.id} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
                   <div className="flex items-baseline justify-between gap-3">
-                    <label htmlFor={`alloc-${bucket.id}`} className="font-bold text-slate-900">
+                    <label htmlFor={`alloc-${bucket.id}`} className="font-semibold text-slate-900">
                       {bucket.label}
                     </label>
-                    <span className="font-display text-lg font-extrabold text-slate-900 tabular-nums">{rupees(value)}</span>
+                    <span className="font-display text-xl font-semibold text-slate-900 tabular-nums">{rupees(value)}</span>
                   </div>
                   <p className="text-xs text-slate-600">{bucket.hint}</p>
                   <input
@@ -235,7 +224,7 @@ export function StepRunner({
             })}
             <p
               role="status"
-              className={`rounded-xl px-4 py-2 text-sm font-bold ${
+              className={`rounded-xl px-4 py-2 text-sm font-semibold ${
                 left === 0 ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"
               }`}
             >
@@ -262,10 +251,9 @@ export function StepRunner({
       {checked && (
         <div
           role="status"
-          className={`mt-4 rounded-2xl border-2 p-4 ${verdict(checked.points).className}`}
-          style={{ boxShadow: `0 4px 0 0 ${verdict(checked.points).edge}` }}
+          className={`mt-4 animate-fade-up rounded-2xl p-4 ring-1 ${verdict(checked.points).className}`}
         >
-          <p className="font-extrabold">
+          <p className="font-semibold">
             {verdict(checked.points).text} · {checked.points}/{checked.maxPoints}
           </p>
           <ul className="mt-1 flex flex-col gap-1 text-sm leading-relaxed text-slate-800">

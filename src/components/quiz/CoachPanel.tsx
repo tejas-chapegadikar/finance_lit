@@ -2,6 +2,15 @@ import type { CoachHint } from "@/lib/coach";
 import { COACH_UNAVAILABLE_MESSAGE } from "@/lib/constants";
 import { SparklesIcon } from "@/components/ui/icons";
 
+/** The AI Coach's face: the same small dark avatar wherever the Coach speaks. */
+export function CoachAvatar() {
+  return (
+    <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-brand-300">
+      <SparklesIcon className="h-[18px] w-[18px]" />
+    </span>
+  );
+}
+
 /** Shown after a wrong pick: "Not quite", then the AI Coach's hint and a nudge to try again. */
 export function CoachPanel({
   hint,
@@ -21,17 +30,15 @@ export function CoachPanel({
 
   return (
     <section aria-live="polite" aria-label="AI Coach" className="flex flex-col gap-3">
-      <p className="text-base font-extrabold text-rose-700">Not quite.</p>
+      <p className="text-base font-semibold text-rose-700">Not quite.</p>
 
-      <div className="flex gap-3 rounded-2xl border-2 border-brand-200 bg-white p-4">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white">
-          <SparklesIcon className="h-5 w-5" />
-        </span>
-        <div className="min-w-0 flex-1">
+      <div className="flex animate-fade-up gap-3">
+        <CoachAvatar />
+        <div className="min-w-0 flex-1 rounded-2xl rounded-tl-md bg-white p-4 ring-1 ring-slate-200">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-extrabold text-slate-900">AI Coach</p>
+            <p className="text-sm font-semibold text-slate-900">AI Coach</p>
             {hint && !loading && (
-              <span className="rounded-full bg-brand-50 px-2 py-0.5 text-sm font-semibold text-brand-700 ring-1 ring-brand-100">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
                 Hint {hint.level} of 2
               </span>
             )}
@@ -61,7 +68,7 @@ export function CoachPanel({
       </div>
 
       {!loading && (
-        <p className="text-sm font-bold text-brand-700">
+        <p className="text-sm font-semibold text-brand-700">
           Try again — pick another answer ({triesLeft} {triesLeft === 1 ? "try" : "tries"} left)
         </p>
       )}

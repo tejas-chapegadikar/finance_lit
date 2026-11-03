@@ -1,10 +1,11 @@
 import ReactMarkdown, { type Components } from "react-markdown";
 
-// "lesson" highlights **bold** terms in the brand blue, so key ideas stand
-// out while reading; "plain" keeps bold as bold (for tinted cards).
+// "lesson" marks **bold** terms with a soft highlighter stroke, so key ideas
+// stand out while reading without turning the text violet; "plain" keeps
+// bold as bold (for tinted panels).
 const HIGHLIGHT: Components = {
   strong: ({ children }) => (
-    <strong className="rounded bg-brand-50 px-0.5 font-bold text-brand-800">{children}</strong>
+    <strong className="bg-[linear-gradient(transparent_62%,var(--color-brand-100)_62%)] font-semibold text-slate-900">{children}</strong>
   ),
 };
 
@@ -19,7 +20,7 @@ export function Markdown({
 }) {
   return (
     <div
-      className={`prose prose-slate max-w-none prose-p:leading-relaxed prose-li:my-1 prose-ul:my-3 prose-strong:text-slate-900 ${className}`}
+      className={`prose prose-slate max-w-none text-[16.5px] leading-[1.7] prose-p:my-3 prose-li:my-1 prose-ul:my-3 prose-strong:font-semibold prose-strong:text-slate-900 sm:text-[17px] ${className}`}
     >
       <ReactMarkdown components={variant === "lesson" ? HIGHLIGHT : undefined}>{children}</ReactMarkdown>
     </div>

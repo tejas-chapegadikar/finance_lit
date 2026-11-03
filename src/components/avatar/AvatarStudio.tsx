@@ -70,6 +70,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
     run(async () => {
       const result = await saveAvatar(config);
       if (result.status === "locked") setMessage(`Unlock ${result.itemName} before saving.`);
+      else if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);
       else {
         setMessage("Avatar saved.");
         router.refresh();
@@ -83,14 +84,16 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
         <h2 id="preview-heading" className="sr-only">
           Preview
         </h2>
-        <div className="flex w-full justify-center rounded-2xl border border-slate-200 bg-slate-50 py-4">
-          <Avatar config={config} className="h-56 w-auto sm:h-64" label="Your avatar preview" />
+        <div className="relative flex w-full justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-peach-100 to-slate-50 pt-6">
+          <span aria-hidden className="absolute bottom-3 h-5 w-40 rounded-[100%] bg-slate-900/10 blur-[2px]" />
+          {/* Re-mounts on every change so each try-on pops in. */}
+          <Avatar key={Object.values(config).join("|")} config={config} className="relative h-56 w-auto animate-pop sm:h-64" label="Your avatar preview" />
         </div>
-        <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600">
-          <StarIcon className="h-4 w-4 text-amber-600" /> {balance.toLocaleString("en-IN")} XP to spend
+        <p className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-orange-800">
+          <StarIcon className="h-4 w-4 text-orange-500" /> {balance.toLocaleString("en-IN")} XP to spend
         </p>
         {locked.length > 0 && (
-          <p className="mt-2 text-center text-sm font-semibold text-amber-900">
+          <p className="mt-2 text-center text-sm font-medium text-orange-900">
             Previewing {locked.map((item) => item!.name).join(", ")} — unlock {locked.length === 1 ? "it" : "them"} to save.
           </p>
         )}
@@ -103,14 +106,14 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
           </button>
         </div>
         {message && (
-          <p role="status" className="mt-3 text-center text-sm font-bold text-slate-800">
+          <p role="status" className="mt-3 animate-fade-up text-center text-sm font-semibold text-slate-800">
             {message}
           </p>
         )}
       </section>
 
       <section className={`${card} p-5`} aria-labelledby="items-heading">
-        <h2 id="items-heading" className="text-lg font-extrabold text-slate-900">
+        <h2 id="items-heading" className="text-xl text-slate-900">
           Customise
         </h2>
         <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Part to change">
@@ -123,8 +126,8 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
                 setSlot(s);
                 setConfirming(false);
               }}
-              className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition ${
-                slot === s ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-brand-50"
+              className={`rounded-full px-3.5 py-1.5 text-sm transition ${
+                slot === s ? "bg-slate-900 font-semibold text-white" : "bg-slate-100 font-medium text-slate-700 hover:bg-slate-200"
               }`}
             >
               {label}
@@ -143,11 +146,11 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
                     type="button"
                     aria-pressed={isOn}
                     onClick={() => choose(item)}
-                    className={`flex w-full flex-col items-center rounded-2xl border-2 p-2 text-center transition ${
-                      isOn ? "border-brand-500 bg-brand-50" : "border-slate-200 bg-white hover:border-brand-300"
+                    className={`flex w-full flex-col items-center rounded-2xl border p-2 text-center transition duration-150 active:scale-[0.98] ${
+                      isOn ? "border-brand-500 bg-white ring-2 ring-brand-100" : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300"
                     }`}
                   >
-                    <span className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-brand-50">
+                    <span className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-slate-50">
                       <Avatar
                         config={{ ...config, [item.slot]: item.id }}
                         crop={HEAD_SLOTS.includes(item.slot) ? "head" : "full"}
@@ -159,13 +162,13 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
                         </span>
                       )}
                       {item.unlocked && isOn && (
-                        <span className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-white">
+                        <span className="absolute top-1 right-1 flex h-6 w-6 animate-check items-center justify-center rounded-full bg-brand-600 text-white">
                           <CheckIcon className="h-3.5 w-3.5" />
                         </span>
                       )}
                     </span>
-                    <span className="mt-1.5 line-clamp-2 text-xs font-bold text-slate-900">{item.name}</span>
-                    <span className={`text-[11px] font-bold ${item.unlocked ? "text-emerald-800" : "text-amber-800"}`}>
+                    <span className="mt-1.5 line-clamp-2 text-xs font-semibold text-slate-900">{item.name}</span>
+                    <span className={`text-[11px] font-semibold ${item.unlocked ? "text-emerald-700" : "text-orange-700"}`}>
                       {item.unlocked ? "Unlocked" : item.cost ? `${item.cost} XP` : "Milestone"}
                     </span>
                   </button>
@@ -175,9 +178,9 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
         </ul>
 
         {selected && !selected.unlocked && (
-          <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200 sm:flex-row sm:items-center">
-            <p className="flex-1 text-sm font-semibold text-slate-800">
-              <span className="font-extrabold text-slate-900">{selected.name}</span>
+          <div className="mt-4 flex animate-fade-up flex-col gap-3 rounded-2xl bg-orange-50 p-4 ring-1 ring-orange-100 sm:flex-row sm:items-center">
+            <p className="flex-1 text-sm text-slate-700">
+              <span className="font-semibold text-slate-900">{selected.name}</span>
               {selected.rare && " · Rare"} — {selected.cost ? `${selected.cost} XP in the Rewards Store.` : `${selected.how} to unlock it.`}
             </p>
             {selected.cost !== null &&
@@ -195,7 +198,7 @@ export function AvatarStudio({ initial, items, balance }: { initial: AvatarConfi
                   type="button"
                   disabled={isPending || balance < selected.cost}
                   onClick={() => setConfirming(true)}
-                  className={balance >= selected.cost ? skyButton : secondaryButton}
+                  className={secondaryButton}
                 >
                   {balance >= selected.cost ? `Unlock for ${selected.cost} XP` : `${selected.cost - balance} more XP needed`}
                 </button>

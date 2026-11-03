@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Rubik } from "next/font/google";
+import { Figtree, Fraunces } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-// Rubik: rounded and friendly, one variable font for the whole app. The ₹
-// sign is in its latin-ext subset.
-const rubik = Rubik({
-  variable: "--font-rubik",
+// Fraunces — a soft, characterful serif — for headings and big numbers;
+// Figtree for everything you read. Both are variable fonts self-hosted by
+// next/font (no request to Google at runtime), and both include the ₹ sign
+// in their latin-ext subset.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin", "latin-ext"],
+  axes: ["SOFT", "opsz"],
+});
+
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin", "latin-ext"],
 });
 
@@ -20,11 +28,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // brand-600, so Clerk's sign-in buttons and links match the app.
-    <ClerkProvider appearance={{ variables: { colorPrimary: "#5b45e0", borderRadius: "1rem", fontFamily: "var(--font-rubik)" } }}>
-      <html
-        lang="en"
-        className={`${rubik.variable} h-full antialiased`}
-      >
+    <ClerkProvider
+      appearance={{
+        variables: { colorPrimary: "#5b45e0", borderRadius: "0.75rem", fontFamily: "var(--font-figtree)" },
+      }}
+    >
+      <html lang="en" className={`${fraunces.variable} ${figtree.variable} h-full antialiased`}>
         <body className="min-h-full flex flex-col">
           {children}
           <Toaster richColors position="top-center" />

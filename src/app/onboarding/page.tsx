@@ -13,12 +13,17 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center bg-brand-50/60 px-4 py-8">
+    <main className="relative isolate flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-8">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 opacity-60"
+        style={{ backgroundImage: "radial-gradient(circle, var(--color-slate-300) 1px, transparent 1.3px)", backgroundSize: "24px 24px" }}
+      />
       <div className="relative flex w-full max-w-md flex-col gap-6">
         <div className="flex justify-center">
           <Logo />
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="animate-fade-up rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_50px_-30px_rgb(30_28_26/0.35)] sm:p-8">
           <OnboardingFlow defaultName={user.displayName ?? user.name ?? ""} />
         </div>
       </div>

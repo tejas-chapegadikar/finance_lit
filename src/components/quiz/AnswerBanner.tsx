@@ -1,3 +1,6 @@
+import { CheckIcon, InfoIcon } from "@/components/ui/icons";
+
+/** The explanation after a question is settled: green when right, a calm "let's learn it" when revealed. */
 export function AnswerBanner({
   status,
   tryNumber,
@@ -7,26 +10,25 @@ export function AnswerBanner({
   tryNumber: number;
   explanation: string;
 }) {
-  if (status === "revealed") {
-    return (
-      <div
-        role="status"
-        className="rounded-2xl border-2 border-brand-200 bg-brand-50 p-4 text-sm"
-      >
-        <p className="text-base font-extrabold text-brand-800">Let&apos;s learn this one</p>
-        <p className="mt-1 font-semibold text-slate-700">The right answer is highlighted in green.</p>
-        <p className="mt-1 leading-relaxed text-slate-800">{explanation}</p>
-      </div>
-    );
-  }
-
+  const correct = status === "correct";
   return (
     <div
       role="status"
-      className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 text-sm"
+      className={`flex animate-fade-up gap-3 rounded-2xl p-4 text-sm ring-1 ${correct ? "bg-emerald-50 ring-emerald-200" : "bg-white ring-slate-200"}`}
     >
-      <p className="text-base font-extrabold text-emerald-800">{tryNumber === 1 ? "Correct!" : "Exactly right."}</p>
-      <p className="mt-1 leading-relaxed text-emerald-900">{explanation}</p>
+      <span
+        aria-hidden
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${correct ? "animate-check bg-emerald-500 text-white" : "bg-brand-50 text-brand-700"}`}
+      >
+        {correct ? <CheckIcon className="h-4 w-4" /> : <InfoIcon className="h-4 w-4" />}
+      </span>
+      <div className="min-w-0">
+        <p className={`text-base font-semibold ${correct ? "text-emerald-900" : "text-slate-900"}`}>
+          {correct ? (tryNumber === 1 ? "Correct!" : "Exactly right.") : "Let's learn this one"}
+        </p>
+        {!correct && <p className="mt-0.5 text-slate-600">The right answer is highlighted in green.</p>}
+        <p className={`mt-1 leading-relaxed ${correct ? "text-emerald-950" : "text-slate-800"}`}>{explanation}</p>
+      </div>
     </div>
   );
 }

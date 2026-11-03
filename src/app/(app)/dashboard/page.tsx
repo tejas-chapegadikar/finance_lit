@@ -7,6 +7,7 @@ import { getProgress } from "@/lib/progress";
 import { getTodaysQuestion } from "@/lib/daily-question";
 import { dailyChallengeInfo } from "@/lib/daily-challenge";
 import { getTodaysWins } from "@/lib/activity";
+import { getDailyMissions } from "@/lib/missions";
 import { streakStatus } from "@/lib/streak";
 import { BADGES } from "@/lib/badges";
 import { rankFor } from "@/lib/ranks";
@@ -14,33 +15,49 @@ import { nextReward, spendableXp } from "@/lib/rewards";
 import { readAvatar } from "@/lib/avatar";
 import { istDay } from "@/lib/ist-date";
 import { READINESS_AREA_META } from "@/lib/readiness-areas";
-import { DAILY_CHALLENGE_XP, LEVEL_COMPLETION_XP, NO_LESSONS_MESSAGE, PATH_NAME, QUESTION_OF_THE_DAY_XP } from "@/lib/constants";
+import { LEVEL_COMPLETION_XP, NO_LESSONS_MESSAGE, PATH_NAME } from "@/lib/constants";
 import { Avatar } from "@/components/avatar/Avatar";
-import { card, primaryButton, softButton, tile } from "@/components/ui/button-styles";
-import { ArrowRightIcon, BookIcon, ClockIcon, FlameIcon, StarIcon } from "@/components/ui/icons";
+import { TodayPanel } from "@/components/dashboard/TodayPanel";
+import { Callout, StatStrip, type Stat } from "@/components/ui/PageHeader";
+import { CountUp } from "@/components/ui/CountUp";
+import { ProgressBar, StepBar } from "@/components/ui/ProgressBar";
+import { LevelIllustration, TrophyIllustration } from "@/components/ui/illustrations";
+import { card, lightButton, primaryButton, spotlight, tile } from "@/components/ui/button-styles";
+import { ArrowRightIcon, BookIcon, CheckIcon, ClockIcon, FlameIcon, LockIcon, SparklesIcon, StarIcon, TrophyIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Dashboard — StockStreak" };
 
-// The dashboard answers one question — "what should I do next?" — so it shows
-// only: a short welcome, three stats, the next lesson (the main thing), one
-// daily activity and one next milestone. Details live on Learn, Rewards and
-// Profile.
+/** "Good morning" etc. by the time in India; late at night, just "Hey". */
+function greetingFor(now: Date) {
+  const hour = Number(new Intl.DateTimeFormat("en-IN", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kolkata" }).format(now));
+  if (hour >= 5 && hour < 12) return "Good morning";
+  if (hour >= 12 && hour < 17) return "Good afternoon";
+  if (hour >= 17 && hour < 22) return "Good evening";
+  return "Hey";
+}
+
+// The dashboard answers "where am I, and what should I do next?": level, XP
+// and streak up top, then the next lesson (the main thing), today's
+// activities with their XP, the next achievement and progress per level.
+// Details live on Learn, Rewards and Profile.
 export default async function DashboardPage() {
   const user = await requireOnboardedUser();
   const today = istDay();
 
-  const [progress, question, challengeRun, challenge, unlocks, todaysWins, badgesToday] = await Promise.all([
+  const [progress, question, challengeRun, challenge, unlocks, todaysWins, badgesToday, missions] = await Promise.all([
     getProgress(user.id),
     getTodaysQuestion(user.id),
-    db.dailyChallengeRun.findUnique({ where: { userId_day: { userId: user.id, day: today } }, select: { id: true } }),
+    db.dailyChallengeRun.findUnique({ where: { userId_day: { userId: user.id, day: today } }, select: { xpAwarded: true } }),
     dailyChallengeInfo(user.id, today),
     db.rewardUnlock.findMany({ where: { userId: user.id }, select: { rewardId: true } }),
     getTodaysWins(user.id, today),
     db.userBadge.findMany({ where: { userId: user.id }, select: { badgeId: true, earnedAt: true } }),
+    getDailyMissions(user.id, today),
   ]);
 
   const { next, levels, currentLevel, completedCount, totalLessons, levelComplete, overall } = progress;
   const name = getDisplayName(user);
+  const greeting = greetingFor(new Date());
   const streak = streakStatus(user, today);
   const rank = rankFor(completedCount, overall, totalLessons);
   const balance = spendableXp(user);
@@ -54,29 +71,13 @@ export default async function DashboardPage() {
     ...(todaysWins.frozenDays > 0 ? ["a streak freeze kept your streak safe"] : []),
   ];
 
-  const streakText = streak.streak
-    ? `${streak.streak}-day streak${streak.doneToday ? "" : " · learn today to keep it"}`
-    : "Start your streak today";
-
-  // One daily activity: the quick question first, then the challenge.
-  const daily =
-    question && !question.answer
-      ? {
-          title: "Question of the Day",
-          text: question.question.prompt,
-          meta: `About 1 minute · +${QUESTION_OF_THE_DAY_XP} XP`,
-          href: "/question",
-          cta: "Answer now",
-        }
-      : !challengeRun
-        ? {
-            title: `Daily Challenge: ${challenge.title}`,
-            text: "A few quick questions on today's topic — harder in topics you've mastered.",
-            meta: `About 3 minutes · +${DAILY_CHALLENGE_XP} XP`,
-            href: "/challenge",
-            cta: "Start the challenge",
-          }
-        : null;
+  const streakMessage = !streak.streak
+    ? "Start your streak today — finish a lesson or answer the Question of the Day."
+    : streak.doneToday
+      ? `${streak.streak}-day streak! You've learned today — come back tomorrow to keep it going.`
+      : `${streak.streak}-day streak — learn something today to keep it going.${
+          streak.freezesNeeded ? " A streak freeze will cover the day you missed." : ""
+        }`;
 
   // One next milestone: the next level to unlock, else the next reward.
   const levelIndex = currentLevel ? levels.indexOf(currentLevel) : -1;
@@ -105,103 +106,136 @@ export default async function DashboardPage() {
         }
       : null;
 
-  const stats = [
-    { label: "Current streak", value: `${streak.streak} ${streak.streak === 1 ? "day" : "days"}`, Icon: FlameIcon, tone: "text-orange-600" },
-    { label: "Total XP", value: user.xpTotal.toLocaleString("en-IN"), Icon: StarIcon, tone: "text-amber-600" },
-    { label: "Lessons completed", value: `${completedCount}/${totalLessons}`, Icon: BookIcon, tone: "text-brand-600" },
+  const levelNumber = currentLevel?.chapter.number ?? levels.length;
+  const nextLevelOfLesson = next ? levels.find((l) => l.slugs.includes(next.lesson.slug)) : undefined;
+  const stats: Stat[] = [
+    { label: "Streak", value: `${streak.streak} ${streak.streak === 1 ? "day" : "days"}`, icon: <FlameIcon /> },
+    { label: "XP", value: <CountUp value={user.xpTotal} id="xp-dashboard" />, icon: <StarIcon />, tone: "text-orange-600" },
+    { label: "Level", value: `${levelNumber}/${levels.length}`, icon: <TrophyIcon /> },
+    { label: "Lessons", value: `${completedCount}/${totalLessons}`, icon: <BookIcon /> },
   ];
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-      {/* A. Welcome */}
-      <header className="flex flex-wrap items-center gap-4">
-        <Link
-          href="/profile/avatar"
-          aria-label="Edit your avatar"
-          className="flex h-14 w-14 shrink-0 items-end justify-center overflow-hidden rounded-2xl border border-slate-200 bg-brand-50 hover:border-brand-300"
-        >
-          <Avatar config={avatar} crop="head" className="h-14 w-14" />
-        </Link>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">Hey, {name}!</h1>
-          <p className="text-sm text-slate-600">Build better money habits, one lesson at a time.</p>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 sm:gap-12">
+      {/* A. Greeting, then the numbers that matter */}
+      <header className="flex animate-fade-up flex-col gap-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
+            <Link
+              href="/profile/avatar"
+              aria-label="Edit your avatar"
+              className="flex h-14 w-14 shrink-0 items-end justify-center overflow-hidden rounded-full bg-peach-100 ring-1 ring-slate-200 transition hover:ring-slate-300 sm:h-16 sm:w-16"
+            >
+              <Avatar config={avatar} crop="head" className="h-14 w-14 sm:h-16 sm:w-16" />
+            </Link>
+            <div className="min-w-0">
+              <h1 className="text-[1.9rem] leading-tight text-slate-900 sm:text-4xl">
+                {greeting}, {name}!
+              </h1>
+              <p className="mt-0.5 text-sm text-slate-600">
+                {currentLevel
+                  ? `Level ${currentLevel.chapter.number} of ${levels.length} · ${currentLevel.chapter.title} · ${rank.current.name}`
+                  : `${rank.current.name} · Build better money habits, one lesson at a time.`}
+              </p>
+            </div>
+          </div>
+          <div className="sm:max-w-xs">
+            <Callout
+              href="/profile#streak"
+              badge={
+                <>
+                  <FlameIcon className={`h-4 w-4 ${streak.doneToday ? "animate-flicker" : ""}`} />
+                  {streak.streak}
+                </>
+              }
+            >
+              {streakMessage}
+            </Callout>
+          </div>
         </div>
-        <Link
-          href="/profile#streak"
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-sm font-semibold text-orange-800 hover:bg-orange-100 sm:w-auto"
-        >
-          <FlameIcon className="h-4 w-4" />
-          {streakText}
-        </Link>
+        <StatStrip label="Your stats" stats={stats} />
       </header>
 
       {wins.length > 0 && (
-        <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-900">
-          <span className="font-semibold">Today:</span> {wins.join(" · ")}
+        <p role="status" className="flex animate-fade-up items-start gap-3 rounded-2xl bg-orange-50 px-4 py-3 text-sm text-orange-950 ring-1 ring-orange-100">
+          <SparklesIcon className="mt-0.5 h-4 w-4 shrink-0 animate-pop text-orange-500" />
+          <span>
+            <span className="font-semibold">Today:</span> {wins.join(" · ")}
+          </span>
         </p>
       )}
 
-      {/* B. Three stats */}
-      <dl aria-label="Your stats" className="grid grid-cols-3 gap-2 sm:gap-4">
-        {stats.map(({ label, value, Icon, tone }) => (
-          <div key={label} className={`${card} flex flex-col-reverse justify-end p-3 sm:p-4`}>
-            <dt className="mt-0.5 text-xs font-medium text-slate-600 sm:text-sm">{label}</dt>
-            <dd className="flex items-center gap-1.5 font-display text-lg font-extrabold whitespace-nowrap text-slate-900 tabular-nums sm:text-2xl">
-              <Icon className={`h-4 w-4 shrink-0 sm:h-5 sm:w-5 ${tone}`} />
-              {value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-
-      {/* C. Continue learning — the main thing to do */}
+      {/* B. Up next — the one dark, colourful thing on the page */}
       {next ? (
-        <section className="rounded-2xl border-2 border-brand-200 bg-white p-5 sm:p-7" aria-labelledby="continue-heading">
-          <p className="text-sm font-semibold text-brand-700">
-            {next.isRetake
-              ? "Strengthen a topic"
-              : next.lesson.status === "in-progress"
-                ? `Continue learning · Level ${next.lesson.level}`
-                : `Next lesson · Level ${next.lesson.level}`}
-          </p>
-          <div className="mt-3 flex items-start gap-4">
-            <span
-              aria-hidden
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl sm:h-16 sm:w-16 sm:text-4xl ${READINESS_AREA_META[next.lesson.area].chipBg}`}
-            >
-              {next.lesson.icon}
-            </span>
-            <div className="min-w-0 flex-1">
-              <h2 id="continue-heading" className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
+        <section className={`${spotlight} animate-fade-up p-6 sm:p-9`} aria-labelledby="continue-heading" style={{ animationDelay: "80ms" }}>
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -top-40 -right-32 -z-10 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -bottom-48 -left-24 -z-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgb(242_128_28/0.16),transparent_65%)]"
+          />
+          <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="min-w-0">
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-medium text-white/60">
+                <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-white/85">
+                  {next.isRetake
+                    ? "Strengthen a topic"
+                    : next.lesson.status === "in-progress"
+                      ? `Continue learning · Level ${next.lesson.level}`
+                      : `Next lesson · Level ${next.lesson.level}`}
+                </span>
+                <span>
+                  Lesson {String(next.lesson.number).padStart(2, "0")} · {READINESS_AREA_META[next.lesson.area].label}
+                </span>
+              </p>
+              <h2 id="continue-heading" className="mt-3 text-[2rem] leading-[1.05] text-white sm:text-[2.6rem]">
                 {next.lesson.title}
               </h2>
-              <p className="mt-1 text-slate-700">{next.isRetake ? next.reason : next.lesson.description}</p>
-              {!next.isRetake && <p className="mt-1.5 text-sm text-slate-600">{next.reason}</p>}
+              <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/75">{next.isRetake ? next.reason : next.lesson.description}</p>
+              {!next.isRetake && <p className="mt-1.5 text-sm text-white/50">{next.reason}</p>}
+              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/70">
+                <span className="inline-flex items-center gap-1.5">
+                  <ClockIcon className="h-4 w-4" />
+                  About {next.lesson.estimatedMinutes} minutes
+                </span>
+                <span className="inline-flex items-center gap-1.5 font-semibold text-orange-300">
+                  <StarIcon className="h-4 w-4" />
+                  {next.isRetake ? "Retakes raise your readiness (no XP)" : `+${next.lesson.xpReward} XP when you finish`}
+                </span>
+                {next.lesson.status === "in-progress" && !next.isRetake && <span className="font-semibold text-brand-200">Started</span>}
+              </div>
+              {nextLevelOfLesson && (
+                <div className="mt-5 max-w-xs">
+                  <StepBar
+                    done={nextLevelOfLesson.completed}
+                    total={nextLevelOfLesson.slugs.length}
+                    current={!next.isRetake}
+                    onDark
+                    label={`Level ${nextLevelOfLesson.chapter.number} progress`}
+                  />
+                  <p className="mt-1.5 text-xs text-white/50">
+                    Level {nextLevelOfLesson.chapter.number} · {nextLevelOfLesson.completed} of {nextLevelOfLesson.slugs.length} lessons done
+                  </p>
+                </div>
+              )}
+              <Link href={`/lessons/${next.lesson.slug}`} className={`${primaryButton} group mt-7 w-full px-7 py-3.5 text-base sm:w-auto`}>
+                {next.isRetake ? "Review this lesson" : next.lesson.status === "in-progress" ? "Continue Learning" : "Start Learning"}
+                <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-0.5" />
+              </Link>
             </div>
+            <LevelIllustration level={next.lesson.level} className="mx-auto hidden h-48 w-auto animate-float md:block lg:h-56" />
           </div>
-          <p className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-600">
-            <span className="inline-flex items-center gap-1.5">
-              <ClockIcon className="h-4 w-4" />
-              About {next.lesson.estimatedMinutes} minutes
-            </span>
-            <span className="inline-flex items-center gap-1.5 font-semibold text-amber-800">
-              <StarIcon className="h-4 w-4" />
-              {next.isRetake ? "Retakes raise your readiness (no XP)" : `+${next.lesson.xpReward} XP when you finish`}
-            </span>
-            {next.lesson.status === "in-progress" && !next.isRetake && <span className="font-semibold text-brand-700">Started</span>}
-          </p>
-          <Link href={`/lessons/${next.lesson.slug}`} className={`${primaryButton} mt-6 w-full py-3.5 text-base sm:w-auto sm:px-8`}>
-            {next.isRetake ? "Review this lesson" : next.lesson.status === "in-progress" ? "Continue Learning" : "Start Learning"}
-            <ArrowRightIcon className="h-5 w-5" />
-          </Link>
         </section>
       ) : levelComplete ? (
-        <section className={`${card} p-6 text-center`} aria-labelledby="continue-heading">
-          <h2 id="continue-heading" className="text-xl font-extrabold text-slate-900">
+        <section className={`${spotlight} p-8 text-center sm:p-10`} aria-labelledby="continue-heading">
+          <TrophyIllustration won className="mx-auto h-28 w-auto animate-pop" />
+          <h2 id="continue-heading" className="mt-4 text-3xl text-white">
             You&apos;ve finished all {levels.length} levels of {PATH_NAME}
           </h2>
-          <p className="mx-auto mt-1 max-w-md text-slate-600">Keep it fresh: revise what you missed and take today&apos;s challenge.</p>
-          <Link href="/lessons#review" className={`${primaryButton} mt-4`}>
+          <p className="mx-auto mt-2 max-w-md text-white/70">Keep it fresh: revise what you missed and take today&apos;s challenge.</p>
+          <Link href="/lessons#review" className={`${lightButton} mt-6`}>
             Review &amp; revise
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
@@ -210,66 +244,87 @@ export default async function DashboardPage() {
         <p className={`${card} p-6 text-center font-semibold text-slate-700`}>{NO_LESSONS_MESSAGE}</p>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {/* D. One daily activity */}
-        <section className={`${card} flex flex-col p-5`} aria-labelledby="daily-heading">
-          <p className="text-sm font-semibold text-slate-500">Today</p>
-          {daily ? (
-            <>
-              <h2 id="daily-heading" className="mt-0.5 text-lg font-extrabold text-slate-900">
-                {daily.title}
-              </h2>
-              <p className="mt-1 line-clamp-2 text-sm text-slate-700">{daily.text}</p>
-              <p className="mt-2 text-sm font-semibold text-amber-800">{daily.meta}</p>
-              <div className="mt-auto pt-4">
-                <Link href={daily.href} className={`${softButton} w-full`}>
-                  {daily.cta}
-                  <ArrowRightIcon className="h-4 w-4" />
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <h2 id="daily-heading" className="mt-0.5 text-lg font-extrabold text-slate-900">
-                Daily question and challenge done
-              </h2>
-              <p className="mt-1 text-sm text-slate-700">New ones arrive at midnight. Want more? Revise or play a money scenario.</p>
-              <div className="mt-auto pt-4">
-                <Link href="/lessons#practise" className={`${softButton} w-full`}>
-                  Practise more
-                  <ArrowRightIcon className="h-4 w-4" />
-                </Link>
-              </div>
-            </>
-          )}
-        </section>
+      {/* C. Today's activities */}
+      <TodayPanel
+        questionXp={question?.answer ? question.answer.xpAwarded : null}
+        questionPrompt={question?.question.prompt}
+        challengeTitle={challenge.title}
+        challengeXp={challengeRun ? challengeRun.xpAwarded : null}
+        missions={missions}
+      />
 
-        {/* E. One next milestone */}
-        {milestone && (
-          <Link href={milestone.href} className={`${tile} flex flex-col p-5`} aria-labelledby="milestone-heading">
-            <p className="text-sm font-semibold text-slate-500">Next milestone</p>
-            <h2 id="milestone-heading" className="mt-0.5 text-lg font-extrabold text-slate-900">
-              {milestone.title}
-            </h2>
-            <p className="mt-1 text-sm text-slate-700">{milestone.text}</p>
-            <div className="mt-auto pt-4">
-              <div
-                role="progressbar"
-                aria-label={milestone.title}
-                aria-valuemin={0}
-                aria-valuemax={milestone.total}
-                aria-valuenow={milestone.done}
-                className="h-2 overflow-hidden rounded-full bg-slate-200"
-              >
-                <div className="h-full rounded-full bg-brand-600" style={{ width: `${(milestone.done / milestone.total) * 100}%` }} />
-              </div>
-              <p className="mt-1.5 text-xs font-semibold text-slate-600 tabular-nums">
-                {milestone.done}/{milestone.total} {milestone.unit}
-              </p>
-            </div>
+      {/* D. Progress through the four levels, and the next achievement */}
+      <section aria-labelledby="progress-heading">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="progress-heading" className="text-2xl text-slate-900">
+            Your progress
+          </h2>
+          <Link href="/lessons#path" className="group inline-flex items-center gap-1 text-sm font-semibold text-brand-700">
+            See the map
+            <ArrowRightIcon className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </Link>
-        )}
-      </div>
+        </div>
+        <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] lg:gap-8">
+          <ol className="grid grid-cols-1 gap-x-6 gap-y-5 border-t border-slate-200 pt-5 sm:grid-cols-2">
+            {levels.map((level) => {
+              const isCurrent = level === currentLevel;
+              return (
+                <li key={level.chapter.id} className="min-w-0">
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                    {level.status === "completed" ? (
+                      <CheckIcon className="h-3.5 w-3.5 text-emerald-600" />
+                    ) : level.status === "locked" ? (
+                      <LockIcon className="h-3.5 w-3.5" />
+                    ) : null}
+                    Level {level.chapter.number}
+                    {isCurrent && <span className="rounded-full bg-brand-50 px-2 py-px text-[11px] font-semibold text-brand-700">You&apos;re here</span>}
+                  </p>
+                  <p className={`mt-0.5 flex items-baseline justify-between gap-2 text-[15px] font-semibold ${level.status === "locked" ? "text-slate-500" : "text-slate-900"}`}>
+                    <span className="truncate">{level.chapter.title}</span>
+                    <span className="shrink-0 text-xs font-semibold text-slate-500 tabular-nums">
+                      {level.completed}/{level.slugs.length}
+                      <span className="sr-only"> lessons done</span>
+                    </span>
+                  </p>
+                  <StepBar
+                    done={level.completed}
+                    total={level.slugs.length}
+                    current={isCurrent}
+                    label={`Level ${level.chapter.number} progress`}
+                    className="mt-2"
+                  />
+                </li>
+              );
+            })}
+          </ol>
+
+          {milestone && (
+            <Link href={milestone.href} className={`${tile} group flex flex-col p-5`} aria-labelledby="milestone-heading">
+              <span className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
+                <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
+                  <TrophyIcon className="h-4 w-4" />
+                </span>
+                Next achievement
+              </span>
+              <h3 id="milestone-heading" className="mt-3 text-lg leading-snug text-slate-900">
+                {milestone.title}
+              </h3>
+              <p className="mt-1 text-sm text-slate-600">{milestone.text}</p>
+              <div className="mt-auto pt-4">
+                <ProgressBar
+                  value={milestone.done}
+                  max={milestone.total}
+                  label={milestone.title}
+                  tone={milestone.unit === "XP" ? "bg-orange-400" : "bg-emerald-500"}
+                />
+                <p className="mt-1.5 text-xs font-semibold text-slate-600 tabular-nums">
+                  {milestone.done}/{milestone.total} {milestone.unit}
+                </p>
+              </div>
+            </Link>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
