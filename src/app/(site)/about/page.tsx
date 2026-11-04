@@ -18,7 +18,7 @@ Most of us leave college without learning how budgets, bank accounts, credit sco
 - **Interactive money scenarios** — manage a ₹15,000 stipend, handle a credit-card bill, spot a fake UPI request, read your first payslip
 - **5-question quizzes** with an **AI Coach** that gives a hint, lets you retry, checks you've got it and answers your follow-up questions — instead of just revealing the answer
 - **Smart revision** that brings back what you missed after 1, 3 and 7 days, and tracks your topic mastery
-- **Something fresh every day** — a Question of the Day, a Daily Challenge on a rotating topic, and three daily missions
+- **Something fresh every day** — a Daily Money Reality Check, a Daily Challenge on a rotating topic, and three daily missions
 - **A forgiving streak** — learn a little each day; earned streak freezes cover the odd missed day, with no pressure and no pay-to-keep
 - **XP, badges, ranks and a Rewards Store** — XP comes only from real learning, and you can spend it on avatar items, titles, themes and bonus scenarios
 

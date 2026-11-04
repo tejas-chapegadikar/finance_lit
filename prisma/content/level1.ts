@@ -1,4 +1,5 @@
 import { choices, type SeedLesson } from "./types";
+import { loansEmis } from "./loans";
 
 // Level 1 — Financial Foundations. Every lesson follows the same V1 structure:
 // Hook → Learn (each "## " section is a card) → Real-life example → Key
@@ -191,7 +192,7 @@ Ravi didn't invest more. He just gave compounding 10 extra years.
   },
   questions: [
     {
-      prompt: "What makes compound interest different from simple interest?",
+      prompt: "Your friend calls compound interest “interest on steroids”. What actually makes it different from simple interest?",
       explanation:
         "With compounding, interest is added to your balance — and next year you earn interest on that bigger balance.",
       hint: "After year one, what happens to the interest you earned? Does it just sit there, or start earning too?",
@@ -311,7 +312,7 @@ He cuts it to ₹50 a day and moves the ₹100 he saves into an emergency fund �
   },
   questions: [
     {
-      prompt: "What is an emergency fund for?",
+      prompt: "Your laptop dies a week before exams. What's an emergency fund actually for?",
       explanation:
         "An emergency fund is kept aside only for surprises, so a sudden expense doesn't push you into debt.",
       hint: "The name is a clue — what kind of situation is it meant for?",
@@ -347,7 +348,7 @@ He cuts it to ₹50 a day and moves the ₹100 he saves into an emergency fund �
       ),
     },
     {
-      prompt: "What does the 24-hour rule help you avoid?",
+      prompt: "You spotted a ₹2,999 smartwatch five minutes ago and you NEED it. What does waiting 24 hours help you avoid?",
       explanation:
         "Waiting a day before a non-essential purchase gives the urge time to fade, so you only buy what you really want.",
       hint: "The rule is about waiting before you buy. What kind of buying does waiting stop?",
@@ -424,7 +425,7 @@ She looks closely: the screen says **"Pay ₹2,000"** and asks for her UPI PIN. 
   },
   questions: [
     {
-      prompt: "When do you need to enter your UPI PIN?",
+      prompt: "A buyer on a resale app says, “Just enter your PIN to receive the money.” When do you actually need your UPI PIN?",
       explanation: "Your UPI PIN approves money going out. Receiving money never needs your PIN.",
       hint: "Think of the PIN as your signature approving a payment. Which direction is that payment going?",
       difficulty: "EASY",
@@ -452,7 +453,7 @@ She looks closely: the screen says **"Pay ₹2,000"** and asks for her UPI PIN. 
       ),
     },
     {
-      prompt: 'What is a UPI "collect request"?',
+      prompt: "A “refund” pops up on your UPI app as a collect request. What is a collect request, really?",
       explanation:
         "A collect request asks you to approve a payment. Scammers disguise them as refunds or prizes — approving one sends your money out.",
       hint: "In a collect request, who is collecting the money — you, or the person who sent it?",
@@ -561,7 +562,7 @@ The earnings were never real — every deposit went straight to the scammers.
   },
   questions: [
     {
-      prompt: "Who should you share your OTP with?",
+      prompt: "“Sir, calling from your bank — please tell the OTP for KYC.” Who should you share an OTP with?",
       explanation:
         "An OTP approves a login or a payment. Banks, police and companies never need it — sharing it hands over control.",
       hint: "An OTP approves things on your behalf. Is there anyone who should be approving things as you?",
@@ -705,7 +706,7 @@ She switches to a zero-balance account and keeps that money instead.
   },
   questions: [
     {
-      prompt: "What is a nominee on your bank account?",
+      prompt: "Your account-opening form asks for a “nominee”. Who is that?",
       explanation:
         "A nominee is the person you choose to receive your deposits if you pass away. Adding one makes things much easier for your family.",
       hint: "Think about what should happen to the money in an account if its owner were no longer around.",
@@ -719,7 +720,7 @@ She switches to a zero-balance account and keeps that money instead.
       ),
     },
     {
-      prompt: "Who is a current account mainly designed for?",
+      prompt: "A friend says you should open a current account for your pocket money. Who are current accounts actually designed for?",
       explanation:
         "Current accounts are built for businesses and freelancers who make many transactions every day. They earn no interest, so students and employees are usually better off with a savings account.",
       hint: "Think about who makes dozens of payments a day — and who would care more about that than about earning interest.",
@@ -825,7 +826,7 @@ The interest covers part of the cost, and the fixed monthly deposit keeps him on
   },
   questions: [
     {
-      prompt: "What is a Fixed Deposit?",
+      prompt: "Your mom says, “Just put it in an FD.” What is a Fixed Deposit?",
       explanation:
         "An FD is a one-time deposit locked for a set tenure at an interest rate that's fixed when you open it.",
       hint: "Focus on the word \"fixed\" — what stays fixed in this kind of deposit?",
@@ -839,7 +840,7 @@ The interest covers part of the cost, and the fixed monthly deposit keeps him on
       ),
     },
     {
-      prompt: "Which one lets you deposit a fixed amount every month?",
+      prompt: "You want to put aside ₹1,000 every month for a trip next year. Which one lets you deposit a fixed amount every month?",
       explanation: "A Recurring Deposit takes a fixed amount every month — great for building towards a goal bit by bit.",
       hint: "Which name suggests something that happens again and again?",
       difficulty: "EASY",
@@ -942,7 +943,7 @@ Her score stays stuck around 690. She starts paying part of her bill mid-month s
   },
   questions: [
     {
-      prompt: "What is the range of a CIBIL score?",
+      prompt: "A friend brags about a CIBIL score of 1,200. What's the actual range of a CIBIL score?",
       explanation: "CIBIL scores range from 300 to 900. Higher is better — 750+ is generally considered good.",
       hint: "It's a three-digit number, and the top of the range is below 1,000.",
       difficulty: "EASY",
@@ -1064,7 +1065,7 @@ If he pays only the minimum (about ₹600), the remaining ₹11,400 starts attra
   },
   questions: [
     {
-      prompt: "What does a credit limit represent?",
+      prompt: "Your first card comes with a ₹1,00,000 limit. What does that limit actually represent?",
       explanation: "Your credit limit is the maximum amount you can borrow using the card.",
       hint: "Think about what the bank is limiting. Is it the amount you're required to spend, or the amount you're allowed to borrow?",
       difficulty: "EASY",
@@ -1099,7 +1100,7 @@ If he pays only the minimum (about ₹600), the remaining ₹11,400 starts attra
       ),
     },
     {
-      prompt: "What is a billing cycle?",
+      prompt: "Your card statement keeps mentioning a “billing cycle”. What is it?",
       explanation:
         "All the spends in a billing cycle — usually about 30 days — are added into one statement, which you pay by the due date.",
       hint: "A \"bill\" plus a \"cycle\" — think about how often your card sends you a bill.",
@@ -1137,7 +1138,7 @@ const firstSalaryTax: SeedLesson = {
   description: "Read your first payslip — CTC vs in-hand, PF, TDS and the tax regimes for tax year 2026-27.",
   estimatedMinutes: 6,
   xpReward: 75,
-  order: 10,
+  order: 11,
   hook: `Your offer letter says ₹6 LPA. That's ₹50,000 a month, right?
 
 Then your first salary arrives: about ₹46,000. Where did the rest go?`,
@@ -1208,7 +1209,7 @@ Even when TDS is deducted, file your **Income Tax Return (ITR)** on incometax.go
       ),
     },
     {
-      prompt: "What does TDS on your salary mean?",
+      prompt: "Your first payslip has a line called “TDS”. What is it?",
       explanation:
         "TDS (Tax Deducted at Source) is income tax your employer deducts from your salary and deposits with the government on your behalf.",
       hint: "The \"T\" stands for tax. Who deducts it — and is that before or after your salary reaches you?",
@@ -1269,7 +1270,7 @@ const stocksFundsFds: SeedLesson = {
   description: "Before you invest your first salary: how stocks, mutual funds and FDs differ, and the risk behind returns.",
   estimatedMinutes: 6,
   xpReward: 75,
-  order: 11,
+  order: 12,
   hook: `Your friend says he doubled his money in a stock in three months. Your parents say only FDs are safe.
 
 Who's right?`,
@@ -1322,7 +1323,7 @@ Neither result is guaranteed to repeat — markets can rise or fall.
   },
   questions: [
     {
-      prompt: "What does owning a stock mean?",
+      prompt: "You buy one share of a company whose products you love. What do you actually own?",
       explanation:
         "A stock (or share) is a small piece of ownership in a company — its value rises and falls with the company.",
       hint: "The word \"share\" is a clue. A share of what?",
@@ -1336,7 +1337,7 @@ Neither result is guaranteed to repeat — markets can rise or fall.
       ),
     },
     {
-      prompt: "What is diversification?",
+      prompt: "A friend put all ₹10,000 into one stock “because it's going to the moon”. What would diversification look like instead?",
       explanation: "Diversification spreads money across many investments, so one bad pick doesn't sink everything.",
       hint: "Think of the saying about not putting all your eggs in one basket.",
       difficulty: "EASY",
@@ -1401,7 +1402,7 @@ const sipsStartingEarly: SeedLesson = {
   description: "See how small monthly SIPs add up — and why starting early beats starting big.",
   estimatedMinutes: 6,
   xpReward: 75,
-  order: 12,
+  order: 13,
   hook: `₹3,000 a month is about one weekend out with friends.
 
 What if putting it away at 21 instead of 31 made a difference of over ₹1 crore by the time you're 60?`,
@@ -1460,7 +1461,7 @@ Aisha put in only ₹3.6 lakh more, but those 10 extra years did most of the wor
   },
   questions: [
     {
-      prompt: "What is a SIP?",
+      prompt: "Everyone on finance Instagram says “start a SIP”. What is a SIP?",
       explanation:
         "A SIP (Systematic Investment Plan) invests a fixed amount at regular intervals — usually monthly — into a mutual fund.",
       hint: "The \"S\" stands for Systematic. What does investing systematically look like, month after month?",
@@ -1544,6 +1545,7 @@ export const LEVEL_1_LESSONS: SeedLesson[] = [
   fdRd,
   cibilScore,
   creditCards,
+  loansEmis,
   firstSalaryTax,
   stocksFundsFds,
   sipsStartingEarly,

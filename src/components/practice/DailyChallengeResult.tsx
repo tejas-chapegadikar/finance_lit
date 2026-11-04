@@ -49,7 +49,7 @@ export function DailyChallengeResult({
           Back to dashboard
           <ArrowRightIcon className="h-4 w-4" />
         </Link>
-        <Link href="/lessons#practise" className={secondaryButton}>
+        <Link href="/practice" className={secondaryButton}>
           More practice
         </Link>
       </div>

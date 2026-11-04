@@ -386,3 +386,77 @@ export const ThumbDownIcon = (p: IconProps) => (
     <path d="M7 13.5V4H4.5a1 1 0 0 0-1 1v7.5a1 1 0 0 0 1 1zM7 13.5l3.5 7a2 2 0 0 0 2-2V15h5.3a2 2 0 0 0 2-2.3l-1.1-7a2 2 0 0 0-2-1.7H7" />
   </Svg>
 );
+
+// ── Money Manager ────────────────────────────────────────────────────────
+
+export const CoffeeIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4.5 9h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM16.5 10.5h1a2.5 2.5 0 0 1 0 5h-1.2M8 3.5c-.6.8-.6 1.7 0 2.5M12 3.5c-.6.8-.6 1.7 0 2.5" />
+  </Svg>
+);
+
+export const UtensilsIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M6 3.5V10a2 2 0 0 0 2 2v8.5M10 3.5V10a2 2 0 0 1-2 2M8 3.5V8M17 20.5V3.5c-2 0-3.5 2-3.5 5.5v3h3.5" />
+  </Svg>
+);
+
+export const BusIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="4.5" y="3.5" width="15" height="14" rx="3" />
+    <path d="M4.5 11h15M8 17.5v2.5M16 17.5v2.5M8 14.5h.01M16 14.5h.01" />
+  </Svg>
+);
+
+export const ShoppingBagIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 8h14l-1 12.5H6z" />
+    <path d="M9 10.5V7a3 3 0 0 1 6 0v3.5" />
+  </Svg>
+);
+
+export const LaptopIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="4.5" y="4.5" width="15" height="10.5" rx="1.5" />
+    <path d="M2.5 19h19" />
+  </Svg>
+);
+
+export const PlaneIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3 13.5l18-7-5.5 14-3.5-6z" />
+    <path d="M12 14.5l9-8" />
+  </Svg>
+);
+
+export const PlusIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Svg>
+);
+
+export const MinusIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 12h14" />
+  </Svg>
+);
+
+export const TrashIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10.5 11v5.5M13.5 11v5.5" />
+  </Svg>
+);
+
+export const CalculatorIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="5" y="3" width="14" height="18" rx="2" />
+    <path d="M8.5 7h7M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15h.01M8.5 18h.01M12 18h3.5" />
+  </Svg>
+);
+
+export const UsersIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2.5 20c1-3.5 3.6-5 6.5-5s5.5 1.5 6.5 5M16 4.6a3.5 3.5 0 0 1 0 6.8M18 15.3c1.7.7 3 2.2 3.5 4.7" />
+  </Svg>
+);

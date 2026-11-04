@@ -1,8 +1,10 @@
 import type { Prisma, ReadinessArea } from "@prisma/client";
+import { PATH_SLUGS } from "./journey";
 import type { LessonProgress } from "./progress";
 import { PATH_NAME, QUESTIONS_PER_QUIZ } from "./constants";
 import { READINESS_AREA_META } from "./readiness-areas";
 import { CORE_SCENARIOS } from "./scenarios";
+import { findChallenge } from "./challenges/content";
 
 // Achievement badges: each has one clear rule, and once earned it's stored
 // for good (UserBadge), even if lessons are added later.
@@ -14,7 +16,11 @@ export type BadgeRule =
   | { kind: "perfect-quizzes"; count: number }
   | { kind: "streak"; days: number }
   | { kind: "scenarios"; count: number }
-  | { kind: "retained"; count: number };
+  | { kind: "retained"; count: number }
+  | { kind: "money-logs"; count: number }
+  | { kind: "checkins"; count: number }
+  | { kind: "goals"; count: number }
+  | { kind: "challenge"; which: "habit" | "saving" };
 
 export type Badge = { id: string; icon: string; name: string; rule: BadgeRule };
 
@@ -33,6 +39,12 @@ export const BADGES: Badge[] = [
   { id: "scenario-solver", icon: "🧭", name: "Scenario Solver", rule: { kind: "scenarios", count: CORE_SCENARIOS.length } },
   { id: "memory-master", icon: "🧠", name: "Memory Master", rule: { kind: "retained", count: 10 } },
   { id: "financial-foundations", icon: "🎓", name: `${PATH_NAME} Graduate`, rule: { kind: "level" } },
+  // Money habits — earned in Money Manager and Practice.
+  { id: "money-tracker", icon: "📒", name: "Money Tracker", rule: { kind: "money-logs", count: 10 } },
+  { id: "reality-checker", icon: "🔎", name: "Reality Checker", rule: { kind: "checkins", count: 7 } },
+  { id: "goal-getter", icon: "🎯", name: "Goal Getter", rule: { kind: "goals", count: 1 } },
+  { id: "habit-builder", icon: "🗓️", name: "Habit Builder", rule: { kind: "challenge", which: "habit" } },
+  { id: "challenge-accepted", icon: "🏁", name: "Challenge Accepted", rule: { kind: "challenge", which: "saving" } },
 ];
 
 export function findBadge(id: string): Badge | undefined {
@@ -46,7 +58,16 @@ export type BadgeStats = {
   longestStreak: number;
   coreScenarios: number;
   retained: number;
+  moneyLogs: number;
+  checkIns: number;
+  /** Savings goals of ₹500+ reached. */
+  goalsReached: number;
+  habitDone: number;
+  savingDone: number;
 };
+
+/** Only goals at least this big count toward Goal Getter — a ₹1 goal isn't a goal. */
+export const GOAL_BADGE_MIN = 500;
 
 export type BadgeProgress = Badge & {
   /** The eligibility rule, e.g. "Complete all 3 Budgeting lessons". */
@@ -76,6 +97,14 @@ function progressFor(rule: BadgeRule, stats: BadgeStats): { done: number; requir
       return { done: Math.min(stats.coreScenarios, rule.count), required: rule.count };
     case "retained":
       return { done: Math.min(stats.retained, rule.count), required: rule.count };
+    case "money-logs":
+      return { done: Math.min(stats.moneyLogs, rule.count), required: rule.count };
+    case "checkins":
+      return { done: Math.min(stats.checkIns, rule.count), required: rule.count };
+    case "goals":
+      return { done: Math.min(stats.goalsReached, rule.count), required: rule.count };
+    case "challenge":
+      return { done: Math.min(rule.which === "habit" ? stats.habitDone : stats.savingDone, 1), required: 1 };
   }
 }
 
@@ -99,6 +128,14 @@ function ruleText(rule: BadgeRule, required: number): string {
       return `Finish all ${required} money scenarios`;
     case "retained":
       return `Lock in ${required} questions through revision`;
+    case "money-logs":
+      return `Log ${required} entries in Money Manager`;
+    case "checkins":
+      return `Check in on your money on ${required} days`;
+    case "goals":
+      return `Reach a savings goal of ₹${GOAL_BADGE_MIN} or more`;
+    case "challenge":
+      return rule.which === "habit" ? "Finish the 30-day money habit challenge" : "Finish a saving challenge";
   }
 }
 
@@ -120,11 +157,12 @@ export async function loadBadgeStats(
   userId: string,
   lessons: BadgeStats["lessons"],
 ): Promise<BadgeStats> {
-  const [perfectQuizzes, user, runs, retained] = await Promise.all([
+  const [perfectQuizzes, user, runs, retained, money] = await Promise.all([
     db.quizAttempt.count({ where: { userId, ...PERFECT_QUIZ } }),
     db.user.findUniqueOrThrow({ where: { id: userId }, select: { longestStreak: true } }),
     db.scenarioRun.findMany({ where: { userId }, select: { scenarioSlug: true }, distinct: ["scenarioSlug"] }),
     db.revisionItem.count({ where: { userId, status: "DONE" } }),
+    loadMoneyStats(db, userId),
   ]);
   const core = new Set(CORE_SCENARIOS.map((s) => s.slug));
   return {
@@ -133,6 +171,24 @@ export async function loadBadgeStats(
     longestStreak: user.longestStreak,
     coreScenarios: runs.filter((r) => core.has(r.scenarioSlug)).length,
     retained,
+    ...money,
+  };
+}
+
+async function loadMoneyStats(db: Prisma.TransactionClient, userId: string) {
+  const [moneyLogs, checkIns, goalsReached, finished] = await Promise.all([
+    db.moneyEntry.count({ where: { userId } }),
+    db.moneyCheckIn.count({ where: { userId } }),
+    db.savingsGoal.count({ where: { userId, completedAt: { not: null }, target: { gte: GOAL_BADGE_MIN } } }),
+    db.challengeEnrollment.findMany({ where: { userId, completedAt: { not: null } }, select: { challengeId: true } }),
+  ]);
+  const kinds = finished.map((e) => findChallenge(e.challengeId)?.kind);
+  return {
+    moneyLogs,
+    checkIns,
+    goalsReached,
+    habitDone: kinds.filter((k) => k === "habit").length,
+    savingDone: kinds.filter((k) => k === "saving").length,
   };
 }
 
@@ -159,7 +215,7 @@ const ofKind = <K extends BadgeRule["kind"]>(kind: K) =>
  */
 export async function awardLessonBadges(tx: Prisma.TransactionClient, userId: string, quizAttemptId: string) {
   const [lessons, completed, perfect] = await Promise.all([
-    tx.lesson.findMany({ where: { isPublished: true }, select: { id: true, area: true } }),
+    tx.lesson.findMany({ where: { isPublished: true, slug: { in: PATH_SLUGS } }, select: { id: true, area: true } }),
     tx.quizAttempt.findMany({ where: { userId, status: "COMPLETED" }, select: { lessonId: true }, distinct: ["lessonId"] }),
     tx.quizAttempt.count({ where: { userId, ...PERFECT_QUIZ } }),
   ]);
@@ -170,6 +226,11 @@ export async function awardLessonBadges(tx: Prisma.TransactionClient, userId: st
     longestStreak: 0,
     coreScenarios: 0,
     retained: 0,
+    moneyLogs: 0,
+    checkIns: 0,
+    goalsReached: 0,
+    habitDone: 0,
+    savingDone: 0,
   };
   const eligible = BADGES.filter((badge) => {
     if (!["lessons", "area", "level", "perfect-quizzes"].includes(badge.rule.kind)) return false;
@@ -196,4 +257,16 @@ export async function awardScenarioBadges(tx: Prisma.TransactionClient, userId: 
 export async function awardRevisionBadges(tx: Prisma.TransactionClient, userId: string) {
   const retained = await tx.revisionItem.count({ where: { userId, status: "DONE" } });
   return grant(tx, userId, ofKind("retained").filter((b) => retained >= b.rule.count).map((b) => b.id));
+}
+
+/** After Money Manager activity or a finished challenge: the money-habit badges. */
+export async function awardMoneyBadges(tx: Prisma.TransactionClient, userId: string) {
+  const money = await loadMoneyStats(tx, userId);
+  const stats = { lessons: [], perfectQuizzes: 0, longestStreak: 0, coreScenarios: 0, retained: 0, ...money } satisfies BadgeStats;
+  const eligible = BADGES.filter((badge) => {
+    if (!["money-logs", "checkins", "goals", "challenge"].includes(badge.rule.kind)) return false;
+    const { done, required } = progressFor(badge.rule, stats);
+    return required > 0 && done >= required;
+  });
+  return grant(tx, userId, eligible.map((b) => b.id));
 }

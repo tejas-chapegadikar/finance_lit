@@ -51,8 +51,8 @@ export function ScenarioPlayer({ scenario, xpReward, firstRun }: { scenario: Pub
           <p className="mt-0.5 font-semibold text-slate-900">{scenario.takeaway}</p>
         </div>
         <div className="mt-6 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-          <Link href="/lessons#scenarios" className={primaryButton}>
-            Back to Learn
+          <Link href="/practice#scenarios" className={primaryButton}>
+            Back to Daily
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
           <button

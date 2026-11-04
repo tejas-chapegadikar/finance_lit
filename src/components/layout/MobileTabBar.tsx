@@ -14,7 +14,7 @@ export function MobileTabBar() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
       <ul className="mx-auto flex max-w-lg justify-around px-2">
-        {NAV_ITEMS.map(({ href, shortLabel, Icon, also }) => {
+        {NAV_ITEMS.filter((item) => item.mobile).map(({ href, shortLabel, Icon, also }) => {
           const active = isActive(pathname, href, also);
           return (
             <li key={href} className="flex-1">

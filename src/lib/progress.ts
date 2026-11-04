@@ -2,7 +2,7 @@ import { cache } from "react";
 import type { Lesson, ReadinessArea } from "@prisma/client";
 import { db } from "./db";
 import { READINESS_AREA_META, READINESS_AREA_VALUES } from "./readiness-areas";
-import { chapterOf, focusFor, isLessonUnlocked, levelAccess, type LevelAccess } from "./journey";
+import { chapterOf, focusFor, isInvestLesson, isLessonUnlocked, levelAccess, type LevelAccess } from "./journey";
 
 export type LessonSummary = Pick<
   Lesson,
@@ -45,7 +45,10 @@ export type NextStep = { lesson: LessonProgress; reason: string; isRetake: boole
 export type ReviewSuggestion = { area: AreaReadiness; lesson: LessonProgress };
 
 export type Progress = {
+  /** The Money IQ path's lessons (Levels 1–4) — what every count and score is about. */
   lessons: LessonProgress[];
+  /** The InvestSmart track's lessons, in order (not part of the path's counts). */
+  invest: LessonProgress[];
   /** The four levels in order, with their status. */
   levels: LevelAccess[];
   /** The level to work on now; null once every level is complete. */
@@ -123,24 +126,25 @@ export async function fetchProgress(userId: string): Promise<Progress> {
     }
   }
 
-  const levels = levelAccess(
-    new Set(lessons.map((l) => l.slug)),
-    new Set(lessons.filter((l) => bestMastery.has(l.id)).map((l) => l.slug)),
-  );
+  const completedSlugs = new Set(lessons.filter((l) => bestMastery.has(l.id)).map((l) => l.slug));
+  const pathLessons = lessons.filter((l) => !isInvestLesson(l.slug));
+  const levels = levelAccess(new Set(pathLessons.map((l) => l.slug)), completedSlugs);
 
-  const lessonProgress = lessons.map((lesson, i): LessonProgress => {
+  const toProgress = (lesson: LessonSummary, i: number): LessonProgress => {
     const quizScore = bestMastery.get(lesson.id) ?? null;
     return {
       ...lesson,
       number: i + 1,
       level: chapterOf(lesson.slug)?.number ?? 0,
-      locked: !isLessonUnlocked(lesson.slug, levels),
+      locked: !isLessonUnlocked(lesson.slug, levels, completedSlugs),
       status: quizScore !== null ? "completed" : started.has(lesson.id) ? "in-progress" : "not-started",
       quizScore,
       score: lessonScore(quizScore),
       firstCompletedAt: firstCompletedAt.get(lesson.id) ?? null,
     };
-  });
+  };
+  const lessonProgress = pathLessons.map(toProgress);
+  const invest = lessons.filter((l) => isInvestLesson(l.slug)).map(toProgress);
 
   const areas = READINESS_AREA_VALUES.flatMap((area): AreaReadiness[] => {
     const inArea = lessonProgress.filter((lesson) => lesson.area === area);
@@ -174,6 +178,7 @@ export async function fetchProgress(userId: string): Promise<Progress> {
 
   return {
     lessons: lessonProgress,
+    invest,
     levels,
     currentLevel,
     areas,
@@ -204,15 +209,16 @@ export async function lessonAccess(userId: string, before?: Date) {
     }),
   ]);
   const done = new Set(completed.map((a) => a.lessonId));
-  const levels = levelAccess(new Set(lessons.map((l) => l.slug)), new Set(lessons.filter((l) => done.has(l.id)).map((l) => l.slug)));
-  return { levels, unlocked: lessons.filter((lesson) => isLessonUnlocked(lesson.slug, levels)) };
+  const completedSlugs = new Set(lessons.filter((l) => done.has(l.id)).map((l) => l.slug));
+  const levels = levelAccess(new Set(lessons.filter((l) => !isInvestLesson(l.slug)).map((l) => l.slug)), completedSlugs);
+  return { levels, unlocked: lessons.filter((lesson) => isLessonUnlocked(lesson.slug, levels, completedSlugs)) };
 }
 
 /** Throws when the lesson is in a level the student hasn't unlocked. */
 export async function assertLessonUnlocked(userId: string, lessonId: string) {
   const { unlocked } = await lessonAccess(userId);
   if (!unlocked.some((lesson) => lesson.id === lessonId)) {
-    throw new Error("This lesson is locked — finish the previous level first");
+    throw new Error("This lesson is locked — finish the one before it first");
   }
 }
 

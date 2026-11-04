@@ -1,68 +1,28 @@
 import { choices, type SeedDailyQuestion } from "./types";
 
-// The Question of the Day pool. Each student gets one a day — a fresh one they
-// haven't answered, preferring their latest lesson's topic, then this order. Areas
-// are interleaved so back-to-back days feel different.
+// The Daily Money Reality Check pool (stored as DailyQuestion rows). Each
+// student gets one a day — a fresh one they haven't answered, preferring their
+// latest lesson's topic, then this order. Areas are interleaved so back-to-back
+// days feel different.
+//
+// The no-repeats rule: every question here teaches something NO lesson quiz or
+// practice question already asks — a new concept, or a genuinely new decision.
+// `npm test` (src/lib/content/catalog.test.ts) fails if one starts to overlap.
+// Retired keys are hidden by the seed, not deleted, so past answers survive.
 export const DAILY_QUESTIONS: SeedDailyQuestion[] = [
   {
-    key: "upi-pin-to-receive",
-    area: "DIGITAL_SAFETY",
-    prompt:
-      "Someone sends you a UPI payment request asking you to enter your UPI PIN to receive ₹5,000. What do you do?",
-    options: choices(
-      1,
-      "Enter your PIN to get the money",
-      "Decline it — a PIN is never needed to receive money",
-      "Ask them to send ₹1 first to check",
-      "Approve it, and ask for a refund if something goes wrong",
-    ),
-    explanation:
-      "Your UPI PIN only ever sends money out. A request that needs your PIN to \"receive\" money is a scam — decline it and block the sender.",
-  },
-  {
-    key: "pay-yourself-first",
+    key: "windfall-2000",
     area: "BUDGETING",
-    prompt:
-      "You earn ₹25,000/month. Your rent + food + transport costs ₹17,000. How much should you ideally consider setting aside before spending the rest?",
+    prompt: "You unexpectedly receive ₹2,000 — a cashback, a gift, a refund. What happens next?",
     options: choices(
-      1,
-      "Nothing yet — save whatever is left at the end of the month",
-      "About ₹5,000 (20%), as soon as your salary arrives",
-      "₹500 — anything more isn't realistic",
-      "Skip saving until you earn more",
+      0,
+      "Give it a job before it disappears: a small treat, the rest straight into savings",
+      "Spend it tonight — it was never “really” yours",
+      "Lend it to the friend who still owes you from last semester",
+      "Nothing. Somehow, it's already gone.",
     ),
     explanation:
-      "Pay yourself first. Moving about 20% (₹5,000) aside on payday makes saving automatic, and you still have ₹3,000 for wants. \"Whatever is left\" usually turns out to be nothing.",
-  },
-  {
-    key: "minimum-due",
-    area: "CREDIT",
-    prompt:
-      "Your credit card bill is ₹10,000 and the minimum due is ₹500. You can afford to pay all of it. What's the smartest move?",
-    options: choices(
-      1,
-      "Pay ₹500 — the bank says that's enough",
-      "Pay the full ₹10,000 by the due date",
-      "Pay ₹5,000 now and the rest whenever you can",
-      "Skip this month and pay double next month",
-    ),
-    explanation:
-      "Paying in full means zero interest. The minimum only avoids a late fee — the remaining ₹9,500 would attract interest of around 3–4% a month.",
-  },
-  {
-    key: "average-monthly-balance",
-    area: "BANKING",
-    prompt:
-      "Your account needs a ₹3,000 average monthly balance. In a 30-day month you keep ₹9,000 for the first 10 days, then ₹0. Will you be charged?",
-    options: choices(
-      1,
-      "Yes — your balance dropped to ₹0",
-      "No — your average works out to exactly ₹3,000",
-      "Yes — you need ₹3,000 in the account every single day",
-      "No — banks never charge for low balances",
-    ),
-    explanation:
-      "Average monthly balance = (₹9,000 × 10 days) ÷ 30 days = ₹3,000. It's the average across the month that counts, not your lowest day.",
+      "Unplanned money vanishes fastest because it has no plan. A simple windfall rule — say, 20% to enjoy, 80% to savings or a goal — lets you celebrate and still keep most of it.",
   },
   {
     key: "fake-delivery-sms",
@@ -80,114 +40,74 @@ export const DAILY_QUESTIONS: SeedDailyQuestion[] = [
       "Fake delivery messages use small amounts to get you to enter card or UPI details on a fake page. Always check deliveries in the official app — never through SMS links.",
   },
   {
-    key: "ctc-vs-in-hand",
-    area: "TAX",
-    prompt: "Your offer letter says ₹4.8 LPA CTC. What's the best way to know your monthly in-hand salary?",
-    options: choices(
-      1,
-      "Divide ₹4.8 lakh by 12 — it's ₹40,000",
-      "Ask HR for the salary breakup and check the deductions",
-      "Assume in-hand will be higher than CTC",
-      "There's no way to know until your first payslip",
-    ),
-    explanation:
-      "CTC includes employer PF and other parts that never reach your account. The breakup shows deductions like PF, professional tax and TDS, so you know your real in-hand pay.",
-  },
-  {
-    key: "double-in-30-days",
-    area: "INVESTING",
-    prompt: "An Instagram \"trader\" offers to double your money in 30 days, guaranteed. What's the reality?",
-    options: choices(
-      1,
-      "It's possible if they're an expert",
-      "No genuine investment can guarantee that — it's a red flag",
-      "It's fine if they have lots of followers",
-      "It's safe if they share profit screenshots",
-    ),
-    explanation:
-      "Guaranteed high returns are a classic sign of a scam. Real investments carry risk, and nobody can promise to double your money. Followers and screenshots are easy to fake.",
-  },
-  {
-    key: "subscription-audit",
-    area: "BUDGETING",
-    prompt:
-      "You pay for two OTT apps (₹199 and ₹149), a music app (₹119) and a ₹999 gym membership you've used once in two months. What's the smartest first move?",
-    options: choices(
-      1,
-      "Keep everything — they're all small amounts",
-      "Cancel the gym membership you're not using",
-      "Cancel the music app because it's the cheapest",
-      "Switch all of them to yearly plans",
-    ),
-    explanation:
-      "Start with the biggest leak: ₹999 a month on something you barely use is about ₹12,000 a year. Review your subscriptions every few months.",
-  },
-  {
-    key: "credit-utilisation",
+    key: "add-on-card",
     area: "CREDIT",
-    prompt: "Your credit limit is ₹50,000. Which monthly balance is healthiest for your credit score?",
-    options: choices(2, "₹48,000", "₹35,000", "₹12,000", "₹50,000"),
-    explanation:
-      "Keeping usage under 30% of your limit (₹15,000 here) is a healthy habit — ₹12,000 is 24%. High utilisation can pull your score down even when you pay on time.",
-  },
-  {
-    key: "break-fd-early",
-    area: "BANKING",
-    prompt:
-      "You put ₹20,000 in a 1-year FD. After 4 months you need ₹5,000 urgently. What usually happens if you break the FD?",
+    prompt: "Your parent offers you an add-on card on their credit card. Freedom! Does it build your own credit history?",
     options: choices(
-      1,
-      "You lose all ₹20,000",
-      "You get your money back with slightly lower interest",
-      "The bank refuses until the year ends",
-      "You earn bonus interest for withdrawing early",
+      2,
+      "Yes — it's exactly like having your own card",
+      "Yes, and it doubles their limit",
+      "Not really — it shares their limit, and the bill and credit history are theirs",
+      "No, and add-on cards are illegal for students",
     ),
     explanation:
-      "Banks allow premature withdrawal but usually pay a slightly lower rate. That's why emergency money belongs in savings, not locked in an FD.",
+      "An add-on card spends from the main cardholder's limit, and the bill is theirs. It's handy, but it usually doesn't build a credit history in your name — and every swipe lands on their statement.",
   },
   {
-    key: "qr-to-receive",
-    area: "DIGITAL_SAFETY",
-    prompt:
-      "You're selling a table online. The buyer sends you a QR code and says, \"Scan this to receive ₹3,000.\" What's going on?",
-    options: choices(
-      1,
-      "It's a quick way to get paid",
-      "It's a scam — scanning a QR code makes you pay, not receive",
-      "You need to scan it twice to confirm the payment",
-      "It's safe if the app shows the buyer's name",
-    ),
-    explanation:
-      "Scanning a QR code sends money out of your account. To receive money you only share your UPI ID or your own QR — you never scan theirs or enter a PIN.",
-  },
-  {
-    key: "one-stock-basket",
-    area: "INVESTING",
-    prompt:
-      "Your friend puts all ₹20,000 of their savings into one company's stock after a YouTube tip. What's the biggest risk?",
-    options: choices(
-      1,
-      "None — one good company is enough",
-      "If that one company falls, all their savings fall with it",
-      "They'll pay too little tax",
-      "The stock will be too easy to sell",
-    ),
-    explanation:
-      "With everything in one stock, a single piece of bad news can hit all your savings. Diversification spreads that risk across many investments.",
-  },
-  {
-    key: "laptop-repair",
+    key: "unit-price",
     area: "BUDGETING",
-    prompt: "Your laptop suddenly needs a ₹6,000 repair. Which is the best way to pay for it?",
+    prompt: "Coffee powder: 100 g for ₹180, or 200 g for ₹380 on “mega saver” offer. Which is cheaper per gram?",
     options: choices(
       0,
-      "Your emergency fund",
-      "Your credit card, paying only the minimum for months",
-      "An instant loan app",
-      "Borrow from a friend without saying when you'll repay",
+      "The 100 g pack — ₹1.80 a gram vs ₹1.90",
+      "The 200 g pack — it says mega saver",
+      "They're exactly the same",
+      "Whichever has the shinier packaging",
     ),
     explanation:
-      "This is exactly what an emergency fund is for. Card minimums and instant loan apps can charge very high interest, turning a ₹6,000 problem into a bigger one.",
+      "Bigger isn't always cheaper. Divide price by quantity: ₹180 ÷ 100 = ₹1.80 a gram; ₹380 ÷ 200 = ₹1.90 a gram. Many shelf labels show this “unit price” — it's worth a glance.",
+  },
+  {
+    key: "pan-aadhaar-link",
+    area: "TAX",
+    prompt: "You've had a PAN card for years but never linked it to your Aadhaar. Does it matter?",
+    options: choices(
+      1,
+      "No — linking is optional and changes nothing",
+      "Yes — an unlinked PAN can become inoperative, blocking things like refunds and investing",
+      "Only if you earn over ₹1 crore",
+      "Only for people living abroad",
+    ),
+    explanation:
+      "The Income Tax Department requires most PAN holders to link their PAN with Aadhaar. An unlinked PAN can become inoperative, which can block refunds and many financial transactions. You can check and link it on incometax.gov.in (a fee applies now).",
+  },
+  {
+    key: "split-bill",
+    area: "BUDGETING",
+    prompt: "Every group dinner, one friend says “I'll send my share later.” Later never comes. The least awkward fix?",
+    options: choices(
+      3,
+      "Pay for everyone forever and quietly resent it",
+      "Stop going out with friends",
+      "Post about it in the group chat",
+      "Split the bill on the spot — on UPI or a bill-splitting app — before anyone leaves",
+    ),
+    explanation:
+      "Small unsettled shares add up into real money and real awkwardness. Settling before you leave the table — or tracking it in a split app — keeps both your wallet and your friendships intact.",
+  },
+  {
+    key: "dividend",
+    area: "INVESTING",
+    prompt: "A company you own shares in announces a ₹5-per-share dividend. What is that?",
+    options: choices(
+      2,
+      "A guaranteed yearly payment, forever",
+      "A fee you pay the company",
+      "A share of profits the company chose to pay out — not guaranteed, and taxable",
+      "A sign the share price can never fall",
+    ),
+    explanation:
+      "A dividend is part of a company's profit paid to shareholders. Companies can raise, cut or skip dividends, and dividend income is taxable in your hands.",
   },
   {
     key: "buy-now-pay-later",
@@ -204,19 +124,116 @@ export const DAILY_QUESTIONS: SeedDailyQuestion[] = [
       "Buy Now, Pay Later is credit. Pay on time and it's like a short loan; miss a payment and you could face late fees and damage to your credit score.",
   },
   {
-    key: "otp-to-stop-fraud",
+    key: "wrong-upi-transfer",
     area: "DIGITAL_SAFETY",
-    prompt:
-      "A caller says they're from your bank and need the OTP you just received to \"stop a suspicious transaction\". What do you do?",
+    prompt: "Oops. You sent ₹1,200 to the wrong UPI ID — one typo. What's the best first move?",
     options: choices(
-      1,
-      "Share it quickly to stop the fraud",
-      "Hang up — banks never ask for OTPs — and call your bank's official number",
-      "Share only the first three digits",
-      "Ask them to confirm your name first, then share it",
+      0,
+      "Raise a complaint in your UPI app or with your bank right away, with the transaction ID",
+      "Send another ₹1,200 to the right person and forget it",
+      "Message random people with similar names",
+      "Wait a month to see if it comes back by itself",
     ),
     explanation:
-      "The caller is the fraud — your OTP would approve their transaction. Banks never ask for OTPs. Hang up and contact your bank through official channels.",
+      "Report it quickly through your UPI app's help section or your bank, quoting the transaction ID. Recovery isn't guaranteed — it often needs the receiver's cooperation — but acting fast gives you the best chance. Double-check the name shown before you hit Pay.",
+  },
+  {
+    key: "sinking-fund",
+    area: "BUDGETING",
+    prompt: "Every year, Diwali gifts and three birthdays wreck your November budget. What's the fix?",
+    options: choices(
+      2,
+      "Skip all festivals",
+      "Borrow from friends every November",
+      "Save a small amount each month in advance, so the money's there when November arrives",
+      "Buy gifts on EMI",
+    ),
+    explanation:
+      "Expenses you know are coming aren't emergencies. A “sinking fund” — say ₹500 a month set aside from January — turns a November shock into a planned spend.",
+  },
+  {
+    key: "gift-tax",
+    area: "TAX",
+    prompt: "Your grandparents gift you ₹60,000 for your birthday. Do you pay income tax on it?",
+    options: choices(
+      1,
+      "Yes — every gift over ₹10,000 is taxed",
+      "No — gifts from close relatives like grandparents are tax-free",
+      "Only if you spend it",
+      "Yes, at 50%",
+    ),
+    explanation:
+      "Gifts from specified relatives — parents, grandparents, siblings and others — aren't taxed. Gifts from non-relatives become taxable if they total more than ₹50,000 in a year.",
+  },
+  {
+    key: "nav-myth",
+    area: "INVESTING",
+    prompt: "Fund A's NAV is ₹15. Fund B's NAV is ₹350. Your friend says Fund A is “cheaper, so it'll grow more.” True?",
+    options: choices(
+      3,
+      "Yes — low-NAV funds always grow faster",
+      "Yes — you get more units, so more profit",
+      "No — high-NAV funds are always better",
+      "No — a lower NAV isn't cheaper; growth depends on how the fund's investments perform, in percentages",
+    ),
+    explanation:
+      "NAV is just the price of one unit. ₹1,000 buys more units of a ₹15 fund, but if both funds rise 10%, both investments rise 10%. What matters is what the fund holds and costs — not the NAV.",
+  },
+  {
+    key: "pg-deposit",
+    area: "BANKING",
+    prompt: "You're moving into a PG and paying a ₹20,000 security deposit. What protects you most when you move out?",
+    options: choices(
+      0,
+      "A written agreement, a payment receipt, and photos of the room on day one",
+      "A verbal promise from the owner",
+      "Paying in cash so it's simpler",
+      "Trusting that deposits always come back",
+    ),
+    explanation:
+      "Deposit disputes are usually about proof. A written agreement with the deposit terms, a receipt (or a bank/UPI record) and move-in photos make it much harder for anyone to deduct unfairly.",
+  },
+  {
+    key: "fake-friend-upi",
+    area: "DIGITAL_SAFETY",
+    prompt: "A message from a new number: “Bro it's me, lost my phone, send ₹2,000 on UPI urgently, will return tomorrow.” What do you do?",
+    options: choices(
+      1,
+      "Send it — friends help friends",
+      "Call your friend on their usual number to check first",
+      "Send half, just in case",
+      "Ask them for their UPI PIN to prove it's them",
+    ),
+    explanation:
+      "Impersonation scams lean on urgency and a “new number”. Verify through a channel you already trust — your friend's usual number — before sending anything.",
+  },
+  {
+    key: "opportunity-cost",
+    area: "BUDGETING",
+    prompt: "Concert tickets cost ₹3,000 — exactly what you'd saved for a new phone case, earphones and a month of chai. What's the real price of the tickets?",
+    options: choices(
+      2,
+      "₹3,000, nothing else",
+      "Zero, if you pay by UPI",
+      "₹3,000 plus everything else that money can no longer buy",
+      "It depends on the seat colour",
+    ),
+    explanation:
+      "Every rupee spent is a rupee that can't do something else — that's opportunity cost. The concert might still be worth it! Just compare it with what you're giving up, not with zero.",
+  },
+  {
+    key: "extended-warranty",
+    area: "BUDGETING",
+    prompt: "At checkout, a ₹15,000 phone comes with a pop-up: “Add 2-year extended warranty for ₹1,999?” What should you check first?",
+    options: choices(
+      1,
+      "Nothing — always add it, just in case",
+      "What it covers that the free manufacturer warranty doesn't, and what it excludes",
+      "Whether the pop-up has a timer",
+      "How many stars the pop-up has",
+    ),
+    explanation:
+      "Add-ons at checkout are designed for quick yeses. Often the first year is already covered, and accidental damage may be excluded. ₹1,999 is 13% of the phone — worth it only if it covers what you're actually worried about.",
   },
   {
     key: "tds-refund",
@@ -233,74 +250,197 @@ export const DAILY_QUESTIONS: SeedDailyQuestion[] = [
       "Filing your ITR on incometax.gov.in is how you claim a refund of extra tax deducted. It also builds your official income record.",
   },
   {
-    key: "add-a-nominee",
-    area: "BANKING",
-    prompt: "Why should you add a nominee to your bank account?",
-    options: choices(
-      1,
-      "So they can use your account anytime",
-      "So your money reaches the right person easily if something happens to you",
-      "It increases your interest rate",
-      "Banks charge lower fees on accounts with nominees",
-    ),
-    explanation:
-      "A nominee receives your deposits if you pass away, saving your family a long legal process. It takes a couple of minutes in most banking apps.",
-  },
-  {
-    key: "sip-market-dip",
+    key: "crypto-risk",
     area: "INVESTING",
-    prompt: "The market falls 10% and your SIP shows a loss. What does the fall mean for your next SIP instalment?",
+    prompt: "A friend says crypto is “just like shares, but faster.” What's the big difference in India?",
     options: choices(
       0,
-      "The same amount buys more units",
-      "The same amount buys fewer units",
-      "Your SIP gets cancelled automatically",
-      "You must pay extra to cover the loss",
+      "Crypto isn't regulated by SEBI like shares, so there's far less investor protection",
+      "Crypto is guaranteed by the RBI",
+      "Crypto can only go up",
+      "There's no difference at all",
     ),
     explanation:
-      "With a fixed SIP amount, lower prices mean more units — that's rupee cost averaging. Short-term ups and downs are a normal part of markets.",
+      "Shares and mutual funds are regulated by SEBI, with rules on disclosure and investor protection. Crypto assets aren't regulated that way, swing far more, and have their own strict tax rules. If you explore it, use only money you could lose entirely.",
   },
   {
-    key: "raise-lifestyle-creep",
+    key: "eight-day-month",
     area: "BUDGETING",
-    prompt: "You get a ₹5,000 monthly raise. Which plan helps you avoid lifestyle creep?",
+    prompt: "It's the 8th. Your ₹8,000 pocket money is down to ₹900, and the month has 22 days left. What's the most useful next step?",
     options: choices(
       1,
-      "Upgrade your phone plan and order in more often",
-      "Add at least part of the raise to your monthly savings",
-      "Save the same as before and spend the whole raise",
-      "Take an EMI on a new bike straight away",
+      "Ask home for an “advance” and repeat the same thing next month",
+      "Divide what's left by the days remaining — about ₹40 a day — and plan around it",
+      "Live on air and optimism",
+      "Use a credit card until the 1st",
     ),
     explanation:
-      "Lifestyle creep is spending rising with income. Sending part of every raise to savings lets you enjoy some of it while your savings grow too.",
+      "₹900 ÷ 22 days is about ₹41 a day — tight, but plannable. Next month, flip it: move savings out first and give wants a fixed budget before the spending starts.",
   },
   {
-    key: "check-own-score",
-    area: "CREDIT",
-    prompt: "You check your own CIBIL score three times this month. What happens to your score?",
-    options: choices(
-      1,
-      "It drops a little every time",
-      "Nothing — checking your own score doesn't affect it",
-      "It rises because you're being responsible",
-      "Your credit card gets blocked",
-    ),
-    explanation:
-      "Checking your own score is a soft enquiry and doesn't change it. Only lenders' checks when you apply for a loan or card can.",
-  },
-  {
-    key: "job-registration-fee",
+    key: "pyramid-scheme",
     area: "DIGITAL_SAFETY",
-    prompt:
-      "You're offered a work-from-home data-entry job paying ₹25,000 a month — but first you must pay a ₹1,999 \"registration fee\". What's the best move?",
+    prompt: "A senior invites you to a “business opportunity”: pay ₹5,000 to join, then earn by getting your friends to join too. What is it?",
     options: choices(
-      1,
-      "Pay — it's small compared to the salary",
-      "Refuse — real employers don't charge you to get hired",
-      "Pay half now and half after your first salary",
-      "Pay, but ask for a receipt",
+      2,
+      "A startup — get in early",
+      "A normal part-time job",
+      "Most likely a pyramid scheme — illegal in India, and it collapses when recruiting stops",
+      "A government scheme for students",
     ),
     explanation:
-      "Genuine employers pay you — they don't charge registration or \"training\" fees. Upfront fees for jobs are one of the most common scams.",
+      "If the money mostly comes from recruiting people rather than selling real products to real customers, it's a pyramid scheme. They're banned in India, and nearly everyone except those at the top loses money.",
+  },
+  {
+    key: "parents-health-cover",
+    area: "BANKING",
+    prompt: "You assume you're covered by your parents' family health insurance. When should you double-check?",
+    options: choices(
+      3,
+      "Never — family policies cover everyone forever",
+      "Only after you get hospitalised",
+      "Only if you move abroad",
+      "Now — many policies cover children only up to a certain age, often around 25",
+    ),
+    explanation:
+      "Family floater policies often cover dependent children only up to an age limit — commonly around 25, though it varies. Check the policy before you assume, and plan your own cover when you start working.",
+  },
+  {
+    key: "delivery-fees",
+    area: "BUDGETING",
+    prompt: "A ₹220 biryani on a delivery app ends up costing ₹300 at checkout. Where did the ₹80 go?",
+    options: choices(
+      1,
+      "The biryani got bigger",
+      "Delivery fees, platform fees, packaging and taxes — and app menu prices are often higher too",
+      "A mistake that the app will refund",
+      "It's a tip you're required to pay",
+    ),
+    explanation:
+      "Delivery has layers: delivery fee, platform fee, packaging, GST — and menu prices on apps are often higher than at the restaurant. Ordering in four times a week, those layers alone can cost over ₹1,000 a month.",
+  },
+  {
+    key: "first-salary-party",
+    area: "BUDGETING",
+    prompt: "Your first salary of ₹42,000 just landed and your friends are demanding a party. The sensible plan?",
+    options: choices(
+      1,
+      "Spend all of it — first salary only comes once",
+      "Move your savings out first, then budget a fun amount for the treat",
+      "Never celebrate anything ever again",
+      "Put the whole party on a credit card",
+    ),
+    explanation: "Celebrate — with a budget. Pay yourself first, then decide what the party can cost, so month one doesn't start a debt habit.",
+  },
+  {
+    key: "pf-job-change",
+    area: "TAX",
+    prompt: "You're switching jobs after two years. Your PF balance is ₹70,000. Withdraw it for a trip, or transfer it?",
+    options: choices(
+      0,
+      "Transfer it to the new employer's account (your UAN stays the same) so it keeps growing",
+      "Withdraw it — PF is free money",
+      "Leave it and forget your UAN",
+      "Withdraw it, since withdrawals are always tax-free",
+    ),
+    explanation:
+      "Your UAN stays with you across jobs, so transferring PF keeps it compounding for retirement. Withdrawing before five years of continuous service can also be taxable. A trip lasts a week; your PF can compound for decades.",
+  },
+  {
+    key: "trial-auto-renew",
+    area: "BUDGETING",
+    prompt: "You signed up for a “₹1 trial” that auto-renews at ₹299 a month. Best move?",
+    options: choices(
+      0,
+      "Set a reminder to cancel before it renews — or cancel now if you won't use it",
+      "Ignore it, it's only ₹1",
+      "Sign up for more trials with the same card",
+      "Wait and see what the bill says",
+    ),
+    explanation: "Trials are designed to be forgotten. ₹299 a month is ₹3,588 a year for something you meant to try once.",
+  },
+  {
+    key: "net-worth",
+    area: "BANKING",
+    prompt: "You have ₹18,000 in the bank, a ₹6,000 phone EMI still to pay, and your friend owes you ₹1,000. What's your net worth?",
+    options: choices(
+      2,
+      "₹18,000",
+      "₹25,000",
+      "₹13,000 — what you own (₹19,000) minus what you owe (₹6,000)",
+      "₹6,000",
+    ),
+    explanation:
+      "Net worth is everything you own minus everything you owe: ₹18,000 + ₹1,000 − ₹6,000 = ₹13,000. Watching it grow is a better scoreboard than your bank balance alone.",
+  },
+  {
+    key: "sunk-cost",
+    area: "BUDGETING",
+    prompt: "You paid ₹4,000 for a 6-month gym plan. Two months in, you hate it and haven't gone in weeks. The renewal offer is “only ₹3,000 for 6 more months!”",
+    options: choices(
+      1,
+      "Renew — otherwise the first ₹4,000 was wasted",
+      "Skip the renewal: the ₹4,000 is gone either way, so decide only on whether you'll use the next ₹3,000",
+      "Renew and buy new gym clothes for motivation",
+      "Ask for a 12-month plan instead",
+    ),
+    explanation:
+      "Money already spent can't be recovered by spending more — that's the sunk-cost trap. Judge each new payment on its own: will the next ₹3,000 actually get used?",
+  },
+  {
+    key: "weekend-vs-weekday",
+    area: "BUDGETING",
+    prompt: "You spend about ₹400 on each weekday and ₹1,800 on each weekend day. Which change saves the most in a week?",
+    options: choices(
+      1,
+      "Skip one ₹40 chai every weekday",
+      "Cut each weekend day to ₹1,000",
+      "Stop buying water",
+      "Delete your UPI app forever",
+    ),
+    explanation:
+      "Skipping a ₹40 chai on 5 weekdays saves ₹200. Cutting two weekend days from ₹1,800 to ₹1,000 saves ₹1,600. Find your biggest leak before the smallest.",
+  },
+  {
+    key: "reward-points",
+    area: "CREDIT",
+    prompt: "Your card gives 2% reward points. A friend says, “Spend more to earn more points!” Is that smart?",
+    options: choices(
+      3,
+      "Yes — points are basically free money",
+      "Yes — spend ₹50,000 to earn ₹1,000",
+      "Only on weekends",
+      "No — spending ₹100 to earn ₹2 back still leaves you ₹98 poorer",
+    ),
+    explanation:
+      "Rewards are a small discount on spending you'd do anyway — never a reason to spend more. If points tempt you to swipe extra, they're costing you, not paying you.",
+  },
+  {
+    key: "cost-per-use",
+    area: "BUDGETING",
+    prompt: "A ₹3,000 jacket you'll wear 100 times, or a ₹900 one you'll wear 3 times before it falls apart. Which is cheaper?",
+    options: choices(
+      0,
+      "The ₹3,000 jacket — about ₹30 a wear, vs ₹300 a wear",
+      "The ₹900 jacket — the price tag is lower",
+      "They cost the same",
+      "Neither — jackets are a scam",
+    ),
+    explanation:
+      "Cost per use is price ÷ times you'll use it: ₹3,000 ÷ 100 = ₹30; ₹900 ÷ 3 = ₹300. The cheaper price tag isn't always the cheaper buy.",
+  },
+  {
+    key: "lend-to-friend",
+    area: "BANKING",
+    prompt: "A close friend asks to borrow ₹5,000 till “next month, pakka.” What's a healthy rule for lending to friends?",
+    options: choices(
+      2,
+      "Always lend whatever is asked — that's what friends are for",
+      "Never lend to anyone, ever",
+      "Lend only what you could afford not to get back — and agree on a date",
+      "Lend it from your emergency fund",
+    ),
+    explanation:
+      "Lending to friends can be kind — but only lend an amount you could live without if “next month” slips, and agree on a clear date. That protects both your money and the friendship.",
   },
 ];

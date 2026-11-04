@@ -25,3 +25,11 @@ export const COACH_UNAVAILABLE_MESSAGE =
   "Your AI Coach is temporarily unavailable. You can still use the lesson hint and explanation to continue learning.";
 export const GENERIC_ERROR_MESSAGE = "Something went wrong. Please try again.";
 export const SLOW_DOWN_MESSAGE = "You're going a little fast — wait a moment and try again.";
+
+// Checking in on your money (logging today, or a no-spend day) — once a day.
+export const MONEY_CHECKIN_XP = 5;
+// Reaching a savings goal: once per goal, for goals of ₹500+ that are at
+// least a week old, and at most one goal a month — so goals can't be farmed.
+export const SAVINGS_GOAL_XP = 50;
+export const SAVINGS_GOAL_XP_MIN_TARGET = 500;
+export const SAVINGS_GOAL_XP_MIN_DAYS = 7;

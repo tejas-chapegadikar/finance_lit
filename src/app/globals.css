@@ -83,6 +83,7 @@
   --animate-float: float 5s ease-in-out infinite;
   --animate-ring: ring-fill 1.1s var(--ease-out-soft) both;
   --animate-shake: shake 0.4s ease-in-out both;
+  --animate-column: column-grow 0.8s var(--ease-out-soft) both;
 }
 
 @keyframes pop {
@@ -114,6 +115,13 @@
 @keyframes bar-grow {
   from {
     width: 0;
+  }
+}
+
+/* Grows a column up from the baseline to the height it was given. */
+@keyframes column-grow {
+  from {
+    height: 0;
   }
 }
 

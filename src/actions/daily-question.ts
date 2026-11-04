@@ -66,7 +66,7 @@ export async function answerQuestionOfTheDay(questionId: string, optionIndex: nu
         amount: QUESTION_OF_THE_DAY_XP,
         type: "QUESTION_OF_THE_DAY",
         idempotencyKey: xpKeys.questionOfTheDay(user.id, day),
-        description: "Question of the Day",
+        description: "Daily Money Reality Check",
       });
       await recordStreakDay(tx, user.id);
     }, SLOW_DB_TRANSACTION);

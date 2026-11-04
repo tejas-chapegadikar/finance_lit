@@ -1,4 +1,4 @@
-// The Financial Foundations path: 12 lessons in four levels, each tied to a
+// The Money IQ path ("Financial Foundations"): 13 lessons in four levels, each tied to a
 // life stage. Levels open in order — Level N once Level N−1 is complete.
 // Kept free of Prisma imports so client components can use it.
 // (In code a level is a "chapter"; students see "Level 1–4".)
@@ -36,7 +36,7 @@ export const CHAPTERS: Chapter[] = [
     title: "Saving and credit",
     stage: "Before your first card or loan",
     icon: "💳",
-    lessonSlugs: ["fd-rd", "cibil-score", "credit-cards-101"],
+    lessonSlugs: ["fd-rd", "cibil-score", "credit-cards-101", "loans-emis"],
   },
   {
     id: "first-salary",
@@ -113,8 +113,30 @@ export function levelAccess(published: Set<string>, completed: Set<string>): Lev
     });
 }
 
-/** Whether a lesson is open. Lessons outside every level open once all levels are done. */
-export function isLessonUnlocked(slug: string, levels: LevelAccess[]): boolean {
+/**
+ * InvestSmart, the investing track. It sits beside the Money IQ path rather
+ * than inside it, so its lessons never change the path's counts, readiness or
+ * completion bonus. Its lessons open in order: the first is always open, each
+ * next one once the one before is completed.
+ */
+export const INVEST_TRACK = ["inflation-purchasing-power", "how-stock-market-works", "index-funds-long-term", "start-investing-checklist"];
+
+export const isInvestLesson = (slug: string) => INVEST_TRACK.includes(slug);
+
+/** The Money IQ path's lesson slugs (Levels 1–4), in order. */
+export const PATH_SLUGS = CHAPTERS.flatMap((chapter) => chapter.lessonSlugs);
+
+function investUnlocked(slug: string, completed: Set<string>) {
+  const i = INVEST_TRACK.indexOf(slug);
+  return i === 0 || (i > 0 && completed.has(INVEST_TRACK[i - 1]));
+}
+
+/**
+ * Whether a lesson is open. InvestSmart lessons follow their own order;
+ * lessons outside every level and track open once all levels are done.
+ */
+export function isLessonUnlocked(slug: string, levels: LevelAccess[], completed: Set<string> = new Set()): boolean {
+  if (isInvestLesson(slug)) return investUnlocked(slug, completed);
   const level = levels.find((l) => l.slugs.includes(slug));
   if (level) return level.status !== "locked";
   return levels.every((l) => l.status === "completed");

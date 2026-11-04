@@ -38,9 +38,9 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
-      <Link href="/lessons#scenarios" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
+      <Link href="/practice#scenarios" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
         <ArrowLeftIcon className="h-4 w-4" />
-        Learn
+        Daily
       </Link>
 
       <PageHeader

@@ -13,7 +13,9 @@ export function Navbar({ xpTotal, displayName }: { xpTotal: number; displayName:
           <Logo />
         </Link>
         <div className="flex items-center gap-2">
-          <XPBadge xpTotal={xpTotal} id="xp-navbar" />
+          <Link href="/rewards" aria-label={`${xpTotal} XP — open Rewards`} className="rounded-full transition hover:opacity-80">
+            <XPBadge xpTotal={xpTotal} id="xp-navbar" />
+          </Link>
           <Link
             href="/profile"
             aria-label={`Your profile (${displayName})`}

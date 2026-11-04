@@ -55,6 +55,8 @@ export const rewardRatelimit = limiter("reward", 10);
 export const practiceRatelimit = limiter("practice", 60);
 // Profile edits and avatar saves: no XP, but each one is a database write.
 export const accountRatelimit = limiter("account", 30);
+// Money Manager entries, budgets and goals, and practice-challenge steps.
+export const moneyRatelimit = limiter("money", 60);
 
 /** True when the request may proceed. Fails open if Redis is unreachable. */
 export async function isAllowed(limit: Limiter, identifier: string): Promise<boolean> {

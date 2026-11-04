@@ -78,7 +78,8 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   const readinessBefore = attempt.readinessBefore ?? progress.overall;
   const readinessAfter = attempt.readinessAfter ?? progress.overall;
   const keyTerms = readKeyTerms(attempt.lesson.keyTerms);
-  const lessonNumber = progress.lessons.find((l) => l.id === attempt.lessonId)?.number;
+  const investIndex = progress.invest.findIndex((l) => l.id === attempt.lessonId);
+  const lessonNumber = (progress.lessons.find((l) => l.id === attempt.lessonId) ?? progress.invest[investIndex])?.number;
 
   // Badges are stored with the attempt that unlocked them.
   const unlocked = new Set(attempt.badges.map((b) => b.badgeId));
@@ -86,7 +87,13 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   const levelJustCompleted = levelBonus > 0 || newBadges.some((b) => b.rule.kind === "level");
   const shownBadges = newBadges.filter((b) => b.rule.kind !== "level");
 
-  const next = progress.next && progress.next.lesson.id !== attempt.lessonId ? progress.next : null;
+  // After an InvestSmart lesson, the next one on the track (now open); otherwise the path's recommendation.
+  const investNext = investIndex >= 0 ? progress.invest.slice(investIndex + 1).find((l) => !l.locked && l.status !== "completed") : undefined;
+  const next = investNext
+    ? { lesson: investNext, isRetake: false, reason: "Next on the InvestSmart track" }
+    : progress.next && progress.next.lesson.id !== attempt.lessonId && investIndex < 0
+      ? progress.next
+      : null;
   const practiceScenario = CORE_SCENARIOS.find((scenario) => scenario.lessonSlug === slug);
   const retake = beginQuiz.bind(null, attempt.lessonId);
 

@@ -41,7 +41,8 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
     db.lesson.findUnique({ where: { slug } }),
     getProgress(user.id),
   ]);
-  const lessonProgress = progress.lessons.find((l) => l.id === lesson?.id);
+  const inInvest = progress.invest.find((l) => l.id === lesson?.id);
+  const lessonProgress = progress.lessons.find((l) => l.id === lesson?.id) ?? inInvest;
   if (!lesson || !lesson.isPublished || !lessonProgress) {
     notFound();
   }
@@ -57,7 +58,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
           <LessonIcon slug={lesson.slug} area={lesson.area} />
         </IconTile>
       }
-      eyebrow={`${level ? `Level ${level.number} · ` : ""}Lesson ${number} · ${area.label}`}
+      eyebrow={inInvest ? `InvestSmart · Lesson ${number} of ${progress.invest.length}` : `${level ? `Level ${level.number} · ` : ""}Lesson ${number} · ${area.label}`}
       title={lesson.title}
     >
       <MetaRow
@@ -77,15 +78,48 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
 
   const backLink = (
     <Link
-      href="/lessons"
+      href={inInvest ? "/invest" : "/lessons"}
       className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900"
     >
       <ArrowLeftIcon className="h-4 w-4" />
-      Learning path
+      {inInvest ? "InvestSmart" : "Learning path"}
     </Link>
   );
 
   // Levels open in order: a locked lesson shows what it is, not its content.
+  if (lessonProgress.locked && inInvest) {
+    const before = progress.invest[progress.invest.indexOf(inInvest) - 1];
+    return (
+      <article className="mx-auto flex max-w-2xl flex-col gap-5">
+        {backLink}
+        <PageHeader
+          icon={
+            <IconTile size="lg" muted>
+              <LessonIcon slug={lesson.slug} area={lesson.area} />
+            </IconTile>
+          }
+          eyebrow={`InvestSmart · Lesson ${number} · Locked`}
+          title={lesson.title}
+        />
+        <section className="rounded-2xl border border-dashed border-slate-300 p-6 text-center sm:p-10" aria-labelledby="locked-heading">
+          <span aria-hidden className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+            <LockIcon className="h-6 w-6" />
+          </span>
+          <h2 id="locked-heading" className="mt-4 text-2xl text-slate-900">
+            InvestSmart lessons open in order
+          </h2>
+          <p className="mx-auto mt-1 max-w-md text-slate-600">Each one builds on the last. Finish “{before?.title}” to open this one.</p>
+          {before && (
+            <Link href={`/lessons/${before.slug}`} className={`${primaryButton} mt-5`}>
+              Go to {before.title}
+              <ArrowRightIcon className="h-4 w-4" />
+            </Link>
+          )}
+        </section>
+      </article>
+    );
+  }
+
   if (lessonProgress.locked) {
     const previous = progress.levels.find((l) => l.chapter.number === (level?.number ?? 1) - 1);
     const next = progress.next;

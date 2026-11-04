@@ -32,5 +32,6 @@ export async function completeOnboarding(input: OnboardingAnswers): Promise<Onbo
     },
   });
 
-  redirect("/dashboard");
+  // A fresh student goes on to the (skippable) Money Personality Quiz.
+  redirect(user.onboardingCompletedAt ? "/dashboard" : "/personality?welcome=1");
 }

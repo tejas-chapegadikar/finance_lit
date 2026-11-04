@@ -39,7 +39,7 @@ export function TodayPanel({ id, headingLevel = "h2", layout = "row", questionXp
     {
       href: "/question",
       Icon: HelpIcon,
-      title: "Question of the Day",
+      title: "Daily Money Reality Check",
       meta: questionXp === null ? `About 1 minute · +${QUESTION_OF_THE_DAY_XP} XP` : `Answered · +${questionXp} XP`,
       done: questionXp !== null,
       cta: "Answer",

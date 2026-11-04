@@ -3,9 +3,16 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { LEVEL_1_LESSONS } from "./content/level1";
 import { DAILY_QUESTIONS } from "./content/daily-questions";
-import { PRACTICE } from "./content/practice";
+import { PRACTICE as CORE_PRACTICE } from "./content/practice";
+import { LOANS_PRACTICE } from "./content/loans";
+import { INVEST_LESSONS, INVEST_PRACTICE } from "./content/investsmart";
 import { LESSON_TRUST } from "./content/trust";
-import type { SeedDailyQuestion, SeedLesson } from "./content/types";
+import { findDuplicates } from "../src/lib/content/catalog";
+import type { SeedDailyQuestion, SeedLesson, SeedPractice } from "./content/types";
+
+// Money IQ's path (Levels 1–4) plus the InvestSmart track.
+const ALL_LESSONS: SeedLesson[] = [...LEVEL_1_LESSONS, ...INVEST_LESSONS];
+const PRACTICE: Record<string, SeedPractice[]> = { ...CORE_PRACTICE, "loans-emis": LOANS_PRACTICE, ...INVEST_PRACTICE };
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter });
@@ -45,7 +52,7 @@ function assertChoices(label: string, options: { isCorrect: boolean }[]) {
 
 function validateContent() {
   const slugs = new Set<string>();
-  for (const lesson of LEVEL_1_LESSONS) {
+  for (const lesson of ALL_LESSONS) {
     if (slugs.has(lesson.slug)) throw new Error(`Duplicate lesson slug: ${lesson.slug}`);
     slugs.add(lesson.slug);
     if (lesson.questions.length !== QUESTIONS_PER_LESSON) {
@@ -69,6 +76,12 @@ function validateContent() {
     if (keys.has(question.key)) throw new Error(`Duplicate question key: ${question.key}`);
     keys.add(question.key);
     assertChoices(`question ${question.key}`, question.options);
+  }
+  // The no-repeats rule: nothing anywhere on StockStreak may re-ask
+  // something another item already asks (see src/lib/content/catalog.ts).
+  const duplicates = findDuplicates();
+  if (duplicates.length) {
+    throw new Error(`Repeated content:\n${duplicates.map((d) => `  ${d.a.id} ≈ ${d.b.id} (${d.score.toFixed(2)})`).join("\n")}`);
   }
 }
 
@@ -200,17 +213,24 @@ async function seedDailyQuestion(data: SeedDailyQuestion, order: number) {
 async function main() {
   validateContent();
 
-  console.log("Seeding Level 1 lessons...");
+  console.log("Seeding Money IQ and InvestSmart lessons...");
   await renameOldSlugs();
-  for (const lesson of LEVEL_1_LESSONS) {
+  for (const lesson of ALL_LESSONS) {
     await seedLesson(lesson);
   }
   await retireOldLessons();
 
-  console.log("Seeding Questions of the Day...");
+  console.log("Seeding Daily Money Reality Checks...");
   for (const [i, question] of DAILY_QUESTIONS.entries()) {
     await seedDailyQuestion(question, i);
   }
+  // Questions removed from the content (because they repeated a lesson) are
+  // hidden, not deleted — students' past answers still point at them.
+  const hidden = await db.dailyQuestion.updateMany({
+    where: { id: { startsWith: "seed_", notIn: DAILY_QUESTIONS.map((q) => `seed_${q.key}`) }, isPublished: true },
+    data: { isPublished: false },
+  });
+  if (hidden.count) console.log(`Hid ${hidden.count} retired questions.`);
   console.log(`Seeded ${DAILY_QUESTIONS.length} Questions of the Day.`);
 
   console.log("Done.");

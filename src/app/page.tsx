@@ -316,7 +316,7 @@ export default async function HomePage() {
             <span className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]" />
             <h2 className="mx-auto max-w-2xl text-4xl leading-tight text-white sm:text-5xl">Start your financial-learning journey today</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-              12 lessons, 4 money scenarios, a daily challenge and smart revision — free to start.
+              Money IQ lessons, a Money Manager for your own budget, InvestSmart, a 30-day habit challenge and smart revision — free to start.
             </p>
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link href="/sign-up" className={`${lightButton} group px-8 py-4 text-base`}>

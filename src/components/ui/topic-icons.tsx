@@ -5,31 +5,40 @@ import {
   BoltIcon,
   BookIcon,
   BriefcaseIcon,
+  BusIcon,
   CalendarCheckIcon,
   CardIcon,
   CompassIcon,
   FlagIcon,
   FlameIcon,
   GaugeIcon,
+  GiftIcon,
   GraduationCapIcon,
   HelpIcon,
+  HomeIcon,
   HourglassIcon,
+  LaptopIcon,
   MedkitIcon,
   PaletteIcon,
   PencilIcon,
   PhoneAlertIcon,
   PhoneIcon,
+  PlaneIcon,
+  PlayIcon,
   ReceiptIcon,
   RefreshIcon,
   ScaleIcon,
   ShieldAlertIcon,
   ShieldIcon,
   ShirtIcon,
+  ShoppingBagIcon,
+  SparklesIcon,
   SproutIcon,
   TagIcon,
   TargetIcon,
   TrendingUpIcon,
   TrophyIcon,
+  UtensilsIcon,
   VaultIcon,
   WalletIcon,
 } from "./icons";
@@ -63,6 +72,11 @@ const LESSON: Record<string, Icon> = {
   "first-salary-tax": ReceiptIcon,
   "stocks-mutual-funds-fds": TrendingUpIcon,
   "sip-starting-early": HourglassIcon,
+  "loans-emis": ReceiptIcon,
+  "inflation-purchasing-power": TagIcon,
+  "how-stock-market-works": BankIcon,
+  "index-funds-long-term": CompassIcon,
+  "start-investing-checklist": FlagIcon,
 };
 
 const SCENARIO: Record<string, Icon> = {
@@ -87,6 +101,11 @@ const BADGE: Record<string, Icon> = {
   "scenario-solver": CompassIcon,
   "memory-master": RefreshIcon,
   "financial-foundations": GraduationCapIcon,
+  "money-tracker": PencilIcon,
+  "reality-checker": GaugeIcon,
+  "goal-getter": TargetIcon,
+  "habit-builder": SproutIcon,
+  "challenge-accepted": BoltIcon,
 };
 
 const REWARD: Record<string, Icon> = {
@@ -105,6 +124,9 @@ const REWARD_KIND: Record<string, Icon> = {
 
 const MISSION: Record<string, Icon> = {
   lesson: BookIcon,
+  "habit-step": CalendarCheckIcon,
+  "money-checkin": WalletIcon,
+  save: VaultIcon,
   "answer-3": PencilIcon,
   "correct-3": TargetIcon,
   question: HelpIcon,
@@ -112,7 +134,45 @@ const MISSION: Record<string, Icon> = {
   challenge: BoltIcon,
 };
 
+const CATEGORY: Record<string, Icon> = {
+  food: UtensilsIcon,
+  shopping: ShoppingBagIcon,
+  travel: BusIcon,
+  entertainment: PlayIcon,
+  education: BookIcon,
+  bills: HomeIcon,
+  other: TagIcon,
+  "pocket-money": WalletIcon,
+  stipend: BriefcaseIcon,
+  salary: BriefcaseIcon,
+  freelance: LaptopIcon,
+  "gift-money": GiftIcon,
+  "other-income": SparklesIcon,
+};
+
+const GOAL: Record<string, Icon> = {
+  phone: PhoneIcon,
+  laptop: LaptopIcon,
+  travel: PlaneIcon,
+  clothes: ShirtIcon,
+  study: GraduationCapIcon,
+  emergency: ShieldIcon,
+  gift: GiftIcon,
+  home: HomeIcon,
+  target: TargetIcon,
+};
+
 type Props = { className?: string };
+
+export function CategoryIcon({ id, className }: Props & { id: string }) {
+  const Glyph = CATEGORY[id] ?? TagIcon;
+  return <Glyph className={className} />;
+}
+
+export function GoalIcon({ icon, className }: Props & { icon: string }) {
+  const Glyph = GOAL[icon] ?? TargetIcon;
+  return <Glyph className={className} />;
+}
 
 export function AreaIcon({ area, className }: Props & { area: ReadinessAreaValue }) {
   const Glyph = AREA[area] ?? BookIcon;

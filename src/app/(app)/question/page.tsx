@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { moneyFactFor } from "@/lib/money-facts";
+import { MoneyFactCard } from "@/components/money/Insights";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { getTodaysQuestion } from "@/lib/daily-question";
@@ -11,7 +13,7 @@ import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
 import { card, softButton } from "@/components/ui/button-styles";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Question of the Day — StockStreak" };
+export const metadata: Metadata = { title: "Daily Money Reality Check — StockStreak" };
 
 function formatIstDay(day: string) {
   return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-IN", {
@@ -40,12 +42,12 @@ export default async function QuestionOfTheDayPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
-      <Link href="/lessons#daily" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
+      <Link href="/practice#today" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
         <ArrowLeftIcon className="h-4 w-4" />
-        Learn
+        Daily
       </Link>
 
-      <PageHeader eyebrow={today ? formatIstDay(today.day) : undefined} title="Question of the Day">
+      <PageHeader eyebrow={today ? formatIstDay(today.day) : undefined} title="Daily Money Reality Check">
         <MetaRow
           items={[
             area ? area.label : "Money basics",
@@ -73,6 +75,9 @@ export default async function QuestionOfTheDayPage() {
           </div>
           {today.answer && (
             <div className="mt-5 flex flex-col items-center gap-3 text-center">
+              <div className="w-full text-left">
+                <MoneyFactCard fact={moneyFactFor(today.day)} compact />
+              </div>
               <p className="text-sm font-semibold text-slate-600">That&apos;s today done — a new question arrives at midnight.</p>
               <Link href="/challenge" className={softButton}>
                 Try today&apos;s Daily Challenge

@@ -17,6 +17,10 @@ const EPFO: SeedSource = { label: "Employees' Provident Fund Organisation (EPFO)
 const SEBI_INVESTOR: SeedSource = { label: "SEBI investor website", url: "https://investor.sebi.gov.in" };
 const AMFI: SeedSource = { label: "Association of Mutual Funds in India (AMFI)", url: "https://www.amfiindia.com" };
 
+const MOSPI: SeedSource = { label: "Ministry of Statistics (MoSPI) — Consumer Price Index", url: "https://www.mospi.gov.in" };
+const NSE: SeedSource = { label: "National Stock Exchange (NSE)", url: "https://www.nseindia.com" };
+const BSE: SeedSource = { label: "BSE", url: "https://www.bseindia.com" };
+
 const REVIEWED = "2026-10-09";
 
 export const LESSON_TRUST: Record<string, SeedLessonMeta> = {
@@ -36,4 +40,10 @@ export const LESSON_TRUST: Record<string, SeedLessonMeta> = {
   },
   "stocks-mutual-funds-fds": { sources: [SEBI_INVESTOR, AMFI], reviewedAt: REVIEWED },
   "sip-starting-early": { sources: [AMFI, SEBI_INVESTOR], reviewedAt: REVIEWED },
+  // Added 2026-11-04: Money IQ loans lesson and the InvestSmart track.
+  "loans-emis": { sources: [RBI, RBI_KEHTA_HAI, CYBERCRIME], reviewedAt: "2026-11-04" },
+  "inflation-purchasing-power": { sources: [RBI, MOSPI, NCFE], reviewedAt: "2026-11-04" },
+  "how-stock-market-works": { sources: [SEBI_INVESTOR, NSE, BSE], reviewedAt: "2026-11-04" },
+  "index-funds-long-term": { sources: [AMFI, SEBI_INVESTOR], reviewedAt: "2026-11-04" },
+  "start-investing-checklist": { sources: [SEBI_INVESTOR, AMFI], reviewedAt: "2026-11-04" },
 };

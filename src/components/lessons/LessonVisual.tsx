@@ -353,7 +353,142 @@ function Sip() {
   );
 }
 
+function Loans() {
+  // ₹1,00,000 at 12% a year for 12 months, reducing balance: EMI ≈ ₹8,885.
+  const months = [
+    { label: "Month 1", interest: 1000 },
+    { label: "Month 6", interest: 598 },
+    { label: "Month 12", interest: 88 },
+  ];
+  const emi = 8885;
+  return (
+    <Figure title="Where Rohit's ₹8,885 EMI goes" caption="Same EMI every month — but as the balance shrinks, less goes to interest and more pays off the loan.">
+      <div className="flex flex-col gap-4">
+        {months.map((m) => (
+          <div key={m.label}>
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span className="font-semibold text-slate-900">{m.label}</span>
+              <span className="text-slate-600 tabular-nums">
+                {rupees(m.interest)} interest · {rupees(emi - m.interest)} principal
+              </span>
+            </div>
+            <div className="mt-1 flex h-4 gap-0.5 overflow-hidden rounded-full" role="img" aria-label={`${m.label}: ${rupees(m.interest)} interest, ${rupees(emi - m.interest)} principal`}>
+              <div className="h-full rounded-l-full bg-orange-400" style={{ width: `${(m.interest / emi) * 100}%` }} />
+              <div className="h-full flex-1 rounded-r-full bg-brand-600" />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-600">
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="h-2.5 w-2.5 rounded-sm bg-orange-400" /> Interest
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="h-2.5 w-2.5 rounded-sm bg-brand-600" /> Principal
+        </span>
+      </div>
+      <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">
+        Total interest: about <span className="font-semibold">{rupees(6619)}</span> on a reducing balance — versus{" "}
+        <span className="font-semibold">{rupees(12000)}</span> if the same 12% were charged “flat”.
+      </p>
+    </Figure>
+  );
+}
+
+function Inflation() {
+  // What ₹1,000 buys in today's money at 6% inflation a year.
+  const points = [
+    { label: "Today", value: 1000 },
+    { label: "In 5 years", value: 747 },
+    { label: "In 10 years", value: 558 },
+    { label: "In 20 years", value: 312 },
+  ];
+  return (
+    <Figure title="What ₹1,000 in cash can buy, at 6% inflation" caption="The note never changes. What it buys does — so money you won't need for years has to grow, too.">
+      <div className="flex flex-col gap-3">
+        {points.map((p) => (
+          <Bar key={p.label} label={p.label} value={p.value} max={1000} display={`${rupees(p.value)} worth`} tone="bg-orange-400" />
+        ))}
+      </div>
+    </Figure>
+  );
+}
+
+function StockMarket() {
+  const steps = [
+    { title: "You", text: "Place a buy order in a broker app" },
+    { title: "Broker", text: "SEBI-registered; sends the order on" },
+    { title: "Exchange", text: "NSE or BSE matches you with a seller" },
+    { title: "Demat account", text: "Your shares land here the next working day" },
+  ];
+  return (
+    <Figure title="What happens when you buy a share" caption="SEBI regulates every step. Your money goes to the investor who sold — not to the company.">
+      <ol className="grid gap-2 sm:grid-cols-4">
+        {steps.map((s, i) => (
+          <li key={s.title} className="relative rounded-xl border border-slate-200 bg-white p-3">
+            <span className="text-xs font-semibold text-brand-700 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+            <span className="mt-0.5 block font-semibold text-slate-900">{s.title}</span>
+            <span className="mt-0.5 block text-sm text-slate-600">{s.text}</span>
+          </li>
+        ))}
+      </ol>
+    </Figure>
+  );
+}
+
+function IndexFunds() {
+  const people = [
+    { name: "Kunal · fund fee 0.2%", value: 6.49, display: "about ₹6.5 lakh" },
+    { name: "Simran · fund fee 1.5%", value: 5.11, display: "about ₹5.1 lakh" },
+  ];
+  return (
+    <Figure
+      title="₹1 lakh, the same index, 20 years"
+      caption="Assumes the index grows 10% a year — an illustration, not a forecast. The only difference is the fee."
+    >
+      <div className="flex flex-col gap-4">
+        {people.map((p) => (
+          <Bar key={p.name} label={p.name} value={p.value} max={6.49} display={p.display} tone="bg-brand-600" />
+        ))}
+      </div>
+      <p className="mt-4 text-sm font-semibold text-slate-900">Gap from fees alone: about ₹1.4 lakh</p>
+    </Figure>
+  );
+}
+
+function StartInvesting() {
+  const steps = [
+    { title: "Emergency buffer and health cover first", text: "So you never have to sell in a hurry." },
+    { title: "KYC, once", text: "PAN plus an ID/address proof such as Aadhaar." },
+    { title: "Name the goal and the date", text: "Near goals stay steady; far goals can take ups and downs." },
+    { title: "Pick a risk you'd still hold in a fall", text: "A mix you stick with beats a “better” one you abandon." },
+    { title: "Paid advice? SEBI-registered only", text: "Check any adviser or broker on SEBI's website." },
+  ];
+  return (
+    <Figure title="The beginner's checklist" caption="Start small — many funds accept SIPs from ₹100–₹500 a month.">
+      <ol className="flex flex-col gap-2.5">
+        {steps.map((s, i) => (
+          <li key={s.title} className="flex items-start gap-3">
+            <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-semibold text-emerald-700 tabular-nums">
+              {i + 1}
+            </span>
+            <span className="text-sm">
+              <span className="block font-semibold text-slate-900">{s.title}</span>
+              <span className="text-slate-600">{s.text}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </Figure>
+  );
+}
+
 const VISUALS: Record<string, () => React.ReactNode> = {
+  "loans-emis": Loans,
+  "inflation-purchasing-power": Inflation,
+  "how-stock-market-works": StockMarket,
+  "index-funds-long-term": IndexFunds,
+  "start-investing-checklist": StartInvesting,
   "budgeting-basics": Budgeting,
   "compound-interest": CompoundInterest,
   "saving-vs-spending": SavingVsSpending,

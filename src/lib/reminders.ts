@@ -67,7 +67,7 @@ export async function sendDueReminders(now = new Date()) {
     const text = [
       `Hi ${name},`,
       "",
-      `Today's Question of the Day and Daily Challenge are ready — a couple of minutes, whenever suits you.${due ? ` You also have ${due} revision ${due === 1 ? "question" : "questions"} due.` : ""}`,
+      `Today's Reality Check and Daily Challenge are ready — a couple of minutes, whenever suits you.${due ? ` You also have ${due} revision ${due === 1 ? "question" : "questions"} due.` : ""}`,
       "",
       `Open StockStreak: ${siteUrl()}/dashboard`,
       "",

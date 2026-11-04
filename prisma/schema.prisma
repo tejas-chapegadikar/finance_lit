@@ -65,6 +65,25 @@ enum XPTransactionType {
   DAILY_CHALLENGE
   // Completing all three of the day's missions.
   MISSION_BONUS
+  // The day's money check-in (logging spending, or marking a no-spend day).
+  MONEY_CHECKIN
+  // A step or the finish of a practice challenge (30-day habit, saving challenges).
+  PRACTICE_CHALLENGE
+  // Taking the Money Personality Quiz (once).
+  PERSONALITY_QUIZ
+  // Reaching a savings goal (limits in src/actions/money.ts).
+  SAVINGS_GOAL
+}
+
+enum MoneyEntryKind {
+  INCOME
+  EXPENSE
+}
+
+// How a day's money check-in happened: by logging something, or by saying nothing was spent.
+enum MoneyCheckInKind {
+  LOGGED
+  NO_SPEND
 }
 
 // MISTAKE: a question the student missed, brought back at 1, 3 and 7 days.
@@ -127,6 +146,14 @@ model User {
   // Earned every 7 days of streak — never bought.
   streakFreezes    Int       @default(1)
 
+  // The Money Personality Quiz result (ids in src/lib/personality.ts) — a
+  // playful starting point that personalises suggestions; retakeable anytime.
+  moneyPersonality String?
+  personalityAt    DateTime?
+  // Opted in to the friendly weekly XP league (off by default: names are only
+  // shown to other students when this is on).
+  leagueOptIn      Boolean   @default(false)
+
   quizAttempts         QuizAttempt[]
   xpTransactions       XPTransaction[]
   lessonViews          LessonView[]
@@ -141,6 +168,13 @@ model User {
   activityDays         ActivityDay[]
   dailyChallengeRuns   DailyChallengeRun[]
   coachFollowUps       CoachFollowUp[]
+  moneyEntries         MoneyEntry[]
+  moneyBudgets         MoneyBudget[]
+  moneyCheckIns        MoneyCheckIn[]
+  savingsGoals         SavingsGoal[]
+  savingsDeposits      SavingsDeposit[]
+  challengeEnrollments ChallengeEnrollment[]
+  challengeCheckIns    ChallengeCheckIn[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -215,27 +249,27 @@ model ScenarioAnswer {
 }
 
 model Question {
-  id                  String         @id @default(cuid())
+  id                  String          @id @default(cuid())
   lessonId            String
-  lesson              Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson              Lesson          @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   prompt              String
-  explanation         String         @db.Text
+  explanation         String          @db.Text
   // Written by the course team; shown when the AI Coach is unavailable.
-  hint                String?        @db.Text
-  difficulty          Difficulty     @default(MEDIUM)
-  order               Int            @default(0)
+  hint                String?         @db.Text
+  difficulty          Difficulty      @default(MEDIUM)
+  order               Int             @default(0)
   // A second question on the same idea with a different example: the AI
   // Coach's check after a mistake, and what revision asks later.
-  practicePrompt      String?        @db.Text
+  practicePrompt      String?         @db.Text
   // [{ text, isCorrect }]
   practiceOptions     Json?
-  practiceExplanation String?        @db.Text
+  practiceExplanation String?         @db.Text
   options             Option[]
   answers             QuizAnswer[]
   coachHints          CoachHint[]
   revisionItems       RevisionItem[]
   coachFollowUps      CoachFollowUp[]
-  createdAt           DateTime       @default(now())
+  createdAt           DateTime        @default(now())
 }
 
 model Option {
@@ -510,4 +544,117 @@ model RewardUnlock {
   unlockedAt DateTime @default(now())
 
   @@unique([userId, rewardId])
+}
+
+// ── Money Manager ─────────────────────────────────────────────────────────
+// A student's own money: what comes in, what goes out. Amounts are whole
+// rupees; `day` is the IST date the money moved.
+
+model MoneyEntry {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      MoneyEntryKind
+  amount    Int
+  // A category id from src/lib/money/categories.ts (food, shopping, travel, …).
+  category  String
+  note      String?
+  day       String
+  createdAt DateTime       @default(now())
+
+  @@index([userId, day])
+}
+
+// A monthly spending budget: one row per category per month ("total" for the overall cap).
+model MoneyBudget {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // YYYY-MM, IST.
+  month     String
+  category  String
+  amount    Int
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, month, category])
+}
+
+// One row per IST day the student checked in on their money.
+model MoneyCheckIn {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day       String
+  kind      MoneyCheckInKind
+  createdAt DateTime         @default(now())
+
+  @@unique([userId, day])
+}
+
+model SavingsGoal {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  // An icon key from src/lib/money/goals.ts.
+  icon        String
+  target      Int
+  saved       Int              @default(0)
+  // Optional IST date to reach it by.
+  targetDay   String?
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+  deposits    SavingsDeposit[]
+
+  @@index([userId])
+}
+
+// Money put into (or taken out of, when negative) a savings goal.
+model SavingsDeposit {
+  id        String      @id @default(cuid())
+  goalId    String
+  goal      SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
+  day       String
+  createdAt DateTime    @default(now())
+
+  @@index([userId, day])
+}
+
+// ── Practice challenges ──────────────────────────────────────────────────
+// The 30-day money habit challenge and the shorter saving challenges
+// (definitions in src/lib/challenges). One step per calendar day; missed
+// days are never punished — you simply continue where you left off.
+
+model ChallengeEnrollment {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  startedAt   DateTime           @default(now())
+  completedAt DateTime?
+  checkIns    ChallengeCheckIn[]
+
+  @@unique([userId, challengeId])
+}
+
+model ChallengeCheckIn {
+  id           String              @id @default(cuid())
+  enrollmentId String
+  enrollment   ChallengeEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Which step (1 = the first).
+  stepNumber   Int
+  // The IST day it was done — one step per day per challenge.
+  day          String
+  // The student's pick for a step that asks a question, if any.
+  choice       Int?
+  createdAt    DateTime            @default(now())
+
+  @@unique([enrollmentId, stepNumber])
+  @@unique([enrollmentId, day])
+  @@index([userId, day])
 }

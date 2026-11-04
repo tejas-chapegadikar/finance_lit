@@ -1,4 +1,5 @@
 import type { Prisma, XPTransactionType } from "@prisma/client";
+import { PATH_SLUGS } from "./journey";
 import { PATH_NAME, LEVEL_COMPLETION_XP } from "./constants";
 
 type AwardXpParams = {
@@ -24,6 +25,13 @@ export const xpKeys = {
   // One reward per time an item comes due.
   revision: (itemId: string, stage: number, dueDay: string) => `revision:${itemId}:${stage}:${dueDay}`,
   redeem: (userId: string, rewardId: string) => `redeem:${userId}:${rewardId}`,
+  // One money check-in reward per IST day.
+  moneyCheckIn: (userId: string, day: string) => `money-checkin:${userId}:${day}`,
+  // A challenge step pays once ever, so restarting a challenge earns nothing twice.
+  challengeStep: (userId: string, challengeId: string, step: number) => `challenge-step:${userId}:${challengeId}:${step}`,
+  challengeDone: (userId: string, challengeId: string) => `challenge-done:${userId}:${challengeId}`,
+  personalityQuiz: (userId: string) => `personality:${userId}`,
+  savingsGoal: (userId: string, goalId: string) => `savings-goal:${userId}:${goalId}`,
 };
 
 /**
@@ -99,9 +107,10 @@ export async function awardLevelBonusIfComplete(
   const alreadyAwarded = await tx.xPTransaction.count({ where: { userId, type: "LEVEL_COMPLETION" } });
   if (alreadyAwarded > 0) return 0;
 
-  const publishedCount = await tx.lesson.count({ where: { isPublished: true } });
+  // The Money IQ path only — InvestSmart lessons don't hold back the bonus.
+  const publishedCount = await tx.lesson.count({ where: { isPublished: true, slug: { in: PATH_SLUGS } } });
   const completed = await tx.quizAttempt.findMany({
-    where: { userId, status: "COMPLETED", lesson: { isPublished: true } },
+    where: { userId, status: "COMPLETED", lesson: { isPublished: true, slug: { in: PATH_SLUGS } } },
     select: { lessonId: true },
     distinct: ["lessonId"],
   });

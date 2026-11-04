@@ -18,6 +18,11 @@ import { ProfileForm } from "@/components/profile/ProfileForm";
 import { getMastery, MASTERY_META } from "@/lib/revision";
 import { findReward } from "@/lib/rewards";
 import { getWeeklySummary } from "@/lib/activity";
+import { getMoneyWeek } from "@/lib/money";
+import { rupees } from "@/lib/money/categories";
+import { getWeeklyLeague } from "@/lib/league";
+import { findPersonality } from "@/lib/personality";
+import { League } from "@/components/profile/League";
 import { AccountActions } from "@/components/account/AccountActions";
 import { Medal } from "@/components/ui/Medal";
 import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/MenuRow";
@@ -76,6 +81,8 @@ export default async function ProfilePage() {
     getActivityDays(db, user.id, shiftDay(today, -41), today),
     getWeeklySummary(user.id, today),
   ]);
+  const [moneyWeek, league] = await Promise.all([getMoneyWeek(user.id, today), getWeeklyLeague(user.id, user.leagueOptIn, today)]);
+  const personality = findPersonality(user.moneyPersonality);
   const [badgeStats, mastery] = await Promise.all([
     loadBadgeStats(db, user.id, progress.lessons),
     getMastery(user.id, progress.lessons),
@@ -156,9 +163,14 @@ export default async function ProfilePage() {
               </span>
             </p>
           </div>
-          <Link href="/profile/avatar" className={`${secondaryButton} self-start sm:mb-2 sm:self-auto`}>
-            Edit avatar
-          </Link>
+          <div className="flex gap-2 self-start sm:mb-2 sm:self-auto">
+            <Link href="/rewards" className={secondaryButton}>
+              Rewards
+            </Link>
+            <Link href="/profile/avatar" className={secondaryButton}>
+              Edit avatar
+            </Link>
+          </div>
         </div>
 
         <h2 className="sr-only">Learning statistics</h2>
@@ -264,6 +276,15 @@ export default async function ProfilePage() {
               { label: "Daily question & challenge", value: String(week.daily) },
               { label: "Scenarios", value: String(week.scenarios) },
               { label: "XP earned", value: `+${week.xpEarned}` },
+              {
+                label: "Spent",
+                value: rupees(moneyWeek.spent),
+                note:
+                  moneyWeek.previousSpent > 0
+                    ? `${moneyWeek.spent <= moneyWeek.previousSpent ? "↓" : "↑"} from ${rupees(moneyWeek.previousSpent)}`
+                    : undefined,
+              },
+              { label: "Money check-ins", value: `${moneyWeek.checkIns}/7` },
             ].map((stat) => (
               <div key={stat.label} className="flex flex-col-reverse justify-end gap-0.5 border-b border-slate-200 py-3 odd:pr-3 even:border-l even:pl-4">
                 <dt className="text-xs text-slate-500">
@@ -280,7 +301,7 @@ export default async function ProfilePage() {
           </h2>
           {xpHistory.length === 0 ? (
             <p className="mt-2 text-sm text-slate-600">
-              No XP yet. Complete a lesson for your first +75 XP, or answer the Question of the Day for +10.
+              No XP yet. Complete a lesson for your first +75 XP, or answer the daily Reality Check for +10.
             </p>
           ) : (
             <ul className="mt-3 divide-y divide-slate-200 text-sm" aria-labelledby="xp-heading">
@@ -300,6 +321,45 @@ export default async function ProfilePage() {
               ))}
             </ul>
           )}
+        </section>
+      </div>
+
+      {/* Money personality and the weekly league */}
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-14">
+        <section aria-labelledby="personality-heading">
+          <h2 id="personality-heading" className="text-2xl text-slate-900">
+            Money personality
+          </h2>
+          {personality ? (
+            <div className="mt-3">
+              <p className="font-display text-xl text-slate-900">{personality.name}</p>
+              <p className="text-sm text-slate-600">{personality.line}</p>
+              <p className="mt-2 text-sm text-slate-700">{personality.focus.tip}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link href="/personality" className={secondaryButton}>
+                  See your result
+                </Link>
+                <Link href="/personality?retake=1" className={secondaryButton}>
+                  Retake
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3">
+              <p className="text-sm text-slate-600">Six quick questions to find where to start — Impulse Buyer, Weekend Millionaire, Professional Procrastinator or Secret Saver?</p>
+              <Link href="/personality" className={`${primaryButton} mt-4`}>
+                Take the quiz
+              </Link>
+            </div>
+          )}
+        </section>
+        <section id="league" className="scroll-mt-20" aria-labelledby="league-heading">
+          <h2 id="league-heading" className="text-2xl text-slate-900">
+            Weekly league
+          </h2>
+          <div className="mt-3">
+            <League optedIn={league.optedIn} rows={league.rows} you={league.you} participants={league.participants} endsOn={league.endsOn} />
+          </div>
         </section>
       </div>
 

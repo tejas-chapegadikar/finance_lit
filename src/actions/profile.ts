@@ -55,3 +55,13 @@ export async function updateReminders(_prevState: ProfileState, formData: FormDa
   revalidatePath("/profile");
   return { success: true };
 }
+
+/** Joins or leaves the friendly weekly league. Off by default; leaving hides your name at once. */
+export async function setLeagueOptIn(on: boolean): Promise<{ status: "saved" | "slow-down" }> {
+  const user = await requireOnboardedUser();
+  if (!(await isAllowed(accountRatelimit, user.id))) return { status: "slow-down" };
+  await db.user.update({ where: { id: user.id }, data: { leagueOptIn: on === true } });
+  revalidatePath("/profile");
+  revalidatePath("/dashboard");
+  return { status: "saved" };
+}
