@@ -18,7 +18,7 @@ import {
   UsersIcon,
   WalletIcon,
 } from "@/components/ui/icons";
-import { primaryButton, spotlight, tile } from "@/components/ui/button-styles";
+import { lightButton, spotlight, tile } from "@/components/ui/button-styles";
 
 // The dashboard's building blocks: the three pillars (Money IQ, Money
 // Manager, InvestSmart), the 30-day habit, the recommended next step, this
@@ -29,7 +29,7 @@ const PILLAR = {
   "money-iq": { name: "Money IQ", Icon: BookIcon, tile: "bg-brand-50 text-brand-700", text: "text-brand-700" },
   "money-manager": { name: "Money Manager", Icon: WalletIcon, tile: "bg-emerald-50 text-emerald-700", text: "text-emerald-700" },
   investsmart: { name: "InvestSmart", Icon: TrendingUpIcon, tile: "bg-sky-50 text-sky-700", text: "text-sky-700" },
-  daily: { name: "Daily", Icon: CalendarCheckIcon, tile: "bg-orange-50 text-orange-700", text: "text-orange-700" },
+  daily: { name: "Challenges", Icon: CalendarCheckIcon, tile: "bg-orange-50 text-orange-700", text: "text-orange-700" },
 } as const;
 
 function PillarLabel({ pillar, children }: { pillar: keyof typeof PILLAR; children?: React.ReactNode }) {
@@ -213,7 +213,7 @@ export function RecommendedNext({ items }: { items: Recommendation[] }) {
           {first.title}
         </h2>
         <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-white/75">{first.why}</p>
-        <Link href={first.href} className={`${primaryButton} group mt-6 w-full self-start px-6 py-3 sm:w-auto`}>
+        <Link href={first.href} className={`${lightButton} group mt-6 w-full self-start px-6 py-3 sm:w-auto`}>
           {first.cta}
           <ArrowRightIcon className="h-4 w-4 transition group-hover:translate-x-0.5" />
         </Link>
@@ -330,7 +330,7 @@ export function ForYouLine({ personality }: { personality: Personality | null })
 export function LeagueLine({ league }: { league: WeeklyLeague }) {
   if (!league.optedIn) return null;
   return (
-    <Link href="/profile#league" className={`${tile} group flex items-center gap-3 p-4`}>
+    <Link href="/progress#league" className={`${tile} group flex items-center gap-3 p-4`}>
       <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-700">
         <UsersIcon className="h-[18px] w-[18px]" />
       </span>

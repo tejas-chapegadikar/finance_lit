@@ -7,8 +7,9 @@ import { Avatar } from "@/components/avatar/Avatar";
 import { Logo } from "@/components/ui/Logo";
 import { NAV_ITEMS, isActive } from "./nav-items";
 import { XPBadge } from "./XPBadge";
+import { SettingsIcon } from "@/components/ui/icons";
 
-/** Desktop navigation: the four destinations, XP and the student's profile. */
+/** Desktop navigation: the pillars and other destinations, Settings, XP and you — as your avatar. */
 export function Sidebar({
   xpTotal,
   displayName,
@@ -47,6 +48,16 @@ export function Sidebar({
             </Link>
           );
         })}
+        <Link
+          href="/settings"
+          aria-current={pathname.startsWith("/settings") ? "page" : undefined}
+          className={`mt-auto mb-2 flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[15px] transition ${
+            pathname.startsWith("/settings") ? "bg-white font-semibold text-slate-900 ring-1 ring-slate-200" : "font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900"
+          }`}
+        >
+          <SettingsIcon className="h-5 w-5 shrink-0 text-slate-400" />
+          Settings
+        </Link>
       </nav>
 
       <div className="flex flex-col gap-3 border-t border-slate-200 p-4">
@@ -58,7 +69,7 @@ export function Sidebar({
           className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-white"
           aria-label={`Your profile (${displayName})`}
         >
-          <span className="flex h-10 w-10 shrink-0 items-end justify-center overflow-hidden rounded-full bg-peach-100 ring-1 ring-slate-200">
+          <span className="flex h-10 w-10 shrink-0 items-end justify-center overflow-hidden rounded-full bg-brand-50 ring-1 ring-slate-200">
             <Avatar config={avatar} crop="head" className="h-10 w-10" />
           </span>
           <span className="min-w-0">

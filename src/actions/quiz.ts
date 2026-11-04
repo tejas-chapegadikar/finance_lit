@@ -7,6 +7,7 @@ import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { awardLevelBonusIfComplete, awardXp, lockUser, xpKeys } from "@/lib/xp";
 import { awardLessonBadges } from "@/lib/badges";
+import { reactToQuiz } from "@/lib/avatar/learning";
 import { COACH_UNAVAILABLE_MESSAGE, MAX_TRIES_PER_QUESTION, QUESTIONS_PER_QUIZ } from "@/lib/constants";
 import { questionOutcome, summarizeAttempt } from "@/lib/quiz-outcome";
 import {
@@ -202,6 +203,7 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
   const readinessBefore = progressBefore.overall;
   const readinessAfter = readinessAfterQuiz(progressBefore, attempt.lessonId, summary.mastery);
 
+  let completedNow: { firstCompletion: boolean } | null = null;
   await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
 
@@ -227,6 +229,7 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
       },
     });
     if (count === 0) return;
+    completedNow = { firstCompletion: priorCompleted === 0 };
 
     if (xpAwarded > 0) {
       const awarded = await awardXp(tx, {
@@ -254,6 +257,17 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
     });
     await recordStreakDay(tx, user.id);
   }, SLOW_DB_TRANSACTION);
+
+  // The avatar reacts to what this attempt changed (lesson, level, rank, unlocks).
+  const done = completedNow as { firstCompletion: boolean } | null;
+  if (done) {
+    await reactToQuiz(
+      user.id,
+      { id: attempt.id, lessonId: attempt.lessonId, firstTry: summary.firstTry, total: attempt.totalQuestions, firstCompletion: done.firstCompletion },
+      progressBefore,
+      await fetchProgress(user.id),
+    );
+  }
 
   // The shared layout shows XP, so refresh it along with the destination.
   revalidatePath("/", "layout");

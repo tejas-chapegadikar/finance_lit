@@ -20,7 +20,7 @@ export default function AppLoading() {
           </div>
         ))}
       </div>
-      <div aria-hidden className="h-64 animate-pulse rounded-3xl bg-slate-900/90" />
+      <div aria-hidden className="h-64 animate-pulse rounded-3xl bg-brand-200/70" />
       <div aria-hidden className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <div className="skeleton h-40 rounded-2xl" />
         <div className="skeleton h-40 rounded-2xl" />

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { recordSimulatorMoment } from "@/actions/avatar";
 import { compoundGrowth, shortRupees } from "@/lib/simulator";
 
 // Two validated categorical slots (blue, orange) for invested vs growth.
@@ -69,6 +70,15 @@ export function CompoundSimulator({ initial }: { initial: { monthly: number; yea
     () => compoundGrowth({ monthly, years: Math.max(0, years - delay), annualRatePct: rate, initial: lump }),
     [monthly, years, rate, lump, delay],
   );
+  // The avatar reacts once to the "aha": past ₹1 crore, or after a good look around.
+  const changes = useRef(0);
+  const told = useRef(false);
+  useEffect(() => {
+    changes.current += 1;
+    if (told.current || (now.value < 1_00_00_000 && changes.current < 8)) return;
+    told.current = true;
+    void recordSimulatorMoment().catch(() => {});
+  }, [now.value]);
   const top = Math.max(1, ...now.series.map((p) => p.value));
   const waitCost = now.value - later.value;
   const investedLess = now.invested - later.invested;

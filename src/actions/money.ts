@@ -11,6 +11,9 @@ import { awardXp, lockUser, xpKeys } from "@/lib/xp";
 import { recordStreakDay } from "@/lib/streak";
 import { awardMoneyBadges } from "@/lib/badges";
 import { alertAfterSpend, monthBounds, monthOf } from "@/lib/money";
+import { queueAvatarEvent, queueAvatarEvents, type AvatarEventInput } from "@/lib/avatar/events";
+import { BUDGET_WARN_PCT } from "@/lib/money";
+import { expenseCategory } from "@/lib/money/categories";
 import { MONEY_CHECKIN_XP, SAVINGS_GOAL_XP, SAVINGS_GOAL_XP_MIN_DAYS, SAVINGS_GOAL_XP_MIN_TARGET } from "@/lib/constants";
 import { EXPENSE_IDS, GOAL_ICONS, INCOME_IDS, MAX_ENTRY, MAX_GOAL } from "@/lib/money/categories";
 
@@ -27,6 +30,8 @@ const MAX_BACKDATE_DAYS = 60;
 type Fail = { status: "invalid"; message: string } | { status: "slow-down" };
 
 function refresh() {
+  // The layout too: it carries the avatar's reactions.
+  revalidatePath("/", "layout");
   revalidatePath("/money");
   revalidatePath("/dashboard");
   revalidatePath("/practice", "layout");
@@ -87,7 +92,23 @@ async function budgetAlertFor(tx: Prisma.TransactionClient, userId: string, cate
   if (budgets.length === 0) return null;
   const budget = budgets.find((b) => b.category === category)?.amount ?? null;
   const totalBudget = budgets.find((b) => b.category === "total")?.amount ?? null;
-  return alertAfterSpend(category, inCategory._sum.amount ?? 0, budget, total._sum.amount ?? 0, totalBudget);
+  const spentIn = inCategory._sum.amount ?? 0;
+  const spentAll = total._sum.amount ?? 0;
+  const events: AvatarEventInput[] = [];
+  const level = (spent: number, cap: number | null) => (!cap ? null : spent > cap ? "over" : spent * 100 >= BUDGET_WARN_PCT * cap ? "near" : null);
+  const add = (id: string, label: string, spent: number, cap: number | null) => {
+    const l = level(spent, cap);
+    if (l) events.push({ kind: l === "over" ? "budget-over" : "budget-near", key: `budget-${l}:${month}:${id}`, data: { label, pct: Math.round((spent / cap!) * 100) } });
+  };
+  add(category, expenseCategory(category).label, spentIn, budget);
+  add("total", "Monthly budget", spentAll, totalBudget);
+  // Past mid-month and comfortably under the monthly budget: say so, once.
+  const dayOfMonth = Number(day.slice(8));
+  if (totalBudget && dayOfMonth >= 15 && spentAll * 100 <= 90 * totalBudget * (dayOfMonth / Number(last.slice(8)))) {
+    events.push({ kind: "on-track", key: `on-track:${month}` });
+  }
+  await queueAvatarEvents(tx, userId, events);
+  return alertAfterSpend(category, spentIn, budget, spentAll, totalBudget);
 }
 
 export async function addMoneyEntry(input: EntryInput): Promise<AddEntryResult> {
@@ -99,7 +120,7 @@ export async function addMoneyEntry(input: EntryInput): Promise<AddEntryResult> 
 
   const { checkInXp, alert } = await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
-    await tx.moneyEntry.create({
+    const entry = await tx.moneyEntry.create({
       data: {
         userId: user.id,
         kind: parsed.data.kind,
@@ -111,6 +132,10 @@ export async function addMoneyEntry(input: EntryInput): Promise<AddEntryResult> 
     });
     const xp = parsed.data.day === today ? await checkIn(tx, user.id, today, "LOGGED") : 0;
     await awardMoneyBadges(tx, user.id);
+    if (parsed.data.kind === "EXPENSE") {
+      const expenses = await tx.moneyEntry.count({ where: { userId: user.id, kind: "EXPENSE" } });
+      await queueAvatarEvent(tx, user.id, expenses === 1 ? "first-expense" : "expense", expenses === 1 ? "first-expense" : `expense:${entry.id}`);
+    }
     const warning = parsed.data.kind === "EXPENSE" ? await budgetAlertFor(tx, user.id, parsed.data.category, parsed.data.day) : null;
     return { checkInXp: xp, alert: warning };
   }, SLOW_DB_TRANSACTION);
@@ -164,6 +189,7 @@ export async function markNoSpendDay(): Promise<NoSpendResult> {
     await lockUser(tx, user.id);
     const awarded = await checkIn(tx, user.id, day, "NO_SPEND");
     await awardMoneyBadges(tx, user.id);
+    if (awarded > 0) await queueAvatarEvent(tx, user.id, "no-spend", `no-spend:${day}`);
     return awarded;
   }, SLOW_DB_TRANSACTION);
 
@@ -270,7 +296,15 @@ export async function addToSavingsGoal(goalId: string, amountInput: number | str
       where: { id: goal.id },
       data: { saved, ...(justCompleted ? { completedAt: new Date() } : {}) },
     });
-    await tx.savingsDeposit.create({ data: { goalId: goal.id, userId: user.id, amount, day: istDay() } });
+    const deposit = await tx.savingsDeposit.create({ data: { goalId: goal.id, userId: user.id, amount, day: istDay() } });
+    if (amount > 0 && !justCompleted) {
+      const halfway = goal.saved * 2 < goal.target && saved * 2 >= goal.target;
+      await queueAvatarEvent(tx, user.id, halfway ? "goal-half" : "deposit", halfway ? `goal-half:${goal.id}` : `deposit:${deposit.id}`, {
+        goal: goal.name,
+        amount: `₹${amount.toLocaleString("en-IN")}`,
+      });
+    }
+    if (justCompleted) await queueAvatarEvent(tx, user.id, "goal-reached", `goal:${goal.id}`, { goal: goal.name });
     let goalXp = 0;
     if (justCompleted) {
       await awardMoneyBadges(tx, user.id);

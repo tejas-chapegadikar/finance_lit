@@ -2,6 +2,7 @@ import type { Prisma, User } from "@prisma/client";
 import { daysBetween, istDay, shiftDay } from "./ist-date";
 import { awardXp, xpKeys } from "./xp";
 import { awardStreakBadges } from "./badges";
+import { queueAvatarEvent } from "./avatar/queue";
 
 // The learning streak: IST days in a row with a meaningful learning action
 // (a quiz, scenario, revision answer, Question of the Day or Daily
@@ -65,6 +66,7 @@ export async function recordStreakDay(tx: Prisma.TransactionClient, userId: stri
       idempotencyKey: xpKeys.streakMilestone(userId, milestone.days),
       description: `${milestone.days}-day learning streak`,
     });
+    await queueAvatarEvent(tx, userId, "streak", `streak:${milestone.days}`, { days: milestone.days });
   }
   await awardStreakBadges(tx, userId, longestStreak);
 }

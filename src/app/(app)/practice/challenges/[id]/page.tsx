@@ -36,7 +36,7 @@ export default async function ChallengePage(props: PageProps<"/practice/challeng
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
       <Link href="/practice#challenges" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
         <ArrowLeftIcon className="h-4 w-4" />
-        Daily
+        Challenges
       </Link>
       <PageHeader
         icon={<ChallengeIcon icon={challenge.icon} size="lg" />}

@@ -5,6 +5,8 @@ import { PATH_NAME, QUESTIONS_PER_QUIZ } from "./constants";
 import { READINESS_AREA_META } from "./readiness-areas";
 import { CORE_SCENARIOS } from "./scenarios";
 import { findChallenge } from "./challenges/content";
+import { queueAvatarEvents } from "./avatar/queue";
+import { AVATAR_ITEMS } from "./avatar";
 
 // Achievement badges: each has one clear rule, and once earned it's stored
 // for good (UserBadge), even if lessons are added later.
@@ -202,6 +204,14 @@ async function grant(tx: Prisma.TransactionClient, userId: string, ids: string[]
     data: fresh.map((badgeId) => ({ userId, badgeId, quizAttemptId })),
     skipDuplicates: true,
   });
+  await queueAvatarEvents(
+    tx,
+    userId,
+    fresh.map((badgeId) => {
+      const item = AVATAR_ITEMS.find((i) => i.unlock.type === "badge" && i.unlock.badgeId === badgeId);
+      return { kind: "badge" as const, key: `badge:${badgeId}`, data: { badge: findBadge(badgeId)?.name ?? badgeId, item: item?.name } };
+    }),
+  );
   return fresh;
 }
 

@@ -1,18 +1,29 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
-import { AVATAR_ITEMS, isAvatarItemUnlocked, readAvatar, unlockText } from "@/lib/avatar";
+import { db } from "@/lib/db";
+import { istDay, istDayStart, shiftDay } from "@/lib/ist-date";
+import { AVATAR_ITEMS, avatarName, isAvatarItemUnlocked, readAvatar, unlockText } from "@/lib/avatar";
 import { getAvatarUnlocks } from "@/lib/avatar-unlocks";
 import { spendableXp } from "@/lib/rewards";
 import { AvatarStudio, type StudioItem } from "@/components/avatar/AvatarStudio";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Avatar studio — StockStreak" };
+export const metadata: Metadata = { title: "Avatar Studio — StockStreak" };
+
+const RECENT_DAYS = 14;
 
 export default async function AvatarStudioPage() {
   const user = await requireOnboardedUser();
-  const unlocks = await getAvatarUnlocks(user.id);
+  const since = istDayStart(shiftDay(istDay(), -RECENT_DAYS));
+  const [unlocks, recentPurchases, recentBadges] = await Promise.all([
+    getAvatarUnlocks(user.id),
+    db.rewardUnlock.findMany({ where: { userId: user.id, unlockedAt: { gte: since } }, select: { rewardId: true } }),
+    db.userBadge.findMany({ where: { userId: user.id, earnedAt: { gte: since } }, select: { badgeId: true } }),
+  ]);
+  const boughtRecently = new Set(recentPurchases.map((r) => r.rewardId));
+  const earnedRecently = new Set(recentBadges.map((b) => b.badgeId));
   const items: StudioItem[] = AVATAR_ITEMS.map((item) => ({
     id: item.id,
     slot: item.slot,
@@ -21,6 +32,7 @@ export default async function AvatarStudioPage() {
     cost: item.unlock.type === "xp" ? item.unlock.cost : null,
     how: unlockText(item),
     rare: !!item.rare,
+    recent: (item.unlock.type === "xp" && boughtRecently.has(item.id)) || (item.unlock.type === "badge" && earnedRecently.has(item.unlock.badgeId)),
   }));
 
   return (
@@ -30,11 +42,11 @@ export default async function AvatarStudioPage() {
         Profile
       </Link>
       <PageHeader
-        eyebrow="Avatar studio"
+        eyebrow="Avatar Studio"
         title="Make it yours"
-        description="Basics are free, store items cost XP, and special items unlock with streaks and badges. Try anything on before you unlock it."
+        description="Your avatar is you — it carries your name everywhere. Basics are free, store items cost XP, and special items unlock with lessons, streaks and badges. Try anything on first."
       />
-      <AvatarStudio initial={readAvatar(user.avatar)} items={items} balance={spendableXp(user)} />
+      <AvatarStudio initial={readAvatar(user.avatar)} items={items} balance={spendableXp(user)} name={avatarName(user)} />
     </div>
   );
 }

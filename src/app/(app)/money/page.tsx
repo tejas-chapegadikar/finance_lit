@@ -15,6 +15,9 @@ import { CategoryBars, DailyColumns, SpendSplit, TrendColumns } from "@/componen
 import { InsightList, MoneyFactCard } from "@/components/money/Insights";
 import { GoalCard, NewGoalForm } from "@/components/money/Goals";
 import { EntryRow } from "@/components/money/EntryRow";
+import { AvatarSays } from "@/components/avatar/AvatarSays";
+import type { Expression } from "@/components/avatar/Avatar";
+import { avatarName, readAvatar } from "@/lib/avatar";
 
 export const metadata: Metadata = { title: "Money Manager — StockStreak" };
 
@@ -57,6 +60,21 @@ export default async function MoneyPage(props: PageProps<"/money">) {
   const spentToday = m.entries.some((e) => e.day === today && e.kind === "EXPENSE");
   const budgetUsed = m.totalBudget ? Math.round((m.spent / m.totalBudget) * 100) : null;
   const savedTotal = goals.reduce((sum, g) => sum + g.saved, 0);
+
+  // What your avatar makes of this month, from your own numbers.
+  const over = alerts.find((a) => a.level === "over");
+  const near = alerts.find((a) => a.level === "near");
+  const mood: { expression: Expression; text: string } = m.entries.length === 0
+    ? { expression: "welcoming", text: "Log your first spend and I'll show you exactly where your money goes." }
+    : over
+      ? { expression: "shocked", text: `${over.label} is over budget. Deep breath — we adjust, we don't panic.` }
+      : near
+        ? { expression: "thinking", text: `${near.label} is at ${near.pct}%. Easy does it for the rest of the month.` }
+        : m.income > 0 && left < 0
+          ? { expression: "confused", text: "We've spent more than came in this month. Let's find the leak." }
+          : m.income > 0
+            ? { expression: "happy", text: `${rupees(left)} still available this month. We're doing fine.` }
+            : { expression: "happy", text: "Every rupee logged is a rupee understood." };
 
   const shown = m.entries.filter(
     (e) => (type === "all" || (type === "in" ? e.kind === "INCOME" : e.kind === "EXPENSE")) && (!cat || (e.kind === "EXPENSE" && e.category === cat)),
@@ -118,6 +136,12 @@ export default async function MoneyPage(props: PageProps<"/money">) {
           </div>
         )}
       </PageHeader>
+
+      {m.isCurrent && (
+        <AvatarSays config={readAvatar(user.avatar)} name={avatarName(user)} expression={mood.expression} className="-mt-4">
+          {mood.text}
+        </AvatarSays>
+      )}
 
       {alerts.length > 0 && (
         <section aria-labelledby="alerts-heading" className="-mt-4 rounded-2xl bg-orange-50 p-4 ring-1 ring-orange-100 sm:p-5">

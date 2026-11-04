@@ -19,10 +19,10 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StepBar } from "@/components/ui/ProgressBar";
 import { ChallengeIcon } from "@/components/practice/ChallengeIcon";
 import { IconTile, ScenarioIcon } from "@/components/ui/topic-icons";
-import { primaryButton, secondaryButton, spotlight, tile } from "@/components/ui/button-styles";
+import { lightButton, primaryButton, secondaryButton, spotlight, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, CheckIcon, ClockIcon, LockIcon, RefreshIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Daily — StockStreak" };
+export const metadata: Metadata = { title: "Challenges — StockStreak" };
 
 const formatDay = (day: string) => new Date(`${day}T00:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "long", timeZone: "UTC" });
 
@@ -55,7 +55,7 @@ export default async function PracticePage() {
   return (
     <div className="flex flex-col gap-14">
       <PageHeader
-        eyebrow="Daily"
+        eyebrow="Challenges"
         title="Small money moves, every day"
         description="Today's Reality Check and challenge, the 30-day habit, saving challenges, scenarios and revision. A few minutes a day — and no punishment for the days life gets in the way."
       />
@@ -88,7 +88,7 @@ export default async function PracticePage() {
               </div>
             )}
           </div>
-          <Link href={`/practice/challenges/${HABIT_CHALLENGE.id}`} className={`${primaryButton} group shrink-0 px-7 py-3.5 text-base`}>
+          <Link href={`/practice/challenges/${HABIT_CHALLENGE.id}`} className={`${lightButton} group shrink-0 px-7 py-3.5 text-base`}>
             {habit.completed ? "See your 30 days" : !habit.enrolled ? "Start the challenge" : habit.doneToday ? "See the challenge" : "Do today's step"}
             <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-0.5" />
           </Link>
@@ -174,7 +174,7 @@ export default async function PracticePage() {
                   <ArrowRightIcon className="h-4 w-4" />
                 </Link>
               )}
-              <Link href="/profile#mastery-heading" className={secondaryButton}>
+              <Link href="/progress#mastery" className={secondaryButton}>
                 Topic mastery
               </Link>
             </div>

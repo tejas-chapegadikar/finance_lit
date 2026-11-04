@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { AvatarSays } from "@/components/avatar/AvatarSays";
+import { avatarName, readAvatar } from "@/lib/avatar";
 import { requireOnboardedUser } from "@/lib/auth";
 import { getProgress, type LessonProgress } from "@/lib/progress";
 import { compoundGrowth, shortRupees } from "@/lib/simulator";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProgressRing } from "@/components/ui/ProgressBar";
 import { IconTile, LessonIcon } from "@/components/ui/topic-icons";
-import { primaryButton, spotlight, tile } from "@/components/ui/button-styles";
+import { lightButton, spotlight, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, CheckIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "InvestSmart — StockStreak" };
@@ -119,8 +121,11 @@ export default async function InvestPage() {
               That&apos;s {shortRupees(example.invested)} put in and about {shortRupees(example.growth)} from compounding — at an assumed 10% a year, which
               real markets don&apos;t promise. Change the numbers and see what time does.
             </p>
+            <AvatarSays config={readAvatar(user.avatar)} name={avatarName(user)} expression="shocked" tone="dark" size="sm" className="mt-5">
+              Wait… money can make more money?!
+            </AvatarSays>
           </div>
-          <Link href="/invest/simulator" className={`${primaryButton} group shrink-0 px-7 py-3.5 text-base`}>
+          <Link href="/invest/simulator" className={`${lightButton} group shrink-0 px-7 py-3.5 text-base`}>
             Open the simulator
             <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-0.5" />
           </Link>

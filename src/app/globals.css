@@ -18,15 +18,15 @@
  */
 
 :root {
-  --background: #faf8f5;
-  --foreground: #1e1c1a;
+  --background: #f7f6fb;
+  --foreground: #1c1a26;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-figtree);
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-jakarta);
 }
 
 @theme {
@@ -47,17 +47,17 @@
    * for small text on white and on slate-100; 500 passes on white and on the
    * page background only.
    */
-  --color-slate-50: #faf8f5;
-  --color-slate-100: #f3efe9;
-  --color-slate-200: #e8e3db;
-  --color-slate-300: #d5cec4;
-  --color-slate-400: #a39c93;
-  --color-slate-500: #75706a;
-  --color-slate-600: #5f5a55;
-  --color-slate-700: #47433f;
-  --color-slate-800: #2f2c29;
-  --color-slate-900: #1e1c1a;
-  --color-slate-950: #141312;
+  --color-slate-50: #f7f6fb;
+  --color-slate-100: #efedf6;
+  --color-slate-200: #e4e1ee;
+  --color-slate-300: #cfcbdc;
+  --color-slate-400: #9d98ae;
+  --color-slate-500: #726d83;
+  --color-slate-600: #5b576b;
+  --color-slate-700: #444053;
+  --color-slate-800: #2d2a39;
+  --color-slate-900: #1c1a26;
+  --color-slate-950: #12111a;
 
   /* Soft warm tints for avatar stages and highlights. */
   --color-peach-100: #ffeadd;
@@ -84,6 +84,43 @@
   --animate-ring: ring-fill 1.1s var(--ease-out-soft) both;
   --animate-shake: shake 0.4s ease-in-out both;
   --animate-column: column-grow 0.8s var(--ease-out-soft) both;
+  --animate-avatar-in: avatar-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-bob: bob 2.8s ease-in-out infinite;
+  --animate-hop: hop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 2;
+}
+
+@keyframes avatar-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-14px) scale(1.04, 0.97);
+  }
+  70% {
+    transform: translateY(0) scale(1.03, 0.96);
+  }
 }
 
 @keyframes pop {
@@ -237,14 +274,13 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Headings: Fraunces, a little soft, set tight and never too heavy. */
+  /* Headings: Plus Jakarta Sans, strong and set a little tight. */
   h1,
   h2,
   h3 {
-    font-family: var(--font-display), var(--font-sans), ui-serif, Georgia, serif;
-    font-variation-settings: "SOFT" 50;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
     text-wrap: balance;
   }
 
@@ -267,8 +303,7 @@
 @layer components {
   /* The display face for numbers and short labels outside headings (utilities can still override). */
   .font-display {
-    font-variation-settings: "SOFT" 50;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 
   /* Skeleton shimmer for loading states. */

@@ -13,7 +13,7 @@ import { streakStatus } from "@/lib/streak";
 import { BADGES } from "@/lib/badges";
 import { rankFor } from "@/lib/ranks";
 import { readAvatar } from "@/lib/avatar";
-import { istDay } from "@/lib/ist-date";
+import { dayNumber, istDay } from "@/lib/ist-date";
 import { NO_LESSONS_MESSAGE } from "@/lib/constants";
 import { budgetAlerts, getMoneyMonth, getMoneyWeek } from "@/lib/money";
 import { getAllChallengeProgress, HABIT_CHALLENGE } from "@/lib/challenges";
@@ -38,6 +38,15 @@ function greetingFor(now: Date) {
   if (hour >= 17 && hour < 22) return "Good evening";
   return "Hey";
 }
+
+// Your avatar's line of the day under the greeting.
+const GREETINGS = [
+  "Ready to make smarter money moves today?",
+  "One small money move today — that's all we need.",
+  "Wallet check: still alive. Let's keep it that way.",
+  "Let's learn one thing and save one rupee today.",
+  "Your future self called. They said hi.",
+];
 
 const INVEST_FOUNDATIONS = ["compound-interest", "stocks-mutual-funds-fds", "sip-starting-early"];
 
@@ -114,12 +123,8 @@ export default async function DashboardPage() {
       <header className="flex animate-fade-up flex-col gap-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
-            <Link
-              href="/profile"
-              aria-label="Your profile"
-              className="flex h-14 w-14 shrink-0 items-end justify-center overflow-hidden rounded-full bg-peach-100 ring-1 ring-slate-200 transition hover:ring-slate-300 sm:h-16 sm:w-16"
-            >
-              <Avatar config={avatar} crop="head" className="h-14 w-14 sm:h-16 sm:w-16" />
+            <Link href="/profile" aria-label="Your profile and avatar" className="flex h-24 w-24 shrink-0 items-end justify-center rounded-full bg-[radial-gradient(circle_at_50%_40%,var(--color-brand-100),var(--color-brand-50)_70%)] ring-1 ring-brand-100 transition hover:-translate-y-0.5 sm:h-28 sm:w-28">
+              <Avatar config={avatar} expression="welcoming" className="h-[5.5rem] w-auto animate-bob sm:h-[6.5rem]" label={`${name}'s avatar`} />
             </Link>
             <div className="min-w-0">
               <h1 className="text-[1.9rem] leading-tight text-slate-900 sm:text-4xl">
@@ -131,11 +136,14 @@ export default async function DashboardPage() {
                 </Link>
                 <span>{rank.toNext ?? "Top rank reached."}</span>
               </p>
+              <p className="relative mt-3 inline-block rounded-2xl rounded-bl-md bg-white px-3.5 py-2 text-sm font-medium text-slate-800 shadow-[0_8px_20px_-12px_rgb(28_26_38/0.3)] ring-1 ring-slate-200">
+                {GREETINGS[dayNumber(today) % GREETINGS.length]}
+              </p>
             </div>
           </div>
           <div className="sm:max-w-xs">
             <Callout
-              href="/profile#streak"
+              href="/progress#streak"
               badge={
                 <>
                   <FlameIcon className={`h-4 w-4 ${streak.doneToday ? "animate-flicker" : ""}`} />

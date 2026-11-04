@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { queueAvatarEvent } from "@/lib/avatar/events";
 import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { istDay } from "@/lib/ist-date";
@@ -17,6 +18,8 @@ import { findChallenge, getChallengeProgress } from "@/lib/challenges";
 type Fail = { status: "not-found" | "slow-down" };
 
 function refresh(challengeId: string) {
+  // The layout too: it carries the avatar's reactions.
+  revalidatePath("/", "layout");
   revalidatePath(`/practice/challenges/${challengeId}`);
   revalidatePath("/practice");
   revalidatePath("/dashboard");
@@ -90,6 +93,14 @@ export async function completeChallengeStep(challengeId: string, choice?: number
         description: `Finished: ${challenge.title}`,
       });
       await awardMoneyBadges(tx, user.id);
+    }
+    // The avatar: every habit day, a bigger moment each finished week, and the finish.
+    if (finished) {
+      await queueAvatarEvent(tx, user.id, challenge.kind === "habit" ? "habit-done" : "challenge-done", `challenge-done:${challenge.id}:${enrollment.id}`, { title: challenge.title });
+    } else if (challenge.kind === "habit" && stepNumber % 7 === 0) {
+      await queueAvatarEvent(tx, user.id, "habit-week", `habit-week:${enrollment.id}:${stepNumber / 7}`, { week: stepNumber / 7 });
+    } else if (challenge.kind === "habit") {
+      await queueAvatarEvent(tx, user.id, "habit-step", `habit-step:${enrollment.id}:${stepNumber}`, { day: stepNumber });
     }
     await recordStreakDay(tx, user.id);
     return { status: "done" as const, stepNumber, xpAwarded, finished };

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Avatar } from "@/components/avatar/Avatar";
+import { avatarName, readAvatar } from "@/lib/avatar";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireOnboardedUser } from "@/lib/auth";
@@ -16,7 +18,7 @@ import { Medal } from "@/components/ui/Medal";
 import { Burst } from "@/components/ui/Burst";
 import { LevelIllustration, TrophyIllustration } from "@/components/ui/illustrations";
 import { BadgeIcon, IconTile, LessonIcon, ScenarioIcon } from "@/components/ui/topic-icons";
-import { card, primaryButton, secondaryButton, spotlight, tile } from "@/components/ui/button-styles";
+import { card, gameSurface, primaryButton, secondaryButton, tile } from "@/components/ui/button-styles";
 import { CORE_SCENARIOS } from "@/lib/scenarios";
 import { ArrowRightIcon, CheckIcon, GraduationCapIcon, RefreshIcon } from "@/components/ui/icons";
 
@@ -114,13 +116,14 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-8">
       {/* Completing the lesson: the one dark, celebratory card */}
-      <header className={`${spotlight} flex animate-fade-up flex-col items-center px-6 pt-10 pb-6 text-center sm:px-10`}>
+      <header className={`${gameSurface} flex animate-fade-up flex-col items-center px-6 pt-10 pb-6 text-center sm:px-10`}>
         <span
           aria-hidden
           className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]"
         />
-        <span className="relative animate-pop">
+        <span className="relative flex animate-pop items-end gap-3">
           {lessonXp > 0 && <Burst />}
+          <Avatar config={readAvatar(user.avatar)} expression={lessonXp > 0 ? "celebrating" : "proud"} className="h-28 w-auto animate-hop sm:h-32" label={`${avatarName(user)}'s avatar celebrating`} />
           <Medal icon={levelJustCompleted ? <GraduationCapIcon /> : <LessonIcon slug={slug} area={attempt.lesson.area} />} size="lg" />
         </span>
         <p className="mt-4 text-[13px] font-medium text-white/60">

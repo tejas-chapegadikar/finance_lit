@@ -3,7 +3,11 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { getDisplayName } from "@/lib/user";
 import { DISCLAIMER_SHORT, LEGAL_LINKS } from "@/lib/site";
 import { findReward } from "@/lib/rewards";
-import { readAvatar } from "@/lib/avatar";
+import { avatarName, readAvatar } from "@/lib/avatar";
+import { getPendingAvatarEvents, queueAvatarEvent } from "@/lib/avatar/events";
+import { db } from "@/lib/db";
+import { daysBetween, istDay } from "@/lib/ist-date";
+import { AvatarReactions } from "@/components/avatar/AvatarReactions";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
@@ -16,10 +20,19 @@ export default async function AppLayout({
   const user = await requireOnboardedUser();
   const navProps = { xpTotal: user.xpTotal, displayName: getDisplayName(user) };
   const title = findReward(user.title)?.name ?? null;
+  const avatar = readAvatar(user.avatar);
+  // The avatar reacts to what you do: unseen events, newest state on every navigation.
+  // Once a day the avatar says hello — or welcome back, after a few days away.
+  const today = istDay();
+  const away = user.streakLastDay ? daysBetween(user.streakLastDay, today) : 0;
+  if (user.avatarReactions) {
+    await queueAvatarEvent(db, user.id, away >= 3 ? "welcome-back" : "greeting", `${away >= 3 ? "welcome-back" : "greeting"}:${today}`);
+  }
+  const pending = user.avatarReactions ? await getPendingAvatarEvents(user.id) : [];
 
   return (
     <div className="flex min-h-screen flex-col lg:pl-64">
-      <Sidebar {...navProps} title={title} avatar={readAvatar(user.avatar)} />
+      <Sidebar {...navProps} title={title} avatar={avatar} />
       <Navbar {...navProps} />
       {/* Bottom padding below desktop keeps content clear of the fixed tab bar. */}
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-5 pb-28 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10 lg:pb-12">
@@ -36,6 +49,7 @@ export default async function AppLayout({
         </footer>
       </main>
       <MobileTabBar />
+      <AvatarReactions events={pending} avatar={avatar} name={avatarName(user)} enabled={user.avatarReactions} />
     </div>
   );
 }

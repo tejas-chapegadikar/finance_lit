@@ -29,7 +29,7 @@ export default async function DailyChallengePage() {
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
       <Link href="/practice#today" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
         <ArrowLeftIcon className="h-4 w-4" />
-        Daily
+        Challenges
       </Link>
 
       <PageHeader

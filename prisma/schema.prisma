@@ -153,6 +153,8 @@ model User {
   // Opted in to the friendly weekly XP league (off by default: names are only
   // shown to other students when this is on).
   leagueOptIn      Boolean   @default(false)
+  // Whether the avatar pops up to react to what you do (Settings).
+  avatarReactions  Boolean   @default(true)
 
   quizAttempts         QuizAttempt[]
   xpTransactions       XPTransaction[]
@@ -175,6 +177,7 @@ model User {
   savingsDeposits      SavingsDeposit[]
   challengeEnrollments ChallengeEnrollment[]
   challengeCheckIns    ChallengeCheckIn[]
+  avatarEvents         AvatarEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -657,4 +660,27 @@ model ChallengeCheckIn {
   @@unique([enrollmentId, stepNumber])
   @@unique([enrollmentId, day])
   @@index([userId, day])
+}
+
+// ── The talking avatar ───────────────────────────────────────────────────
+// One row per real event the student's avatar reacts to (a lesson finished,
+// a budget crossed, a goal reached…). The key is unique per student, so the
+// same event can never produce a second reaction; shownAt records when the
+// pop-up was shown (or skipped because reactions are off).
+model AvatarEvent {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // e.g. "lesson:<attemptId>", "budget-over:2026-11:food", "goal:<goalId>".
+  key       String
+  // The reaction to show (see src/lib/avatar/reactions.ts).
+  kind      String
+  // 0 ordinary · 1 important · 2 major milestone.
+  priority  Int       @default(0)
+  data      Json      @default("{}")
+  createdAt DateTime  @default(now())
+  shownAt   DateTime?
+
+  @@unique([userId, key])
+  @@index([userId, shownAt])
 }

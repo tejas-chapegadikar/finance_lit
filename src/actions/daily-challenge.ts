@@ -2,6 +2,7 @@
 
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { queueAvatarEvent } from "@/lib/avatar/events";
 import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { DAILY_CHALLENGE_XP } from "@/lib/constants";
@@ -66,6 +67,7 @@ export async function completeDailyChallenge(day: string, answers: StepAnswer[])
         idempotencyKey: xpKeys.dailyChallenge(user.id, day),
         description: `Daily Challenge: ${challenge.title}`,
       });
+      await queueAvatarEvent(tx, user.id, "daily-challenge", `daily-challenge:${day}`);
       await recordStreakDay(tx, user.id);
     }, SLOW_DB_TRANSACTION);
   } catch (err) {

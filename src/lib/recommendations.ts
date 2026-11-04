@@ -128,7 +128,7 @@ export function recommend(input: RecommendationInput): Recommendation[] {
     out.push({
       id: "invest-next",
       pillar: "investsmart",
-      title: `InvestSmart: ${investNext.title}`,
+      title: investNext.title,
       why: levelOneDone ? "You've got the basics of budgeting and compounding — ready for how investing really works." : "You've started this one.",
       href: `/lessons/${investNext.slug}`,
       cta: investNext.status === "in-progress" ? "Continue" : "Start",

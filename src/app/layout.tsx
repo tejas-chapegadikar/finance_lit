@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Figtree, Fraunces } from "next/font/google";
+import { Figtree, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-// Fraunces — a soft, characterful serif — for headings and big numbers;
-// Figtree for everything you read. Both are variable fonts self-hosted by
-// next/font (no request to Google at runtime), and both include the ₹ sign
-// in their latin-ext subset.
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+// Plus Jakarta Sans — a clean, modern geometric sans — for headings and big
+// numbers; Figtree for everything you read. Both are variable fonts
+// self-hosted by next/font (no request to Google at runtime), and both
+// include the ₹ sign in their latin-ext subset.
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin", "latin-ext"],
-  axes: ["SOFT", "opsz"],
 });
 
 const figtree = Figtree({
@@ -33,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         variables: { colorPrimary: "#5b45e0", borderRadius: "0.75rem", fontFamily: "var(--font-figtree)" },
       }}
     >
-      <html lang="en" className={`${fraunces.variable} ${figtree.variable} h-full antialiased`}>
+      <html lang="en" className={`${jakarta.variable} ${figtree.variable} h-full antialiased`}>
         <body className="min-h-full flex flex-col">
           {children}
           <Toaster richColors position="top-center" />

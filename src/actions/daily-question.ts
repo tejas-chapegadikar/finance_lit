@@ -2,6 +2,7 @@
 
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { queueAvatarEvent } from "@/lib/avatar/events";
 import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { getQuestionForUser } from "@/lib/daily-question";
@@ -68,6 +69,7 @@ export async function answerQuestionOfTheDay(questionId: string, optionIndex: nu
         idempotencyKey: xpKeys.questionOfTheDay(user.id, day),
         description: "Daily Money Reality Check",
       });
+      await queueAvatarEvent(tx, user.id, "reality-check", `reality:${day}`);
       await recordStreakDay(tx, user.id);
     }, SLOW_DB_TRANSACTION);
   } catch (err) {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChoiceQuestion, type ChoiceAnswer, type ChoiceResult } from "@/components/ui/ChoiceQuestion";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { primaryButton, spotlight } from "@/components/ui/button-styles";
+import { lightButton, spotlight } from "@/components/ui/button-styles";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { StepLabel } from "./StepLabel";
 
@@ -67,7 +67,7 @@ export function LessonFinale({
         </div>
         {scenarioDone ? (
           <form action={startQuiz} className="shrink-0">
-            <SubmitButton pendingLabel="Starting…" className={`${primaryButton} w-full py-3.5 text-base sm:w-auto`}>
+            <SubmitButton pendingLabel="Starting…" className={`${lightButton} w-full py-3.5 text-base sm:w-auto`}>
               {alreadyCompleted ? "Retake quiz" : "Start Quiz"}
               <ArrowRightIcon className="h-4 w-4" />
             </SubmitButton>
