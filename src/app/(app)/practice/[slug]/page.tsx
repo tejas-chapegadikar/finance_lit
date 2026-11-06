@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { rewardForScenario } from "@/lib/rewards";
+import { bonusScenarioOpen, rewardForScenario } from "@/lib/rewards";
 import { lessonAccess } from "@/lib/progress";
 import { chapterOf } from "@/lib/journey";
 import { SCENARIO_XP, getScenario, publicScenario } from "@/lib/scenarios";
@@ -26,11 +26,12 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
   if (!scenario) notFound();
 
   const reward = scenario.bonus ? rewardForScenario(slug) : undefined;
-  const [unlocked, runs, access] = await Promise.all([
-    reward ? db.rewardUnlock.count({ where: { userId: user.id, rewardId: reward.id } }) : Promise.resolve(1),
+  const [owned, runs, access] = await Promise.all([
+    reward ? db.rewardUnlock.count({ where: { userId: user.id, rewardId: reward.id } }) : Promise.resolve(0),
     db.scenarioRun.count({ where: { userId: user.id, scenarioSlug: slug } }),
     lessonAccess(user.id),
   ]);
+  const unlocked = bonusScenarioOpen(slug, user.xpTotal, owned > 0);
   const area = READINESS_AREA_META[scenario.area];
   // A scenario opens with the level of the lesson it practises.
   const level = scenario.lessonSlug ? chapterOf(scenario.lessonSlug) : undefined;
@@ -38,9 +39,9 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
-      <Link href="/practice#scenarios" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
+      <Link href="/lessons#scenarios" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
         <ArrowLeftIcon className="h-4 w-4" />
-        Challenges
+        Money IQ
       </Link>
 
       <PageHeader
@@ -90,9 +91,11 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
             <LockIcon className="h-6 w-6" />
           </span>
           <h2 className="mt-3 text-xl font-extrabold text-slate-900">This bonus scenario is locked</h2>
-          <p className="mx-auto mt-1 max-w-sm text-slate-600">Unlock it with {reward?.cost} XP in the Rewards Store.</p>
-          <Link href="/rewards" className={`${primaryButton} mt-5`}>
-            Go to Rewards
+          <p className="mx-auto mt-1 max-w-sm text-slate-600">
+            It opens once you&apos;ve earned {reward?.cost} XP in total — you have {user.xpTotal}. Lessons and money check-ins are the quickest way.
+          </p>
+          <Link href="/lessons" className={`${primaryButton} mt-5`}>
+            Back to Money IQ
           </Link>
         </section>
       )}

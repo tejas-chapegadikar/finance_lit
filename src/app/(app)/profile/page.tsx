@@ -20,7 +20,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { BadgeIcon } from "@/components/ui/topic-icons";
 import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/MenuRow";
 import { card, gameSurface, lightButton, primaryButton, secondaryButton } from "@/components/ui/button-styles";
-import { ArrowRightIcon, BookIcon, CalendarCheckIcon, FlameIcon, GiftIcon, LockIcon, SparklesIcon, StarIcon, TagIcon, UserIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, BookIcon, FlameIcon, LockIcon, SparklesIcon, StarIcon, TagIcon, UserIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Profile — StockStreak" };
 
@@ -168,9 +168,9 @@ export default async function ProfilePage() {
             <h2 id="latest-badges-heading" className="text-xl text-slate-900">
               Achievements
             </h2>
-            <Link href="/progress#achievements" className="text-sm font-semibold text-brand-700">
-              See all
-            </Link>
+            <span className="text-sm text-slate-500 tabular-nums">
+              {earned.length} of {badges.length}
+            </span>
           </div>
           {earned.length === 0 ? (
             <p className="mt-2 text-sm text-slate-600">No badges yet — finish your first lesson to earn First Steps.</p>
@@ -213,8 +213,6 @@ export default async function ProfilePage() {
 
       <ul className={menuListClass} aria-label="More">
         {[
-          { href: "/progress", label: "Progress — XP, streak and mastery", icon: <CalendarCheckIcon /> },
-          { href: "/rewards", label: "Rewards Store", icon: <GiftIcon /> },
           { href: "/settings", label: "Settings — your details and avatar pop-ups", icon: <UserIcon /> },
         ].map((row) => (
           <li key={row.href}>

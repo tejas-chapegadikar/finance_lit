@@ -4,6 +4,8 @@ import { AvatarSays } from "@/components/avatar/AvatarSays";
 import { avatarName, readAvatar } from "@/lib/avatar";
 import { requireOnboardedUser } from "@/lib/auth";
 import { getProgress, type LessonProgress } from "@/lib/progress";
+import { getPortfolio } from "@/lib/invest/portfolio";
+import { VirtualPortfolio } from "@/components/invest/VirtualPortfolio";
 import { compoundGrowth, shortRupees } from "@/lib/simulator";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProgressRing } from "@/components/ui/ProgressBar";
@@ -79,7 +81,7 @@ function LessonRow({ lesson, lockedHint }: { lesson: LessonProgress; lockedHint:
 
 export default async function InvestPage() {
   const user = await requireOnboardedUser();
-  const progress = await getProgress(user.id);
+  const [progress, portfolio] = await Promise.all([getProgress(user.id), getPortfolio(user.id)]);
   const foundations = FOUNDATIONS.flatMap((slug) => progress.lessons.filter((l) => l.slug === slug));
   const track = progress.invest;
   const all = [...foundations, ...track];
@@ -91,7 +93,7 @@ export default async function InvestPage() {
       <PageHeader
         eyebrow="InvestSmart"
         title="Understand investing before you invest a rupee"
-        description="How investing works, why it matters, and how beginners actually start — explained with real numbers, no jargon and no stock tips."
+        description="How investing works, why it matters, and how beginners start — then try it with virtual money, without risking a rupee. No stock tips, ever."
         aside={
           <div className="flex items-center gap-3">
             <ProgressRing value={done} max={all.length || 1} label="InvestSmart progress" />
@@ -106,6 +108,8 @@ export default async function InvestPage() {
       />
 
       {/* The simulator: this page's one spotlight */}
+      <VirtualPortfolio portfolio={portfolio} />
+
       <section className={`${spotlight} p-6 sm:p-9`} aria-labelledby="sim-heading">
         <span
           aria-hidden

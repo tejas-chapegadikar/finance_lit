@@ -2,10 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { findPersonality } from "@/lib/personality";
-import { findChallenge } from "@/lib/challenges/content";
 import { db } from "@/lib/db";
 import { PersonalityQuiz } from "@/components/personality/PersonalityQuiz";
-import { ChallengeIcon } from "@/components/practice/ChallengeIcon";
 import { IconTile, LessonIcon } from "@/components/ui/topic-icons";
 import { Burst } from "@/components/ui/Burst";
 import { primaryButton, secondaryButton, spotlight, tile } from "@/components/ui/button-styles";
@@ -50,7 +48,6 @@ export default async function PersonalityPage(props: PageProps<"/personality">) 
   }
 
   const focus = personality.focus;
-  const challenge = findChallenge(focus.challengeId);
   const lesson = await db.lesson.findUnique({ where: { slug: focus.lessonSlug }, select: { slug: true, title: true, area: true } });
 
   return (
@@ -104,16 +101,7 @@ export default async function PersonalityPage(props: PageProps<"/personality">) 
           Where to start
         </h2>
         <p className="mt-1 border-l-2 border-brand-300 pl-4 text-[15px] text-slate-700">{focus.tip}</p>
-        <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {challenge && (
-            <li>
-              <Link href={`/practice/challenges/${challenge.id}`} className={`${tile} flex h-full flex-col gap-3 p-5`}>
-                <ChallengeIcon icon={challenge.icon} />
-                <span className="text-[13px] font-medium text-slate-500">Try this challenge</span>
-                <span className="font-semibold leading-snug text-slate-900">{challenge.title}</span>
-              </Link>
-            </li>
-          )}
+        <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {lesson && (
             <li>
               <Link href={`/lessons/${lesson.slug}`} className={`${tile} flex h-full flex-col gap-3 p-5`}>

@@ -89,6 +89,22 @@
   --animate-hop: hop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 2;
 }
 
+/* The avatar blinks every few seconds (only with alive). */
+.avatar-blink {
+  animation: blink 5s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
 @keyframes avatar-in {
   from {
     opacity: 0;
@@ -311,6 +327,22 @@
     background: linear-gradient(90deg, var(--color-slate-100) 25%, var(--color-slate-50) 50%, var(--color-slate-100) 75%);
     background-size: 200% 100%;
     animation: var(--animate-shimmer);
+  }
+}
+
+/* Scroll reveal (components/ui/Reveal.tsx): hidden only when scripts run and
+   motion is welcome; otherwise always visible. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.7s var(--ease-out-soft),
+      transform 0.7s var(--ease-out-soft);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
   }
 }
 

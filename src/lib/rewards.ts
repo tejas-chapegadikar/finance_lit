@@ -112,6 +112,15 @@ export function rewardForScenario(slug: string): Reward | undefined {
   return REWARDS.find((reward) => reward.scenarioSlug === slug);
 }
 
+/**
+ * A bonus scenario opens once you've earned its XP in total (or bought it
+ * earlier, when there was a store) — nothing is ever spent.
+ */
+export function bonusScenarioOpen(slug: string, xpTotal: number, owned: boolean): boolean {
+  const reward = rewardForScenario(slug);
+  return !reward || owned || xpTotal >= reward.cost;
+}
+
 export function spendableXp(user: { xpTotal: number; xpSpent: number }): number {
   return Math.max(0, user.xpTotal - user.xpSpent);
 }

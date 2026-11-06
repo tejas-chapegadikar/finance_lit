@@ -6,6 +6,7 @@ import { MASTERY_META, getMastery } from "@/lib/revision";
 import { focusFor } from "@/lib/journey";
 import { NO_LESSONS_MESSAGE, PATH_NAME } from "@/lib/constants";
 import { JourneyMap, type MapChapter } from "@/components/lessons/JourneyMap";
+import { PractiseSection } from "@/components/lessons/PractiseSection";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProgressRing } from "@/components/ui/ProgressBar";
 import { TrophyIllustration } from "@/components/ui/illustrations";
@@ -143,6 +144,8 @@ export default async function LearnPage() {
             </div>
             <JourneyMap chapters={chapters} levelComplete={levelComplete} />
           </section>
+
+          <PractiseSection userId={user.id} xpTotal={user.xpTotal} lessons={lessons} />
 
           {/* The other two pillars */}
           <section aria-labelledby="pillars-heading" className="grid grid-cols-1 gap-3 sm:grid-cols-2">

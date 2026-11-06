@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { isAllowed, practiceRatelimit } from "@/lib/ratelimit";
-import { rewardForScenario } from "@/lib/rewards";
+import { bonusScenarioOpen, rewardForScenario } from "@/lib/rewards";
 import { lessonAccess } from "@/lib/progress";
 import {
   SCENARIO_XP,
@@ -25,8 +25,11 @@ async function openScenario(userId: string, slug: string): Promise<ScenarioDef> 
   if (!scenario) throw new Error("Scenario not found");
   if (scenario.bonus) {
     const reward = rewardForScenario(slug);
-    const unlocked = reward && (await db.rewardUnlock.count({ where: { userId, rewardId: reward.id } }));
-    if (!unlocked) throw new Error("Unlock this scenario in the Rewards Store first");
+    const [owned, user] = await Promise.all([
+      reward ? db.rewardUnlock.count({ where: { userId, rewardId: reward.id } }) : Promise.resolve(0),
+      db.user.findUniqueOrThrow({ where: { id: userId }, select: { xpTotal: true } }),
+    ]);
+    if (!bonusScenarioOpen(slug, user.xpTotal, owned > 0)) throw new Error("Earn more XP to open this bonus scenario");
   }
   // A scenario opens with the level of the lesson it practises.
   if (scenario.lessonSlug) {

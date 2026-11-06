@@ -3,10 +3,9 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveAvatar } from "@/actions/avatar";
-import { redeemReward } from "@/actions/rewards";
 import { AVATAR_GROUPS, AVATAR_SLOTS, DEFAULT_AVATAR, HEAD_SLOTS, type AvatarConfig, type AvatarGroup, type AvatarSlot } from "@/lib/avatar";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
-import { card, lightButton, primaryButton, secondaryButton } from "@/components/ui/button-styles";
+import { card, primaryButton, secondaryButton } from "@/components/ui/button-styles";
 import { CheckIcon, LockIcon, RefreshIcon, SparklesIcon, StarIcon } from "@/components/ui/icons";
 import { Avatar, EXPRESSIONS, type Expression } from "./Avatar";
 
@@ -31,13 +30,12 @@ const sameConfig = (a: AvatarConfig, b: AvatarConfig) => AVATAR_SLOTS.every(({ s
  * too), try out expressions, unlock store items with XP, and save what's
  * unlocked — the server checks every item again before saving.
  */
-export function AvatarStudio({ initial, items, balance, name }: { initial: AvatarConfig; items: StudioItem[]; balance: number; name: string }) {
+export function AvatarStudio({ initial, items, xpTotal, name }: { initial: AvatarConfig; items: StudioItem[]; xpTotal: number; name: string }) {
   const router = useRouter();
   const [config, setConfig] = useState(initial);
   const [group, setGroup] = useState<AvatarGroup>("face");
   const [slot, setSlot] = useState<AvatarSlot>("skin");
   const [expression, setExpression] = useState<Expression | undefined>(undefined);
-  const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -51,13 +49,11 @@ export function AvatarStudio({ initial, items, balance, name }: { initial: Avata
   function pickGroup(next: AvatarGroup) {
     setGroup(next);
     setSlot(AVATAR_SLOTS.find((s) => s.group === next)!.slot);
-    setConfirming(false);
   }
 
   function choose(item: StudioItem) {
     setConfig({ ...config, [item.slot]: item.id });
     setExpression(undefined);
-    setConfirming(false);
     setMessage(null);
   }
 
@@ -68,19 +64,6 @@ export function AvatarStudio({ initial, items, balance, name }: { initial: Avata
         await action();
       } catch {
         setMessage(GENERIC_ERROR_MESSAGE);
-      }
-    });
-  }
-
-  function unlock(item: StudioItem) {
-    run(async () => {
-      const result = await redeemReward(item.id);
-      setConfirming(false);
-      if (result.status === "not-enough-xp") setMessage("You don't have enough XP for this yet.");
-      if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);
-      if (result.status === "unlocked" || result.status === "owned") {
-        setMessage(`Unlocked ${item.name}.`);
-        router.refresh();
       }
     });
   }
@@ -126,7 +109,7 @@ export function AvatarStudio({ initial, items, balance, name }: { initial: Avata
 
         <div className="flex w-full flex-col items-center p-5">
           <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-orange-800">
-            <StarIcon className="h-4 w-4 text-orange-500" /> {balance.toLocaleString("en-IN")} XP to spend
+            <StarIcon className="h-4 w-4 text-orange-500" /> {xpTotal.toLocaleString("en-IN")} XP earned · items unlock as you learn
           </p>
           {locked.length > 0 && (
             <p className="mt-2 text-center text-sm font-medium text-orange-900">
@@ -207,7 +190,6 @@ export function AvatarStudio({ initial, items, balance, name }: { initial: Avata
                 aria-pressed={slot === s}
                 onClick={() => {
                   setSlot(s);
-                  setConfirming(false);
                 }}
                 className={`rounded-full px-3.5 py-1.5 text-sm transition ${slot === s ? "bg-slate-900 font-semibold text-white" : "bg-slate-100 font-medium text-slate-700 hover:bg-slate-200"}`}
               >
@@ -260,23 +242,9 @@ export function AvatarStudio({ initial, items, balance, name }: { initial: Avata
           <div className="mt-4 flex animate-fade-up flex-col gap-3 rounded-2xl bg-orange-50 p-4 ring-1 ring-orange-100 sm:flex-row sm:items-center">
             <p className="flex-1 text-sm text-slate-700">
               <span className="font-semibold text-slate-900">{selected.name}</span>
-              {selected.rare && " · Rare"} — {selected.cost ? `${selected.cost} XP in the Rewards Store.` : `${selected.how} to unlock it.`}
+              {selected.rare && " · Rare"} — {selected.how} to unlock it
+              {selected.cost !== null && ` (you have ${xpTotal.toLocaleString("en-IN")} XP)`}.
             </p>
-            {selected.cost !== null &&
-              (confirming ? (
-                <div className="flex gap-2">
-                  <button type="button" disabled={isPending} onClick={() => unlock(selected)} className={primaryButton}>
-                    {isPending ? "Unlocking…" : `Yes, spend ${selected.cost} XP`}
-                  </button>
-                  <button type="button" disabled={isPending} onClick={() => setConfirming(false)} className={secondaryButton}>
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <button type="button" disabled={isPending || balance < selected.cost} onClick={() => setConfirming(true)} className={lightButton}>
-                  {balance >= selected.cost ? `Unlock for ${selected.cost} XP` : `${selected.cost - balance} more XP needed`}
-                </button>
-              ))}
           </div>
         )}
       </section>

@@ -27,13 +27,15 @@ test("every item id is unique, every slot has a free option, and the default is 
   for (const id of Object.values(DEFAULT_AVATAR)) assert.equal(AVATAR_ITEMS.find((i) => i.id === id)?.unlock.type, "free", id);
 });
 
-test("unlock rules: XP items need buying, milestones unlock themselves", () => {
-  const base = { owned: new Set<string>(), badges: new Set<string>(), longestStreak: 0, lessonsCompleted: 0 };
+test("unlock rules: XP items open at an XP milestone (or an old purchase), others at theirs", () => {
+  const base = { owned: new Set<string>(), badges: new Set<string>(), longestStreak: 0, lessonsCompleted: 0, xpTotal: 0 };
   const item = (id: string) => AVATAR_ITEMS.find((i) => i.id === id)!;
   assert.equal(isAvatarItemUnlocked(item("top-tee-five"), { ...base, lessonsCompleted: 4 }), false);
   assert.equal(isAvatarItemUnlocked(item("top-tee-five"), { ...base, lessonsCompleted: 5 }), true);
   assert.equal(isAvatarItemUnlocked(item("hw-cap"), base), false);
-  assert.equal(isAvatarItemUnlocked(item("hw-cap"), { ...base, owned: new Set(["hw-cap"]) }), true);
+  assert.equal(isAvatarItemUnlocked(item("hw-cap"), { ...base, owned: new Set(["hw-cap"]) }), true, "an earlier purchase stays unlocked");
+  assert.equal(isAvatarItemUnlocked(item("hw-cap"), { ...base, xpTotal: 99 }), false);
+  assert.equal(isAvatarItemUnlocked(item("hw-cap"), { ...base, xpTotal: 100 }), true, "XP items unlock at their XP milestone");
   assert.equal(isAvatarItemUnlocked(item("top-tracksuit"), { ...base, badges: new Set(["habit-builder"]) }), true);
   assert.equal(isAvatarItemUnlocked(item("hw-crown"), { ...base, longestStreak: 29 }), false);
   assert.equal(isAvatarItemUnlocked(item("hw-crown"), { ...base, longestStreak: 30 }), true);

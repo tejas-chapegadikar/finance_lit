@@ -1,141 +1,217 @@
 import Link from "next/link";
-import { getAuthUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { getAuthUser } from "@/lib/auth";
+import { DEFAULT_AVATAR } from "@/lib/avatar";
+import { CHAPTERS } from "@/lib/journey";
 import { lightButton, primaryButton, secondaryButton, spotlight } from "@/components/ui/button-styles";
-import {
-  ArrowRightIcon,
-  BankIcon,
-  BookIcon,
-  CardIcon,
-  CompassIcon,
-  FlagIcon,
-  FlameIcon,
-  GiftIcon,
-  HourglassIcon,
-  PencilIcon,
-  ReceiptIcon,
-  RefreshIcon,
-  ShieldAlertIcon,
-  ShirtIcon,
-  SparklesIcon,
-  StarIcon,
-  TrendingUpIcon,
-  WalletIcon,
-} from "@/components/ui/icons";
-import { IconTile } from "@/components/ui/topic-icons";
+import { ArrowRightIcon, BookIcon, CheckIcon, FlameIcon, ShieldIcon, SparklesIcon, StarIcon, TrendingUpIcon, WalletIcon } from "@/components/ui/icons";
 import { LevelIllustration } from "@/components/ui/illustrations";
 import { Logo } from "@/components/ui/Logo";
+import { Parallax, Reveal } from "@/components/ui/Reveal";
+import { Avatar, type Expression } from "@/components/avatar/Avatar";
+import { HeroAvatar } from "@/components/landing/HeroAvatar";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { CHAPTERS } from "@/lib/journey";
-import type { ReadinessAreaValue } from "@/lib/readiness-areas";
 
 // Marketing copy is static on purpose: the landing page shouldn't wait on (or
-// break with) the database.
+// break with) the database. Every number on this page is an example, and
+// labelled as one.
 
 type Glyph = (p: { className?: string }) => React.ReactNode;
 
-const TOPICS: { Icon: Glyph; area: ReadinessAreaValue; title: string; text: string }[] = [
-  { Icon: WalletIcon, area: "BUDGETING", title: "Budgeting and saving", text: "Make your allowance, stipend or salary last the whole month." },
-  { Icon: BankIcon, area: "BANKING", title: "Banking and digital payments", text: "Pick the right account and use UPI without the risks." },
-  { Icon: ShieldAlertIcon, area: "DIGITAL_SAFETY", title: "Financial scams", text: "Spot fake UPI requests, job offers and \"digital arrest\" calls." },
-  { Icon: CardIcon, area: "CREDIT", title: "Credit cards and CIBIL scores", text: "Use credit without debt traps, and build a strong score." },
-  { Icon: ReceiptIcon, area: "TAX", title: "First salary and income tax", text: "Read your payslip: CTC, in-hand pay, TDS and tax regimes." },
-  { Icon: TrendingUpIcon, area: "INVESTING", title: "Investing fundamentals", text: "Stocks, mutual funds and FDs — and how risk and return work." },
-  { Icon: HourglassIcon, area: "INVESTING", title: "SIPs and insurance", text: "Why starting early matters, and why protection comes first." },
-];
-
-const STEPS: { Icon: Glyph; title: string; text: string }[] = [
-  { Icon: BookIcon, title: "Learn", text: "Short written lessons with real ₹ examples." },
-  { Icon: CompassIcon, title: "Practise", text: "Make decisions in real-life money scenarios and see what happens." },
-  { Icon: PencilIcon, title: "Take a Quiz", text: "Five quick questions at the end of every lesson." },
-  { Icon: SparklesIcon, title: "Get Feedback", text: "Miss one and the AI Coach gives a hint, lets you retry, then checks you've got it." },
-  { Icon: RefreshIcon, title: "Revise", text: "Missed ideas come back after 1, 3 and 7 days, so they stick." },
-  { Icon: GiftIcon, title: "Earn & Unlock", text: "Earn XP for real learning, keep a streak, and dress up your avatar." },
-];
-
-const DIFFERENCES: { Icon: Glyph; title: string; text: string }[] = [
+const PILLARS: {
+  id: string;
+  Icon: Glyph;
+  eyebrow: string;
+  title: string;
+  text: string;
+  points: string[];
+  tone: string;
+  say: { expression: Expression; text: string };
+}[] = [
   {
-    Icon: FlagIcon,
-    title: "From first stipend to first salary",
-    text: "One journey built around the money moments you'll actually face — ₹, UPI, CIBIL, payslips, taxes and SIPs.",
+    id: "money",
+    Icon: WalletIcon,
+    eyebrow: "Money Management",
+    title: "Find out where your money actually goes",
+    text: "Log what comes in and what goes out, set budgets, and watch your week and month on clear charts — then hear what your avatar thinks about it.",
+    points: [
+      "Income, expenses and balance at a glance",
+      "Budgets per category, with a heads-up before you overshoot",
+      "Weekly and monthly spending charts",
+      "Roasts and praise worked out from your real numbers",
+    ],
+    tone: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+    say: {
+      expression: "shocked",
+      text: "Food is 60% of your budget. Are you secretly running a restaurant?",
+    },
   },
   {
-    Icon: CompassIcon,
-    title: "Real decisions, not just reading",
-    text: "Manage a ₹15,000 stipend, handle a credit-card bill, spot a fake UPI request and read your first payslip.",
+    id: "iq",
+    Icon: BookIcon,
+    eyebrow: "Money IQ",
+    title: "The money lessons college forgot",
+    text: "Short lessons in four levels — budgeting, UPI safety, credit and CIBIL, payslips and tax — each with a quiz, real-life scenarios and revision that brings back what you missed.",
+    points: [
+      "Five-minute lessons with real ₹ examples",
+      "An AI Coach that hints before it tells",
+      "Real-life scenarios: rent, credit-card bills, scam calls",
+      "Revision after 1, 3 and 7 days so it sticks",
+    ],
+    tone: "bg-brand-50 text-brand-700 ring-brand-100",
+    say: {
+      expression: "proud",
+      text: "Let's see if your financial knowledge is better than your attendance.",
+    },
   },
   {
-    Icon: RefreshIcon,
-    title: "Revision that makes it stick",
-    text: "We track what you've mastered and bring back what you missed, so you remember it when it matters.",
+    id: "invest",
+    Icon: TrendingUpIcon,
+    eyebrow: "InvestSmart",
+    title: "Practise investing with money that isn't real",
+    text: "Start with ₹1,00,000 of virtual money. Spread it across FDs, gold, index funds or a single risky stock, fast-forward months or years, and see what risk really feels like.",
+    points: [
+      "Virtual ₹1,00,000 — zero real risk",
+      "Fast-forward 1 month to 5 years",
+      "See how diversifying changes the ride",
+      "Lessons on SIPs, index funds and compounding — no stock tips, ever",
+    ],
+    tone: "bg-sky-50 text-sky-700 ring-sky-100",
+    say: {
+      expression: "excited",
+      text: "First investment? Proud of you. Now please don't check it every five minutes.",
+    },
+  },
+];
+
+const HELPS: { Icon: Glyph; title: string; text: string }[] = [
+  {
+    Icon: WalletIcon,
+    title: "Stop the month-end panic",
+    text: "See your spending early enough to change it — not after the money's gone.",
+  },
+  {
+    Icon: ShieldIcon,
+    title: "Dodge scams and debt traps",
+    text: "Fake UPI requests, 'digital arrest' calls, minimum-due traps: you'll spot them.",
+  },
+  {
+    Icon: TrendingUpIcon,
+    title: "Start investing with confidence",
+    text: "Understand risk, compounding and SIPs before you put in a real rupee.",
   },
   {
     Icon: FlameIcon,
-    title: "A daily habit, without the pressure",
-    text: "A fresh question, challenge and three missions every day — and earned streak freezes for the days life gets busy.",
-  },
-  {
-    Icon: ShirtIcon,
-    title: "Your journey, your avatar",
-    text: "Climb from Money Rookie to Money Master on a map of your journey, and unlock avatar gear as you learn.",
+    title: "Make it a habit",
+    text: "A streak, XP and an avatar that notices when you do well — and when you don't.",
   },
 ];
 
-/** A glimpse of the real app: the dashboard's "Up next" card, a Coach hint and the day's streak. */
-function HeroPreview() {
+/** An example of the Money Management screen (illustrative numbers). */
+function MoneyMock() {
+  const rows = [
+    { label: "Food", pct: 60, color: "#2a78d6" },
+    { label: "Travel", pct: 18, color: "#1baf7a" },
+    { label: "Shopping", pct: 14, color: "#eb6834" },
+    { label: "Other", pct: 8, color: "#6250d6" },
+  ];
   return (
-    <div aria-hidden className="relative mx-auto w-full max-w-md select-none lg:mr-0">
-      <div className={`${spotlight} p-6 sm:p-7`}>
-        <span className="pointer-events-none absolute -top-28 -right-24 -z-10 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]" />
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="inline-flex rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-white/85">Next lesson · Level 3</p>
-            <p className="mt-3 font-display text-3xl leading-tight font-semibold">Credit Cards 101</p>
-            <p className="mt-2 text-sm text-white/70">Your bank gives you a ₹1,00,000 limit. Does that mean you have ₹1,00,000 to spend?</p>
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-3 gap-2 text-center">
+        {[
+          ["In", "₹15,000"],
+          ["Out", "₹9,800"],
+          ["Left", "₹5,200"],
+        ].map(([k, v]) => (
+          <div key={k} className="rounded-2xl bg-slate-50 px-2 py-3">
+            <p className="text-xs text-slate-500">{k}</p>
+            <p className="font-display text-lg font-bold text-slate-900">{v}</p>
           </div>
-          <LevelIllustration level={3} className="h-24 w-auto shrink-0 animate-float" />
-        </div>
-        <div className="mt-5 flex gap-1">
-          <span className="h-1.5 flex-1 rounded-full bg-emerald-400" />
-          <span className="h-1.5 flex-1 rounded-full bg-brand-400" />
-          <span className="h-1.5 flex-1 rounded-full bg-white/15" />
-        </div>
-        <p className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold">
-          Start Learning <ArrowRightIcon className="h-4 w-4" />
-        </p>
+        ))}
       </div>
+      <ul className="flex flex-col gap-2.5">
+        {rows.map((r) => (
+          <li key={r.label} className="flex items-center gap-3 text-sm">
+            <span className="w-20 text-slate-600">{r.label}</span>
+            <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <span className="block h-full rounded-full" style={{ width: `${r.pct}%`, background: r.color }} />
+            </span>
+            <span className="w-10 text-right font-semibold text-slate-800 tabular-nums">{r.pct}%</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
-      <div className="relative z-10 -mt-6 ml-6 flex gap-3 rounded-2xl rounded-tl-md bg-white p-4 shadow-[0_18px_40px_-24px_rgb(30_28_26/0.45)] ring-1 ring-slate-200 sm:ml-12">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-brand-300">
-          <SparklesIcon className="h-4 w-4" />
-        </span>
-        <p className="text-xs leading-relaxed text-slate-700">
-          <span className="font-semibold text-slate-900">AI Coach</span> — Think about what the bank is limiting: the amount you must spend, or the
-          amount you&apos;re allowed to borrow?
-        </p>
+/** An example of the Money IQ path. */
+function IqMock() {
+  return (
+    <ol className="flex flex-col gap-2.5">
+      {CHAPTERS.map((c, i) => (
+        <li key={c.id} className={`flex items-center gap-3 rounded-2xl p-3 ${i === 1 ? "bg-brand-50 ring-1 ring-brand-200" : "bg-slate-50"}`}>
+          <span
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${i === 0 ? "bg-emerald-500 text-white" : i === 1 ? "bg-brand-600 text-white" : "bg-white text-slate-400 ring-1 ring-slate-200"}`}
+          >
+            {i === 0 ? <CheckIcon className="h-4 w-4" /> : c.number}
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-slate-900">
+              Level {c.number}: {c.title}
+            </span>
+            <span className="block truncate text-xs text-slate-500">{c.stage}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** An example of the virtual portfolio (illustrative path). */
+function InvestMock() {
+  const pts = [100, 101, 99.5, 103, 102, 106, 104.5, 109, 108, 112, 115, 113, 118];
+  const max = 120;
+  const min = 96;
+  const d = pts
+    .map((v, i) => `${i === 0 ? "M" : "L"}${((i / (pts.length - 1)) * 300).toFixed(1)},${(((max - v) / (max - min)) * 110 + 5).toFixed(1)}`)
+    .join(" ");
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-xs text-slate-500">Virtual portfolio · example</p>
+          <p className="font-display text-2xl font-bold text-slate-900">₹1,18,000</p>
+        </div>
+        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">+18% in 12 virtual months</span>
       </div>
-
-      <div className="mt-3 flex justify-end gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm ring-1 ring-slate-200">
-          <FlameIcon className="h-3.5 w-3.5 text-orange-500" /> 7-day streak
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-800 ring-1 ring-orange-100">
-          <StarIcon className="h-3.5 w-3.5 text-orange-500" /> +75 XP
-        </span>
+      <svg viewBox="0 0 300 120" className="h-28 w-full" aria-hidden>
+        <path d={`${d} L300,120 L0,120 Z`} fill="rgb(42 120 214 / 0.1)" />
+        <path d={d} fill="none" stroke="#2a78d6" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      </svg>
+      <div className="flex flex-wrap gap-1.5 text-xs font-semibold">
+        {["Index fund 50%", "FD 30%", "Gold 20%"].map((t) => (
+          <span key={t} className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">
+            {t}
+          </span>
+        ))}
       </div>
     </div>
   );
 }
 
-function SectionIntro({ eyebrow, title, text, id, align = "left" }: { eyebrow: string; title: string; text?: string; id?: string; align?: "left" | "center" }) {
+const MOCKS: Record<string, () => React.ReactNode> = {
+  money: MoneyMock,
+  iq: IqMock,
+  invest: InvestMock,
+};
+
+function FloatChip({ className, children }: { className: string; children: React.ReactNode }) {
   return (
-    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
-      <p className="text-[13px] font-medium text-slate-500">{eyebrow}</p>
-      <h2 id={id} className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
-        {title}
-      </h2>
-      {text && <p className="mt-3 text-[15px] leading-relaxed text-slate-600">{text}</p>}
-    </div>
+    <span
+      className={`absolute inline-flex animate-float items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-slate-800 shadow-[0_10px_24px_-12px_rgb(28_26_38/0.35)] ring-1 ring-slate-200 ${className}`}
+    >
+      {children}
+    </span>
   );
 }
 
@@ -146,13 +222,16 @@ export default async function HomePage() {
 
   return (
     <>
-      <main className="flex flex-1 flex-col">
+      <main className="flex flex-1 flex-col overflow-x-clip">
         {/* Hero */}
-        <section className="relative overflow-hidden border-b border-slate-200">
+        <section className="relative border-b border-slate-200">
           <span
             aria-hidden
             className="pointer-events-none absolute inset-0 -z-10 opacity-60"
-            style={{ backgroundImage: "radial-gradient(circle, var(--color-slate-300) 1px, transparent 1.3px)", backgroundSize: "24px 24px" }}
+            style={{
+              backgroundImage: "radial-gradient(circle, var(--color-slate-300) 1px, transparent 1.3px)",
+              backgroundSize: "24px 24px",
+            }}
           />
           <header className="relative mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 sm:px-6">
             <Logo />
@@ -166,18 +245,18 @@ export default async function HomePage() {
             </nav>
           </header>
 
-          <div className="relative mx-auto grid max-w-6xl items-center gap-16 px-4 pt-10 pb-20 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pt-16 lg:pb-28">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-8 pb-20 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:pt-14 lg:pb-28">
             <div className="flex animate-fade-up flex-col items-start gap-6">
-              <p className="inline-flex rounded-full bg-white px-3 py-1 text-[13px] font-medium text-slate-700 ring-1 ring-slate-200">
+              <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[13px] font-medium text-slate-700 ring-1 ring-slate-200">
+                <SparklesIcon className="h-3.5 w-3.5 text-brand-600" />
                 For college students and first-job professionals in India
               </p>
               <h1 className="text-[2.75rem] leading-[1.02] text-slate-900 sm:text-6xl lg:text-7xl">
-                Learn money before money teaches you{" "}
-                <span className="bg-[linear-gradient(transparent_62%,var(--color-brand-200)_62%)]">the hard way.</span>
+                Learn money before money teaches you <span className="bg-[linear-gradient(transparent_62%,var(--color-brand-200)_62%)]">the hard way.</span>
               </h1>
               <p className="max-w-lg text-lg leading-relaxed text-slate-600">
-                Practical money skills for college students and first-job professionals — from your first ₹15,000 stipend to your first
-                payslip. Learn, practise real decisions, and actually remember it.
+                Track your spending, learn the money skills nobody teaches, and practise investing with virtual money — with an avatar buddy who cheers your
+                wins and roasts your food-delivery habit.
               </p>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Link href="/sign-up" className={`${primaryButton} group px-8 py-4 text-base`}>
@@ -189,144 +268,175 @@ export default async function HomePage() {
                 </Link>
               </div>
               <p className="text-sm text-slate-500">
-                Your first lesson takes about 5 minutes ·{" "}
-                <a href="#how-it-works" className="font-semibold text-brand-700 underline-offset-4 hover:underline">
-                  See how it works
+                Free · Sign in with Google or email ·{" "}
+                <a href="#features" className="font-semibold text-brand-700 underline-offset-4 hover:underline">
+                  See what&apos;s inside
                 </a>
               </p>
             </div>
-            <HeroPreview />
+
+            <div className="relative animate-fade-up [animation-delay:120ms]">
+              <Parallax speed={-0.06} className="pointer-events-none absolute inset-0">
+                <div aria-hidden className="relative h-full w-full">
+                  <FloatChip className="top-[22%] left-0 sm:left-2">
+                    <StarIcon className="h-3.5 w-3.5 text-orange-500" /> +75 XP
+                  </FloatChip>
+                  <FloatChip className="top-[44%] right-0 [animation-delay:1.1s] sm:right-2">
+                    <WalletIcon className="h-3.5 w-3.5 text-emerald-600" /> ₹2,340 saved
+                  </FloatChip>
+                  <FloatChip className="bottom-[16%] -left-2 [animation-delay:0.6s] sm:left-[4%]">
+                    <FlameIcon className="h-3.5 w-3.5 text-orange-500" /> 7-day streak
+                  </FloatChip>
+                  <FloatChip className="right-[6%] bottom-[4%] [animation-delay:1.7s]">
+                    <TrendingUpIcon className="h-3.5 w-3.5 text-sky-600" /> Virtual +1.2%
+                  </FloatChip>
+                </div>
+              </Parallax>
+              <HeroAvatar />
+            </div>
           </div>
         </section>
 
-        {/* Why StockStreak? */}
-        <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="why-heading">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20">
-            <div className="lg:sticky lg:top-10 lg:self-start">
-              <SectionIntro
-                id="why-heading"
-                eyebrow="Why StockStreak?"
-                title="The money skills nobody teaches you in college"
-                text="Your first stipend, salary, credit card and tax form are coming. Here's what you'll be ready for:"
-              />
-            </div>
-            <ul className="divide-y divide-slate-200 border-y border-slate-200">
-              {TOPICS.map(({ Icon, area, title, text }) => (
-                <li key={title} className="flex items-start gap-4 py-5">
-                  <IconTile area={area}>
-                    <Icon />
-                  </IconTile>
-                  <div>
-                    <h3 className="text-xl leading-snug text-slate-900">{title}</h3>
-                    <p className="mt-1 text-[15px] text-slate-600">{text}</p>
+        {/* The three pillars */}
+        <section id="features" className="mx-auto w-full max-w-6xl scroll-mt-4 px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="features-heading">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <p className="text-[13px] font-medium text-slate-500">Three things, one buddy</p>
+            <h2 id="features-heading" className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
+              Manage it. Understand it. Grow it.
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-slate-600">
+              Everything a student needs to get good with money — and an avatar that reacts to every move you make.
+            </p>
+          </Reveal>
+
+          <div className="mt-16 flex flex-col gap-20 sm:gap-28">
+            {PILLARS.map((p, i) => {
+              const Mock = MOCKS[p.id];
+              return (
+                <div key={p.id} className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+                  <Reveal className={i % 2 === 1 ? "lg:order-2" : ""}>
+                    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[13px] font-semibold ring-1 ${p.tone}`}>
+                      <p.Icon className="h-4 w-4" />
+                      {p.eyebrow}
+                    </span>
+                    <h3 className="mt-4 text-3xl leading-tight text-slate-900 sm:text-4xl">{p.title}</h3>
+                    <p className="mt-3 text-[15px] leading-relaxed text-slate-600">{p.text}</p>
+                    <ul className="mt-6 flex flex-col gap-2.5">
+                      {p.points.map((pt) => (
+                        <li key={pt} className="flex items-start gap-2.5 text-[15px] text-slate-700">
+                          <span aria-hidden className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                            <CheckIcon className="h-3 w-3" />
+                          </span>
+                          {pt}
+                        </li>
+                      ))}
+                    </ul>
+                  </Reveal>
+                  <Reveal delay={120} className={i % 2 === 1 ? "lg:order-1" : ""}>
+                    <div className="relative">
+                      <div
+                        aria-hidden
+                        className="rounded-[2rem] bg-white p-5 shadow-[0_24px_60px_-30px_rgb(60_40_150/0.45)] ring-1 ring-slate-200 transition duration-500 hover:-translate-y-1 hover:rotate-[-0.5deg] sm:p-7"
+                      >
+                        <p className="mb-4 text-xs font-medium text-slate-400">Example</p>
+                        <Mock />
+                      </div>
+                      <div className="relative z-10 -mt-8 ml-auto flex w-[min(100%,22rem)] items-end gap-2 sm:-mr-4">
+                        <p className="mb-6 flex-1 rounded-2xl rounded-br-md bg-slate-900 px-4 py-3 text-sm leading-snug font-medium text-white shadow-lg">
+                          {p.say.text}
+                        </p>
+                        <Avatar
+                          config={DEFAULT_AVATAR}
+                          expression={p.say.expression}
+                          crop="head"
+                          className="h-20 w-auto shrink-0 animate-bob"
+                          label="The StockStreak avatar"
+                        />
+                      </div>
+                    </div>
+                  </Reveal>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* How it helps */}
+        <section className="border-y border-slate-200 bg-white px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="helps-heading">
+          <div className="mx-auto max-w-6xl lg:px-6">
+            <Reveal className="max-w-2xl">
+              <p className="text-[13px] font-medium text-slate-500">How StockStreak helps</p>
+              <h2 id="helps-heading" className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
+                Your first stipend, salary and credit card are coming. Be ready.
+              </h2>
+            </Reveal>
+            <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {HELPS.map(({ Icon, title, text }, i) => (
+                <Reveal as="li" key={title} delay={i * 90}>
+                  <div className="group h-full rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_40px_-22px_rgb(60_40_150/0.4)]">
+                    <span
+                      aria-hidden
+                      className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand-700 shadow-sm ring-1 ring-slate-200 transition group-hover:scale-110 group-hover:rotate-[-6deg]"
+                    >
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <h3 className="mt-4 text-lg leading-snug text-slate-900">{title}</h3>
+                    <p className="mt-1.5 text-[15px] text-slate-600">{text}</p>
                   </div>
-                </li>
+                </Reveal>
               ))}
             </ul>
           </div>
         </section>
 
         {/* The journey */}
-        <section className="border-y border-slate-200 bg-white px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="journey-heading">
-          <div className="mx-auto max-w-6xl">
-            <SectionIntro
-              id="journey-heading"
-              eyebrow="Your journey"
-              title="From your first stipend to your first salary"
-              text="12 short lessons in four levels. Each level unlocks the next, so every step builds on the last."
-            />
-            <ol className="relative mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-              <span aria-hidden className="absolute top-14 right-[12%] left-[12%] hidden border-t-2 border-dashed border-slate-200 lg:block" />
-              {CHAPTERS.map((chapter) => (
-                <li key={chapter.id} className="relative flex flex-col items-start">
-                  <LevelIllustration level={chapter.number} className="h-28 w-auto" />
-                  <p className="mt-4 font-display text-sm font-semibold text-brand-600">Level {String(chapter.number).padStart(2, "0")}</p>
-                  <h3 className="mt-0.5 text-2xl leading-tight text-slate-900">{chapter.title}</h3>
-                  <p className="mt-1 text-sm text-slate-600">{chapter.stage}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* How it works */}
-        <section id="how-it-works" className="mx-auto w-full max-w-6xl scroll-mt-4 px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="how-heading">
-          <SectionIntro id="how-heading" eyebrow="How it works" title="Six steps that make it stick" />
-          <ol className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-            {STEPS.map(({ Icon, title, text }, i) => (
-              <li key={title} className="border-t border-slate-200 pt-5">
-                <div className="flex items-center justify-between">
-                  <span className="font-display text-4xl font-semibold text-slate-300 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
-                  <span aria-hidden className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                </div>
-                <p className="mt-3 text-xs font-medium text-slate-500">Step {i + 1}</p>
-                <h3 className="mt-0.5 text-xl text-slate-900">{title}</h3>
-                <p className="mt-1 text-[15px] text-slate-600">{text}</p>
-              </li>
+        <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="journey-heading">
+          <Reveal className="max-w-2xl">
+            <p className="text-[13px] font-medium text-slate-500">Your Money IQ journey</p>
+            <h2 id="journey-heading" className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
+              From your first stipend to your first salary
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-slate-600">Four levels. Each one unlocks the next, so every step builds on the last.</p>
+          </Reveal>
+          <ol className="relative mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            <span aria-hidden className="absolute top-14 right-[12%] left-[12%] hidden border-t-2 border-dashed border-slate-200 lg:block" />
+            {CHAPTERS.map((chapter, i) => (
+              <Reveal as="li" key={chapter.id} delay={i * 100} className="relative flex flex-col items-start">
+                <LevelIllustration level={chapter.number} className="h-28 w-auto transition duration-500 hover:-translate-y-1" />
+                <p className="mt-4 font-display text-sm font-semibold text-brand-600">Level {String(chapter.number).padStart(2, "0")}</p>
+                <h3 className="mt-0.5 text-2xl leading-tight text-slate-900">{chapter.title}</h3>
+                <p className="mt-1 text-sm text-slate-600">{chapter.stage}</p>
+              </Reveal>
             ))}
           </ol>
         </section>
 
-        {/* What makes StockStreak different? */}
-        <section className="border-t border-slate-200 bg-white px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="different-heading">
-          <div className="mx-auto max-w-6xl">
-            <SectionIntro id="different-heading" eyebrow="What makes StockStreak different?" title="Learning that feels like real life" />
-            <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
-              <div className={`${spotlight} flex flex-col gap-10 self-start p-7 sm:p-9`}>
-                <span className="pointer-events-none absolute -bottom-32 -left-24 -z-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.45),transparent_62%)]" />
-                <div>
-                  <span aria-hidden className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-brand-300">
-                    <SparklesIcon className="h-5 w-5" />
-                  </span>
-                  <h3 className="mt-5 text-3xl leading-tight text-white">An AI Coach that teaches</h3>
-                  <p className="mt-2 max-w-sm text-white/70">
-                    A hint first, then a retry, then a fresh question to check you&apos;ve really got it — never just the answer.
-                  </p>
-                </div>
-                <div aria-hidden className="flex flex-col gap-2 text-sm">
-                  <p className="self-end rounded-2xl rounded-br-md bg-brand-600 px-3.5 py-2 font-medium">Why was my first answer wrong?</p>
-                  <p className="max-w-[85%] rounded-2xl rounded-tl-md bg-white/10 px-3.5 py-2 text-white/85">
-                    A limit is the most you <em>can</em> borrow — not money you have. Spend ₹40,000 of a ₹50,000 limit and you owe it back.
-                  </p>
+        {/* Final call to action */}
+        <section className="px-4 pb-20 sm:px-6 sm:pb-28">
+          <Reveal>
+            <div className={`${spotlight} mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-14 text-center sm:px-12 md:flex-row md:text-left`}>
+              <span className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]" />
+              <Avatar
+                config={DEFAULT_AVATAR}
+                expression="celebrating"
+                className="h-44 w-auto shrink-0 animate-bob sm:h-52"
+                label="The StockStreak avatar, celebrating"
+              />
+              <div className="min-w-0">
+                <h2 className="max-w-2xl text-4xl leading-tight text-white sm:text-5xl">Your money buddy is waiting</h2>
+                <p className="mt-3 max-w-xl text-lg text-white/70">Free to start. Two minutes to set up. Lifelong opinions about your spending.</p>
+                <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row md:items-start">
+                  <Link href="/sign-up" className={`${lightButton} group px-8 py-4 text-base`}>
+                    Get started — it&apos;s free
+                    <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-0.5" />
+                  </Link>
+                  <Link href="/sign-in" className="rounded-xl px-4 py-2 font-semibold text-white/85 underline-offset-4 hover:text-white hover:underline">
+                    I already have an account
+                  </Link>
                 </div>
               </div>
-              <ul className="divide-y divide-slate-200 border-y border-slate-200">
-                {DIFFERENCES.map(({ Icon, title, text }) => (
-                  <li key={title} className="flex items-start gap-4 py-5">
-                    <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <div>
-                      <h3 className="text-lg leading-snug text-slate-900">{title}</h3>
-                      <p className="mt-1 text-[15px] text-slate-600">{text}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
             </div>
-          </div>
-        </section>
-
-        {/* Final call to action */}
-        <section className="px-4 py-20 sm:px-6 sm:py-28">
-          <div className={`${spotlight} mx-auto max-w-5xl px-6 py-16 text-center sm:px-12`}>
-            <span className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]" />
-            <h2 className="mx-auto max-w-2xl text-4xl leading-tight text-white sm:text-5xl">Start your financial-learning journey today</h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-              Money IQ lessons, a Money Manager for your own budget, InvestSmart, a 30-day habit challenge and smart revision — free to start.
-            </p>
-            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link href="/sign-up" className={`${lightButton} group px-8 py-4 text-base`}>
-                Get started — it&apos;s free
-                <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-0.5" />
-              </Link>
-              <Link href="/sign-in" className="rounded-xl px-4 py-2 font-semibold text-white/85 underline-offset-4 hover:text-white hover:underline">
-                I already have an account
-              </Link>
-            </div>
-          </div>
+          </Reveal>
         </section>
       </main>
       <SiteFooter />

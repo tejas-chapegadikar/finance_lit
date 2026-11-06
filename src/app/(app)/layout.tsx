@@ -7,7 +7,7 @@ import { avatarName, readAvatar } from "@/lib/avatar";
 import { getPendingAvatarEvents, queueAvatarEvent } from "@/lib/avatar/events";
 import { db } from "@/lib/db";
 import { daysBetween, istDay } from "@/lib/ist-date";
-import { AvatarReactions } from "@/components/avatar/AvatarReactions";
+import { AvatarBuddy } from "@/components/avatar/AvatarBuddy";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
@@ -49,7 +49,7 @@ export default async function AppLayout({
         </footer>
       </main>
       <MobileTabBar />
-      <AvatarReactions events={pending} avatar={avatar} name={avatarName(user)} enabled={user.avatarReactions} />
+      <AvatarBuddy events={pending} avatar={avatar} name={avatarName(user)} enabled={user.avatarReactions} />
     </div>
   );
 }

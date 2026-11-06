@@ -37,7 +37,13 @@ export type ReactionKind =
   | "badge"
   | "rank-up"
   | "item-unlocked"
-  | "simulator";
+  | "simulator"
+  | "invest-first"
+  | "invest-crash"
+  | "invest-up"
+  | "invest-allin"
+  | "invest-diversified"
+  | "invest-panic";
 
 export type ReactionData = Record<string, string | number | boolean | undefined>;
 
@@ -301,6 +307,56 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     lines: [
       (_, d) => `Ooh — you unlocked ${n(d, "item")}! Shall we try it on?`,
       (name, d) => `${name}, ${n(d, "item")} is waiting in Avatar Studio.`,
+    ],
+  },
+  "invest-first": {
+    expression: "excited",
+    priority: 1,
+    lines: [
+      () => "Your first investment! Virtual money, real lessons. I'm so proud I could cry.",
+      (name) => `${name} the investor. Has a nice ring to it. Now hit fast-forward and hold your nerve.`,
+      () => "Look at you, putting money to work instead of into food delivery.",
+    ],
+  },
+  "invest-crash": {
+    expression: "shocked",
+    priority: 1,
+    lines: [
+      (_, d) => `Markets just fell — your portfolio is down ${String(d.pct ?? "")}% this month. Deep breath. This is normal. Selling now locks in the loss.`,
+      () => "Ouch. Red everywhere. Real investors see this too — the ones who panic-sell are the ones who lose.",
+      (name) => `${name}, don't touch that sell button. Falls like this are why we invest for years, not weeks.`,
+    ],
+  },
+  "invest-up": {
+    expression: "celebrating",
+    priority: 0,
+    lines: [
+      (_, d) => `Up ${String(d.pct ?? "")}%! Don't get cocky — markets humble everyone eventually.`,
+      () => "Green month! Compounding is doing push-ups for you.",
+    ],
+  },
+  "invest-allin": {
+    expression: "facepalm",
+    priority: 1,
+    lines: [
+      () => "All your money in ONE stock? Bold. Very bold. Have you heard of diversification? It's like a seatbelt.",
+      (name) => `${name}, putting everything in one company is how people learn hard lessons. Luckily this money is virtual.`,
+    ],
+  },
+  "invest-diversified": {
+    expression: "proud",
+    priority: 1,
+    lines: [
+      () => "Spread across different options — that's diversification, and that's what grown-up investors do.",
+      (name) => `Okay ${name}, a balanced portfolio. I didn't expect this level of maturity.`,
+    ],
+  },
+  "invest-panic": {
+    expression: "facepalm",
+    priority: 1,
+    lines: [
+      () => "Selling right after a crash? That's panic-selling — buying high, selling low. The classic.",
+      (name) => `${name}, you sold in the dip. The market thanks you for your donation.`,
     ],
   },
   simulator: {

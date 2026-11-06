@@ -15,6 +15,18 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
+  // Pages retired in the avatar-centred redesign (their data is kept): old
+  // links and bookmarks land somewhere sensible instead of a 404.
+  async redirects() {
+    return [
+      { source: "/practice", destination: "/lessons#practise", permanent: false },
+      { source: "/practice/challenges/:id", destination: "/dashboard", permanent: false },
+      { source: "/challenge", destination: "/dashboard", permanent: false },
+      { source: "/question", destination: "/dashboard", permanent: false },
+      { source: "/rewards", destination: "/profile/avatar", permanent: false },
+      { source: "/progress", destination: "/profile", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

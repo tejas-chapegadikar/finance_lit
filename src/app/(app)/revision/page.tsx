@@ -42,9 +42,9 @@ export default async function RevisionPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
-      <Link href="/practice#review" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
+      <Link href="/lessons#practise" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
         <ArrowLeftIcon className="h-4 w-4" />
-        Challenges
+        Money IQ
       </Link>
       <PageHeader
         eyebrow="Review & revise"
@@ -69,7 +69,7 @@ export default async function RevisionPage() {
           <p className="mx-auto mt-1 max-w-sm text-slate-600">
             Questions you miss in quizzes come back here after 1, 3 and 7 days, each time with a fresh example.
           </p>
-          <Link href="/practice" className={`${primaryButton} mt-5`}>
+          <Link href="/lessons" className={`${primaryButton} mt-5`}>
             More ways to practise
           </Link>
         </section>

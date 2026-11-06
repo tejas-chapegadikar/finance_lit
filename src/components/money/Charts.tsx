@@ -236,3 +236,80 @@ export function TrendColumns({ points, unit, caption }: { points: { key: string;
     </div>
   );
 }
+
+// One validated categorical palette (dataviz skill, light mode), assigned to
+// the seven categories in their fixed order — a category keeps its colour no
+// matter its size. Three slots are under 3:1 on white, so every slice is also
+// labelled in text (the list beside the ring), never colour alone.
+export const CATEGORY_COLOR: Record<string, string> = {
+  food: "#2a78d6",
+  shopping: "#eb6834",
+  travel: "#1baf7a",
+  entertainment: "#eda100",
+  education: "#e87ba4",
+  bills: "#008300",
+  other: "#6250d6",
+};
+
+/** Each slice's length and start along the ring, with a 2px surface gap between slices. */
+function donutSlices(rows: CategoryTotal[], spent: number, circumference: number) {
+  const gap = rows.length > 1 ? 2 : 0;
+  const out: (CategoryTotal & { dash: number; offset: number })[] = [];
+  let offset = 0;
+  for (const c of rows) {
+    const len = (c.amount / spent) * circumference;
+    out.push({ ...c, dash: Math.max(0, len - gap), offset });
+    offset += len;
+  }
+  return out;
+}
+
+/** Where the month's money went, as a ring with a labelled list (amount and share for each category). */
+export function CategoryDonut({ categories, spent }: { categories: CategoryTotal[]; spent: number }) {
+  const rows = categories.filter((c) => c.amount > 0);
+  if (spent === 0 || rows.length === 0) return <p className="text-sm text-slate-500">No spending logged this month yet — your breakdown appears here.</p>;
+  const r = 52;
+  const C = 2 * Math.PI * r;
+  const slices = donutSlices(rows, spent, C);
+  const top = rows[0];
+  return (
+    <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+      <div className="relative h-40 w-40 shrink-0">
+        <svg viewBox="0 0 128 128" className="h-full w-full -rotate-90" role="img" aria-label={`Spending by category: ${rows.map((c) => `${c.label} ${Math.round((c.amount / spent) * 100)}%`).join(", ")}`}>
+          <circle cx={64} cy={64} r={r} fill="none" stroke="var(--color-slate-100)" strokeWidth={16} />
+          {slices.map((s) => (
+            <circle
+              key={s.id}
+              cx={64}
+              cy={64}
+              r={r}
+              fill="none"
+              stroke={CATEGORY_COLOR[s.id] ?? "#6250d6"}
+              strokeWidth={16}
+              strokeDasharray={`${s.dash} ${C - s.dash}`}
+              strokeDashoffset={-s.offset}
+              className="animate-ring transition-[stroke-width] duration-200 hover:[stroke-width:20]"
+            >
+              <title>{`${s.label}: ${rupees(s.amount)} (${Math.round((s.amount / spent) * 100)}%)`}</title>
+            </circle>
+          ))}
+        </svg>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+          <span className="text-[11px] font-medium text-slate-500">Biggest</span>
+          <span className="max-w-[5.5rem] truncate text-sm font-semibold text-slate-900">{top.label}</span>
+          <span className="text-xs text-slate-600 tabular-nums">{Math.round((top.amount / spent) * 100)}%</span>
+        </div>
+      </div>
+      <ul className="grid w-full grid-cols-1 gap-1.5 text-sm">
+        {rows.map((c) => (
+          <li key={c.id} className="flex items-center gap-2">
+            <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: CATEGORY_COLOR[c.id] ?? "#6250d6" }} />
+            <span className="min-w-0 flex-1 truncate text-slate-700">{c.label}</span>
+            <span className="font-semibold text-slate-900 tabular-nums">{rupees(c.amount)}</span>
+            <span className="w-10 text-right text-xs text-slate-500 tabular-nums">{Math.round((c.amount / spent) * 100)}%</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

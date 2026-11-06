@@ -5,7 +5,6 @@ import { db } from "@/lib/db";
 import { istDay, istDayStart, shiftDay } from "@/lib/ist-date";
 import { AVATAR_ITEMS, avatarName, isAvatarItemUnlocked, readAvatar, unlockText } from "@/lib/avatar";
 import { getAvatarUnlocks } from "@/lib/avatar-unlocks";
-import { spendableXp } from "@/lib/rewards";
 import { AvatarStudio, type StudioItem } from "@/components/avatar/AvatarStudio";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ArrowLeftIcon } from "@/components/ui/icons";
@@ -44,9 +43,9 @@ export default async function AvatarStudioPage() {
       <PageHeader
         eyebrow="Avatar Studio"
         title="Make it yours"
-        description="Your avatar is you — it carries your name everywhere. Basics are free, store items cost XP, and special items unlock with lessons, streaks and badges. Try anything on first."
+        description="Your avatar is you — it carries your name everywhere. Basics are free; everything else unlocks as you earn XP, finish lessons, keep streaks and win badges. Try anything on first."
       />
-      <AvatarStudio initial={readAvatar(user.avatar)} items={items} balance={spendableXp(user)} name={avatarName(user)} />
+      <AvatarStudio initial={readAvatar(user.avatar)} items={items} xpTotal={user.xpTotal} name={avatarName(user)} />
     </div>
   );
 }

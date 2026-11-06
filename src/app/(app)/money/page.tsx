@@ -11,12 +11,13 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { QuickAdd } from "@/components/money/QuickAdd";
 import { BudgetEditor } from "@/components/money/BudgetEditor";
-import { CategoryBars, DailyColumns, SpendSplit, TrendColumns } from "@/components/money/Charts";
+import { CategoryBars, CategoryDonut, DailyColumns, SpendSplit, TrendColumns } from "@/components/money/Charts";
 import { InsightList, MoneyFactCard } from "@/components/money/Insights";
 import { GoalCard, NewGoalForm } from "@/components/money/Goals";
 import { EntryRow } from "@/components/money/EntryRow";
 import { AvatarSays } from "@/components/avatar/AvatarSays";
-import type { Expression } from "@/components/avatar/Avatar";
+import { BuddyLine } from "@/components/avatar/BuddyLine";
+import { moneyRoast } from "@/lib/avatar/roast";
 import { avatarName, readAvatar } from "@/lib/avatar";
 
 export const metadata: Metadata = { title: "Money Manager — StockStreak" };
@@ -61,20 +62,8 @@ export default async function MoneyPage(props: PageProps<"/money">) {
   const budgetUsed = m.totalBudget ? Math.round((m.spent / m.totalBudget) * 100) : null;
   const savedTotal = goals.reduce((sum, g) => sum + g.saved, 0);
 
-  // What your avatar makes of this month, from your own numbers.
-  const over = alerts.find((a) => a.level === "over");
-  const near = alerts.find((a) => a.level === "near");
-  const mood: { expression: Expression; text: string } = m.entries.length === 0
-    ? { expression: "welcoming", text: "Log your first spend and I'll show you exactly where your money goes." }
-    : over
-      ? { expression: "shocked", text: `${over.label} is over budget. Deep breath — we adjust, we don't panic.` }
-      : near
-        ? { expression: "thinking", text: `${near.label} is at ${near.pct}%. Easy does it for the rest of the month.` }
-        : m.income > 0 && left < 0
-          ? { expression: "confused", text: "We've spent more than came in this month. Let's find the leak." }
-          : m.income > 0
-            ? { expression: "happy", text: `${rupees(left)} still available this month. We're doing fine.` }
-            : { expression: "happy", text: "Every rupee logged is a rupee understood." };
+  // What your avatar makes of this month — worked out from your own transactions.
+  const roast = moneyRoast({ month: m, weekly: trends.weekly, name: avatarName(user) });
 
   const shown = m.entries.filter(
     (e) => (type === "all" || (type === "in" ? e.kind === "INCOME" : e.kind === "EXPENSE")) && (!cat || (e.kind === "EXPENSE" && e.category === cat)),
@@ -137,9 +126,10 @@ export default async function MoneyPage(props: PageProps<"/money">) {
         )}
       </PageHeader>
 
+      {m.isCurrent && <BuddyLine id={`money-${roast.id}`} expression={roast.expression} lines={roast.lines.slice(1)} />}
       {m.isCurrent && (
-        <AvatarSays config={readAvatar(user.avatar)} name={avatarName(user)} expression={mood.expression} className="-mt-4">
-          {mood.text}
+        <AvatarSays config={readAvatar(user.avatar)} name={avatarName(user)} expression={roast.expression} className="-mt-4">
+          {roast.lines[0]}
         </AvatarSays>
       )}
 
@@ -195,6 +185,12 @@ export default async function MoneyPage(props: PageProps<"/money">) {
             </div>
           </div>
           <div className="flex flex-col gap-10">
+            <div>
+              <h3 className="font-sans text-sm font-semibold tracking-normal text-slate-900">Where it went</h3>
+              <div className="mt-4">
+                <CategoryDonut categories={m.byCategory} spent={m.spent} />
+              </div>
+            </div>
             <div>
               <h3 className="font-sans text-sm font-semibold tracking-normal text-slate-900">Essentials, wants, food &amp; others</h3>
               <div className="mt-4">

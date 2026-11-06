@@ -182,6 +182,7 @@ model User {
   challengeEnrollments ChallengeEnrollment[]
   challengeCheckIns    ChallengeCheckIn[]
   avatarEvents         AvatarEvent[]
+  virtualPortfolio     VirtualPortfolio?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -687,4 +688,51 @@ model AvatarEvent {
 
   @@unique([userId, key])
   @@index([userId, shownAt])
+}
+
+// ── InvestSmart virtual portfolio ───────────────────────────────────────
+// Practice money only: every student starts with virtual ₹1,00,000, invests
+// it in a few simple options and fast-forwards simulated months. Returns are
+// simulated on the server from a fixed seed (src/lib/invest) — illustrative,
+// not real market data, and never advice.
+model VirtualPortfolio {
+  id         String             @id @default(cuid())
+  userId     String             @unique
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Uninvested virtual rupees.
+  cash       Float              @default(100000)
+  // Simulated months elapsed since the start (or the last reset).
+  month      Int                @default(0)
+  // Each reset starts a new "run" (so a fresh start gets fresh reactions).
+  run        Int                @default(1)
+  // The total value's change in the most recent simulated month, as a fraction.
+  lastChange Float              @default(0)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  holdings   VirtualHolding[]
+  history    VirtualSnapshot[]
+}
+
+model VirtualHolding {
+  id          String           @id @default(cuid())
+  portfolioId String
+  portfolio   VirtualPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  // An asset id from src/lib/invest/assets.ts.
+  asset       String
+  // Virtual rupees put in (net of withdrawals), and what they're worth now.
+  invested    Float
+  value       Float
+
+  @@unique([portfolioId, asset])
+}
+
+// The portfolio's total at the end of each simulated month, for the chart.
+model VirtualSnapshot {
+  id          String           @id @default(cuid())
+  portfolioId String
+  portfolio   VirtualPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  month       Int
+  total       Float
+
+  @@unique([portfolioId, month])
 }

@@ -4,8 +4,9 @@ import { findBadge } from "./badges";
 // student — it carries their account name, never a mascot name of its own.
 // Everything here is cosmetic: no item changes learning, XP or scores.
 //
-// Basics are free; store items cost XP (a Rewards Store unlock, id = item
-// id); special items unlock with a badge, a streak or a number of lessons.
+// Basics are free; "xp" items unlock on their own once you've earned that
+// much XP in total (earlier Rewards Store purchases stay unlocked too);
+// special items unlock with a badge, a streak or a number of lessons.
 // Slot names and item ids are stored on users and purchases, so they're
 // permanent — the earlier human-style avatar's ids map onto this character
 // (skin tones are body colours, hairstyles are head tufts, hair colours are
@@ -169,14 +170,14 @@ export function readAvatar(value: unknown): AvatarConfig {
   return config;
 }
 
-export type UnlockContext = { owned: Set<string>; badges: Set<string>; longestStreak: number; lessonsCompleted: number };
+export type UnlockContext = { owned: Set<string>; badges: Set<string>; longestStreak: number; lessonsCompleted: number; xpTotal: number };
 
 export function isAvatarItemUnlocked(item: AvatarItem, ctx: UnlockContext): boolean {
   switch (item.unlock.type) {
     case "free":
       return true;
     case "xp":
-      return ctx.owned.has(item.id);
+      return ctx.owned.has(item.id) || ctx.xpTotal >= item.unlock.cost;
     case "badge":
       return ctx.badges.has(item.unlock.badgeId);
     case "streak":
@@ -192,7 +193,7 @@ export function unlockText(item: AvatarItem): string {
     case "free":
       return "Free";
     case "xp":
-      return `${item.unlock.cost} XP in Rewards`;
+      return `Earn ${item.unlock.cost} XP`;
     case "badge":
       return `Earn the ${findBadge(item.unlock.badgeId)?.name ?? ""} badge`;
     case "streak":

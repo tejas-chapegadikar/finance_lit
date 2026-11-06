@@ -566,6 +566,8 @@ export function Avatar({
   className,
   label,
   expression,
+  alive = false,
+  gaze,
 }: {
   config: AvatarConfig;
   /** "head" shows a close-up of the face. */
@@ -575,6 +577,10 @@ export function Avatar({
   label?: string;
   /** A reaction's expression, overriding the chosen face for a moment. */
   expression?: Expression;
+  /** Blinks now and then (respects reduced motion). */
+  alive?: boolean;
+  /** Where the eyes look, from -1 to 1 on each axis (e.g. towards the pointer). */
+  gaze?: { x: number; y: number };
 }) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const bodyId = `av-body-${uid}`;
@@ -632,10 +638,13 @@ export function Avatar({
 
       {/* face */}
       {expression !== "facepalm" && (
-        <>
+        <g
+          className={alive ? "avatar-blink" : undefined}
+          style={{ transformOrigin: "100px 72px", ...(gaze ? { translate: `${(gaze.x * 4).toFixed(1)}px ${(gaze.y * 3).toFixed(1)}px` } : {}) }}
+        >
           <Eye kind={look.eyes} cx={84} cy={72} side="l" />
           <Eye kind={look.eyes} cx={116} cy={72} side="r" />
-        </>
+        </g>
       )}
       {expression === "facepalm" && <Eye kind="closed" cx={84} cy={72} side="l" />}
       <MouthShape kind={look.mouth} />
