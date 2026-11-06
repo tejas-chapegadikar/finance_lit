@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { User as AuthUser } from "@supabase/supabase-js";
 import { db } from "./db";
 import { supabaseServer } from "./supabase/server";
+import { supabaseConfigured } from "./supabase/config";
 
 // Who's signed in. Login is Supabase Auth (Google, or a 6-digit code sent to
 // your email); the StockStreak account — profile, XP, lessons, money — is a
@@ -10,6 +11,8 @@ import { supabaseServer } from "./supabase/server";
 
 /** The signed-in Supabase user (verified with Supabase, not just read from a cookie), or null. */
 export const getAuthUser = cache(async (): Promise<AuthUser | null> => {
+  // Without the Supabase keys nobody can be signed in — public pages still work.
+  if (!supabaseConfigured()) return null;
   const supabase = await supabaseServer();
   const { data, error } = await supabase.auth.getUser();
   return error ? null : data.user;
