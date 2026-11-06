@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "./db";
 
@@ -15,17 +15,49 @@ export async function requireSession() {
 const getUserByClerkId = cache((clerkId: string) => db.user.findUnique({ where: { clerkId } }));
 
 /**
- * Ensures a signed-in session AND a matching Prisma User row.
- * The User row is created by the Clerk `user.created` webhook, so on the
- * rare chance a request lands before that webhook has been processed,
- * this sends the user back to sign-in rather than crashing.
+ * Creates the app's User row for a signed-in Clerk user, the same way the
+ * Clerk `user.created` webhook does. Used when a request arrives before the
+ * webhook (or where no webhook is configured yet, e.g. a fresh deployment).
+ * A row that already has the same *verified* email — e.g. after moving from
+ * Clerk's development to production keys, which gives everyone a new Clerk
+ * id — is reconnected instead, so no one loses their progress.
+ */
+async function createUserFromClerk(clerkId: string) {
+  const clerk = await currentUser();
+  if (!clerk || clerk.id !== clerkId) return null;
+  const email = clerk.emailAddresses.find((e) => e.id === clerk.primaryEmailAddressId);
+  if (!email) return null;
+  const phone = clerk.phoneNumbers.find((p) => p.id === clerk.primaryPhoneNumberId);
+  const verified = email.verification?.status === "verified";
+  const fields = {
+    email: email.emailAddress,
+    emailVerified: verified,
+    phone: phone?.phoneNumber ?? null,
+    phoneVerified: phone?.verification?.status === "verified",
+    name: [clerk.firstName, clerk.lastName].filter(Boolean).join(" ") || null,
+  };
+  const sameEmail = await db.user.findUnique({ where: { email: fields.email } });
+  if (sameEmail) {
+    if (!verified) return null;
+    return db.user.update({ where: { id: sameEmail.id }, data: { clerkId, ...fields } });
+  }
+  return db.user.upsert({ where: { clerkId }, create: { clerkId, ...fields }, update: fields });
+}
+
+/**
+ * Ensures a signed-in session AND a matching Prisma User row. The row is
+ * normally created by the Clerk webhook; if it isn't there yet, it's created
+ * now. (Sending the student back to sign-in instead caused an endless
+ * sign-in → home → dashboard loop when the webhook hadn't run.)
  */
 export async function requireAppUser() {
   const { userId: clerkId } = await requireSession();
 
-  const user = await getUserByClerkId(clerkId);
+  const user = (await getUserByClerkId(clerkId)) ?? (await createUserFromClerk(clerkId));
   if (!user) {
-    redirect("/sign-in");
+    // No email on the Clerk account (or an unverified one clashing with an
+    // existing account): show an error rather than looping through sign-in.
+    throw new Error("We couldn't set up your StockStreak account. Please sign in with a verified email address.");
   }
   return user;
 }
