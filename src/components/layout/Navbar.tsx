@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { UserAvatar } from "@clerk/nextjs";
 import { Logo } from "@/components/ui/Logo";
 import { XPBadge } from "./XPBadge";
+import type { AvatarConfig } from "@/lib/avatar";
+import { Avatar } from "@/components/avatar/Avatar";
 
 /** The top bar on phones and tablets (with the bottom tab bar); desktops get the sidebar instead. */
-export function Navbar({ xpTotal, displayName }: { xpTotal: number; displayName: string }) {
+export function Navbar({ xpTotal, displayName, avatar }: { xpTotal: number; displayName: string; avatar: AvatarConfig }) {
   return (
     // Fixed h-14 so sticky elements below it (the lesson progress bar) can sit at top-14.
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50/90 backdrop-blur-md lg:hidden">
@@ -19,9 +20,9 @@ export function Navbar({ xpTotal, displayName }: { xpTotal: number; displayName:
           <Link
             href="/profile"
             aria-label={`Your profile (${displayName})`}
-            className="rounded-full ring-2 ring-transparent transition hover:ring-slate-200"
+            className="flex h-9 w-9 items-end justify-center overflow-hidden rounded-full bg-brand-50 ring-1 ring-brand-100 transition hover:ring-brand-300"
           >
-            <UserAvatar />
+            <Avatar config={avatar} crop="head" className="h-9 w-9" />
           </Link>
         </div>
       </div>

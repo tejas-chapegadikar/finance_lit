@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 // Basic hardening headers on every response. No Content-Security-Policy yet:
-// Clerk loads scripts and frames from its own domains, so a CSP needs to be
-// tuned against the production Clerk setup before it can be switched on.
+// it needs tuning for Supabase Auth (the browser talks to the project's
+// *.supabase.co URL) and Google sign-in before it can be switched on.
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },

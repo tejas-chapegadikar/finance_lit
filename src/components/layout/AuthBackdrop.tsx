@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
-/** The quiet page behind Clerk's sign-in and sign-up cards: warm white, the map's dotted paper, one line of brand. */
+/** The quiet page behind the sign-in and sign-up cards: soft lavender-white, dotted paper, one line of brand. */
 export function AuthBackdrop({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative isolate flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-50 p-4">

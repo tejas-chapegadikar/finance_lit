@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { lightButton, primaryButton, secondaryButton, spotlight } from "@/components/ui/button-styles";
 import {
@@ -140,8 +140,7 @@ function SectionIntro({ eyebrow, title, text, id, align = "left" }: { eyebrow: s
 }
 
 export default async function HomePage() {
-  const { userId } = await auth();
-  if (userId) {
+  if (await getAuthUser()) {
     redirect("/dashboard");
   }
 

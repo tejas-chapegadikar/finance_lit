@@ -107,7 +107,11 @@ enum RevisionContext {
 
 model User {
   id            String  @id @default(cuid())
-  clerkId       String  @unique
+  // The Supabase Auth user id (auth.users.id). Login lives in Supabase;
+  // everything else lives here, linked by this id.
+  authId        String? @unique
+  // From the earlier Clerk login — kept so old accounts can be relinked.
+  clerkId       String? @unique
   email         String  @unique
   emailVerified Boolean @default(false)
   phone         String? @unique

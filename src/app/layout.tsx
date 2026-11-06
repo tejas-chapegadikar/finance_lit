@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Figtree, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -26,18 +25,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // brand-600, so Clerk's sign-in buttons and links match the app.
-    <ClerkProvider
-      appearance={{
-        variables: { colorPrimary: "#5b45e0", borderRadius: "0.75rem", fontFamily: "var(--font-figtree)" },
-      }}
-    >
-      <html lang="en" className={`${jakarta.variable} ${figtree.variable} h-full antialiased`}>
-        <body className="min-h-full flex flex-col">
-          {children}
-          <Toaster richColors position="top-center" />
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" className={`${jakarta.variable} ${figtree.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Toaster richColors position="top-center" />
+      </body>
+    </html>
   );
 }

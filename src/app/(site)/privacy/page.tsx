@@ -9,7 +9,7 @@ This policy explains what personal data StockStreak ("we", "us") collects when y
 
 ## What we collect
 
-- **Account details** — your name, email address and, if you sign in with Google, your profile picture. Sign-in is handled by our authentication provider, Clerk; we never see your password.
+- **Account details** — your name, email address and, if you sign in with Google, your profile picture. Sign-in is handled by our authentication provider, Supabase: you sign in with Google or a one-time code sent to your email, so there's no StockStreak password at all.
 - **Profile details you give us** — your display name, your stage (year of study or graduate/working), your college (optional) and your learning goal (optional).
 - **Learning activity** — the lessons you open, your answers to scenarios, quizzes, revision questions, the Daily Money Reality Check and the Daily Challenge, your scores, topic mastery, the days you learned (your streak), daily missions, XP, badges, Rewards Store unlocks, and any lesson feedback you send.
 - **Your avatar** — the look you pick in the avatar studio.
@@ -38,7 +38,7 @@ When you ask the Coach a follow-up question, we also send the words you type (an
 
 ## Who we share data with
 
-We use trusted service providers to run StockStreak: **Clerk** (sign-in), **Neon** (database), **Vercel** (hosting), **Upstash** (rate limiting), **Anthropic** (AI hints). If you choose Google sign-in, Google shares your basic profile with us. These providers only process data to provide their service to us.
+We use trusted service providers to run StockStreak: **Supabase** (sign-in), **Neon** (database), **Vercel** (hosting), **Upstash** (rate limiting), **Anthropic** (AI hints). If you choose Google sign-in, Google shares your basic profile with us. These providers only process data to provide their service to us.
 
 We **don't sell** your personal data or use it for advertising. We may disclose data if the law requires it.
 
@@ -61,7 +61,7 @@ You can:
 
 ## Cookies
 
-We only use the cookies needed to keep you signed in, set by Clerk. We don't use advertising cookies or third-party trackers.
+We only use the cookies needed to keep you signed in, set by Supabase on our own domain. We don't use advertising cookies or third-party trackers.
 
 ## Age
 

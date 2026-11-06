@@ -1,10 +1,9 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-// Sign-in/sign-up abuse is covered by Clerk's own Attack Protection
-// (Clerk Dashboard > Attack Protection) since we use Clerk's prebuilt
-// <SignIn/>/<SignUp/> components, which talk directly to Clerk's API —
-// we never see those requests server-side to rate-limit them ourselves.
+// Sign-in/sign-up abuse is covered by Supabase Auth's own rate limits
+// (Supabase Dashboard > Authentication > Rate Limits): sign-in requests go
+// from the browser straight to Supabase, so we never see them here.
 // These limiters cover the actions we DO control.
 //
 // With the Upstash env vars set, limits are shared across every server

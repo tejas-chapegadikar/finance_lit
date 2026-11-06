@@ -33,7 +33,7 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-screen flex-col lg:pl-64">
       <Sidebar {...navProps} title={title} avatar={avatar} />
-      <Navbar {...navProps} />
+      <Navbar {...navProps} avatar={avatar} />
       {/* Bottom padding below desktop keeps content clear of the fixed tab bar. */}
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-5 pb-28 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10 lg:pb-12">
         {children}

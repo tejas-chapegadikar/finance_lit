@@ -1,62 +1,57 @@
 import { cache } from "react";
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import type { User as AuthUser } from "@supabase/supabase-js";
 import { db } from "./db";
+import { supabaseServer } from "./supabase/server";
 
-/** Ensures a signed-in Clerk session, redirecting to /sign-in otherwise. */
+// Who's signed in. Login is Supabase Auth (Google, or a 6-digit code sent to
+// your email); the StockStreak account — profile, XP, lessons, money — is a
+// User row in our database, linked by `authId` (the Supabase user id).
+
+/** The signed-in Supabase user (verified with Supabase, not just read from a cookie), or null. */
+export const getAuthUser = cache(async (): Promise<AuthUser | null> => {
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.auth.getUser();
+  return error ? null : data.user;
+});
+
+/** Ensures a signed-in session, redirecting to /sign-in otherwise. */
 export async function requireSession() {
-  return auth.protect({ unauthenticatedUrl: "/sign-in" });
+  const user = await getAuthUser();
+  if (!user) redirect("/sign-in");
+  return { userId: user.id, user };
 }
 
-// A layout and the page it wraps both call requireAppUser()/
-// requireOnboardedUser() on the same request (the layout to guard the
-// route, the page to read user data) — react's cache() dedupes that down
-// to a single DB round trip per request instead of one per call site.
-const getUserByClerkId = cache((clerkId: string) => db.user.findUnique({ where: { clerkId } }));
+const getUserByAuthId = cache((authId: string) => db.user.findUnique({ where: { authId } }));
 
 /**
- * Creates the app's User row for a signed-in Clerk user, the same way the
- * Clerk `user.created` webhook does. Used when a request arrives before the
- * webhook (or where no webhook is configured yet, e.g. a fresh deployment).
- * A row that already has the same *verified* email — e.g. after moving from
- * Clerk's development to production keys, which gives everyone a new Clerk
- * id — is reconnected instead, so no one loses their progress.
+ * Finds or creates the StockStreak account for a Supabase user. An account
+ * that already has the same *verified* email — e.g. one made before the move
+ * from Clerk to Supabase — is linked instead, so its progress is kept. The
+ * same email through Google or an email code is the same Supabase user, so
+ * it's the same account on every device.
  */
-async function createUserFromClerk(clerkId: string) {
-  const clerk = await currentUser();
-  if (!clerk || clerk.id !== clerkId) return null;
-  const email = clerk.emailAddresses.find((e) => e.id === clerk.primaryEmailAddressId);
+async function linkOrCreateUser(auth: AuthUser) {
+  const email = auth.email?.toLowerCase();
   if (!email) return null;
-  const phone = clerk.phoneNumbers.find((p) => p.id === clerk.primaryPhoneNumberId);
-  const verified = email.verification?.status === "verified";
-  const fields = {
-    email: email.emailAddress,
-    emailVerified: verified,
-    phone: phone?.phoneNumber ?? null,
-    phoneVerified: phone?.verification?.status === "verified",
-    name: [clerk.firstName, clerk.lastName].filter(Boolean).join(" ") || null,
-  };
-  const sameEmail = await db.user.findUnique({ where: { email: fields.email } });
+  const verified = !!auth.email_confirmed_at;
+  const meta = auth.user_metadata ?? {};
+  const name = (typeof meta.full_name === "string" && meta.full_name) || (typeof meta.name === "string" && meta.name) || null;
+  const fields = { email, emailVerified: verified, phone: auth.phone || null, phoneVerified: !!auth.phone_confirmed_at };
+
+  const sameEmail = await db.user.findUnique({ where: { email } });
   if (sameEmail) {
     if (!verified) return null;
-    return db.user.update({ where: { id: sameEmail.id }, data: { clerkId, ...fields } });
+    return db.user.update({ where: { id: sameEmail.id }, data: { authId: auth.id, ...fields, name: sameEmail.name ?? name } });
   }
-  return db.user.upsert({ where: { clerkId }, create: { clerkId, ...fields }, update: fields });
+  return db.user.upsert({ where: { authId: auth.id }, create: { authId: auth.id, ...fields, name }, update: fields });
 }
 
-/**
- * Ensures a signed-in session AND a matching Prisma User row. The row is
- * normally created by the Clerk webhook; if it isn't there yet, it's created
- * now. (Sending the student back to sign-in instead caused an endless
- * sign-in → home → dashboard loop when the webhook hadn't run.)
- */
+/** Ensures a signed-in session AND a matching StockStreak account (created on the first sign-in). */
 export async function requireAppUser() {
-  const { userId: clerkId } = await requireSession();
-
-  const user = (await getUserByClerkId(clerkId)) ?? (await createUserFromClerk(clerkId));
+  const { userId: authId, user: auth } = await requireSession();
+  const user = (await getUserByAuthId(authId)) ?? (await linkOrCreateUser(auth));
   if (!user) {
-    // No email on the Clerk account (or an unverified one clashing with an
-    // existing account): show an error rather than looping through sign-in.
     throw new Error("We couldn't set up your StockStreak account. Please sign in with a verified email address.");
   }
   return user;
