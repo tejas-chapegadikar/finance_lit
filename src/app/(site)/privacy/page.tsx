@@ -9,7 +9,7 @@ This policy explains what personal data StockStreak ("we", "us") collects when y
 
 ## What we collect
 
-- **Account details** — your name, email address and, if you sign in with Google, your profile picture. Sign-in is handled by our authentication provider, Supabase: you sign in with Google or a one-time code sent to your email, so there's no StockStreak password at all.
+- **Account details** — your username and the name you give us. Sign-in is handled by our authentication provider, Supabase: your password is stored only by Supabase, in scrambled (hashed) form — StockStreak never sees or stores it.
 - **Profile details you give us** — your display name, your stage (year of study or graduate/working), your college (optional) and your learning goal (optional).
 - **Learning activity** — the lessons you open, your answers to scenarios, quizzes, revision questions, the Daily Money Reality Check and the Daily Challenge, your scores, topic mastery, the days you learned (your streak), daily missions, XP, badges, Rewards Store unlocks, and any lesson feedback you send.
 - **Your avatar** — the look you pick in the avatar studio.

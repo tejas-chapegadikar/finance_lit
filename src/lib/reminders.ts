@@ -1,3 +1,4 @@
+import { usernameFromEmail } from "./username";
 import { db } from "./db";
 import { istDay, istHour } from "./ist-date";
 import { countDueRevision } from "./revision";
@@ -75,6 +76,7 @@ export async function sendDueReminders(now = new Date()) {
     ].join("\n");
     // Marked first so a slow or failed email is never sent twice in a day.
     await db.user.update({ where: { id: student.id }, data: { reminderLastSentDay: today } });
+    if (usernameFromEmail(student.email)) continue; // username accounts have no real inbox
     if (await sendEmail(student.email, "Today's money question is ready", text)) sent++;
   }
   return { sent };

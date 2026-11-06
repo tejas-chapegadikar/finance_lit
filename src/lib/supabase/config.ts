@@ -1,7 +1,6 @@
 // Supabase Auth settings, shared by the browser, server and proxy clients.
 // The publishable ("anon") key is safe in the browser: Supabase Auth only
-// ever hands a session to someone who has proved who they are (Google, or a
-// one-time code sent to their email).
+// ever hands a session to someone who knows the account's password.
 
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";

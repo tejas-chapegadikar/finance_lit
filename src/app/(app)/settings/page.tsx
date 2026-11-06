@@ -1,3 +1,4 @@
+import { usernameFromEmail } from "@/lib/username";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireOnboardedUser } from "@/lib/auth";
@@ -59,8 +60,8 @@ export default async function SettingsPage() {
           </h2>
           <dl className="mt-3 divide-y divide-slate-200 border-y border-slate-200 text-sm">
             <div className="flex items-center justify-between gap-4 py-2.5">
-              <dt className="text-slate-500">Email</dt>
-              <dd className="truncate font-medium text-slate-900">{user.email}</dd>
+              <dt className="text-slate-500">{usernameFromEmail(user.email) ? "Username" : "Email"}</dt>
+              <dd className="truncate font-medium text-slate-900">{usernameFromEmail(user.email) ?? user.email}</dd>
             </div>
             <div className="flex items-center justify-between gap-4 py-2.5">
               <dt className="text-slate-500">Member since</dt>
