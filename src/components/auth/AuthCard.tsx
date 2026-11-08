@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -9,7 +9,7 @@ import { MIN_PASSWORD, USERNAME_RE, normaliseUsername, usernameToEmail } from "@
 import { Avatar, type Expression } from "@/components/avatar/Avatar";
 import { Burst } from "@/components/ui/Burst";
 import { card, primaryButton } from "@/components/ui/button-styles";
-import { CheckIcon } from "@/components/ui/icons";
+import { CheckIcon, LockIcon, UserIcon } from "@/components/ui/icons";
 
 // Sign in or sign up with a username and password, through Supabase Auth.
 // Passwords are checked and stored (hashed) by Supabase, never by us.
@@ -23,7 +23,13 @@ function friendly(message: string, signUp: boolean): string {
   if (m.includes("password") && (m.includes("at least") || m.includes("short"))) return `Use at least ${MIN_PASSWORD} characters for your password.`;
   if (m.includes("password") && (m.includes("weak") || m.includes("pwned") || m.includes("leaked")))
     return "That password is too easy to guess. Try a longer one.";
-  if (m.includes("signups not allowed") || m.includes("signup is disabled") || m.includes("signups are disabled") || m.includes("logins are disabled") || m.includes("provider is not enabled"))
+  if (
+    m.includes("signups not allowed") ||
+    m.includes("signup is disabled") ||
+    m.includes("signups are disabled") ||
+    m.includes("logins are disabled") ||
+    m.includes("provider is not enabled")
+  )
     return signUp ? "New sign-ups are switched off right now." : "Sign-in is switched off right now.";
   if (m.includes("rate limit") || m.includes("too many")) return "Too many attempts — please wait a minute and try again.";
   if (m.includes("network") || m.includes("fetch")) return "Couldn't reach the server. Check your connection and try again.";
@@ -33,21 +39,49 @@ function friendly(message: string, signUp: boolean): string {
 const safeNext = (next: string | undefined) => (next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard");
 
 const input =
-  "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-[15px] text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
+  "w-full rounded-xl border border-slate-200 bg-white py-3 pr-3.5 pl-10 text-[15px] text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
+const fieldIcon = "pointer-events-none absolute top-1/2 left-3.5 h-[18px] w-[18px] -translate-y-1/2 text-slate-500";
+
+// "Remember me" keeps the username filled in on this device (never the password).
+const REMEMBERED = "stockstreak-username";
+function rememberUsername(name: string | null) {
+  try {
+    if (name) window.localStorage.setItem(REMEMBERED, name);
+    else window.localStorage.removeItem(REMEMBERED);
+  } catch {
+    /* private mode — fine */
+  }
+}
+function rememberedUsername() {
+  try {
+    return window.localStorage.getItem(REMEMBERED);
+  } catch {
+    return null;
+  }
+}
 
 export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign-up"; next?: string; initialError?: string }) {
   const router = useRouter();
   const signUp = mode === "sign-up";
-  const [username, setUsername] = useState("");
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const rememberRef = useRef<HTMLInputElement>(null);
   const [password, setPassword] = useState("");
   const [shown, setShown] = useState(false);
   const [error, setError] = useState<string | null>(initialError ?? null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
+  useEffect(() => {
+    const saved = signUp ? null : rememberedUsername();
+    if (saved && usernameRef.current && rememberRef.current) {
+      usernameRef.current.value = saved;
+      rememberRef.current.checked = true;
+    }
+  }, [signUp]);
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const name = normaliseUsername(username);
+    const name = normaliseUsername(usernameRef.current?.value ?? "");
     if (!USERNAME_RE.test(name)) {
       setError("Usernames are 3–20 characters: letters, numbers, dots or underscores.");
       return;
@@ -72,6 +106,7 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
       setError(err ? friendly(err.message, signUp) : friendly("email not confirmed", signUp));
       return;
     }
+    if (!signUp) rememberUsername(rememberRef.current?.checked ? name : null);
     setDone(true);
     router.replace(safeNext(next));
     router.refresh();
@@ -119,30 +154,29 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
         ) : (
           <>
             <h1 id="auth-heading" className="text-2xl text-slate-900 sm:text-[1.75rem]">
-              {signUp ? "Create your account" : "Welcome back"}
+              {signUp ? "Sign up" : "Sign in"}
             </h1>
-            <p className="mt-1 text-sm text-slate-600">{signUp ? "Pick a username and a password. That's it." : "Log in to keep your streak going."}</p>
             <form onSubmit={submit} noValidate className="mt-6 flex flex-col gap-4">
               <div>
                 <label htmlFor="auth-username" className="block text-sm font-medium text-slate-700">
                   Username
                 </label>
-                <input
-                  id="auth-username"
-                  autoComplete="username"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  required
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setError(null);
-                  }}
-                  aria-invalid={!!error}
-                  aria-describedby={signUp ? "auth-username-hint" : undefined}
-                  className={input}
-                />
+                <div className="relative mt-1.5">
+                  <UserIcon aria-hidden className={fieldIcon} />
+                  <input
+                    id="auth-username"
+                    ref={usernameRef}
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    required
+                    onChange={() => setError(null)}
+                    aria-invalid={!!error}
+                    aria-describedby={signUp ? "auth-username-hint" : undefined}
+                    className={input}
+                  />
+                </div>
                 {signUp && (
                   <p id="auth-username-hint" className="mt-1 text-xs text-slate-500">
                     3–20 characters: letters, numbers, dots or underscores.
@@ -154,6 +188,7 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
                   Password
                 </label>
                 <div className="relative mt-1.5">
+                  <LockIcon aria-hidden className={fieldIcon} />
                   <input
                     id="auth-password"
                     type={shown ? "text" : "password"}
@@ -166,7 +201,7 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
                     }}
                     aria-invalid={!!error}
                     aria-describedby={signUp ? "auth-password-hint" : undefined}
-                    className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-16 pl-3.5 text-[15px] text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                    className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-16 pl-10 text-[15px] text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                   <button
                     type="button"
@@ -184,8 +219,14 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
                   </p>
                 )}
               </div>
+              {!signUp && (
+                <label className="flex w-fit items-center gap-2.5 text-sm font-medium text-slate-700">
+                  <input ref={rememberRef} type="checkbox" className="h-4 w-4 accent-brand-600" />
+                  Remember me
+                </label>
+              )}
               <button type="submit" disabled={busy} className={`${primaryButton} w-full py-3 text-[15px]`}>
-                {busy ? (signUp ? "Creating your account…" : "Logging in…") : signUp ? "Create account" : "Log in"}
+                {busy ? (signUp ? "Creating your account…" : "Signing in…") : signUp ? "Sign up" : "Sign in"}
               </button>
             </form>
 
@@ -195,13 +236,18 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
               </p>
             )}
 
-            <p className="mt-6 text-center text-sm text-slate-600">
-              {signUp ? "Already have an account? " : "New to StockStreak? "}
+            <p className="mt-4 text-sm text-slate-600">
+              {signUp ? "Already have an account? " : "Don't have an account? "}
               <Link href={signUp ? "/sign-in" : "/sign-up"} className="font-semibold text-brand-700 hover:underline">
-                {signUp ? "Log in" : "Create an account"}
+                {signUp ? "Sign in" : "Sign up"}
               </Link>
             </p>
-            <p className="mt-4 text-center text-xs leading-relaxed text-slate-500">
+            {!signUp && (
+              <Link href="/contact" className="mt-1.5 inline-block text-sm font-semibold text-brand-700 hover:underline">
+                Forgot Password
+              </Link>
+            )}
+            <p className="mt-5 text-xs leading-relaxed text-slate-500">
               By continuing you agree to our{" "}
               <Link href="/terms" className="underline underline-offset-2">
                 Terms
