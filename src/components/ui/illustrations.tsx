@@ -1,6 +1,6 @@
 // StockStreak's spot illustrations: flat, geometric, one shared palette, a
 // soft disc behind each object. One per level (the journey's chapters) plus
-// the path's trophy. Decorative — always paired with a text label.
+// the path's trophy. Decorative, always paired with a text label.
 
 const C = {
   violet: "#6c5ce7",
@@ -42,7 +42,7 @@ function Coin({ x, y }: { x: number; y: number }) {
   );
 }
 
-/** Level 1 — Your first stipend: a wallet with a fresh ₹ note and coins. */
+/** Level 1, Your first stipend: a wallet with a fresh ₹ note and coins. */
 function FirstStipend({ className }: { className?: string }) {
   return (
     <Frame className={className} label="A wallet with a rupee note and coins" backdrop={C.sand}>
@@ -63,7 +63,7 @@ function FirstStipend({ className }: { className?: string }) {
   );
 }
 
-/** Level 2 — Paying and banking safely: a phone with a shield, a bank behind. */
+/** Level 2, Paying and banking safely: a phone with a shield, a bank behind. */
 function BankingSafely({ className }: { className?: string }) {
   return (
     <Frame className={className} label="A phone showing a safety shield, with a bank behind it" backdrop={C.lavender}>
@@ -89,7 +89,7 @@ function BankingSafely({ className }: { className?: string }) {
   );
 }
 
-/** Level 3 — Saving and credit: a savings jar and a credit card. */
+/** Level 3, Saving and credit: a savings jar and a credit card. */
 function SavingCredit({ className }: { className?: string }) {
   return (
     <Frame className={className} label="A jar of coins and a credit card" backdrop={C.sand}>
@@ -110,7 +110,7 @@ function SavingCredit({ className }: { className?: string }) {
   );
 }
 
-/** Level 4 — Your first salary: a payslip, a briefcase and rising bars. */
+/** Level 4, Your first salary: a payslip, a briefcase and rising bars. */
 function FirstSalary({ className }: { className?: string }) {
   return (
     <Frame className={className} label="A payslip, a briefcase and a rising chart" backdrop={C.lavender}>

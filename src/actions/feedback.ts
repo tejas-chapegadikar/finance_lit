@@ -10,7 +10,7 @@ export type FeedbackResult = { status: "saved" } | { status: "error"; message: s
 
 /**
  * "Was this lesson clear and useful?" from the completion screen. One answer
- * per student per lesson — answering again replaces it — and only for a
+ * per student per lesson, answering again replaces it, and only for a
  * lesson they've completed.
  */
 export async function saveLessonFeedback(

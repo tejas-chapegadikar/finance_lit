@@ -27,7 +27,7 @@ export type QuizQuestion = {
   prompt: string;
   difficulty: string;
   options: { id: string; text: string }[];
-  /** Wrong picks already made on this question — set when resuming after a refresh. */
+  /** Wrong picks already made on this question, set when resuming after a refresh. */
   wrongOptionIds: string[];
   /** Set when the question was already resolved before this page load. */
   resolution: Resolution | null;

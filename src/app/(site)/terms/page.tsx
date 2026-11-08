@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { InfoPage } from "@/components/layout/InfoPage";
 import { CONTACT_EMAIL, LEGAL_LAST_UPDATED } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Terms of Use — StockStreak" };
+export const metadata: Metadata = { title: "Terms of Use | StockStreak" };
 
 const CONTENT = `
 These terms apply when you use StockStreak at stockstreak.in. By creating an account or using the site, you agree to them.
 
 ## 1. What StockStreak is
 
-StockStreak is a financial-education platform. It teaches general money concepts through lessons, scenarios, quizzes and an AI Coach. It is **not** financial, investment, tax or legal advice — please read our [Disclaimer](/disclaimer).
+StockStreak is a financial-education platform. It teaches general money concepts through lessons, scenarios, quizzes and an AI Coach. It is **not** financial, investment, tax or legal advice. Please read our [Disclaimer](/disclaimer).
 
 ## 2. Your account
 
@@ -29,7 +29,7 @@ Please don't:
 
 ## 4. XP, badges, streaks and scores
 
-XP, badges, ranks, streaks and the Financial Readiness Score track your learning. You can spend XP in the Rewards Store on digital unlocks such as avatar items, profile titles, themes and bonus scenarios; some avatar items unlock only through badges or streaks. XP, unlocks and streak freezes have **no monetary value**, can't be bought or exchanged for cash, and spent XP can't be refunded. Unlocks are cosmetic or extra practice — they give no advantage. Spending XP never lowers your lifetime XP, badges or readiness score. We may correct XP, streaks or unlocks given by mistake, and we may change the store and how XP works.
+XP, badges, ranks, streaks and the Financial Readiness Score track your learning. You can spend XP in the Rewards Store on digital unlocks such as avatar items, profile titles, themes and bonus scenarios; some avatar items unlock only through badges or streaks. XP, unlocks and streak freezes have **no monetary value**, can't be bought or exchanged for cash, and spent XP can't be refunded. Unlocks are cosmetic or extra practice. They give no advantage. Spending XP never lowers your lifetime XP, badges or readiness score. We may correct XP, streaks or unlocks given by mistake, and we may change the store and how XP works.
 
 ## 5. Our content
 

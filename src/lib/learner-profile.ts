@@ -15,7 +15,6 @@ export const LEARNING_GOALS = [
   { value: "AVOIDING_SCAMS", label: "Avoiding financial scams", icon: "🛡️" },
   { value: "SALARY_TAXES", label: "Understanding salary and taxes", icon: "🧾" },
   { value: "INVESTING", label: "Learning investing basics", icon: "📈" },
-  { value: "EVERYTHING", label: "Everything", icon: "🚀" },
 ] as const;
 
 export type LearnerStageValue = (typeof LEARNER_STAGES)[number]["value"];

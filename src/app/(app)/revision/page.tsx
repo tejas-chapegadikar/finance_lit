@@ -10,7 +10,7 @@ import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
 import { card, primaryButton } from "@/components/ui/button-styles";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Revision — StockStreak" };
+export const metadata: Metadata = { title: "Revision | StockStreak" };
 
 // A session covers at most this many questions, so revision stays short.
 const SESSION_SIZE = 8;

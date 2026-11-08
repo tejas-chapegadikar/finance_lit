@@ -4,7 +4,7 @@ import { useEffect, useState, type RefObject } from "react";
 
 /**
  * Where an avatar should look: towards the pointer, from -1 to 1 on each axis,
- * measured from the centre of `ref` (a third of the way down — about where
+ * measured from the centre of `ref` (a third of the way down, about where
  * the eyes are). One update per frame at most.
  */
 export function usePointerGaze(ref: RefObject<HTMLElement | null>) {

@@ -4,7 +4,7 @@ import { EXPENSE_CATEGORIES, expenseCategory, rupees, type SpendKind } from "./c
 // The Money Manager's maths, kept pure (no database, no clock) so it can be
 // tested directly: a month summary, budget alerts, weekly and monthly trends
 // and the insights. Everything is in whole rupees and IST "YYYY-MM-DD" days.
-// Insights only ever describe the student's own logged numbers — nothing is
+// Insights only ever describe the student's own logged numbers, nothing is
 // invented, and with nothing logged there's nothing to say.
 
 export const monthOf = (day: string) => day.slice(0, 7);
@@ -188,7 +188,7 @@ export function budgetAlerts(m: Pick<MoneyMonth, "spent" | "totalBudget" | "byCa
   return [...out, ...categories];
 }
 
-/** The alert for one category right after a spend — or null if it's still comfortably under budget. */
+/** The alert for one category right after a spend, or null if it's still comfortably under budget. */
 export function alertAfterSpend(category: string, spentInCategory: number, budget: number | null, spentTotal: number, totalBudget: number | null): string | null {
   const parts: string[] = [];
   if (budget) {
@@ -258,7 +258,7 @@ export function projectSpending(m: Pick<MoneyMonth, "byCategory" | "spent" | "da
 }
 
 /**
- * What the month's numbers are saying — specific, a little cheeky, always
+ * What the month's numbers are saying, specific, a little cheeky, always
  * true. Ordered by how useful they are; the caller shows the first few.
  */
 export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight[] {
@@ -269,7 +269,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
         id: "empty",
         tone: "info",
         title: "Your wallet is a mystery novel",
-        text: "Nothing logged yet. Add your pocket money or stipend and today's spends — two minutes now, a lot less “where did it all go?” later.",
+        text: "Nothing logged yet. Add your pocket money or stipend and today's spends. Two minutes now, a lot less “where did it all go?” later.",
       },
     ];
   }
@@ -283,7 +283,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
         id: "pace",
         tone: "warn",
         title: runsOut < m.daysInMonth ? `At this pace, the money runs out around the ${ordinal(Math.max(1, runsOut))}` : "Heading over budget",
-        text: `Besides fixed bills, you're spending about ${rupees(avgDaily)} a day. That's ${rupees(projected)} by month-end — ${rupees(projected - m.income)} more than came in. The month is longer than it looks.`,
+        text: `Besides fixed bills, you're spending about ${rupees(avgDaily)} a day. That's ${rupees(projected)} by month-end, ${rupees(projected - m.income)} more than came in. The month is longer than it looks.`,
       });
     } else {
       out.push({
@@ -325,7 +325,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
       id: "goal-near",
       tone: "good",
       title: `You're close to “${near.name}”`,
-      text: `${rupees(near.saved)} of ${rupees(near.target)} saved — just ${rupees(near.target - near.saved)} to go.`,
+      text: `${rupees(near.saved)} of ${rupees(near.target)} saved, just ${rupees(near.target - near.saved)} to go.`,
       href: "/money#goals",
       cta: "Add to it",
     });
@@ -338,7 +338,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
       id: "top-category",
       tone: "info",
       title: `You spent ${rupees(top.amount)} on ${top.label.toLowerCase()} ${m.isCurrent ? "this month" : `in ${m.label}`}`,
-      text: `That's ${Math.round((top.amount / m.spent) * 100)}% of everything you spent — your biggest category.`,
+      text: `That's ${Math.round((top.amount / m.spent) * 100)}% of everything you spent, your biggest category.`,
     });
   }
 
@@ -351,7 +351,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
       id: "category-up",
       tone: "info",
       title: `Your ${grew.label.toLowerCase()} spending went up compared with last month`,
-      text: `${rupees(grew.amount)} so far vs ${rupees(grew.previous)} last month — ${rupees(grew.amount - grew.previous)} more.`,
+      text: `${rupees(grew.amount)} so far vs ${rupees(grew.previous)} last month, ${rupees(grew.amount - grew.previous)} more.`,
     });
   }
 
@@ -364,11 +364,11 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
             id: "wants",
             tone: "warn",
             title: `Shopping and entertainment are ${wantShare}% of your spending`,
-            text: "The 50/30/20 rule suggests about 30% for wants. Not a crime — but your carts are doing very well this month.",
+            text: "The 50/30/20 rule suggests about 30% for wants. Not a crime, but your carts are doing very well this month.",
             href: "/lessons/budgeting-basics",
             cta: "Revisit budgeting",
           }
-        : { id: "wants", tone: "good", title: `Wants at ${wantShare}% of spending`, text: "Within the ~30% that the 50/30/20 rule suggests — fun, without the month-end panic." },
+        : { id: "wants", tone: "good", title: `Wants at ${wantShare}% of spending`, text: "Within the ~30% that the 50/30/20 rule suggests: fun, without the month-end panic." },
     );
   }
 
@@ -414,7 +414,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
       id: "compound",
       tone: "info",
       title: `Half your wants, invested monthly, could grow to about ${shortRupees(tenYears.value)}`,
-      text: `${rupees(monthly)} a month for 10 years at an assumed 10% a year — ${shortRupees(tenYears.invested)} put in. An illustration: real returns go up and down and aren't guaranteed.`,
+      text: `${rupees(monthly)} a month for 10 years at an assumed 10% a year: ${shortRupees(tenYears.invested)} put in. An illustration: real returns go up and down and aren't guaranteed.`,
       href: `/invest/simulator?monthly=${monthly}&years=10&rate=10`,
       cta: "Try the simulator",
     });

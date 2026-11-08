@@ -55,7 +55,7 @@ function Slider({
 
 /**
  * Play with compounding: a monthly amount, a time span and an assumed yearly
- * return — then see what waiting a few years would cost. Every number is an
+ * return, then see what waiting a few years would cost. Every number is an
  * illustration under a fixed assumed rate, not a forecast.
  */
 export function CompoundSimulator({ initial }: { initial: { monthly: number; years: number; rate: number } }) {
@@ -91,7 +91,7 @@ export function CompoundSimulator({ initial }: { initial: { monthly: number; yea
         <Slider id="sim-rate" label="Expected annual return (assumed)" value={rate} min={1} max={15} step={0.5} display={`${rate}%`} onChange={setRate} />
         <Slider id="sim-lump" label="Starting amount (optional)" value={lump} min={0} max={200000} step={1000} display={rupees(lump)} onChange={setLump} />
         <p className="text-xs leading-relaxed text-slate-500">
-          For comparison: savings accounts often pay around 2.5–3% and FDs a little more. Equity funds have historically done better over long periods —
+          For comparison: savings accounts often pay around 2.5–3% and FDs a little more. Equity funds have historically done better over long periods,
           with big ups and downs, and no guarantee. Inflation and taxes aren&apos;t included here.
         </p>
       </div>
@@ -188,7 +188,7 @@ export function CompoundSimulator({ initial }: { initial: { monthly: number; yea
           </div>
           {years > delay ? (
             <p className="mt-2 text-sm leading-relaxed text-slate-800">
-              Starting {delay} {delay === 1 ? "year" : "years"} later, you&apos;d end up with about <span className="font-semibold">{shortRupees(later.value)}</span> —{" "}
+              Starting {delay} {delay === 1 ? "year" : "years"} later, you&apos;d end up with about <span className="font-semibold">{shortRupees(later.value)}</span>{" "}
               <span className="font-semibold">{shortRupees(waitCost)} less</span>, though you&apos;d only have put in {shortRupees(investedLess)} less. That gap is what
               compounding does with time.
             </p>
@@ -200,7 +200,7 @@ export function CompoundSimulator({ initial }: { initial: { monthly: number; yea
           <p className="font-semibold text-slate-800">Before you read too much into these numbers</p>
           <ul className="mt-1.5 list-disc space-y-1 pl-4">
             <li>The returns here are hypothetical: one fixed rate you chose, compounded monthly, with money added at the start of each month.</li>
-            <li>Actual market returns vary from year to year — and some years are negative.</li>
+            <li>Actual market returns vary from year to year, and some years are negative.</li>
             <li>No return is guaranteed.</li>
             <li>This is an educational simulator, not personalised investment advice.</li>
           </ul>

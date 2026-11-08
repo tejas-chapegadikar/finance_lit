@@ -2,7 +2,7 @@ import { useId } from "react";
 import type { AvatarConfig } from "@/lib/avatar";
 
 // The student's avatar: a soft, rounded, 3D-style character drawn as layered
-// SVG — a radial-gradient body lit from the top left, a soft ground shadow,
+// SVG, a radial-gradient body lit from the top left, a soft ground shadow,
 // stubby arms and legs, and clothes clipped to the body's outline so they
 // always fit. Gradients are namespaced with useId, so any number of avatars
 // can share a page. Works in server and client components.

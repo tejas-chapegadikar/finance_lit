@@ -9,7 +9,7 @@ import { AvatarStudio, type StudioItem } from "@/components/avatar/AvatarStudio"
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Avatar Studio — StockStreak" };
+export const metadata: Metadata = { title: "Avatar Studio | StockStreak" };
 
 const RECENT_DAYS = 14;
 
@@ -43,7 +43,7 @@ export default async function AvatarStudioPage() {
       <PageHeader
         eyebrow="Avatar Studio"
         title="Make it yours"
-        description="Your avatar is you — it carries your name everywhere. Basics are free; everything else unlocks as you earn XP, finish lessons, keep streaks and win badges. Try anything on first."
+        description="Your avatar is you. It carries your name everywhere. Basics are free; everything else unlocks as you earn XP, finish lessons, keep streaks and win badges. Try anything on first."
       />
       <AvatarStudio initial={readAvatar(user.avatar)} items={items} xpTotal={user.xpTotal} name={avatarName(user)} />
     </div>

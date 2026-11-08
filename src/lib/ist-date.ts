@@ -14,7 +14,7 @@ export function shiftDay(day: string, delta: number): string {
   return new Date(Date.parse(`${day}T00:00:00Z`) + delta * DAY_MS).toISOString().slice(0, 10);
 }
 
-/** Days since 1970-01-01 — used to rotate daily content. */
+/** Days since 1970-01-01, used to rotate daily content. */
 export function dayNumber(day: string): number {
   return Math.floor(Date.parse(`${day}T00:00:00Z`) / DAY_MS);
 }

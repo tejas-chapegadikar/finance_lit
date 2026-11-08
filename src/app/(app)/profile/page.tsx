@@ -22,7 +22,7 @@ import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/Men
 import { card, gameSurface, lightButton, primaryButton, secondaryButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon, BookIcon, FlameIcon, LockIcon, SparklesIcon, StarIcon, TagIcon, UserIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Profile — StockStreak" };
+export const metadata: Metadata = { title: "Profile | StockStreak" };
 
 const formatDate = (date: Date) => date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
 
@@ -128,7 +128,7 @@ export default async function ProfilePage() {
           </div>
           <h3 className="mt-5 text-sm font-semibold text-slate-700">Wearing</h3>
           {equipped.length === 0 ? (
-            <p className="mt-1 text-sm text-slate-600">Just you — the original. Dress up in Avatar Studio.</p>
+            <p className="mt-1 text-sm text-slate-600">Just you, the original. Dress up in Avatar Studio.</p>
           ) : (
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {equipped.map(({ label, item }) => (
@@ -173,7 +173,7 @@ export default async function ProfilePage() {
             </span>
           </div>
           {earned.length === 0 ? (
-            <p className="mt-2 text-sm text-slate-600">No badges yet — finish your first lesson to earn First Steps.</p>
+            <p className="mt-2 text-sm text-slate-600">No badges yet. Finish your first lesson to earn First Steps.</p>
           ) : (
             <ul className="mt-4 grid grid-cols-2 gap-3">
               {earned.slice(0, 4).map((badge) => (
@@ -202,7 +202,7 @@ export default async function ProfilePage() {
             </div>
           ) : (
             <div className="mt-2">
-              <p className="text-sm text-slate-600">Six quick questions — Impulse Buyer, Weekend Millionaire, Smart Planner…?</p>
+              <p className="text-sm text-slate-600">Six quick questions: Impulse Buyer, Weekend Millionaire, Smart Planner…?</p>
               <Link href="/personality" className={`${primaryButton} mt-3`}>
                 Take the quiz
               </Link>
@@ -213,7 +213,7 @@ export default async function ProfilePage() {
 
       <ul className={menuListClass} aria-label="More">
         {[
-          { href: "/settings", label: "Settings — your details and avatar pop-ups", icon: <UserIcon /> },
+          { href: "/settings", label: "Settings: your details and avatar pop-ups", icon: <UserIcon /> },
         ].map((row) => (
           <li key={row.href}>
             <Link href={row.href} className={menuRowClass}>

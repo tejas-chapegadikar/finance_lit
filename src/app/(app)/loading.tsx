@@ -1,6 +1,6 @@
 // Shown inside the app shell (sidebar / tab bar stay put) while a page's
-// lessons, quiz or progress load: the shape of a page — header, one dark
-// focus card, a row of tiles — in a soft shimmer.
+// lessons, quiz or progress load: the shape of a page, header, one dark
+// focus card, a row of tiles, in a soft shimmer.
 export default function AppLoading() {
   return (
     <div role="status" aria-live="polite" className="mx-auto flex w-full max-w-5xl flex-col gap-10">

@@ -9,7 +9,7 @@ const TONE = {
   info: { Icon: SparklesIcon, tile: "bg-brand-50 text-brand-700" },
 };
 
-/** What the numbers are saying — a short list, most useful first. */
+/** What the numbers are saying, a short list, most useful first. */
 export function InsightList({ insights }: { insights: Insight[] }) {
   return (
     <ul className="divide-y divide-slate-200 border-y border-slate-200">
@@ -37,7 +37,7 @@ export function InsightList({ insights }: { insights: Insight[] }) {
   );
 }
 
-/** Today's money fact — a short, true thing worth knowing (or one about your own numbers). */
+/** Today's money fact, a short, true thing worth knowing (or one about your own numbers). */
 export function MoneyFactCard({ fact: check, compact = false }: { fact: MoneyFact; compact?: boolean }) {
   return (
     <section aria-labelledby="fact-heading" className={`rounded-2xl bg-peach-100/70 ${compact ? "p-5" : "p-5 sm:p-6"}`}>

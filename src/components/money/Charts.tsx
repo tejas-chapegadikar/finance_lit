@@ -3,7 +3,7 @@ import { rupees, SPEND_KIND_LABEL, type SpendKind } from "@/lib/money/categories
 import { CategoryIcon } from "@/components/ui/topic-icons";
 import { AlertIcon } from "@/components/ui/icons";
 
-// Money Manager charts — plain HTML/CSS, server-rendered. One validated
+// Money Manager charts, plain HTML/CSS, server-rendered. One validated
 // categorical set for essentials / wants / food & others (blue, orange, aqua; checked for
 // colour-blind separation), thin marks, values as text in ink (never in the
 // series colour), a legend for the split, hover titles and a table view.
@@ -91,7 +91,7 @@ export function SpendSplit({ byKind, spent }: { byKind: MoneyMonth["byKind"]; sp
           </div>
         ))}
       </dl>
-      <p className="mt-3 text-xs text-slate-500">Guide: about 50% needs, 30% wants and 20% saved — a starting point, not a law. Food mixes both, so it sits on its own.</p>
+      <p className="mt-3 text-xs text-slate-500">Guide: about 50% needs, 30% wants and 20% saved, a starting point, not a law. Food mixes both, so it sits on its own.</p>
     </div>
   );
 }
@@ -175,7 +175,7 @@ export function DailyColumns({ month }: { month: MoneyMonth }) {
   );
 }
 
-/** Spending per week or per month — thin columns, the current period darker, a table view underneath. */
+/** Spending per week or per month, thin columns, the current period darker, a table view underneath. */
 export function TrendColumns({ points, unit, caption }: { points: { key: string; label: string; amount: number; current: boolean }[]; unit: "week" | "month"; caption: string }) {
   const max = Math.max(1, ...points.map((p) => p.amount));
   const top = Math.ceil(max / 500) * 500;
@@ -238,7 +238,7 @@ export function TrendColumns({ points, unit, caption }: { points: { key: string;
 }
 
 // One validated categorical palette (dataviz skill, light mode), assigned to
-// the seven categories in their fixed order — a category keeps its colour no
+// the seven categories in their fixed order, a category keeps its colour no
 // matter its size. Three slots are under 3:1 on white, so every slice is also
 // labelled in text (the list beside the ring), never colour alone.
 export const CATEGORY_COLOR: Record<string, string> = {
@@ -267,7 +267,7 @@ function donutSlices(rows: CategoryTotal[], spent: number, circumference: number
 /** Where the month's money went, as a ring with a labelled list (amount and share for each category). */
 export function CategoryDonut({ categories, spent }: { categories: CategoryTotal[]; spent: number }) {
   const rows = categories.filter((c) => c.amount > 0);
-  if (spent === 0 || rows.length === 0) return <p className="text-sm text-slate-500">No spending logged this month yet — your breakdown appears here.</p>;
+  if (spent === 0 || rows.length === 0) return <p className="text-sm text-slate-500">No spending logged this month yet. Your breakdown appears here.</p>;
   const r = 52;
   const C = 2 * Math.PI * r;
   const slices = donutSlices(rows, spent, C);

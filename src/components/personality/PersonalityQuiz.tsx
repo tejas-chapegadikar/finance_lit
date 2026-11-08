@@ -77,7 +77,7 @@ export function PersonalityQuiz({ next }: { next: string }) {
           {error}
         </p>
       )}
-      <p className="text-xs text-slate-500">No right answers — pick what you&apos;d actually do, not what you think you should.</p>
+      <p className="text-xs text-slate-500">No right answers. Pick what you&apos;d actually do, not what you think you should.</p>
     </section>
   );
 }

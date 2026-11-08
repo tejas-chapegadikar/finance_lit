@@ -69,7 +69,7 @@ export function CoachPanel({
 
       {!loading && (
         <p className="text-sm font-semibold text-brand-700">
-          Try again — pick another answer ({triesLeft} {triesLeft === 1 ? "try" : "tries"} left)
+          Try again: pick another answer ({triesLeft} {triesLeft === 1 ? "try" : "tries"} left)
         </p>
       )}
       <p className="text-xs text-slate-600">The Coach explains ideas from this lesson. It isn&apos;t financial advice.</p>

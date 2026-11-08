@@ -4,7 +4,7 @@ import { dayNumber, istDay, istDayStart } from "./ist-date";
 /**
  * The Question of the Day this student gets on `day`: a fresh one they
  * haven't answered yet, preferring the topic of the lesson they most recently
- * completed — learn about scams on Monday, get a scam question on Tuesday.
+ * completed, learn about scams on Monday, get a scam question on Tuesday.
  * Only activity from before `day` counts, so the pick stays the same all day.
  * Once they've answered the whole pool, it rotates by date.
  */

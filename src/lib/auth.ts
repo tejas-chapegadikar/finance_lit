@@ -6,12 +6,12 @@ import { supabaseServer } from "./supabase/server";
 import { supabaseConfigured } from "./supabase/config";
 
 // Who's signed in. Login is Supabase Auth (username + password); the
-// StockStreak account — profile, XP, lessons, money — is a
+// StockStreak account, profile, XP, lessons, money, is a
 // User row in our database, linked by `authId` (the Supabase user id).
 
 /** The signed-in Supabase user (verified with Supabase, not just read from a cookie), or null. */
 export const getAuthUser = cache(async (): Promise<AuthUser | null> => {
-  // Without the Supabase keys nobody can be signed in — public pages still work.
+  // Without the Supabase keys nobody can be signed in, public pages still work.
   if (!supabaseConfigured()) return null;
   const supabase = await supabaseServer();
   const { data, error } = await supabase.auth.getUser();
@@ -34,7 +34,7 @@ const getUserByAuthId = cache((authId: string) => db.user.findUnique({ where: { 
  * Supabase, so not linked yet) is only taken over through Google sign-in:
  * Google has proved the person owns that inbox. An email + password sign-up
  * proves nothing (Supabase may not ask them to confirm the email), so it
- * can't claim someone else's progress — that person is asked to use Google.
+ * can't claim someone else's progress, that person is asked to use Google.
  */
 async function linkOrCreateUser(auth: AuthUser) {
   const email = auth.email?.toLowerCase();
@@ -50,10 +50,19 @@ async function linkOrCreateUser(auth: AuthUser) {
 
   const sameEmail = await db.user.findUnique({ where: { email } });
   if (sameEmail) {
+    // Two checks can run at once on the first page load; the other one may have just made this row.
+    if (sameEmail.authId === auth.id) return sameEmail;
     if (sameEmail.authId || !viaGoogle) return "claim" as const;
     return db.user.update({ where: { id: sameEmail.id }, data: { authId: auth.id, ...fields, name: sameEmail.name ?? name } });
   }
-  return db.user.upsert({ where: { authId: auth.id }, create: { authId: auth.id, ...fields, name }, update: fields });
+  try {
+    return await db.user.upsert({ where: { authId: auth.id }, create: { authId: auth.id, ...fields, name }, update: fields });
+  } catch (error) {
+    // Lost the race to create the row: use the one that won.
+    const existing = await db.user.findUnique({ where: { authId: auth.id } });
+    if (existing) return existing;
+    throw error;
+  }
 }
 
 /** Ensures a signed-in session AND a matching StockStreak account (created on the first sign-in). */

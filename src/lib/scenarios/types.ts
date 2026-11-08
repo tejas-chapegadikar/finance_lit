@@ -2,7 +2,7 @@ import type { ReadinessArea } from "@prisma/client";
 
 // Interactive money scenarios: a short story ("exhibit") the student reads,
 // then a few decisions. Each step is scored 0-2 on the server; feedback
-// explains the trade-offs. Definitions with answers stay on the server —
+// explains the trade-offs. Definitions with answers stay on the server, 
 // the browser only gets the public view.
 
 export type Exhibit =

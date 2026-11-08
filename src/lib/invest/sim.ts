@@ -2,7 +2,7 @@
 // simulation. Pure and client-safe (the UI shows the asset list); the server
 // runs the simulation, so results can't be faked from the browser.
 //
-// Each asset has an ASSUMED yearly return and volatility — round numbers for
+// Each asset has an ASSUMED yearly return and volatility, round numbers for
 // learning, not forecasts or real market data. Shares move together through
 // one "market" factor (so a crash hits them all), gold has its own, and the
 // savings account and FD don't move. Every month's numbers come from a fixed
@@ -27,7 +27,7 @@ export type Asset = {
 export const ASSETS: Asset[] = [
   { id: "savings", name: "Savings account", blurb: "Safe and always available, but barely beats rising prices.", risk: "None", mu: 0.03, sigma: 0, beta: 0, factor: "none" },
   { id: "fd", name: "Fixed deposit", blurb: "A fixed, known rate. Steady, no surprises.", risk: "Low", mu: 0.065, sigma: 0, beta: 0, factor: "none" },
-  { id: "gold", name: "Gold", blurb: "Moves on its own — often up when shares are down.", risk: "Medium", mu: 0.08, sigma: 0.14, beta: 0.9, factor: "gold" },
+  { id: "gold", name: "Gold", blurb: "Moves on its own, often up when shares are down.", risk: "Medium", mu: 0.08, sigma: 0.14, beta: 0.9, factor: "gold" },
   { id: "nifty", name: "Nifty 50 index fund", blurb: "India's 50 biggest companies in one go. Ups and downs, spread out.", risk: "High", mu: 0.11, sigma: 0.16, beta: 0.95, factor: "market" },
   { id: "midcap", name: "Mid-cap fund", blurb: "Smaller, faster-growing companies. Bigger swings both ways.", risk: "High", mu: 0.13, sigma: 0.22, beta: 0.85, factor: "market" },
   { id: "stock", name: "One tech stock", blurb: "All your eggs in one company's basket. Thrilling. Risky.", risk: "Very high", mu: 0.12, sigma: 0.34, beta: 0.6, factor: "market" },
@@ -68,7 +68,7 @@ export function monthlyReturn(asset: Asset, seed: string, month: number): number
   const shared = asset.factor === "none" ? 0 : normal(`${seed}:${asset.factor}:${month}`);
   const own = normal(`${seed}:${asset.id}:${month}`);
   const shock = asset.beta * shared + Math.sqrt(1 - asset.beta * asset.beta) * own;
-  // Log-normal step, centred so the long-run *compounded* growth matches mu —
+  // Log-normal step, centred so the long-run *compounded* growth matches mu, 
   // the number students see. Volatility adds risk around it, not drag.
   const sd = asset.sigma / Math.sqrt(12);
   return Math.exp(Math.log(1 + asset.mu) / 12 + sd * shock) - 1;

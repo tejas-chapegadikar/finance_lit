@@ -39,7 +39,7 @@ export function ChoiceQuestion({
   answer,
   initialAnswer,
   onAnswered,
-  labels = { right: "Correct", wrong: "Not quite — here's why" },
+  labels = { right: "Correct", wrong: "Not quite, here's why" },
 }: {
   labels?: { right: string; wrong: string };
   prompt: string;
@@ -75,7 +75,7 @@ export function ChoiceQuestion({
           return;
         }
         if (response.status === "new-day") {
-          // Midnight IST passed while the page was open — load the new challenge.
+          // Midnight IST passed while the page was open, load the new challenge.
           router.refresh();
           return;
         }

@@ -41,7 +41,7 @@ export function League({
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
         <p className="min-w-0 flex-1 text-sm text-slate-700">
           {optedIn
-            ? "You're in. Other league players see your display name, avatar and this week's XP — nothing else."
+            ? "You're in. Other league players see your display name, avatar and this week's XP, nothing else."
             : "A friendly weekly XP board with other students who join. Only your display name, avatar and weekly XP are shown. Off unless you switch it on."}
         </p>
         <button
@@ -86,7 +86,7 @@ export function League({
           ) : (
             <p className="mt-3 text-sm text-slate-500">No XP earned by anyone in the league yet this week. First lesson wins the top spot.</p>
           )}
-          <p className="mt-3 text-xs text-slate-500">It&apos;s just for fun — XP comes only from real learning, so there&apos;s no way to buy your way up.</p>
+          <p className="mt-3 text-xs text-slate-500">It&apos;s just for fun: XP comes only from real learning, so there&apos;s no way to buy your way up.</p>
         </div>
       )}
     </div>

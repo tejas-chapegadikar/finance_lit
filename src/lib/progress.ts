@@ -13,7 +13,7 @@ export type LessonSummary = Pick<
 export type LessonStatus = "not-started" | "in-progress" | "completed";
 
 export type LessonProgress = LessonSummary & {
-  /** 1-based position in the path — the 01–12 numbers in the library. */
+  /** 1-based position in the path, the 01–12 numbers in the library. */
   number: number;
   /** The level (1–4) the lesson belongs to; 0 for lessons outside the levels. */
   level: number;
@@ -45,7 +45,7 @@ export type NextStep = { lesson: LessonProgress; reason: string; isRetake: boole
 export type ReviewSuggestion = { area: AreaReadiness; lesson: LessonProgress };
 
 export type Progress = {
-  /** The Money IQ path's lessons (Levels 1–4) — what every count and score is about. */
+  /** The Money IQ path's lessons (Levels 1–4), what every count and score is about. */
   lessons: LessonProgress[];
   /** The InvestSmart track's lessons, in order (not part of the path's counts). */
   invest: LessonProgress[];
@@ -65,7 +65,7 @@ export type Progress = {
   review: ReviewSuggestion | null;
 };
 
-// Financial Readiness — the same rule for every student, so scores compare:
+// Financial Readiness, the same rule for every student, so scores compare:
 // a completed lesson earns COMPLETION_POINTS for finishing it plus up to
 // QUIZ_POINTS for quiz accuracy on the best attempt (answers solved after a
 // Coach hint count half). Unfinished lessons earn nothing, every lesson counts
@@ -101,7 +101,7 @@ const lessonScore = (quizScore: number | null) =>
  */
 export async function fetchProgress(userId: string): Promise<Progress> {
   const [student, lessons, attempts, views] = await Promise.all([
-    db.user.findUnique({ where: { id: userId }, select: { stage: true, goal: true } }),
+    db.user.findUnique({ where: { id: userId }, select: { stage: true, goals: true } }),
     db.lesson.findMany({
       where: { isPublished: true },
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
@@ -166,13 +166,13 @@ export async function fetchProgress(userId: string): Promise<Progress> {
 
   const completedCount = lessonProgress.filter((lesson) => lesson.status === "completed").length;
   const currentLevel = levels.find((level) => level.status === "current") ?? null;
-  const focus = focusFor(student?.stage ?? null, student?.goal ?? null);
+  const focus = focusFor(student?.stage ?? null, student?.goals ?? []);
   // An open lesson the student already started comes first; then the current
-  // level in order — with the student's goal topic first when it's this level.
+  // level in order, with the student's goal topic first when it's this level.
   const open = lessonProgress.filter((lesson) => !lesson.locked && lesson.status !== "completed");
   const inCurrent = open
     .filter((lesson) => currentLevel?.slugs.includes(lesson.slug))
-    .sort((a, b) => Number(b.area === focus?.area) - Number(a.area === focus?.area) || a.number - b.number);
+    .sort((a, b) => Number(!!focus?.areas.includes(b.area)) - Number(!!focus?.areas.includes(a.area)) || a.number - b.number);
   const upNext = open.find((lesson) => lesson.status === "in-progress") ?? inCurrent[0] ?? open[0] ?? null;
   const review = weakestArea(areas, lessonProgress);
 
@@ -195,7 +195,7 @@ export async function fetchProgress(userId: string): Promise<Progress> {
 export const getProgress = cache(fetchProgress);
 
 /**
- * Which published lessons a student can open — the server's own check for
+ * Which published lessons a student can open, the server's own check for
  * locked levels. With `before`, only quizzes completed before that moment
  * count (so daily content built from it stays the same all day).
  */
@@ -218,12 +218,12 @@ export async function lessonAccess(userId: string, before?: Date) {
 export async function assertLessonUnlocked(userId: string, lessonId: string) {
   const { unlocked } = await lessonAccess(userId);
   if (!unlocked.some((lesson) => lesson.id === lessonId)) {
-    throw new Error("This lesson is locked — finish the one before it first");
+    throw new Error("This lesson is locked. Finish the one before it first");
   }
 }
 
 /**
- * Financial Readiness once a quiz finished with `mastery` counts — the
+ * Financial Readiness once a quiz finished with `mastery` counts, the
  * lesson's best attempt wins. Lets the completion screen's "before → after"
  * be saved together with the attempt itself.
  */
@@ -249,7 +249,7 @@ function weakestArea(areas: AreaReadiness[], lessons: LessonProgress[]): ReviewS
 }
 
 // Students never have to decide what to learn next: it's the next lesson in
-// their current level (with the reason), then — once everything is done — a
+// their current level (with the reason), then, once everything is done, a
 // review of their weakest area.
 function recommendNext(
   upNext: LessonProgress | null,
@@ -261,9 +261,9 @@ function recommendNext(
     const chapter = chapterOf(upNext.slug);
     const reason =
       upNext.status === "in-progress"
-        ? "You've started this one — pick up where you left off"
+        ? "You've started this one. Pick up where you left off"
         : completedCount === 0
-          ? "Start here — the foundation for everything else"
+          ? "Start here. It's the foundation for everything else"
           : focus && chapter?.id === focus.chapter.id
             ? `Recommended because ${focus.why}`
             : `Next in Level ${chapter?.number ?? ""}: ${chapter?.title ?? "your path"}`;
@@ -273,7 +273,7 @@ function recommendNext(
     return {
       lesson: review.lesson,
       isRetake: true,
-      reason: `You've answered ${review.area.quizAccuracy}% of ${review.area.label} questions correctly — a retake will strengthen it`,
+      reason: `You've answered ${review.area.quizAccuracy}% of ${review.area.label} questions correctly. A retake will strengthen it`,
     };
   }
   return null;

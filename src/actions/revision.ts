@@ -48,10 +48,10 @@ export async function answerRevision(itemId: string, optionIndex: number): Promi
   const isCorrect = options[optionIndex].isCorrect;
   const next = nextSchedule(item, isCorrect, today);
   const note = !isCorrect
-    ? "Not quite — this one comes back tomorrow."
+    ? "Not quite. This one comes back tomorrow."
     : next.status === "DONE"
-      ? "That's locked in — this one is retained! 🎉"
-      : `Correct — you'll see it once more ${whenDue(next.stage)}.`;
+      ? "That's locked in. This one is retained! 🎉"
+      : `Correct. You'll see it once more ${whenDue(next.stage)}.`;
 
   // Not due (or already answered in another tab): show the result, change nothing.
   if (item.status !== "ACTIVE" || item.dueDay > today) {

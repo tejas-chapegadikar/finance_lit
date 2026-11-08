@@ -22,7 +22,7 @@ import { card, gameSurface, primaryButton, secondaryButton, tile } from "@/compo
 import { CORE_SCENARIOS } from "@/lib/scenarios";
 import { ArrowRightIcon, CheckIcon, GraduationCapIcon, RefreshIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Lesson complete — StockStreak" };
+export const metadata: Metadata = { title: "Lesson complete | StockStreak" };
 
 const OUTCOME_BADGE: Record<QuestionOutcome, { label: string; className: string }> = {
   "first-try": { label: "First try", className: "bg-emerald-50 text-emerald-800" },
@@ -129,7 +129,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
         <p className="mt-4 text-[13px] font-medium text-white/60">
           {lessonXp > 0
             ? `Lesson ${lessonNumber ? String(lessonNumber).padStart(2, "0") : ""} completed`
-            : "Already completed — this retake can raise your readiness"}
+            : "Already completed. This retake can raise your readiness"}
         </p>
         <h1 className="mt-1 text-4xl text-white sm:text-5xl">Lesson Complete!</h1>
         <p className="mt-2 text-white/75">{attempt.lesson.title}</p>
@@ -170,7 +170,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
               {summary.withCoach > 0 && <p className="text-white/70">{summary.withCoach} more solved with the Coach&apos;s help.</p>}
               {previousBest !== null && (attempt.mastery ?? 0) > previousBest && (
                 <p className="font-semibold text-emerald-300">
-                  You improved — quiz accuracy {previousBest}% → {attempt.mastery}%.
+                  You improved! Quiz accuracy {previousBest}% → {attempt.mastery}%.
                 </p>
               )}
             </div>
@@ -253,7 +253,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
             </h2>
             <p className="text-sm text-slate-600">
               The {summary.withCoach + summary.revealed} {summary.withCoach + summary.revealed === 1 ? "question" : "questions"} you missed will come back
-              in Revision over the next week, with fresh examples — that&apos;s how it sticks.
+              in Revision over the next week, with fresh examples. That&apos;s how it sticks.
             </p>
           </div>
         </section>

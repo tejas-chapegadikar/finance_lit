@@ -38,7 +38,7 @@ export function StepRunner({
   finish,
 }: {
   steps: PublicStep[];
-  /** "Decision" or "Question" — shown as "Decision 1 of 3". */
+  /** "Decision" or "Question", shown as "Decision 1 of 3". */
   stepNoun: string;
   /** e.g. "+50 XP when you finish". */
   xpNote?: string;
@@ -232,7 +232,7 @@ export function StepRunner({
                 ? "Every rupee has a job."
                 : left > 0
                   ? `${rupees(left)} still to plan`
-                  : `${rupees(-left)} over your budget — take some out`}
+                  : `${rupees(-left)} over your budget. Take some out`}
             </p>
             {!checked && (
               <button

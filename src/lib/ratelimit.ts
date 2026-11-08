@@ -8,7 +8,7 @@ import { Redis } from "@upstash/redis";
 //
 // With the Upstash env vars set, limits are shared across every server
 // instance. Without them (local dev, or before the founder has created the
-// Redis database) each server process keeps its own in-memory count — weaker
+// Redis database) each server process keeps its own in-memory count, weaker
 // on a multi-instance host, but scripted hammering is still slowed down.
 const redis =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN ? Redis.fromEnv() : null;

@@ -2,7 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-// `npm run report` — the launch metrics, read straight from the database.
+// `npm run report`, the launch metrics, read straight from the database.
 // Students = everyone who finished onboarding. A "meaningful learning
 // action" is a completed lesson quiz, a completed scenario, a Question of the
 // Day answer, a Daily Challenge or a revision answer. Days are IST calendar days.
@@ -13,7 +13,7 @@ const IST_MS = (5 * 60 + 30) * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const istDayNumber = (d: Date) => Math.floor((d.getTime() + IST_MS) / DAY_MS);
 
-const pct = (n: number, d: number) => (d ? `${Math.round((100 * n) / d)}%` : "—");
+const pct = (n: number, d: number) => (d ? `${Math.round((100 * n) / d)}%` : "-");
 const row = (name: string, value: string, detail: string) =>
   console.log(`${name.padEnd(36)} ${value.padStart(6)}   ${detail}`);
 
@@ -119,7 +119,7 @@ async function main() {
   // AI Coach follow-ups: how many, on how many distinct questions.
   const followUpQuestions = new Set(followUps.map((f) => `${f.userId}|${f.questionId}`));
 
-  console.log(`\nStockStreak launch metrics — ${students.length} students\n`);
+  console.log(`\nStockStreak launch metrics, ${students.length} students\n`);
   row("Signup → opened first lesson", pct(viewed.size, students.length), `${viewed.size} of ${students.length}`);
   row("Signup → completed first lesson", pct(finishedOne.size, students.length), `${finishedOne.size} of ${students.length}`);
   row("Lesson completion rate", pct(completedPairs.size, startedPairs.size), `${completedPairs.size} of ${startedPairs.size} started lessons`);

@@ -1,9 +1,9 @@
 import { BookIcon, HomeIcon, TrendingUpIcon, UserIcon, WalletIcon } from "@/components/ui/icons";
 
 // The student's destinations: Home (your avatar, with the three pillars
-// around it), the three pillars — Money Management, Money IQ (learn about
+// around it), the three pillars, Money Management, Money IQ (learn about
 // money, with revision and money scenarios) and InvestSmart (investing
-// lessons, the simulator and a virtual portfolio) — and your Profile.
+// lessons, the simulator and a virtual portfolio), and your Profile.
 // Settings sits at the bottom of the sidebar.
 export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", shortLabel: "Home", Icon: HomeIcon, also: [] as string[], mobile: true },

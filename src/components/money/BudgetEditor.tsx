@@ -61,7 +61,7 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
           Whole month
         </label>
         <span className="flex items-center gap-1.5 text-slate-400">
-          ₹<input id="budget-total" inputMode="numeric" value={values.total} onChange={(e) => set("total", e.target.value)} className={fieldClass} placeholder="—" />
+          ₹<input id="budget-total" inputMode="numeric" value={values.total} onChange={(e) => set("total", e.target.value)} className={fieldClass} placeholder="-" />
         </span>
       </div>
       <ul className="divide-y divide-slate-100">
@@ -72,7 +72,7 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
               <span className="truncate">{c.label}</span>
             </label>
             <span className="flex items-center gap-1.5 text-slate-400">
-              ₹<input id={`budget-${c.id}`} inputMode="numeric" value={values[c.id]} onChange={(e) => set(c.id, e.target.value)} className={fieldClass} placeholder="—" />
+              ₹<input id={`budget-${c.id}`} inputMode="numeric" value={values[c.id]} onChange={(e) => set(c.id, e.target.value)} className={fieldClass} placeholder="-" />
             </span>
           </li>
         ))}

@@ -210,7 +210,7 @@ const TILE_SIZES = {
   lg: "h-14 w-14 rounded-2xl [&>svg]:h-7 [&>svg]:w-7",
 };
 
-/** An icon on its area's quiet tint — the standard way to show a topic. */
+/** An icon on its area's quiet tint, the standard way to show a topic. */
 export function IconTile({
   area,
   size = "md",

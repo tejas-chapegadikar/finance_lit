@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { InfoPage } from "@/components/layout/InfoPage";
 import { LEGAL_LAST_UPDATED } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Disclaimer — StockStreak" };
+export const metadata: Metadata = { title: "Disclaimer | StockStreak" };
 
 const CONTENT = `
 **StockStreak is for education only.** It teaches general financial concepts. It is **not** a personalised investment-advisory service, and nothing on StockStreak is financial, investment, tax or legal advice.
@@ -15,7 +15,7 @@ const CONTENT = `
 
 ## Examples are illustrations
 
-Numbers in lessons — returns, interest rates, salaries — are examples to show how the maths works. Any return figure is an assumption, not a promise. Real investments can go up or down, and you can lose money.
+Numbers in lessons (returns, interest rates, salaries) are examples to show how the maths works. Any return figure is an assumption, not a promise. Real investments can go up or down, and you can lose money.
 
 ## Rules change
 

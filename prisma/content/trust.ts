@@ -7,9 +7,9 @@ import type { SeedLessonMeta, SeedSource } from "./types";
 const NCFE: SeedSource = { label: "National Centre for Financial Education (NCFE)", url: "https://ncfe.org.in" };
 const RBI: SeedSource = { label: "Reserve Bank of India", url: "https://www.rbi.org.in" };
 const RBI_KEHTA_HAI: SeedSource = { label: "RBI Kehta Hai (RBI's awareness site)", url: "https://rbikehtahai.rbi.org.in" };
-const NPCI: SeedSource = { label: "NPCI — UPI", url: "https://www.npci.org.in" };
+const NPCI: SeedSource = { label: "NPCI: UPI", url: "https://www.npci.org.in" };
 const CYBERCRIME: SeedSource = { label: "National Cyber Crime Reporting Portal (helpline 1930)", url: "https://cybercrime.gov.in" };
-const SANCHAR_SAATHI: SeedSource = { label: "Sanchar Saathi — report suspected fraud calls and messages", url: "https://sancharsaathi.gov.in" };
+const SANCHAR_SAATHI: SeedSource = { label: "Sanchar Saathi: report suspected fraud calls and messages", url: "https://sancharsaathi.gov.in" };
 const DICGC: SeedSource = { label: "Deposit Insurance and Credit Guarantee Corporation (DICGC)", url: "https://www.dicgc.org.in" };
 const CIBIL: SeedSource = { label: "TransUnion CIBIL", url: "https://www.cibil.com" };
 const INCOME_TAX: SeedSource = { label: "Income Tax Department", url: "https://www.incometax.gov.in" };
@@ -17,7 +17,7 @@ const EPFO: SeedSource = { label: "Employees' Provident Fund Organisation (EPFO)
 const SEBI_INVESTOR: SeedSource = { label: "SEBI investor website", url: "https://investor.sebi.gov.in" };
 const AMFI: SeedSource = { label: "Association of Mutual Funds in India (AMFI)", url: "https://www.amfiindia.com" };
 
-const MOSPI: SeedSource = { label: "Ministry of Statistics (MoSPI) — Consumer Price Index", url: "https://www.mospi.gov.in" };
+const MOSPI: SeedSource = { label: "Ministry of Statistics (MoSPI): Consumer Price Index", url: "https://www.mospi.gov.in" };
 const NSE: SeedSource = { label: "National Stock Exchange (NSE)", url: "https://www.nseindia.com" };
 const BSE: SeedSource = { label: "BSE", url: "https://www.bseindia.com" };
 

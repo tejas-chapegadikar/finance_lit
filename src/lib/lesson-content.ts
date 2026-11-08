@@ -30,7 +30,7 @@ export function readKeyTerms(value: unknown): KeyTerm[] {
 
 export type LearnSection = { title: string | null; body: string };
 
-/** Splits the Learn markdown into cards — one per "## " heading. */
+/** Splits the Learn markdown into cards, one per "## " heading. */
 export function splitLearnSections(markdown: string): LearnSection[] {
   const sections: LearnSection[] = [];
   let current: LearnSection = { title: null, body: "" };

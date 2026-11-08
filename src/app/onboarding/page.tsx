@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireAppUser } from "@/lib/auth";
+import { usernameFromEmail } from "@/lib/username";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { Logo } from "@/components/ui/Logo";
 
-export const metadata: Metadata = { title: "Welcome — StockStreak" };
+export const metadata: Metadata = { title: "Welcome | StockStreak" };
 
 export default async function OnboardingPage() {
   const user = await requireAppUser();
@@ -24,7 +25,8 @@ export default async function OnboardingPage() {
           <Logo />
         </div>
         <div className="animate-fade-up rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_50px_-30px_rgb(30_28_26/0.35)] sm:p-8">
-          <OnboardingFlow defaultName={user.displayName ?? user.name ?? ""} />
+          {/* Google already told us their name, so they don't have to type it. */}
+          <OnboardingFlow defaultName={user.displayName ?? user.name ?? ""} nameKnown={!!user.name && !usernameFromEmail(user.email)} />
         </div>
       </div>
     </main>

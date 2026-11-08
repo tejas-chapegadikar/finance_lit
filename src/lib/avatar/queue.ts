@@ -3,7 +3,7 @@ import { REACTIONS, type ReactionData, type ReactionKind } from "./reactions";
 
 // Records real events the student's avatar reacts to. Every event has a key
 // that is unique per student (e.g. "lesson:<attemptId>", "budget-over:
-// 2026-11:food"), so the same event can never queue a second reaction — even
+// 2026-11:food"), so the same event can never queue a second reaction, even
 // if an action runs twice. Only server code records events, for the signed-in
 // student's own actions. No database import here: callers pass their own
 // client or transaction, which keeps this safe to import from shared modules.

@@ -11,7 +11,7 @@ import { countDueRevision } from "./revision";
 // The settings form was removed from the Profile page on 2026-10-12 at the
 // founder's request, so no student can switch reminders on right now. The
 // data, this sender and the calendar file stay, ready for when a settings
-// screen returns — it must come back (with a way to turn them off) before
+// screen returns, it must come back (with a way to turn them off) before
 // emails are switched on.
 
 export const REMINDER_HOURS = Array.from({ length: 17 }, (_, i) => i + 6); // 6 AM – 10 PM
@@ -64,11 +64,11 @@ export async function sendDueReminders(now = new Date()) {
   for (const student of students) {
     const due = await countDueRevision(student.id, today);
     const name = student.displayName ?? student.name ?? "there";
-    // Friendly and short — never guilt or alarm about streaks.
+    // Friendly and short, never guilt or alarm about streaks.
     const text = [
       `Hi ${name},`,
       "",
-      `Today's Reality Check and Daily Challenge are ready — a couple of minutes, whenever suits you.${due ? ` You also have ${due} revision ${due === 1 ? "question" : "questions"} due.` : ""}`,
+      `Today's Reality Check and Daily Challenge are ready. A couple of minutes, whenever suits you.${due ? ` You also have ${due} revision ${due === 1 ? "question" : "questions"} due.` : ""}`,
       "",
       `Open StockStreak: ${siteUrl()}/dashboard`,
       "",

@@ -41,7 +41,7 @@ export const BADGES: Badge[] = [
   { id: "scenario-solver", icon: "🧭", name: "Scenario Solver", rule: { kind: "scenarios", count: CORE_SCENARIOS.length } },
   { id: "memory-master", icon: "🧠", name: "Memory Master", rule: { kind: "retained", count: 10 } },
   { id: "financial-foundations", icon: "🎓", name: `${PATH_NAME} Graduate`, rule: { kind: "level" } },
-  // Money habits — earned in Money Manager and Practice.
+  // Money habits, earned in Money Manager and Practice.
   { id: "money-tracker", icon: "📒", name: "Money Tracker", rule: { kind: "money-logs", count: 10 } },
   { id: "reality-checker", icon: "🔎", name: "Reality Checker", rule: { kind: "checkins", count: 7 } },
   { id: "goal-getter", icon: "🎯", name: "Goal Getter", rule: { kind: "goals", count: 1 } },
@@ -68,7 +68,7 @@ export type BadgeStats = {
   savingDone: number;
 };
 
-/** Only goals at least this big count toward Goal Getter — a ₹1 goal isn't a goal. */
+/** Only goals at least this big count toward Goal Getter, a ₹1 goal isn't a goal. */
 export const GOAL_BADGE_MIN = 500;
 
 export type BadgeProgress = Badge & {

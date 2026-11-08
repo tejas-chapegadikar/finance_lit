@@ -1,4 +1,4 @@
-// The central content catalogue — every piece of learning content on
+// The central content catalogue, every piece of learning content on
 // StockStreak, with a unique id, the pillar it belongs to, a topic tag and
 // (for lessons) a learning objective. It exists for one rule:
 //
@@ -9,7 +9,7 @@
 // any appear, so new content is checked against everything that exists.
 //
 // Two kinds of reuse are deliberate and excluded from the check:
-//   • A lesson's practice questions are the same idea with a new example —
+//   • A lesson's practice questions are the same idea with a new example, 
 //     they're for spaced recall (AI Coach checks and revision), by design.
 //   • The Daily Challenge's quick-fire drills replay lesson questions as
 //     review; they reference questions rather than adding new text.
@@ -41,7 +41,7 @@ export type CatalogItem = {
   lesson?: string;
 };
 
-/** One clearly defined learning objective per lesson — no two the same. */
+/** One clearly defined learning objective per lesson, no two the same. */
 export const LESSON_TOPICS: Record<string, { pillar: Pillar; topic: string; objective: string }> = {
   "budgeting-basics": { pillar: "money-iq", topic: "budgeting", objective: "Plan a month's money with the 50/30/20 rule and pay yourself first." },
   "compound-interest": { pillar: "money-iq", topic: "compounding", objective: "Tell simple from compound interest and estimate doubling with the Rule of 72." },
@@ -145,14 +145,14 @@ export function similarity(a: string, b: string): number {
 }
 
 const LESSON_KINDS = new Set<ContentKind>(["quiz", "practice", "lesson-scenario"]);
-/** Kinds that put a lesson into practice — they apply its concepts by design. */
+/** Kinds that put a lesson into practice, they apply its concepts by design. */
 const APPLY_KINDS = new Set<ContentKind>(["habit-step", "challenge-step", "scenario", "spot-the-scam"]);
 
 /**
  * Pairs that are deliberately related, so not duplicates:
  *  - a lesson's quiz and its own practice questions (spaced recall);
  *  - a lesson and an activity that applies it (a challenge step, a scenario,
- *    a spot-the-scam message) — those ask you to *do* the thing, not re-learn it.
+ *    a spot-the-scam message), those ask you to *do* the thing, not re-learn it.
  */
 function exempt(a: CatalogItem, b: CatalogItem) {
   if (a.lesson && a.lesson === b.lesson && LESSON_KINDS.has(a.kind) && LESSON_KINDS.has(b.kind)) return true;
@@ -161,7 +161,7 @@ function exempt(a: CatalogItem, b: CatalogItem) {
 
 /**
  * Pairs the detector flags that a person has reviewed and judged distinct,
- * with the reason. Keep this list short — rewording is usually better.
+ * with the reason. Keep this list short, rewording is usually better.
  */
 export const REVIEWED_DISTINCT: { a: string; b: string; why: string }[] = [
   { a: "lesson:compound-interest:q4", b: "lesson:fd-rd:p4", why: "Calculating simple interest vs how FD interest is taxed." },
@@ -199,7 +199,7 @@ export function findDuplicates(items: CatalogItem[] = buildCatalog(), threshold 
 // Copied wording is easy to catch; the same concept in new words isn't. So
 // each lesson OWNS its key concepts (its multi-word key terms). A Reality
 // Check question or money fact that names a concept a lesson owns repeats
-// that lesson — unless it's listed here with a clearly different objective.
+// that lesson, unless it's listed here with a clearly different objective.
 
 export const ALLOWED_CONCEPT_OVERLAPS: Record<string, string> = {
   "reality-check:parents-health-cover":

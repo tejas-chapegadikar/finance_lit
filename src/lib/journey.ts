@@ -1,5 +1,5 @@
 // The Money IQ path ("Financial Foundations"): 13 lessons in four levels, each tied to a
-// life stage. Levels open in order — Level N once Level N−1 is complete.
+// life stage. Levels open in order, Level N once Level N−1 is complete.
 // Kept free of Prisma imports so client components can use it.
 // (In code a level is a "chapter"; students see "Level 1–4".)
 
@@ -68,11 +68,14 @@ export function chapterOf(slug: string): Chapter | undefined {
   return CHAPTERS.find((chapter) => chapter.lessonSlugs.includes(slug));
 }
 
-/** The level that matches the student's goal or stage, and why — or null. */
-export function focusFor(stage: string | null, goal: string | null): (Focus & { chapter: Chapter }) | null {
-  const focus = (goal && GOAL_FOCUS[goal]) || (stage && STAGE_FOCUS[stage]) || null;
+/** What to lean towards for this student: every goal counts, the first one leads. Null if nothing to go on. */
+export function focusFor(stage: string | null, goals: readonly string[]): (Focus & { chapter: Chapter; areas: string[]; chapterIds: string[] }) | null {
+  const fromGoals = goals.flatMap((goal) => GOAL_FOCUS[goal] ?? []);
+  const focus = fromGoals[0] ?? (stage && STAGE_FOCUS[stage]) ?? null;
   const chapter = focus && CHAPTERS.find((c) => c.id === focus.chapterId);
-  return focus && chapter ? { ...focus, chapter } : null;
+  if (!focus || !chapter) return null;
+  const areas = fromGoals.flatMap((g) => g.area ?? []);
+  return { ...focus, chapter, areas, chapterIds: fromGoals.length ? fromGoals.map((g) => g.chapterId) : [focus.chapterId] };
 }
 
 /** completed · current (the one to work on now) · available (opened early) · locked. */
@@ -88,7 +91,7 @@ export type LevelAccess = {
 
 /**
  * Sequential levels. Level 1 is always open; Level N opens once every lesson
- * in Level N−1 is completed (its quiz finished — the existing completion
+ * in Level N−1 is completed (its quiz finished, the existing completion
  * rule). A level where the student has already completed a lesson stays
  * open, so progress made before levels were locked is never taken away.
  */

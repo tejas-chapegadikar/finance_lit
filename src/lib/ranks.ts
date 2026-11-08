@@ -36,7 +36,7 @@ export function rankFor(completedCount: number, readiness: number, totalLessons:
   const toNext =
     lessonsLeft > 0
       ? `Complete ${lessonsLeft} more ${lessonsLeft === 1 ? "lesson" : "lessons"} to reach ${next.name}`
-      : `Raise your readiness to ${next.readiness} (now ${readiness}) to become ${next.name} — retake lessons and clear your revision`;
+      : `Raise your readiness to ${next.readiness} (now ${readiness}) to become ${next.name}. Retake lessons and clear your revision`;
   const span = next.lessons - current.lessons;
   const lessonPart = span > 0 ? (completedCount - current.lessons) / span : 1;
   const readinessPart = next.readiness ? Math.min(1, readiness / next.readiness) : 1;

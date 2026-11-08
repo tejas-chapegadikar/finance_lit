@@ -47,7 +47,7 @@ export async function redeemReward(rewardId: string): Promise<RedeemResult> {
   return { status };
 }
 
-/** Wears an unlocked title or theme — or takes it off when rewardId is null. */
+/** Wears an unlocked title or theme, or takes it off when rewardId is null. */
 export async function equipReward(kind: "title" | "theme", rewardId: string | null): Promise<void> {
   const user = await requireOnboardedUser();
   if (rewardId) {

@@ -3,35 +3,18 @@
 import { useState, useTransition } from "react";
 import { unstable_rethrow } from "next/navigation";
 import { completeOnboarding } from "@/actions/onboarding";
-import { LEARNER_STAGES, LEARNING_GOALS } from "@/lib/learner-profile";
+import { LEARNER_STAGES } from "@/lib/learner-profile";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 import { primaryButton } from "@/components/ui/button-styles";
-import { ArrowLeftIcon, ArrowRightIcon, CardIcon, CheckIcon, ReceiptIcon, ShieldIcon, SparklesIcon, TrendingUpIcon, WalletIcon } from "@/components/ui/icons";
-
-// One icon per learning goal, from the app's icon family.
-const GOAL_ICONS: Record<string, (p: { className?: string }) => React.ReactNode> = {
-  MANAGING_MONEY: WalletIcon,
-  CREDIT: CardIcon,
-  AVOIDING_SCAMS: ShieldIcon,
-  SALARY_TAXES: ReceiptIcon,
-  INVESTING: TrendingUpIcon,
-  EVERYTHING: SparklesIcon,
-};
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from "@/components/ui/icons";
+import { GoalPicker } from "./GoalPicker";
 
 const TOTAL_STEPS = 4;
 
 const inputClass =
   "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
-function ChoiceTile({
-  selected,
-  onClick,
-  children,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
+function ChoiceTile({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
@@ -39,9 +22,7 @@ function ChoiceTile({
       aria-checked={selected}
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3.5 text-left font-medium transition duration-150 active:scale-[0.99] ${
-        selected
-          ? "border-brand-500 bg-brand-50 text-slate-900 ring-2 ring-brand-100"
-          : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
+        selected ? "border-brand-500 bg-brand-50 text-slate-900 ring-2 ring-brand-100" : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
       }`}
     >
       <span className="flex-1">{children}</span>
@@ -57,21 +38,12 @@ function ChoiceTile({
   );
 }
 
-function GoalIcon({ value }: { value: string }) {
-  const Glyph = GOAL_ICONS[value] ?? SparklesIcon;
-  return (
-    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-      <Glyph className="h-4 w-4" />
-    </span>
-  );
-}
-
-export function OnboardingFlow({ defaultName }: { defaultName: string }) {
-  const [step, setStep] = useState(1);
+export function OnboardingFlow({ defaultName, nameKnown }: { defaultName: string; nameKnown: boolean }) {
+  const [step, setStep] = useState(nameKnown && defaultName.trim().length >= 2 ? 2 : 1);
   const [displayName, setDisplayName] = useState(defaultName);
   const [stage, setStage] = useState("");
   const [collegeName, setCollegeName] = useState("");
-  const [goal, setGoal] = useState("");
+  const [goals, setGoals] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -83,7 +55,7 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
     startTransition(async () => {
       try {
         // Opens the dashboard when it succeeds.
-        const result = await completeOnboarding({ displayName, stage, collegeName, goal });
+        const result = await completeOnboarding({ displayName, stage, collegeName, goals });
         setError(result.error);
       } catch (err) {
         unstable_rethrow(err);
@@ -182,24 +154,18 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
             placeholder="Type your college name"
             className={inputClass}
           />
-          <p className="text-sm text-slate-600">Optional — skip this if you&apos;ve graduated or would rather not say.</p>
+          <p className="text-sm text-slate-600">Optional. Skip this if you&apos;ve graduated or would rather not say.</p>
         </div>
       )}
 
       {step === 4 && (
         <div className="flex flex-col gap-3">
           <h1 className="animate-fade-up text-3xl leading-tight text-slate-900">What do you want to get better at?</h1>
-          <p className="-mt-1 text-sm text-slate-600">Optional — pick one, or skip and decide later in your profile.</p>
-          <div role="radiogroup" aria-label="Your goal" className="flex flex-col gap-2.5">
-            {LEARNING_GOALS.map((g) => (
-              <ChoiceTile key={g.value} selected={goal === g.value} onClick={() => setGoal(g.value)}>
-                <span className="inline-flex items-center gap-3">
-                  <GoalIcon value={g.value} />
-                  {g.label}
-                </span>
-              </ChoiceTile>
-            ))}
-          </div>
+          <p className="-mt-1 text-sm text-slate-600">Pick as many as you want. You can change these later.</p>
+          <GoalPicker value={goals} onChange={setGoals} />
+          <p aria-live="polite" className="text-sm font-medium text-brand-700">
+            {goals.length === 0 ? "" : goals.length === 1 ? "1 picked. Got room for more?" : `${goals.length} picked. Ambitious. I like it.`}
+          </p>
         </div>
       )}
 
@@ -212,7 +178,7 @@ export function OnboardingFlow({ defaultName }: { defaultName: string }) {
       <button type="submit" disabled={!canContinue || isPending} className={`${primaryButton} w-full py-3.5 text-base`}>
         {isPending
           ? "Saving…"
-          : (step === 3 && collegeName.trim() === "") || (step === 4 && goal === "")
+          : (step === 3 && collegeName.trim() === "") || (step === 4 && goals.length === 0)
             ? "Skip for now"
             : step === TOTAL_STEPS
               ? "Finish"

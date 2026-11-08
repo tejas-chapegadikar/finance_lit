@@ -261,7 +261,7 @@ export function AvatarHub({
         <button
           type="button"
           onClick={poke}
-          aria-label={`${name}'s avatar — click for a comment about your money`}
+          aria-label={`${name}'s avatar, click for a comment about your money`}
           className="group relative rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
         >
           {say.celebrate && <Burst />}

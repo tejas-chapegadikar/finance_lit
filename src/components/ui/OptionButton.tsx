@@ -22,7 +22,7 @@ const BADGE: Record<OptionState, string> = {
   dimmed: "bg-slate-100 text-slate-400",
 };
 
-/** One lettered answer tile — used by quiz questions, lesson scenarios and the daily challenge. */
+/** One lettered answer tile, used by quiz questions, lesson scenarios and the daily challenge. */
 export function OptionButton({
   index,
   text,

@@ -10,7 +10,7 @@ import { queueAvatarEvent } from "@/lib/avatar/events";
 
 export type SaveAvatarResult = { status: "saved" } | { status: "locked"; itemName: string } | { status: "slow-down" };
 
-/** Saves the whole avatar — only with items that exist, fit their slot and are unlocked. */
+/** Saves the whole avatar, only with items that exist, fit their slot and are unlocked. */
 export async function saveAvatar(config: AvatarConfig): Promise<SaveAvatarResult> {
   const user = await requireOnboardedUser();
   if (!(await isAllowed(accountRatelimit, user.id))) return { status: "slow-down" };
@@ -40,7 +40,7 @@ export async function wearAvatarItem(itemId: string): Promise<void> {
 }
 
 /**
- * Marks your own reactions as shown — ids from anyone else's account simply
+ * Marks your own reactions as shown, ids from anyone else's account simply
  * match nothing. Called by the pop-up manager when it shows (or skips) them.
  */
 export async function markAvatarEventsShown(ids: string[]): Promise<void> {

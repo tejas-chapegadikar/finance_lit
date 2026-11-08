@@ -4,7 +4,7 @@ import { getAuthUser } from "@/lib/auth";
 import { AuthBackdrop } from "@/components/layout/AuthBackdrop";
 import { AuthCard } from "@/components/auth/AuthCard";
 
-export const metadata: Metadata = { title: "Log in — StockStreak" };
+export const metadata: Metadata = { title: "Log in | StockStreak" };
 
 const ERRORS: Record<string, string> = {
   google: "Google sign-in didn't finish. Please try again.",
@@ -16,7 +16,7 @@ export default async function SignInPage(props: PageProps<"/sign-in">) {
   const next = typeof params.next === "string" ? params.next : undefined;
   const error = typeof params.error === "string" ? ERRORS[params.error] : undefined;
   // Already signed in: straight in (unless we were sent here with a problem
-  // to show — e.g. "claim", where the student is signed in but must use Google).
+  // to show, e.g. "claim", where the student is signed in but must use Google).
   if (!error && (await getAuthUser())) redirect(next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard");
   return (
     <AuthBackdrop>

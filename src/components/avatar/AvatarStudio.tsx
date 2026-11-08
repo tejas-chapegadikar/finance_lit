@@ -28,7 +28,7 @@ const sameConfig = (a: AvatarConfig, b: AvatarConfig) => AVATAR_SLOTS.every(({ s
 /**
  * Avatar Studio: dress up your own avatar. Try anything on (locked items
  * too), try out expressions, unlock store items with XP, and save what's
- * unlocked — the server checks every item again before saving.
+ * unlocked, the server checks every item again before saving.
  */
 export function AvatarStudio({ initial, items, xpTotal, name }: { initial: AvatarConfig; items: StudioItem[]; xpTotal: number; name: string }) {
   const router = useRouter();
@@ -88,7 +88,7 @@ export function AvatarStudio({ initial, items, xpTotal, name }: { initial: Avata
   }
 
   return (
-    <div className="grid gap-5 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:items-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:items-start">
       <section className={`${card} flex flex-col items-center overflow-hidden p-0 md:sticky md:top-6`} aria-labelledby="preview-heading">
         {/* The stage: a game-style purple backdrop, like the rest of the avatar experience. */}
         <div className="relative flex w-full flex-col items-center bg-[radial-gradient(120%_90%_at_50%_0%,oklch(66%_0.16_284),oklch(48%_0.19_283))] px-5 pt-5 pb-4">
@@ -113,7 +113,7 @@ export function AvatarStudio({ initial, items, xpTotal, name }: { initial: Avata
           </p>
           {locked.length > 0 && (
             <p className="mt-2 text-center text-sm font-medium text-orange-900">
-              Previewing {locked.map((item) => item!.name).join(", ")} — unlock {locked.length === 1 ? "it" : "them"} to save.
+              Previewing {locked.map((item) => item!.name).join(", ")}. Unlock {locked.length === 1 ? "it" : "them"} to save.
             </p>
           )}
           <div className="mt-4 flex w-full flex-col gap-2 sm:flex-row md:flex-col lg:flex-row">
@@ -242,7 +242,7 @@ export function AvatarStudio({ initial, items, xpTotal, name }: { initial: Avata
           <div className="mt-4 flex animate-fade-up flex-col gap-3 rounded-2xl bg-orange-50 p-4 ring-1 ring-orange-100 sm:flex-row sm:items-center">
             <p className="flex-1 text-sm text-slate-700">
               <span className="font-semibold text-slate-900">{selected.name}</span>
-              {selected.rare && " · Rare"} — {selected.how} to unlock it
+              {selected.rare && " · Rare"}, {selected.how} to unlock it
               {selected.cost !== null && ` (you have ${xpTotal.toLocaleString("en-IN")} XP)`}.
             </p>
           </div>

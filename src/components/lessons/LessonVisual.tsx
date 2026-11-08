@@ -40,7 +40,7 @@ function Budgeting() {
     { label: "Savings", pct: 20, amount: 1600, tone: "bg-emerald-500", text: "Moved out on the 1st" },
   ];
   return (
-    <Figure title="Priya's ₹8,000 with the 50/30/20 rule" caption="Savings go first — the day the money arrives — then needs and wants share the rest.">
+    <Figure title="Priya's ₹8,000 with the 50/30/20 rule" caption="Savings go first, the day the money arrives, then needs and wants share the rest.">
       <div className="flex h-10 overflow-hidden rounded-2xl" role="img" aria-label="50% needs, 30% wants, 20% savings">
         {parts.map((p) => (
           <div key={p.label} className={`${p.tone} flex items-center justify-center text-xs font-semibold ${p.label === "Wants" ? "text-orange-950" : "text-white"}`} style={{ width: `${p.pct}%` }}>
@@ -74,7 +74,7 @@ function CompoundInterest() {
   }));
   const max = rows[rows.length - 1].compound;
   return (
-    <Figure title="₹10,000 at 10% a year" caption="Simple interest grows in a straight line. Compound interest grows on its own growth — slow at first, then fast.">
+    <Figure title="₹10,000 at 10% a year" caption="Simple interest grows in a straight line. Compound interest grows on its own growth, slow at first, then fast.">
       <div className="flex flex-col gap-4">
         {rows.map((r) => (
           <div key={r.years}>
@@ -93,7 +93,7 @@ function CompoundInterest() {
 function SavingVsSpending() {
   const rows = [50, 100, 150].map((perDay) => ({ perDay, perYear: perDay * 30 * 12 }));
   return (
-    <Figure title="Small daily spends, one year later" caption="Counted as 30-day months. A ₹150 daily habit costs about ₹54,000 a year — cutting it to ₹50 frees up ₹36,000.">
+    <Figure title="Small daily spends, one year later" caption="Counted as 30-day months. A ₹150 daily habit costs about ₹54,000 a year. Cutting it to ₹50 frees up ₹36,000.">
       <div className="flex flex-col gap-3">
         {rows.map((r) => (
           <Bar key={r.perDay} label={`${rupees(r.perDay)} a day`} value={r.perYear} max={54000} display={`${rupees(r.perYear)} a year`} tone="bg-peach-300" />
@@ -120,7 +120,7 @@ function Upi() {
           <ul className="mt-2 flex flex-col gap-1.5 text-sm text-rose-900">
             <li>→ You scan a QR code or approve a collect request</li>
             <li>→ The screen says “Pay ₹…”</li>
-            <li>→ You enter your UPI PIN — money leaves</li>
+            <li>→ You enter your UPI PIN and money leaves</li>
           </ul>
         </div>
       </div>
@@ -131,7 +131,7 @@ function Upi() {
 function Scams() {
   const tricks = [
     { name: "Urgency", line: "“Your account will be blocked in 2 hours!”" },
-    { name: "Fear", line: "“You're under digital arrest — pay to clear your name.”" },
+    { name: "Fear", line: "“You're under digital arrest. Pay to clear your name.”" },
     { name: "Greed", line: "“Earn ₹3,000 a day just by liking videos!”" },
   ];
   return (
@@ -151,7 +151,7 @@ function Scams() {
 function BankAccounts() {
   const days = Array.from({ length: 30 }, (_, i) => i < 10);
   return (
-    <Figure title="How the average monthly balance is worked out" caption="₹6,000 for 10 days and ₹0 for 20 days averages ₹2,000 — below a ₹5,000 minimum, so a charge applies even though the balance once looked fine.">
+    <Figure title="How the average monthly balance is worked out" caption="₹6,000 for 10 days and ₹0 for 20 days averages ₹2,000, below a ₹5,000 minimum, so a charge applies even though the balance once looked fine.">
       <div role="img" aria-label="30 days: 10 days at ₹6,000, 20 days at ₹0" className="grid grid-cols-10 gap-1.5">
         {days.map((full, i) => (
           <span key={i} className={`flex aspect-square items-center justify-center rounded-lg text-[10px] font-semibold ${full ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-500"}`}>
@@ -179,14 +179,14 @@ function BankAccounts() {
 
 function FdRd() {
   return (
-    <Figure title="FD: once. RD: every month." caption="Rohit's RD: ₹1,950 a month for 12 months at about 6.5% — ₹23,400 deposited plus about ₹820 interest. Illustrative; check your bank's rates.">
+    <Figure title="FD: once. RD: every month." caption="Rohit's RD: ₹1,950 a month for 12 months at about 6.5%: ₹23,400 deposited plus about ₹820 interest. Illustrative; check your bank's rates.">
       <div className="flex flex-col gap-4">
         <div>
-          <p className="text-sm font-semibold text-slate-900">Fixed Deposit — one lump sum, locked for a fixed time</p>
+          <p className="text-sm font-semibold text-slate-900">Fixed Deposit: one lump sum, locked for a fixed time</p>
           <div className="mt-1.5 flex h-8 items-center justify-center rounded-xl bg-brand-600 text-xs font-semibold text-white">One deposit</div>
         </div>
         <div>
-          <p className="text-sm font-semibold text-slate-900">Recurring Deposit — the same amount every month</p>
+          <p className="text-sm font-semibold text-slate-900">Recurring Deposit: the same amount every month</p>
           <div className="mt-1.5 grid grid-cols-12 gap-1" role="img" aria-label="12 monthly deposits of ₹1,950">
             {Array.from({ length: 12 }, (_, i) => (
               <span key={i} className="flex h-8 items-center justify-center rounded-lg bg-brand-200 text-[10px] font-semibold text-brand-900">
@@ -209,14 +209,14 @@ function FdRd() {
 
 function Cibil() {
   const factors = [
-    { name: "Payment history", note: "Paying EMIs and bills on time — the biggest factor" },
+    { name: "Payment history", note: "Paying EMIs and bills on time, the biggest factor" },
     { name: "Credit utilisation", note: "Using under 30% of your limit" },
     { name: "Credit age", note: "Older accounts help" },
     { name: "New applications", note: "Many in a short time can pull it down" },
   ];
   const marker = ((750 - 300) / 600) * 100;
   return (
-    <Figure title="The 300–900 credit score scale" caption="750+ usually means easier approvals and better rates. No credit history means no score yet — not a bad score.">
+    <Figure title="The 300–900 credit score scale" caption="750+ usually means easier approvals and better rates. No credit history means no score yet, not a bad score.">
       <div className="relative pt-7">
         <span className="absolute top-0 -translate-x-1/2 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-emerald-800" style={{ left: `${marker}%` }}>
           750+
@@ -242,7 +242,7 @@ function Cibil() {
 
 function CreditCards() {
   return (
-    <Figure title="One credit card cycle" caption="Rahul's ₹12,000 bill: paying in full costs nothing extra; paying only the minimum leaves ₹11,400 growing at around 3.5% a month. Illustrative — check your card's terms.">
+    <Figure title="One credit card cycle" caption="Rahul's ₹12,000 bill: paying in full costs nothing extra; paying only the minimum leaves ₹11,400 growing at around 3.5% a month. Illustrative. Check your card's terms.">
       <ol className="grid grid-cols-3 gap-2 text-center text-sm">
         {[
           ["Spend", "About 30 days of purchases"],
@@ -263,7 +263,7 @@ function CreditCards() {
         </div>
         <div className="rounded-2xl bg-rose-50 p-4 ring-1 ring-rose-200">
           <p className="font-semibold text-rose-900">Pay only the ₹600 minimum</p>
-          <p className="mt-1 text-sm text-rose-900">₹11,400 left over attracts about ₹400 interest by next month — and it keeps growing.</p>
+          <p className="mt-1 text-sm text-rose-900">₹11,400 left over attracts about ₹400 interest by next month, and it keeps growing.</p>
         </div>
       </div>
     </Figure>
@@ -278,7 +278,7 @@ function FirstSalary() {
     { label: "Income tax (TDS), new regime", amount: 0 },
   ];
   return (
-    <Figure title="Kavya's ₹6 LPA, month by month" caption="Tax year 2026-27, new regime, illustrative. Both PF amounts still belong to her — they build up in her own EPF account.">
+    <Figure title="Kavya's ₹6 LPA, month by month" caption="Tax year 2026-27, new regime, illustrative. Both PF amounts still belong to her. They build up in her own EPF account.">
       <div className="flex flex-col gap-2 text-sm">
         <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-3">
           <span className="font-medium text-slate-800">CTC ÷ 12 (on paper)</span>
@@ -303,7 +303,7 @@ function StocksFundsFds() {
   const ladder = [
     { name: "Fixed deposit", risk: "Low risk", note: "Known, fixed interest; insured up to ₹5 lakh per bank", width: "w-1/3", tone: "bg-emerald-500" },
     { name: "Index / mutual fund", risk: "Medium risk", note: "Spread across many companies", width: "w-2/3", tone: "bg-amber-400" },
-    { name: "A single stock", risk: "High risk", note: "One company — can rise or fall a lot", width: "w-full", tone: "bg-rose-400" },
+    { name: "A single stock", risk: "High risk", note: "One company, can rise or fall a lot", width: "w-full", tone: "bg-rose-400" },
   ];
   return (
     <Figure title="Higher possible returns, higher risk" caption="Ishaan's single hyped stock fell 40% (₹10,000 → ₹6,000); Tanya's index fund dipped 5% (→ ₹9,500). Neither result is guaranteed to repeat.">
@@ -332,7 +332,7 @@ function Sip() {
   ];
   const max = people[0].total;
   return (
-    <Figure title="₹3,000 a month until 60" caption="Assumes 10% a year to show the maths — real returns go up and down and are never guaranteed. The darker part of each bar is the money actually put in.">
+    <Figure title="₹3,000 a month until 60" caption="Assumes 10% a year to show the maths. Real returns go up and down and are never guaranteed. The darker part of each bar is the money actually put in.">
       <div className="flex flex-col gap-4">
         {people.map((p) => (
           <div key={p.name}>
@@ -362,7 +362,7 @@ function Loans() {
   ];
   const emi = 8885;
   return (
-    <Figure title="Where Rohit's ₹8,885 EMI goes" caption="Same EMI every month — but as the balance shrinks, less goes to interest and more pays off the loan.">
+    <Figure title="Where Rohit's ₹8,885 EMI goes" caption="Same EMI every month, but as the balance shrinks, less goes to interest and more pays off the loan.">
       <div className="flex flex-col gap-4">
         {months.map((m) => (
           <div key={m.label}>
@@ -388,7 +388,7 @@ function Loans() {
         </span>
       </div>
       <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">
-        Total interest: about <span className="font-semibold">{rupees(6619)}</span> on a reducing balance — versus{" "}
+        Total interest: about <span className="font-semibold">{rupees(6619)}</span> on a reducing balance, versus{" "}
         <span className="font-semibold">{rupees(12000)}</span> if the same 12% were charged “flat”.
       </p>
     </Figure>
@@ -404,7 +404,7 @@ function Inflation() {
     { label: "In 20 years", value: 312 },
   ];
   return (
-    <Figure title="What ₹1,000 in cash can buy, at 6% inflation" caption="The note never changes. What it buys does — so money you won't need for years has to grow, too.">
+    <Figure title="What ₹1,000 in cash can buy, at 6% inflation" caption="The note never changes. What it buys does, so money you won't need for years has to grow, too.">
       <div className="flex flex-col gap-3">
         {points.map((p) => (
           <Bar key={p.label} label={p.label} value={p.value} max={1000} display={`${rupees(p.value)} worth`} tone="bg-orange-400" />
@@ -422,7 +422,7 @@ function StockMarket() {
     { title: "Demat account", text: "Your shares land here the next working day" },
   ];
   return (
-    <Figure title="What happens when you buy a share" caption="SEBI regulates every step. Your money goes to the investor who sold — not to the company.">
+    <Figure title="What happens when you buy a share" caption="SEBI regulates every step. Your money goes to the investor who sold, not to the company.">
       <ol className="grid gap-2 sm:grid-cols-4">
         {steps.map((s, i) => (
           <li key={s.title} className="relative rounded-xl border border-slate-200 bg-white p-3">
@@ -444,7 +444,7 @@ function IndexFunds() {
   return (
     <Figure
       title="₹1 lakh, the same index, 20 years"
-      caption="Assumes the index grows 10% a year — an illustration, not a forecast. The only difference is the fee."
+      caption="Assumes the index grows 10% a year, an illustration, not a forecast. The only difference is the fee."
     >
       <div className="flex flex-col gap-4">
         {people.map((p) => (
@@ -465,7 +465,7 @@ function StartInvesting() {
     { title: "Paid advice? SEBI-registered only", text: "Check any adviser or broker on SEBI's website." },
   ];
   return (
-    <Figure title="The beginner's checklist" caption="Start small — many funds accept SIPs from ₹100–₹500 a month.">
+    <Figure title="The beginner's checklist" caption="Start small. Many funds accept SIPs from ₹100–₹500 a month.">
       <ol className="flex flex-col gap-2.5">
         {steps.map((s, i) => (
           <li key={s.title} className="flex items-start gap-3">

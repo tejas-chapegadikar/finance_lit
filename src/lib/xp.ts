@@ -10,7 +10,7 @@ type AwardXpParams = {
   userId: string;
   amount: number;
   type: XPTransactionType;
-  /** Identifies the reward itself — build it with `xpKeys`. */
+  /** Identifies the reward itself, build it with `xpKeys`. */
   idempotencyKey: string;
   quizAttemptId?: string;
   description?: string;
@@ -52,11 +52,11 @@ export async function lockUser(tx: Prisma.TransactionClient, userId: string) {
  * Inserts an XPTransaction ledger row and keeps User.xpTotal in sync.
  * Must be called with a transaction client so both writes commit atomically
  * alongside whatever else the caller is doing (e.g. marking a quiz attempt
- * COMPLETED) — a partial write here would desync the cached total from the
+ * COMPLETED), a partial write here would desync the cached total from the
  * ledger it's supposed to mirror.
  *
  * Returns the XP actually awarded: 0 when this reward's idempotency key was
- * already used — the unique index is the last line of defence against a
+ * already used, the unique index is the last line of defence against a
  * duplicate reward, whatever the caller's own checks missed.
  */
 export async function awardXp(tx: Prisma.TransactionClient, params: AwardXpParams): Promise<number> {
@@ -116,7 +116,7 @@ export async function awardLevelBonusIfComplete(
   const alreadyAwarded = await tx.xPTransaction.count({ where: { userId, type: "LEVEL_COMPLETION" } });
   if (alreadyAwarded > 0) return 0;
 
-  // The Money IQ path only — InvestSmart lessons don't hold back the bonus.
+  // The Money IQ path only, InvestSmart lessons don't hold back the bonus.
   const publishedCount = await tx.lesson.count({ where: { isPublished: true, slug: { in: PATH_SLUGS } } });
   const completed = await tx.quizAttempt.findMany({
     where: { userId, status: "COMPLETED", lesson: { isPublished: true, slug: { in: PATH_SLUGS } } },
@@ -131,6 +131,6 @@ export async function awardLevelBonusIfComplete(
     type: "LEVEL_COMPLETION",
     idempotencyKey: xpKeys.levelComplete(userId, 1),
     quizAttemptId,
-    description: `${PATH_NAME} complete — all 4 levels`,
+    description: `${PATH_NAME} complete, all 4 levels`,
   });
 }

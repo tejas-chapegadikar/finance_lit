@@ -7,11 +7,12 @@ const LETTERS = ["A", "B", "C", "D"];
 
 const SYSTEM_PROMPT = `You are the StockStreak Coach, a friendly tutor inside a financial-literacy app for Indian college students and fresh graduates. A student just picked a wrong answer on a lesson quiz. Write a short hint that helps them work out the right answer themselves.
 
-- Never reveal the correct option — not by its letter, by quoting or paraphrasing its text, or by ruling out the other options. The student must still choose.
+- Never reveal the correct option, not by its letter, by quoting or paraphrasing its text, or by ruling out the other options. The student must still choose.
 - Briefly say why their pick doesn't fit, then explain the idea from the lesson that decides the question, in plain, friendly language. Use ₹ amounts or everyday Indian examples when they help.
 - End with one short question that nudges them to reason it out.
 - Hint 1 is gentle: point them at the key idea. Hint 2 means they have now missed twice: be more direct about the concept that decides it, still without giving the answer away.
 - 2-3 sentences, under 70 words. Plain text only: no markdown, lists, headings, or emojis.
+- Write like a friendly older cousin, not a textbook. Never use the em dash character.
 - Stay within the current lesson and question. This is education, not personal financial advice: never recommend stocks, funds or other products, never tell the student what to invest in or do with their own money, and never promise or predict returns.
 
 Latency-sensitive; begin your answer immediately.`;
@@ -36,7 +37,7 @@ export type CoachHintInput = {
 export type CoachHint = { level: number; text: string; source: "ai" | "fallback" };
 
 const GENERIC_HINTS: Record<number, string> = {
-  1: "Think back to the main idea the lesson used to explain this — which option fits it best?",
+  1: "Think back to the main idea the lesson used to explain this. Which option fits it best?",
   2: "Re-read the question's key words and compare them with the lesson's main point. Which of the remaining options matches?",
 };
 
@@ -57,20 +58,20 @@ export async function getOrCreateCoachHint(input: CoachHintInput): Promise<Coach
 
   const text = await generateHint(input, level);
   if (!text) {
-    // The lesson must stay usable when the AI isn't — never fail the quiz here.
+    // The lesson must stay usable when the AI isn't, never fail the quiz here.
     return fallbackHint(level, input.authoredHint);
   }
 
   try {
     await db.coachHint.create({ data: { ...key, level, text, model: COACH_MODEL } });
   } catch (err) {
-    // Another student hit the same wrong path at the same moment — serve the
+    // Another student hit the same wrong path at the same moment, serve the
     // hint that won the race so everyone on this path sees the same text.
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       const existing = await db.coachHint.findUnique({ where: { questionId_wrongOptionIds: key } });
       if (existing) return { level, text: existing.text, source: "ai" };
     } else {
-      // Caching is an optimisation — the student still gets this hint.
+      // Caching is an optimisation, the student still gets this hint.
       console.error("[coach] couldn't cache hint", err);
     }
   }
@@ -111,7 +112,7 @@ async function generateHint(input: CoachHintInput, level: number): Promise<strin
     return text;
   } catch (err) {
     if (err instanceof Anthropic.AuthenticationError) {
-      console.error("[coach] Anthropic rejected the API key — check ANTHROPIC_API_KEY");
+      console.error("[coach] Anthropic rejected the API key. Check ANTHROPIC_API_KEY");
     } else if (err instanceof Anthropic.RateLimitError) {
       console.warn("[coach] rate limited by the Anthropic API");
     } else if (err instanceof Anthropic.APIError) {
@@ -132,13 +133,14 @@ export const MAX_FOLLOW_UP_LENGTH = 300;
 
 export { COACH_MODEL };
 
-const FOLLOW_UP_PROMPT = `You are the StockStreak Coach, a friendly tutor inside a financial-literacy app for Indian college students and fresh graduates. The student has just answered a lesson quiz question — the correct answer and its explanation are already on their screen — and is asking you a follow-up.
+const FOLLOW_UP_PROMPT = `You are the StockStreak Coach, a friendly tutor inside a financial-literacy app for Indian college students and fresh graduates. The student has just answered a lesson quiz question. The correct answer and its explanation are already on their screen, and is asking you a follow-up.
 
+- Write like a friendly older cousin, not a textbook. Never use the em dash character.
 - Reply in plain, friendly language: 2-4 short sentences, under 100 words. Plain text only: no markdown, lists, headings or emojis.
 - Help them understand: why an answer is right or wrong, a simpler explanation, or a fresh everyday Indian example with ₹ amounts.
 - Stay grounded in the lesson text you're given. If the question goes beyond the lesson, say so briefly and point them to the lesson or a trusted official source.
 - This is education, not personal financial advice: never recommend specific stocks, funds, cards, loans or other products, never tell the student what to do with their own money, never promise or predict returns, and never ask for personal or financial details.
-- If they've clearly got it, say so warmly. If they still seem unsure, suggest revisiting the lesson — questions they missed also come back in Revision.
+- If they've clearly got it, say so warmly. If they still seem unsure, suggest revisiting the lesson. Questions they missed also come back in Revision.
 
 Latency-sensitive; begin your answer immediately.`;
 
@@ -196,7 +198,7 @@ ${input.options.map((o, i) => `${LETTERS[i]}. ${o.text}${o.isCorrect ? " (correc
     return text || null;
   } catch (err) {
     if (err instanceof Anthropic.AuthenticationError) {
-      console.error("[coach] Anthropic rejected the API key — check ANTHROPIC_API_KEY");
+      console.error("[coach] Anthropic rejected the API key. Check ANTHROPIC_API_KEY");
     } else if (err instanceof Anthropic.RateLimitError) {
       console.warn("[coach] rate limited by the Anthropic API");
     } else if (err instanceof Anthropic.APIError) {

@@ -38,7 +38,7 @@ export async function PractiseSection({ userId, xpTotal, lessons }: { userId: st
         <span className="min-w-0 flex-1">
           <span className="block font-semibold text-slate-900">Revision</span>
           <span className="text-sm text-slate-600">
-            {due > 0 ? `${due} ${due === 1 ? "question" : "questions"} due — missed ideas come back after 1, 3 and 7 days.` : "Nothing due right now. Missed quiz questions come back here."}
+            {due > 0 ? `${due} ${due === 1 ? "question" : "questions"} due. Missed ideas come back after 1, 3 and 7 days.` : "Nothing due right now. Missed quiz questions come back here."}
           </span>
         </span>
         {due > 0 ? (

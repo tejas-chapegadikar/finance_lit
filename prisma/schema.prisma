@@ -39,6 +39,7 @@ enum LearningGoal {
   INVESTING
   AVOIDING_SCAMS
   SALARY_TAXES
+  // No longer offered; old answers were converted to all five topics.
   EVERYTHING
 }
 
@@ -57,7 +58,7 @@ enum XPTransactionType {
   // A streak milestone (3, 7, 14, 30, 100 days).
   STREAK_BONUS
   ADMIN_ADJUSTMENT
-  // XP spent in the Rewards Store — a negative amount.
+  // XP spent in the Rewards Store, a negative amount.
   REDEMPTION
   SCENARIO_COMPLETION
   REVISION
@@ -110,7 +111,7 @@ model User {
   // The Supabase Auth user id (auth.users.id). Login lives in Supabase;
   // everything else lives here, linked by this id.
   authId        String? @unique
-  // From the earlier Clerk login — kept so old accounts can be relinked.
+  // From the earlier Clerk login, kept so old accounts can be relinked.
   clerkId       String? @unique
   email         String  @unique
   emailVerified Boolean @default(false)
@@ -120,11 +121,14 @@ model User {
   displayName   String?
 
   stage                 LearnerStage?
+  // Old single choice: no longer written or read. Kept so older deployments keep working.
   goal                  LearningGoal?
+  // What they want to get better at (any number of topics).
+  goals                 LearningGoal[] @default([])
   collegeName           String?
   onboardingCompletedAt DateTime?
 
-  // Lifetime XP earned — never goes down. Spendable XP is xpTotal - xpSpent.
+  // Lifetime XP earned, never goes down. Spendable XP is xpTotal - xpSpent.
   xpTotal Int     @default(0)
   xpSpent Int     @default(0)
   // Equipped Rewards Store unlocks (reward ids from src/lib/rewards.ts).
@@ -144,13 +148,13 @@ model User {
   longestStreak    Int       @default(0)
   // IST date (YYYY-MM-DD) of the last day that counted toward the streak.
   streakLastDay    String?
-  // Last time the student opened a lesson or started a quiz — feeds retention metrics.
+  // Last time the student opened a lesson or started a quiz, feeds retention metrics.
   lastActivityDate DateTime?
   // Streak freezes held (max 2): each covers one missed day automatically.
-  // Earned every 7 days of streak — never bought.
+  // Earned every 7 days of streak, never bought.
   streakFreezes    Int       @default(1)
 
-  // The Money Personality Quiz result (ids in src/lib/personality.ts) — a
+  // The Money Personality Quiz result (ids in src/lib/personality.ts), a
   // playful starting point that personalises suggestions; retakeable anytime.
   moneyPersonality String?
   personalityAt    DateTime?
@@ -195,11 +199,11 @@ model Lesson {
   icon                String        @default("📘")
   area                ReadinessArea
   description         String
-  // Part 1 — a relatable situation that gets the student thinking.
+  // Part 1, a relatable situation that gets the student thinking.
   hook                String        @default("") @db.Text
-  // Part 2 — short explanation; each "## " section renders as its own card.
+  // Part 2, short explanation; each "## " section renders as its own card.
   contentMarkdown     String        @db.Text
-  // [{ term, definition }] — shown while learning and on the completion screen.
+  // [{ term, definition }], shown while learning and on the completion screen.
   keyTerms            Json          @default("[]")
   // A real-life Indian example with numbers.
   example             String        @default("") @db.Text
@@ -228,7 +232,7 @@ model Lesson {
   updatedAt DateTime @updatedAt
 }
 
-// One row per (user, lesson) the first time the student opens that lesson —
+// One row per (user, lesson) the first time the student opens that lesson, 
 // feeds the "signup → first lesson" metric.
 model LessonView {
   id       String   @id @default(cuid())
@@ -324,7 +328,7 @@ model QuizAnswer {
   attempt          QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   questionId       String
   // Cascades so the seed can replace a lesson's questions (delete + recreate)
-  // without hitting FK violations from historical answers — those answers
+  // without hitting FK violations from historical answers, those answers
   // become meaningless once the question they referenced is gone anyway.
   // XP already earned is untouched: it lives in XPTransaction, not here.
   question         Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -340,7 +344,7 @@ model QuizAnswer {
 }
 
 // AI Coach hints, generated once per (question, set of wrong options picked
-// so far) and reused for every student who takes the same wrong path — keeps
+// so far) and reused for every student who takes the same wrong path, keeps
 // hints consistent, reviewable, and the total number of model calls bounded.
 model CoachHint {
   id             String   @id @default(cuid())
@@ -378,7 +382,7 @@ model DailyQuestionAnswer {
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   questionId  String
   question    DailyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  // IST date (YYYY-MM-DD) — one answer per student per day.
+  // IST date (YYYY-MM-DD), one answer per student per day.
   day         String
   optionIndex Int
   isCorrect   Boolean
@@ -389,7 +393,7 @@ model DailyQuestionAnswer {
 }
 
 // A finished Daily Challenge (content in src/lib/daily-challenge): a short
-// multi-step set — one per student per IST day.
+// multi-step set, one per student per IST day.
 model DailyChallengeRun {
   id           String   @id @default(cuid())
   userId       String
@@ -406,7 +410,7 @@ model DailyChallengeRun {
   @@unique([userId, day])
 }
 
-// One row per IST day a student did a meaningful learning action — the
+// One row per IST day a student did a meaningful learning action, the
 // streak calendar. `frozen` marks a missed day a streak freeze covered.
 model ActivityDay {
   id        String   @id @default(cuid())
@@ -469,7 +473,7 @@ model UserBadge {
   @@unique([userId, badgeId])
 }
 
-// "Was this lesson clear and useful?" from the completion screen — one per
+// "Was this lesson clear and useful?" from the completion screen, one per
 // student per lesson, editable.
 model LessonFeedback {
   id        String   @id @default(cuid())
@@ -634,7 +638,7 @@ model SavingsDeposit {
 // ── Practice challenges ──────────────────────────────────────────────────
 // The 30-day money habit challenge and the shorter saving challenges
 // (definitions in src/lib/challenges). One step per calendar day; missed
-// days are never punished — you simply continue where you left off.
+// days are never punished, you simply continue where you left off.
 
 model ChallengeEnrollment {
   id          String             @id @default(cuid())
@@ -656,7 +660,7 @@ model ChallengeCheckIn {
   user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   // Which step (1 = the first).
   stepNumber   Int
-  // The IST day it was done — one step per day per challenge.
+  // The IST day it was done, one step per day per challenge.
   day          String
   // The student's pick for a step that asks a question, if any.
   choice       Int?
@@ -693,7 +697,7 @@ model AvatarEvent {
 // ── InvestSmart virtual portfolio ───────────────────────────────────────
 // Practice money only: every student starts with virtual ₹1,00,000, invests
 // it in a few simple options and fast-forwards simulated months. Returns are
-// simulated on the server from a fixed seed (src/lib/invest) — illustrative,
+// simulated on the server from a fixed seed (src/lib/invest), illustrative,
 // not real market data, and never advice.
 model VirtualPortfolio {
   id         String             @id @default(cuid())

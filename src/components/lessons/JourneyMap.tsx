@@ -9,7 +9,7 @@ import { LevelIllustration, TrophyIllustration } from "@/components/ui/illustrat
 // The learning path as a journey: one road through the four levels, a stop
 // per lesson, a marker (with its illustration) where each level begins, and
 // the trophy at the end. The road fills in green up to where the student is.
-// Levels open in order — stops in a locked level are shown but can't be
+// Levels open in order, stops in a locked level are shown but can't be
 // opened (the server enforces it too).
 
 export type MapLesson = {

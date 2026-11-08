@@ -7,7 +7,7 @@ import type { MoneyMonth } from "./money";
 // month, it's about their own numbers instead.
 //
 // The no-repeats rule: these are facts NO lesson, daily question or challenge
-// already teaches — mostly money rights and money trivia, each checkable
+// already teaches, mostly money rights and money trivia, each checkable
 // against its source. `npm test` checks them against everything else.
 
 export type MoneyFact = { id: string; text: string; source?: string; href?: string; cta?: string };
@@ -15,7 +15,7 @@ export type MoneyFact = { id: string; text: string; source?: string; href?: stri
 export const MONEY_FACTS: MoneyFact[] = [
   {
     id: "failed-upi-compensation",
-    text: "If a UPI payment fails but your account is debited, the bank must reverse it by the next working day — or pay you ₹100 for every day it's late.",
+    text: "If a UPI payment fails but your account is debited, the bank must reverse it by the next working day, or pay you ₹100 for every day it's late.",
     source: "RBI turnaround-time rules for failed transactions",
   },
   {
@@ -24,12 +24,12 @@ export const MONEY_FACTS: MoneyFact[] = [
   },
   {
     id: "card-controls",
-    text: "You can switch your debit or credit card's online, international and contactless use on or off — and set your own limits — in your bank's app.",
+    text: "You can switch your debit or credit card's online, international and contactless use on or off, and set your own limits, in your bank's app.",
     source: "RBI card-security rules",
   },
   {
     id: "free-credit-report",
-    text: "You're entitled to one free full credit report a year from every credit bureau in India — CIBIL is just one of them.",
+    text: "You're entitled to one free full credit report a year from every credit bureau in India: CIBIL is just one of them.",
     source: "RBI",
   },
   {
@@ -48,17 +48,17 @@ export const MONEY_FACTS: MoneyFact[] = [
   },
   {
     id: "udgam",
-    text: "Money left untouched in a bank account for 10 years becomes an “unclaimed deposit” — but it's still yours. RBI's UDGAM portal helps families find it.",
+    text: "Money left untouched in a bank account for 10 years becomes an “unclaimed deposit”, but it's still yours. RBI's UDGAM portal helps families find it.",
     source: "RBI UDGAM",
   },
   {
     id: "failed-atm-compensation",
-    text: "ATM didn't give you cash but debited your account? The bank must reverse it within five days — after that, it owes you ₹100 a day.",
+    text: "ATM didn't give you cash but debited your account? The bank must reverse it within five days. After that, it owes you ₹100 a day.",
     source: "RBI turnaround-time rules for failed transactions",
   },
   {
     id: "torn-notes",
-    text: "Torn or soiled notes can be exchanged at bank branches, free of charge — you don't have to tape them up and hope a shopkeeper takes them.",
+    text: "Torn or soiled notes can be exchanged at bank branches, free of charge. You don't have to tape them up and hope a shopkeeper takes them.",
     source: "RBI note refund rules",
   },
   {
@@ -73,7 +73,7 @@ export const MONEY_FACTS: MoneyFact[] = [
   },
   {
     id: "senior-fd-rates",
-    text: "Many banks pay senior citizens 0.25–0.5% extra on fixed deposits — worth knowing when your grandparents ask where to keep their savings.",
+    text: "Many banks pay senior citizens 0.25–0.5% extra on fixed deposits, worth knowing when your grandparents ask where to keep their savings.",
   },
   {
     id: "two-thousand-note",
@@ -90,7 +90,7 @@ export function moneyFactFor(day: string, month?: MoneyMonth): MoneyFact {
     if (topWant) {
       return {
         id: "personal-top-want",
-        text: `${rupees(topWant.amount)} on ${topWant.label.toLowerCase()} this month — that's about ${Math.floor(topWant.amount / 15).toLocaleString("en-IN")} cutting chais at ₹15 each.`,
+        text: `${rupees(topWant.amount)} on ${topWant.label.toLowerCase()} this month. That's about ${Math.floor(topWant.amount / 15).toLocaleString("en-IN")} cutting chais at ₹15 each.`,
         href: "/money#report",
         cta: "See your spending",
       };

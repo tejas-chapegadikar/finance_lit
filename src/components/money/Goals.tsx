@@ -29,10 +29,10 @@ const GOAL_LABELS: Record<GoalIconKey, string> = {
 
 const formatDay = (day: string) => new Date(`${day}T00:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 
-/** “About ₹X a month to get there on time” — from the amount left and the target date. */
+/** “About ₹X a month to get there on time”, from the amount left and the target date. */
 function perMonthHint(left: number, targetDay: string, today: string) {
   const days = Math.round((Date.parse(`${targetDay}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 864e5);
-  if (days <= 0) return "The target date has passed — pick a new one or keep going.";
+  if (days <= 0) return "The target date has passed. Pick a new one or keep going.";
   const months = Math.max(1, Math.round(days / 30.4));
   return months <= 1 ? `About ${rupees(left)} more in the next ${days} days` : `About ${rupees(Math.ceil(left / months))} a month to get there on time`;
 }
@@ -57,8 +57,8 @@ export function GoalCard({ goal }: { goal: GoalView }) {
             setCelebrate(true);
             setMessage(
               result.goalXp
-                ? `Goal reached! +${result.goalXp} XP. Treat yourself — responsibly.`
-                : "Goal reached! Treat yourself — responsibly. (Goal XP goes to goals of ₹500+ that are a week old, one a month.)",
+                ? `Goal reached! +${result.goalXp} XP. Treat yourself, responsibly.`
+                : "Goal reached! Treat yourself, responsibly. (Goal XP goes to goals of ₹500+ that are a week old, one a month.)",
             );
           } else {
             setMessage(sign > 0 ? `${rupees(value)} saved. Future you is impressed.` : `${rupees(value)} taken out.`);

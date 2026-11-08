@@ -3,7 +3,7 @@ import { rupees } from "../money/categories";
 import { budgetAlerts, projectSpending, type MoneyMonth, type TrendPoint } from "../money/calc";
 
 // The avatar's money roast: what it says about YOUR money, worked out from
-// the transactions you've logged — never random. One rule wins, in this
+// the transactions you've logged, never random. One rule wins, in this
 // order: nothing logged yet → three weeks over budget in a row → over the
 // monthly budget → one category eating the month (food, shopping, fun) →
 // saving a lot → close to the budget → a healthy month. Each rule has a few
@@ -42,7 +42,7 @@ export function moneyRoast({ month: m, weekly, name }: RoastInput): Roast {
       lines: [
         "Your wallet is a mystery novel. Log one spend and let's start the investigation.",
         `${name}, zero entries. Either you spend nothing, or you're hiding something. I know which one.`,
-        "Add your pocket money and one expense — I promise to roast responsibly.",
+        "Add your pocket money and one expense. I promise to roast responsibly.",
       ],
     };
   }
@@ -89,7 +89,7 @@ export function moneyRoast({ month: m, weekly, name }: RoastInput): Roast {
         expression: "shocked",
         lines: [
           "Bro, are you managing your finances or sponsoring the entire restaurant?",
-          `${rupees(food)} on food — ${pct(food, m.spent)}% of everything you spent. The delivery apps send their regards.`,
+          `${rupees(food)} on food, ${pct(food, m.spent)}% of everything you spent. The delivery apps send their regards.`,
           `${name}, your stomach has a bigger budget than your future. Mess food exists, I hear.`,
         ],
       };
@@ -113,7 +113,7 @@ export function moneyRoast({ month: m, weekly, name }: RoastInput): Roast {
         expression: "sleepy",
         lines: [
           "Netflix is getting richer, and you're getting poorer.",
-          `${rupees(fun)} on entertainment. You're basically a shareholder in fun now — minus the returns.`,
+          `${rupees(fun)} on entertainment. You're basically a shareholder in fun now, minus the returns.`,
           `${name}, ${pct(fun, m.spent)}% of your money went to entertainment. At least the plot twists were good?`,
         ],
       };
@@ -127,7 +127,7 @@ export function moneyRoast({ month: m, weekly, name }: RoastInput): Roast {
       expression: "celebrating",
       lines: [
         "Okay, financial genius! Didn't expect this level of responsibility from you.",
-        `${pct(m.income - m.spent, m.income)}% of your money is still with you. Who taught you this? Oh right — me.`,
+        `${pct(m.income - m.spent, m.income)}% of your money is still with you. Who taught you this? Oh right, me.`,
         `${name}, you're saving like a pro. I'm proud and slightly suspicious.`,
       ],
     };
@@ -153,7 +153,7 @@ export function moneyRoast({ month: m, weekly, name }: RoastInput): Roast {
       tone: "warn",
       expression: "confused",
       lines: [
-        `At this pace you'll spend about ${rupees(projected)} — more than came in. The month is longer than your money.`,
+        `At this pace you'll spend about ${rupees(projected)}, more than came in. The month is longer than your money.`,
         "The maths says the money runs out before the month does. Let's not prove the maths right.",
       ],
     };
@@ -164,7 +164,7 @@ export function moneyRoast({ month: m, weekly, name }: RoastInput): Roast {
     tone: "praise",
     expression: "happy",
     lines: [
-      "Spending looks balanced. I'm almost disappointed — I had roasts ready.",
+      "Spending looks balanced. I'm almost disappointed. I had roasts ready.",
       `${name}, this is a healthy month. Keep logging and I'll keep the jokes gentle.`,
       "No disasters detected. Suspicious, but I'll allow it.",
     ],

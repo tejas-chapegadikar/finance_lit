@@ -26,7 +26,7 @@ export async function recordLessonView(lessonId: string) {
       create: { userId: user.id, lessonId },
       update: {},
     }),
-    // When the student was last active — kept for Day-7 / Day-30 retention.
+    // When the student was last active, kept for Day-7 / Day-30 retention.
     db.user.update({ where: { id: user.id }, data: { lastActivityDate: new Date() } }),
   ]);
 }

@@ -1,7 +1,7 @@
 // Public details shown on the landing page, legal pages and app footer.
 
 // Where students and visitors can reach the team. The mailbox must exist
-// before launch — it's printed in the Privacy Policy and Terms.
+// before launch, it's printed in the Privacy Policy and Terms.
 export const CONTACT_EMAIL = "hello@stockstreak.in";
 
 export const LEGAL_LAST_UPDATED = "4 November 2026";

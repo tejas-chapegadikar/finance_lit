@@ -1,11 +1,11 @@
 // Practice challenges: the 30-day money habit challenge and shorter saving
 // challenges. Ids and step order are permanent once live (check-ins store
-// step numbers) — reword freely, but don't reorder or delete steps.
+// step numbers), reword freely, but don't reorder or delete steps.
 //
 // A step is one small thing for one day:
-//   "do"   — the student does it and taps "Done" (we trust them)
-//   "log"  — needs today's money check-in in Money Manager first
-//   "quiz" — a quick question; any answer completes it, the explanation teaches
+//   "do", the student does it and taps "Done" (we trust them)
+//   "log", needs today's money check-in in Money Manager first
+//   "quiz", a quick question; any answer completes it, the explanation teaches
 //
 // The no-repeats rule applies here too: a step never re-asks a lesson's quiz
 // question. When a day is about a concept a lesson teaches, the step sends the
@@ -61,7 +61,7 @@ export const HABIT_CHALLENGE: Challenge = {
     // ── Week 1 · Understand your spending
     {
       title: "Meet your money",
-      body: "You can't fix what you can't see. No judgement here — just numbers.",
+      body: "You can't fix what you can't see. No judgement here, just numbers.",
       task: "Add this month's pocket money, stipend or salary in Money Manager.",
       kind: "log",
       link: MONEY,
@@ -75,7 +75,7 @@ export const HABIT_CHALLENGE: Challenge = {
     },
     {
       title: "Your fixed costs",
-      body: "Rent, mess, recharge, bus pass — the things you pay every month whether you think about them or not. They're the floor your budget stands on.",
+      body: "Rent, mess, recharge, bus pass: the things you pay every month whether you think about them or not. They're the floor your budget stands on.",
       task: "Write down your fixed monthly costs, and log any you haven't added this month.",
       kind: "do",
       link: MONEY,
@@ -90,7 +90,7 @@ export const HABIT_CHALLENGE: Challenge = {
     {
       title: "Autopilot spends",
       body: "Most impulse spends have a trigger: boredom, stress, a friend's story, 11 pm scrolling. Knowing yours is half the fix.",
-      task: "Notice one spend today that happened on autopilot — and write down what triggered it.",
+      task: "Notice one spend today that happened on autopilot, and write down what triggered it.",
       kind: "do",
     },
     {
@@ -102,7 +102,7 @@ export const HABIT_CHALLENGE: Challenge = {
     },
     {
       title: "Week 1 review",
-      body: "A week of data is enough to see patterns — weekends, late nights, payday splurges.",
+      body: "A week of data is enough to see patterns: weekends, late nights, payday splurges.",
       task: "Read your insights and note one pattern you didn't expect.",
       kind: "do",
       link: INSIGHTS,
@@ -117,7 +117,7 @@ export const HABIT_CHALLENGE: Challenge = {
     },
     {
       title: "Unsubscribe day",
-      body: "Subscriptions are designed to be forgotten. ₹149 here, ₹199 there — it adds up to thousands a year.",
+      body: "Subscriptions are designed to be forgotten. ₹149 here, ₹199 there. It adds up to thousands a year.",
       task: "List your subscriptions and cancel one you haven't used this month.",
       kind: "do",
     },
@@ -149,7 +149,7 @@ export const HABIT_CHALLENGE: Challenge = {
     },
     {
       title: "Leak check",
-      body: "Two weeks in. Compare today with day 2 — has anything shifted?",
+      body: "Two weeks in. Compare today with day 2. Has anything shifted?",
       task: "Log today's spending and compare it with the start of the challenge.",
       kind: "log",
       link: MONEY,
@@ -157,7 +157,7 @@ export const HABIT_CHALLENGE: Challenge = {
     // ── Week 3 · Build a saving habit
     {
       title: "Pay yourself first",
-      body: "Saving what's left at the end of the month rarely works — there's never anything left. Save first, spend the rest.",
+      body: "Saving what's left at the end of the month rarely works. There's never anything left. Save first, spend the rest.",
       task: "Create a savings goal in Money Manager. Even ₹500 counts.",
       kind: "do",
       link: GOALS,
@@ -171,7 +171,7 @@ export const HABIT_CHALLENGE: Challenge = {
     },
     {
       title: "Pick your saving day",
-      body: "Habits stick when they're automatic. The best day to save is the day money arrives — before anything else can claim it.",
+      body: "Habits stick when they're automatic. The best day to save is the day money arrives, before anything else can claim it.",
       task: "Choose a fixed saving day each month (the day your money lands) and set a phone reminder for it.",
       kind: "do",
     },
@@ -206,14 +206,14 @@ export const HABIT_CHALLENGE: Challenge = {
     // ── Week 4 · Understand investing
     {
       title: "Why money has to grow",
-      body: "Saving keeps money safe. But prices rise every year — so money that only sits still slowly buys less.",
+      body: "Saving keeps money safe. But prices rise every year, so money that only sits still slowly buys less.",
       task: "Finish the inflation lesson (quiz included), then estimate what your monthly costs might be in 10 years.",
       kind: "do",
       link: lesson("inflation-purchasing-power", "Open the lesson"),
     },
     {
       title: "Meet compounding",
-      body: "Compounding is growth on growth. It feels slow at first — then it doesn't.",
+      body: "Compounding is growth on growth. It feels slow at first, then it doesn't.",
       task: "Open the simulator and try ₹1,000 a month for 10 years.",
       kind: "do",
       link: SIMULATOR,
@@ -227,14 +227,14 @@ export const HABIT_CHALLENGE: Challenge = {
     },
     {
       title: "Inflation in your life",
-      body: "Official inflation is an average. Yours depends on what you buy — rent, food, data, travel.",
+      body: "Official inflation is an average. Yours depends on what you buy: rent, food, data, travel.",
       task: "Find one thing you buy regularly whose price went up in the last year, and work out by what percentage.",
       kind: "do",
     },
     {
       title: "How the market works",
-      body: "Exchanges, SEBI, demat accounts, the Sensex — the words everyone uses and few explain.",
-      task: "Learn how exchanges, SEBI and demat accounts fit together — then find today's Nifty 50 level in the news.",
+      body: "Exchanges, SEBI, demat accounts, the Sensex: the words everyone uses and few explain.",
+      task: "Learn how exchanges, SEBI and demat accounts fit together, then find today's Nifty 50 level in the news.",
       kind: "do",
       link: lesson("how-stock-market-works", "Open the lesson"),
     },
@@ -248,7 +248,7 @@ export const HABIT_CHALLENGE: Challenge = {
     {
       title: "Your investing rules",
       body: "Rules you write when you're calm protect you when markets aren't.",
-      task: "Write three personal investing rules — for example: emergency buffer first; only money I won't need for 5+ years; no tips from strangers.",
+      task: "Write three personal investing rules, for example: emergency buffer first; only money I won't need for 5+ years; no tips from strangers.",
       kind: "do",
     },
     {
@@ -273,11 +273,11 @@ function repeat(count: number, make: (day: number) => ChallengeStep): ChallengeS
 }
 
 const DELIVERY_TIPS = [
-  "Day one is the hardest. Tell a friend you're doing this — it's easier with a witness.",
-  "Hungry at midnight? Keep Maggi, fruit or peanut butter around — the cheapest delivery is your own shelf.",
+  "Day one is the hardest. Tell a friend you're doing this. It's easier with a witness.",
+  "Hungry at midnight? Keep Maggi, fruit or peanut butter around. The cheapest delivery is your own shelf.",
   "Mess food is already paid for. Skipping it to order in is paying twice.",
   "Plan tomorrow's dinner tonight. Decisions made hungry are expensive.",
-  "Cook with friends — split the groceries, skip the fees.",
+  "Cook with friends, split the groceries, skip the fees.",
   "Craving it anyway? Pick it up yourself and skip the delivery charges.",
   "Last day. Check Money Manager: how much did eating out cost this week compared with last?",
 ];
@@ -289,14 +289,14 @@ const JAR_TIPS = [
   "Name the jar after what it's for. “Goa fund” is harder to raid than “jar”.",
   "Missed yesterday? Just do today's ₹20. No catching up, no guilt.",
   "Tell a friend you're doing this. Better: get them to start a jar too.",
-  "A week in — ₹140 saved. That's a movie ticket you didn't have to find later.",
+  "A week in, ₹140 saved. That's a movie ticket you didn't have to find later.",
   "Paid by UPI all day? Transfer ₹20 to your savings goal before bed.",
   "Halfway point. Notice how ₹20 doesn't feel like a loss any more?",
   "Got change from a cash payment? Coins count. Into the jar.",
-  "Try skipping one small spend today — and see if you can drop that in too.",
+  "Try skipping one small spend today, and see if you can drop that in too.",
   "Twelve days in. Saving ₹20 is starting to feel normal, isn't it?",
   "Tomorrow's the last day. Decide now where the money goes next.",
-  "That's ₹280 saved — and a habit. Keep going and it's over ₹7,000 a year.",
+  "That's ₹280 saved, and a habit. Keep going and it's over ₹7,000 a year.",
 ];
 
 const IMPULSE_TIPS = [
@@ -304,7 +304,7 @@ const IMPULSE_TIPS = [
   "Unfollow one shopping account that always makes you want things.",
   "Move one shopping app off your home screen. Out of sight, out of cart.",
   "Remove a saved card from one app. A little friction saves a lot.",
-  "Final stretch. Add up what you didn't buy — it's all still in your account.",
+  "Final stretch. Add up what you didn't buy. It's all still in your account.",
 ];
 
 export const SAVING_CHALLENGES: Challenge[] = [
@@ -329,7 +329,7 @@ export const SAVING_CHALLENGES: Challenge[] = [
     kind: "saving",
     title: "₹20-a-day jar",
     tagline: "One chai's worth, saved daily.",
-    summary: "Put ₹20 aside every day for 14 days — ₹280 that would otherwise vanish. Track it in a savings goal.",
+    summary: "Put ₹20 aside every day for 14 days: ₹280 that would otherwise vanish. Track it in a savings goal.",
     icon: "jar",
     stepXp: 5,
     finishXp: 30,
@@ -353,7 +353,7 @@ export const SAVING_CHALLENGES: Challenge[] = [
     steps: repeat(5, (d) => ({
       title: `Day ${d}: wait 24 hours`,
       body: IMPULSE_TIPS[d - 1],
-      task: "No impulse buys today — anything non-essential waits 24 hours.",
+      task: "No impulse buys today. Anything non-essential waits 24 hours.",
       kind: "do",
     })),
   },

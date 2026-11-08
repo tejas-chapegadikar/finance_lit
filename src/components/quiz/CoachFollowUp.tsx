@@ -49,7 +49,7 @@ export function CoachFollowUp({
           setDraft("");
         }
         if (result.status === "unavailable") setNotice(result.message);
-        if (result.status === "limit") setNotice("That's the follow-ups for this question — revisit the lesson for more.");
+        if (result.status === "limit") setNotice("That's the follow-ups for this question. Revisit the lesson for more.");
         if (result.status === "slow-down") setNotice(SLOW_DOWN_MESSAGE);
       } catch {
         setNotice(GENERIC_ERROR_MESSAGE);
@@ -79,7 +79,7 @@ export function CoachFollowUp({
         </h2>
       </div>
       <p className="mt-2 text-xs text-slate-600">
-        Plain-language help with this question — not personal financial advice. Please don&apos;t share personal details.
+        Plain-language help with this question, not personal financial advice. Please don&apos;t share personal details.
       </p>
 
       {history.length > 0 && (
@@ -135,7 +135,7 @@ export function CoachFollowUp({
           </p>
         </>
       ) : (
-        <p className="mt-3 text-sm font-semibold text-slate-700">That&apos;s the follow-ups for this question — revisit the lesson for more.</p>
+        <p className="mt-3 text-sm font-semibold text-slate-700">That&apos;s the follow-ups for this question. Revisit the lesson for more.</p>
       )}
 
       {isPending && (

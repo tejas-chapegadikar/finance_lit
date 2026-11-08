@@ -1,6 +1,6 @@
 // The maths behind the compound interest simulator and the money insights.
 // Pure and client-safe. Contributions go in at the start of each month and
-// grow at the assumed yearly rate compounded monthly — the same convention
+// grow at the assumed yearly rate compounded monthly, the same convention
 // the SIP lesson uses. Assumed returns are illustrations, never promises.
 
 export type GrowthPoint = { year: number; invested: number; value: number };

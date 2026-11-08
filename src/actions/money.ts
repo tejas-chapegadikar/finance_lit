@@ -20,10 +20,10 @@ import { EXPENSE_IDS, GOAL_ICONS, INCOME_IDS, MAX_ENTRY, MAX_GOAL } from "@/lib/
 // Money Manager actions. Every one checks the signed-in student, validates
 // its input here (never trusting the browser), and only touches that
 // student's own rows. Checking in on your money once a day pays a little XP
-// and counts toward the streak — logging more doesn't pay more.
+// and counts toward the streak, logging more doesn't pay more.
 
 const ACTIVE_GOAL_LIMIT = 6;
-// Entries can be back-dated, but not by more than this — and only today's
+// Entries can be back-dated, but not by more than this, and only today's
 // entries count as today's check-in.
 const MAX_BACKDATE_DAYS = 60;
 
@@ -59,7 +59,7 @@ async function checkIn(tx: Prisma.TransactionClient, userId: string, day: string
 const entrySchema = z
   .object({
     kind: z.enum(["INCOME", "EXPENSE"]),
-    amount: z.coerce.number({ message: "Enter an amount" }).int("Use whole rupees").min(1, "Enter an amount above ₹0").max(MAX_ENTRY, "That's more than ₹10 lakh — double-check the amount"),
+    amount: z.coerce.number({ message: "Enter an amount" }).int("Use whole rupees").min(1, "Enter an amount above ₹0").max(MAX_ENTRY, "That's more than ₹10 lakh, double-check the amount"),
     category: z.string(),
     note: z.string().trim().max(80, "Keep the note under 80 characters").optional(),
     day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date"),
@@ -177,7 +177,7 @@ export async function deleteMoneyEntry(entryId: string): Promise<{ status: "dele
 
 export type NoSpendResult = { status: "checked-in"; checkInXp: number } | { status: "already" | "has-spends" } | Fail;
 
-/** "I spent nothing today" — today's check-in without an entry. */
+/** "I spent nothing today", today's check-in without an entry. */
 export async function markNoSpendDay(): Promise<NoSpendResult> {
   const user = await requireOnboardedUser();
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };
@@ -248,7 +248,7 @@ export async function createSavingsGoal(input: { name: string; icon: string; tar
   if (!parsed.success) return { status: "invalid", message: parsed.error.issues[0]?.message ?? "Please check the goal" };
   if (parsed.data.targetDay && parsed.data.targetDay < istDay()) return { status: "invalid", message: "Pick a date in the future" };
   const active = await db.savingsGoal.count({ where: { userId: user.id, completedAt: null } });
-  if (active >= ACTIVE_GOAL_LIMIT) return { status: "invalid", message: `You can have up to ${ACTIVE_GOAL_LIMIT} goals going at once — finish or remove one first` };
+  if (active >= ACTIVE_GOAL_LIMIT) return { status: "invalid", message: `You can have up to ${ACTIVE_GOAL_LIMIT} goals going at once. Finish or remove one first` };
 
   await db.savingsGoal.create({
     data: { userId: user.id, name: parsed.data.name, icon: parsed.data.icon, target: parsed.data.target, targetDay: parsed.data.targetDay ?? null },
@@ -278,7 +278,7 @@ async function awardGoalXp(tx: Prisma.TransactionClient, userId: string, goal: {
   });
 }
 
-/** Adds money to a goal — or takes it out, with a negative amount (never below ₹0). */
+/** Adds money to a goal, or takes it out, with a negative amount (never below ₹0). */
 export async function addToSavingsGoal(goalId: string, amountInput: number | string): Promise<DepositResult> {
   const user = await requireOnboardedUser();
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };

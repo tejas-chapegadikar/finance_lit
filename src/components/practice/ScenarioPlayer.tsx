@@ -39,7 +39,7 @@ export function ScenarioPlayer({ scenario, xpReward, firstRun }: { scenario: Pub
             <StarIcon className="h-4 w-4 text-orange-500" /> +{completion.xpAwarded} XP for your first run
           </p>
         ) : (
-          <p className="mt-4 text-sm text-slate-500">Replays don&apos;t earn XP — but they&apos;re great practice.</p>
+          <p className="mt-4 text-sm text-slate-500">Replays don&apos;t earn XP, but they&apos;re great practice.</p>
         )}
         {completion.newBadges.map((badge) => (
           <p key={badge.id} className="mt-3 inline-flex animate-pop items-center gap-2 rounded-full bg-orange-50 px-3.5 py-1 text-sm font-semibold text-orange-900 ring-1 ring-orange-100">

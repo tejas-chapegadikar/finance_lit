@@ -16,7 +16,7 @@ export function dueDayFor(stage: number, from = istDay()): string {
   return shiftDay(from, REVISION_INTERVALS[Math.min(stage, FINAL_STAGE)]);
 }
 
-/** "tomorrow" / "in 3 days" — when an item at `stage` comes back. */
+/** "tomorrow" / "in 3 days", when an item at `stage` comes back. */
 export function whenDue(stage: number): string {
   const days = REVISION_INTERVALS[Math.min(stage, FINAL_STAGE)];
   return days === 1 ? "tomorrow" : `in ${days} days`;
@@ -26,14 +26,14 @@ export function whenDue(stage: number): string {
 export function coachCheckNote(isCorrect: boolean): string {
   return isCorrect
     ? `We'll check it once more ${whenDue(1)}.`
-    : `No worries — this one comes back ${whenDue(0)} in Revision.`;
+    : `No worries. This one comes back ${whenDue(0)} in Revision.`;
 }
 
 type Answer = { questionId: string; tryNumber: number; isCorrect: boolean };
 
 /**
  * After a quiz is completed: every question the student didn't get right
- * first time is scheduled for revision tomorrow — unless the AI Coach's check
+ * first time is scheduled for revision tomorrow, unless the AI Coach's check
  * during this attempt already scheduled it. A first completion also gets a
  * 7-day retention check on a question they got right.
  */
@@ -139,7 +139,7 @@ export const MASTERY_META: Record<MasteryStatus, { label: string; className: str
   provisional: {
     label: "Provisional mastery",
     className: "bg-brand-100 text-brand-800",
-    rule: "You've learned it — a check in a few days will confirm it stuck.",
+    rule: "You've learned it. A check in a few days will confirm it stuck.",
   },
   retained: {
     label: "Retained",
@@ -149,7 +149,7 @@ export const MASTERY_META: Record<MasteryStatus, { label: string; className: str
 };
 
 /**
- * Topic mastery per lesson, from clear rules — never from XP:
+ * Topic mastery per lesson, from clear rules, never from XP:
  * not completed → not started; a revision item due now → needs revision;
  * an open item from a mistake → practising; only the retention check left
  * (or nothing scheduled yet) → provisional; everything passed → retained.

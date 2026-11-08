@@ -13,11 +13,11 @@ import { XIcon } from "@/components/ui/icons";
 import { Avatar } from "./Avatar";
 import { hubSay, subscribeBuddy, type BuddyMessage } from "./buddy-store";
 
-// The student's avatar, peeking up from the bottom edge of the screen — only
+// The student's avatar, peeking up from the bottom edge of the screen, only
 // the top of its head shows until it has something to say. Then it rises
 // with a speech bubble. What it says, in order:
 //   1. real events from the server (a lesson finished, a budget crossed…),
-//      one per real action, never twice — milestones first;
+//      one per real action, never twice, milestones first;
 //   2. the page's own line (e.g. a roast worked out from your real spending);
 //   3. a line for the page you're on.
 // Click it and it pops up with something new. It waits while you're typing,
@@ -41,7 +41,7 @@ const write = (key: string, value: string, kind: "local" | "session" = "local") 
   try {
     store(kind)?.setItem(key, value);
   } catch {
-    /* private mode — fine */
+    /* private mode, fine */
   }
 };
 
@@ -231,7 +231,7 @@ export function AvatarBuddy({ events, avatar, name, enabled }: { events: Pending
       <button
         type="button"
         onClick={poke}
-        aria-label={`${name}'s avatar — click for a comment`}
+        aria-label={`${name}'s avatar, click for a comment`}
         className={`pointer-events-auto relative h-32 shrink-0 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] sm:h-40 ${position}`}
       >
         {talk?.celebrate && <Burst />}

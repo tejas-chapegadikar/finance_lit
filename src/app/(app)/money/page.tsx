@@ -20,7 +20,7 @@ import { BuddyLine } from "@/components/avatar/BuddyLine";
 import { moneyRoast } from "@/lib/avatar/roast";
 import { avatarName, readAvatar } from "@/lib/avatar";
 
-export const metadata: Metadata = { title: "Money Manager — StockStreak" };
+export const metadata: Metadata = { title: "Money Manager | StockStreak" };
 
 const dayLabel = (day: string, today: string) =>
   day === today
@@ -36,7 +36,7 @@ const TYPES = [
 ] as const;
 
 // Money Manager: what comes in, what goes out, where it goes, and what it
-// could become. Your own numbers, private to you — every query is scoped to
+// could become. Your own numbers, private to you, every query is scoped to
 // the signed-in student, and nothing here is sample data.
 export default async function MoneyPage(props: PageProps<"/money">) {
   const user = await requireOnboardedUser();
@@ -62,7 +62,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
   const budgetUsed = m.totalBudget ? Math.round((m.spent / m.totalBudget) * 100) : null;
   const savedTotal = goals.reduce((sum, g) => sum + g.saved, 0);
 
-  // What your avatar makes of this month — worked out from your own transactions.
+  // What your avatar makes of this month, worked out from your own transactions.
   const roast = moneyRoast({ month: m, weekly: trends.weekly, name: avatarName(user) });
 
   const shown = m.entries.filter(
@@ -88,7 +88,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
       <PageHeader
         eyebrow={`Money Manager · ${m.label}`}
         title="Where your money actually goes"
-        description="Log what comes in and what goes out. We'll do the maths — and, gently, the roasting."
+        description="Log what comes in and what goes out. We'll do the maths, and, gently, the roasting."
         aside={
           <nav aria-label="Month" className="flex items-center gap-1 text-sm">
             <Link href={`/money?month=${shiftMonth(month, -1)}`} className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900">
@@ -107,7 +107,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
           stats={[
             { label: "Income", value: rupees(m.income) },
             { label: "Expenses", value: rupees(m.spent) },
-            { label: "Available balance", value: m.income ? rupees(left) : "—", tone: m.income ? (left < 0 ? "text-rose-700" : "text-emerald-700") : undefined },
+            { label: "Available balance", value: m.income ? rupees(left) : "-", tone: m.income ? (left < 0 ? "text-rose-700" : "text-emerald-700") : undefined },
             { label: "Total savings", value: rupees(savedTotal) },
           ]}
         />
@@ -142,7 +142,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
             {alerts.map((a) => (
               <li key={a.id}>
                 <span className="font-semibold">{a.label}</span>:{" "}
-                {a.level === "over" ? `${rupees(a.spent - a.budget)} over its ${rupees(a.budget)} budget.` : `${a.pct}% used — ${rupees(a.budget - a.spent)} left of ${rupees(a.budget)}.`}
+                {a.level === "over" ? `${rupees(a.spent - a.budget)} over its ${rupees(a.budget)} budget.` : `${a.pct}% used, ${rupees(a.budget - a.spent)} left of ${rupees(a.budget)}.`}
               </li>
             ))}
           </ul>
@@ -232,7 +232,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
           Budgets
         </h2>
         <p className="mt-0.5 text-sm text-slate-600">
-          A budget isn&apos;t a ban — it&apos;s permission with a limit. Set one for the month, or for any category; we&apos;ll flag it at 80% and when it&apos;s over.
+          A budget isn&apos;t a ban. It&apos;s permission with a limit. Set one for the month, or for any category; we&apos;ll flag it at 80% and when it&apos;s over.
         </p>
         <div className="mt-4">
           {m.isCurrent ? (
@@ -247,7 +247,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
         <h2 id="goals-heading" className="text-2xl text-slate-900">
           Savings goals
         </h2>
-        <p className="mt-0.5 text-sm text-slate-600">Pay yourself first: give your savings a name, then feed it. Track money you set aside — it stays in your own account.</p>
+        <p className="mt-0.5 text-sm text-slate-600">Pay yourself first: give your savings a name, then feed it. Track money you set aside. It stays in your own account.</p>
         <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {goals.map((g) => (
             <GoalCard
@@ -307,7 +307,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
             </ul>
           </>
         )}
-        <p className="mt-4 text-xs text-slate-500">Only you can see your Money Manager. StockStreak never connects to your bank — you log what you choose.</p>
+        <p className="mt-4 text-xs text-slate-500">Only you can see your Money Manager. StockStreak never connects to your bank. You log what you choose.</p>
       </section>
     </div>
   );

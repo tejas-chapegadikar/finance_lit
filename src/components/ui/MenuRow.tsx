@@ -1,7 +1,7 @@
 import { ChevronRightIcon } from "./icons";
 
 // One row of a settings-style list: an icon tile, a label and a chevron.
-// Works on a <Link>, <a> or <button> — pass this as its className and
+// Works on a <Link>, <a> or <button>, pass this as its className and
 // render <MenuRowContent> inside.
 export const menuRowClass =
   "group flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition hover:bg-slate-50 focus-visible:bg-slate-50";

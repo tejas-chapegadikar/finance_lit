@@ -12,7 +12,7 @@ export function getScenario(slug: string): ScenarioDef | undefined {
 
 export const CORE_SCENARIOS = SCENARIOS.filter((scenario) => !scenario.bonus);
 
-/** Steps without answers, points or feedback — safe to send to the browser. */
+/** Steps without answers, points or feedback, safe to send to the browser. */
 export function publicSteps(steps: StepDef[]): PublicStep[] {
   return steps.map((step) => {
     if (step.kind === "allocate") {
@@ -23,7 +23,7 @@ export function publicSteps(steps: StepDef[]): PublicStep[] {
   });
 }
 
-/** The scenario without answers, points or feedback — safe to send to the browser. */
+/** The scenario without answers, points or feedback, safe to send to the browser. */
 export function publicScenario(def: ScenarioDef): PublicScenario {
   return { ...def, steps: publicSteps(def.steps) };
 }
@@ -69,7 +69,7 @@ export function evaluateStep(step: StepDef, answer: StepAnswer): StepResult {
   return { maxPoints: MAX_STEP_POINTS, ...step.evaluate(values) };
 }
 
-/** Scores a whole run — the server's own check before saving a completion. */
+/** Scores a whole run, the server's own check before saving a completion. */
 export function evaluateRun(def: { steps: StepDef[] }, answers: StepAnswer[]) {
   if (answers.length !== def.steps.length) throw new Error("Answer every step");
   const results = def.steps.map((step, i) => evaluateStep(step, answers[i]));
@@ -80,5 +80,5 @@ export function scoreLabel(score: number, max: number): string {
   const ratio = max ? score / max : 0;
   if (ratio >= 0.8) return "Smart moves! 🎉";
   if (ratio >= 0.5) return "Good start 👍";
-  return "Tricky one — try it again 💪";
+  return "Tricky one. Try it again 💪";
 }

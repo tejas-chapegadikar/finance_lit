@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { updateProfile } from "@/actions/profile";
-import { LEARNER_STAGES, LEARNING_GOALS } from "@/lib/learner-profile";
+import { LEARNER_STAGES } from "@/lib/learner-profile";
+import { GoalPicker } from "@/components/onboarding/GoalPicker";
 import { primaryButton } from "@/components/ui/button-styles";
 
 const inputClass =
@@ -13,14 +14,15 @@ export function ProfileForm({
   displayName,
   collegeName,
   stage,
-  goal,
+  goals: initialGoals,
 }: {
   displayName: string;
   collegeName: string;
   stage: string;
-  goal: string;
+  goals: string[];
 }) {
   const [state, formAction, isPending] = useActionState(updateProfile, {});
+  const [goals, setGoals] = useState(initialGoals.filter((g) => g !== "EVERYTHING"));
 
   useEffect(() => {
     if (state.success) {
@@ -77,20 +79,17 @@ export function ProfileForm({
           </select>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="goal" className="text-sm font-semibold text-slate-700">
-            Learning goal <span className="font-normal text-slate-600">(optional)</span>
-          </label>
-          <select id="goal" name="goal" defaultValue={goal} className={inputClass}>
-            <option value="">No particular goal</option>
-            {LEARNING_GOALS.map((g) => (
-              <option key={g.value} value={g.value}>
-                {g.label}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
+
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm font-semibold text-slate-700">
+          What you want to get better at <span className="font-normal text-slate-600">(pick as many as you like)</span>
+        </legend>
+        <GoalPicker value={goals} onChange={setGoals} compact />
+        {goals.map((g) => (
+          <input key={g} type="hidden" name="goals" value={g} />
+        ))}
+      </fieldset>
 
       {state.error && (
         <p role="alert" className="text-sm font-semibold text-rose-700">

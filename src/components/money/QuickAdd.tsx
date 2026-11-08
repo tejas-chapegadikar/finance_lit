@@ -62,7 +62,7 @@ export function QuickAdd({ today, minDay, checkedInToday, spentToday }: { today:
         const result = await markNoSpendDay();
         if (result.status === "checked-in") setMessage({ tone: "ok", text: `No-spend day logged. Your wallet is sending flowers · +${result.checkInXp} XP` });
         if (result.status === "already") setMessage({ tone: "ok", text: "You've already checked in today." });
-        if (result.status === "has-spends") setMessage({ tone: "error", text: "You've logged spends today, so it's not a no-spend day — and that's fine." });
+        if (result.status === "has-spends") setMessage({ tone: "error", text: "You've logged spends today, so it's not a no-spend day, and that's fine." });
         if (result.status === "slow-down") setMessage({ tone: "error", text: SLOW_DOWN_MESSAGE });
       } catch {
         setMessage({ tone: "error", text: GENERIC_ERROR_MESSAGE });

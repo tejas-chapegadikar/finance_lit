@@ -33,7 +33,7 @@ const PILLARS: {
     Icon: WalletIcon,
     eyebrow: "Money Management",
     title: "Find out where your money actually goes",
-    text: "Log what comes in and what goes out, set budgets, and watch your week and month on clear charts — then hear what your avatar thinks about it.",
+    text: "Log what comes in and what goes out, set budgets, and watch your week and month on clear charts, then hear what your avatar thinks about it.",
     points: [
       "Income, expenses and balance at a glance",
       "Budgets per category, with a heads-up before you overshoot",
@@ -51,7 +51,7 @@ const PILLARS: {
     Icon: BookIcon,
     eyebrow: "Money IQ",
     title: "The money lessons college forgot",
-    text: "Short lessons in four levels — budgeting, UPI safety, credit and CIBIL, payslips and tax — each with a quiz, real-life scenarios and revision that brings back what you missed.",
+    text: "Short lessons in four levels on budgeting, UPI safety, credit and CIBIL, payslips and tax. Each comes with a quiz, real-life scenarios and revision that brings back what you missed.",
     points: [
       "Five-minute lessons with real ₹ examples",
       "An AI Coach that hints before it tells",
@@ -71,10 +71,10 @@ const PILLARS: {
     title: "Practise investing with money that isn't real",
     text: "Start with ₹1,00,000 of virtual money. Spread it across FDs, gold, index funds or a single risky stock, fast-forward months or years, and see what risk really feels like.",
     points: [
-      "Virtual ₹1,00,000 — zero real risk",
+      "Virtual ₹1,00,000, zero real risk",
       "Fast-forward 1 month to 5 years",
       "See how diversifying changes the ride",
-      "Lessons on SIPs, index funds and compounding — no stock tips, ever",
+      "Lessons on SIPs, index funds and compounding. No stock tips, ever",
     ],
     tone: "bg-sky-50 text-sky-700 ring-sky-100",
     say: {
@@ -88,7 +88,7 @@ const HELPS: { Icon: Glyph; title: string; text: string }[] = [
   {
     Icon: WalletIcon,
     title: "Stop the month-end panic",
-    text: "See your spending early enough to change it — not after the money's gone.",
+    text: "See your spending early enough to change it, not after the money's gone.",
   },
   {
     Icon: ShieldIcon,
@@ -103,7 +103,7 @@ const HELPS: { Icon: Glyph; title: string; text: string }[] = [
   {
     Icon: FlameIcon,
     title: "Make it a habit",
-    text: "A streak, XP and an avatar that notices when you do well — and when you don't.",
+    text: "A streak, XP and an avatar that notices when you do well, and when you don't.",
   },
 ];
 
@@ -255,12 +255,12 @@ export default async function HomePage() {
                 Learn money before money teaches you <span className="bg-[linear-gradient(transparent_62%,var(--color-brand-200)_62%)]">the hard way.</span>
               </h1>
               <p className="max-w-lg text-lg leading-relaxed text-slate-600">
-                Track your spending, learn the money skills nobody teaches, and practise investing with virtual money — with an avatar buddy who cheers your
+                Track your spending, learn the money skills nobody teaches, and practise investing with virtual money, with an avatar buddy who cheers your
                 wins and roasts your food-delivery habit.
               </p>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Link href="/sign-up" className={`${primaryButton} group px-8 py-4 text-base`}>
-                  Get started — it&apos;s free
+                  Get started, it&apos;s free
                   <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-0.5" />
                 </Link>
                 <Link href="/sign-in" className={`${secondaryButton} px-8 py-4 text-base`}>
@@ -305,7 +305,7 @@ export default async function HomePage() {
               Manage it. Understand it. Grow it.
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-slate-600">
-              Everything a student needs to get good with money — and an avatar that reacts to every move you make.
+              Everything a student needs to get good with money, and an avatar that reacts to every move you make.
             </p>
           </Reveal>
 
@@ -427,7 +427,7 @@ export default async function HomePage() {
                 <p className="mt-3 max-w-xl text-lg text-white/70">Free to start. Two minutes to set up. Lifelong opinions about your spending.</p>
                 <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row md:items-start">
                   <Link href="/sign-up" className={`${lightButton} group px-8 py-4 text-base`}>
-                    Get started — it&apos;s free
+                    Get started, it&apos;s free
                     <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-0.5" />
                   </Link>
                   <Link href="/sign-in" className="rounded-xl px-4 py-2 font-semibold text-white/85 underline-offset-4 hover:text-white hover:underline">

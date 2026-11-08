@@ -6,7 +6,7 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supab
 //
 // Its only job is keeping the Supabase Auth session fresh: when the access
 // token is near expiry, Supabase refreshes it here and the new cookies go
-// back on the response. Route protection is NOT done here — every protected
+// back on the response. Route protection is NOT done here, every protected
 // page and action checks the user itself (src/lib/auth.ts), as the Next.js
 // docs recommend.
 export async function proxy(request: NextRequest) {

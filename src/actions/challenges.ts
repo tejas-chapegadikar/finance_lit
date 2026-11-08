@@ -111,7 +111,7 @@ export async function completeChallengeStep(challengeId: string, choice?: number
   return result;
 }
 
-/** Starts a finished challenge over — for practice; steps already paid don't pay again. */
+/** Starts a finished challenge over, for practice; steps already paid don't pay again. */
 export async function restartChallenge(challengeId: string): Promise<{ status: "restarted" | "not-finished" } | Fail> {
   const user = await requireOnboardedUser();
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };

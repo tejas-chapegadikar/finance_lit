@@ -17,8 +17,8 @@ const PRACTICE: Record<string, SeedPractice[]> = { ...CORE_PRACTICE, "loans-emis
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter });
 
-// Pre-V1 lessons that became a V1 lesson keep their row — and anyone's
-// progress on it — they're only renamed.
+// Pre-V1 lessons that became a V1 lesson keep their row, and anyone's
+// progress on it, they're only renamed.
 const RENAMED_SLUGS: Record<string, string> = {
   "saving-vs-spending-psychology": "saving-vs-spending",
   "upi-payment-safety": "upi-digital-payments",
@@ -129,7 +129,7 @@ async function seedLesson(data: SeedLesson) {
   });
 
   // Update questions and options in place, matched by position, so rerunning
-  // the seed keeps their ids — students' quiz answers, Coach hints and
+  // the seed keeps their ids, students' quiz answers, Coach hints and
   // revision schedules all point at them.
   const existing = await db.question.findMany({
     where: { lessonId: lesson.id },
@@ -225,7 +225,7 @@ async function main() {
     await seedDailyQuestion(question, i);
   }
   // Questions removed from the content (because they repeated a lesson) are
-  // hidden, not deleted — students' past answers still point at them.
+  // hidden, not deleted, students' past answers still point at them.
   const hidden = await db.dailyQuestion.updateMany({
     where: { id: { startsWith: "seed_", notIn: DAILY_QUESTIONS.map((q) => `seed_${q.key}`) }, isPublished: true },
     data: { isPublished: false },

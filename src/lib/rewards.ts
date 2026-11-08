@@ -2,7 +2,7 @@ import { AVATAR_ITEMS, AVATAR_SLOTS, type AvatarSlot } from "./avatar";
 
 // The XP Rewards Store catalogue. Kept free of Prisma imports so client
 // components can use it. XP stays a measure of learning: spending it never
-// lowers lifetime XP, badges or the readiness score — it only uses up the
+// lowers lifetime XP, badges or the readiness score, it only uses up the
 // "available to spend" balance (xpTotal - xpSpent). Everything is cosmetic
 // or extra practice: nothing bought gives an advantage.
 
@@ -81,7 +81,7 @@ export const REWARDS: Reward[] = [
     id: "scenario-no-cost-emi",
     kind: "scenario",
     name: "Bonus scenario: the \"no-cost\" EMI",
-    description: "A phone on EMI — work out what it really costs and whether it fits your stipend.",
+    description: "A phone on EMI: work out what it really costs and whether it fits your stipend.",
     icon: "📱",
     cost: 250,
     scenarioSlug: "no-cost-emi",
@@ -90,7 +90,7 @@ export const REWARDS: Reward[] = [
     id: "scenario-emergency",
     kind: "scenario",
     name: "Bonus scenario: an ₹8,000 emergency",
-    description: "A sudden medical bill — choose how to pay for it without falling into debt.",
+    description: "A sudden medical bill: choose how to pay for it without falling into debt.",
     icon: "🚑",
     cost: 250,
     scenarioSlug: "emergency-8000",
@@ -114,7 +114,7 @@ export function rewardForScenario(slug: string): Reward | undefined {
 
 /**
  * A bonus scenario opens once you've earned its XP in total (or bought it
- * earlier, when there was a store) — nothing is ever spent.
+ * earlier, when there was a store), nothing is ever spent.
  */
 export function bonusScenarioOpen(slug: string, xpTotal: number, owned: boolean): boolean {
   const reward = rewardForScenario(slug);
@@ -125,7 +125,7 @@ export function spendableXp(user: { xpTotal: number; xpSpent: number }): number 
   return Math.max(0, user.xpTotal - user.xpSpent);
 }
 
-/** The cheapest store item not owned yet — "your next reward". */
+/** The cheapest store item not owned yet, "your next reward". */
 export function nextReward(owned: Set<string>): Reward | null {
   return REWARDS.filter((r) => !owned.has(r.id)).sort((a, b) => a.cost - b.cost)[0] ?? null;
 }

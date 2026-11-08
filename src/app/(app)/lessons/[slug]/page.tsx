@@ -30,7 +30,7 @@ const STATUS_LABEL: Record<LessonStatus, string> = {
 export async function generateMetadata(props: PageProps<"/lessons/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
   const lesson = await db.lesson.findUnique({ where: { slug }, select: { title: true } });
-  return { title: lesson ? `${lesson.title} — StockStreak` : "Lesson — StockStreak" };
+  return { title: lesson ? `${lesson.title} | StockStreak` : "Lesson | StockStreak" };
 }
 
 export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
@@ -140,7 +140,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
             <LockIcon className="h-6 w-6" />
           </span>
           <h2 id="locked-heading" className="mt-4 text-2xl text-slate-900">
-            This lesson is in Level {level?.number} — {level?.title}
+            This lesson is in Level {level?.number}: {level?.title}
           </h2>
           <p className="mx-auto mt-1 max-w-md text-slate-600">
             {previous
@@ -305,7 +305,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
           </ul>
         )}
         <p className="mt-2 text-xs">
-          Examples use illustrative numbers — your own situation may differ. This is education, not personal financial advice.
+          Examples use illustrative numbers. Your own situation may differ. This is education, not personal financial advice.
         </p>
       </footer>
     </article>

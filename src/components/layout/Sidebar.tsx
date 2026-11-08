@@ -9,7 +9,7 @@ import { NAV_ITEMS, isActive } from "./nav-items";
 import { XPBadge } from "./XPBadge";
 import { SettingsIcon } from "@/components/ui/icons";
 
-/** Desktop navigation: the pillars and other destinations, Settings, XP and you — as your avatar. */
+/** Desktop navigation: the pillars and other destinations, Settings, XP and you, as your avatar. */
 export function Sidebar({
   xpTotal,
   displayName,

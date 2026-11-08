@@ -4,7 +4,7 @@ import { Logo } from "@/components/ui/Logo";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { primaryButton } from "@/components/ui/button-styles";
 
-// About, Contact and the legal pages — public, readable whether or not
+// About, Contact and the legal pages, public, readable whether or not
 // you're signed in.
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const userId = (await getAuthUser())?.id;

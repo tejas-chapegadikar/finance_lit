@@ -1,6 +1,6 @@
 import type { ScenarioDef } from "./types";
 
-// Numbers are illustrative — real stipends, card terms and payslips vary.
+// Numbers are illustrative, real stipends, card terms and payslips vary.
 
 const STIPEND_ESSENTIALS = 10_000;
 
@@ -11,9 +11,9 @@ const stipend: ScenarioDef = {
   area: "BUDGETING",
   minutes: 4,
   lessonSlug: "budgeting-basics",
-  summary: "Split an illustrative ₹15,000 stipend between essentials, savings and wants — then see how the month plays out.",
+  summary: "Split an illustrative ₹15,000 stipend between essentials, savings and wants, then see how the month plays out.",
   intro:
-    "You've landed a 3-month internship in Bengaluru with a **₹15,000 monthly stipend**. It's your money now — rent, food and everything else.",
+    "You've landed a 3-month internship in Bengaluru with a **₹15,000 monthly stipend**. It's your money now: rent, food and everything else.",
   exhibit: {
     kind: "stipend",
     amount: 15_000,
@@ -31,7 +31,7 @@ const stipend: ScenarioDef = {
       total: 15_000,
       increment: 500,
       buckets: [
-        { id: "essentials", label: "Essentials", hint: "Rent, food, travel, phone — about ₹10,000", initial: 10_000 },
+        { id: "essentials", label: "Essentials", hint: "Rent, food, travel, phone, about ₹10,000", initial: 10_000 },
         { id: "savings", label: "Savings", hint: "Emergency fund and goals", initial: 0 },
         { id: "wants", label: "Wants", hint: "Eating out, shopping, trips", initial: 5_000 },
       ],
@@ -40,24 +40,24 @@ const stipend: ScenarioDef = {
         let points = 0;
         if (essentials >= STIPEND_ESSENTIALS) {
           points += 1;
-          feedback.push(`✅ Essentials covered — ₹${essentials.toLocaleString("en-IN")} pays rent, food, travel and your phone.`);
+          feedback.push(`✅ Essentials covered. ₹${essentials.toLocaleString("en-IN")} pays rent, food, travel and your phone.`);
         } else {
           feedback.push(
-            `⚠️ Your essentials add up to ₹10,000 but you planned ₹${essentials.toLocaleString("en-IN")} — you'd run short on rent or food mid-month.`,
+            `⚠️ Your essentials add up to ₹10,000 but you planned ₹${essentials.toLocaleString("en-IN")}. You'd run short on rent or food mid-month.`,
           );
         }
         if (savings >= 1_500) {
           points += 1;
           feedback.push(
-            `✅ ₹${savings.toLocaleString("en-IN")} saved — that's ${Math.round((savings / 15_000) * 100)}% of your stipend set aside for surprises and goals.`,
+            `✅ ₹${savings.toLocaleString("en-IN")} saved. That's ${Math.round((savings / 15_000) * 100)}% of your stipend set aside for surprises and goals.`,
           );
         } else if (savings > 0) {
           feedback.push(`🟡 You saved ₹${savings.toLocaleString("en-IN")}. Aim for at least 10% (₹1,500) so one surprise doesn't wipe you out.`);
         } else {
-          feedback.push("⚠️ Nothing saved — the first unexpected expense would mean borrowing.");
+          feedback.push("⚠️ Nothing saved. The first unexpected expense would mean borrowing.");
         }
         if (wants > 4_500) {
-          feedback.push(`🟡 Wants are ₹${wants.toLocaleString("en-IN")} — more than 30% of your stipend, which squeezes savings.`);
+          feedback.push(`🟡 Wants are ₹${wants.toLocaleString("en-IN")}, more than 30% of your stipend, which squeezes savings.`);
         }
         return { points, feedback };
       },
@@ -72,7 +72,7 @@ const stipend: ScenarioDef = {
           feedback: "That's exactly what savings are for. A planned buffer turns a crisis into a small inconvenience.",
         },
         {
-          text: "Borrow from an instant-loan app — it's approved in 5 minutes",
+          text: "Borrow from an instant-loan app. It's approved in 5 minutes",
           points: 0,
           feedback:
             "Instant-loan apps can charge very high interest and fees, and some aren't regulated. A ₹1,500 problem can grow quickly.",
@@ -101,7 +101,7 @@ const stipend: ScenarioDef = {
         {
           text: "Spend it all on a weekend trip",
           points: 0,
-          feedback: "Fun, but your savings stay where they are — and the charger money still needs replacing.",
+          feedback: "Fun, but your savings stay where they are, and the charger money still needs replacing.",
         },
         {
           text: "Lend it to a friend who hasn't repaid the last loan",
@@ -116,7 +116,7 @@ const stipend: ScenarioDef = {
       ],
     },
   ],
-  takeaway: "Cover essentials first, save something every month — even 10% — and keep wants within what's left.",
+  takeaway: "Cover essentials first, save something every month, even 10%, and keep wants within what's left.",
 };
 
 const creditCardBill: ScenarioDef = {
@@ -145,17 +145,17 @@ const creditCardBill: ScenarioDef = {
       prompt: "How much must you pay by 9 November to pay no interest on these purchases?",
       options: [
         {
-          text: "₹620 — the minimum amount due",
+          text: "₹620, the minimum amount due",
           points: 0,
           feedback: "The minimum only avoids a late fee. Anything unpaid starts attracting interest.",
         },
         {
-          text: "₹12,400 — the total amount due",
+          text: "₹12,400, the total amount due",
           points: 2,
           feedback: "Right. Paying the total amount due by the due date means no interest on these purchases.",
         },
-        { text: "₹37,600 — the available limit", points: 0, feedback: "That's how much more you could borrow, not what you owe." },
-        { text: "₹50,000 — the credit limit", points: 0, feedback: "The limit is the most you can borrow, not your bill." },
+        { text: "₹37,600, the available limit", points: 0, feedback: "That's how much more you could borrow, not what you owe." },
+        { text: "₹50,000, the credit limit", points: 0, feedback: "The limit is the most you can borrow, not your bill." },
       ],
     },
     {
@@ -169,10 +169,10 @@ const creditCardBill: ScenarioDef = {
             "No interest, no late fee, and an on-time payment on your credit report. Setting up autopay for the full amount makes this automatic.",
         },
         {
-          text: "Only the ₹620 minimum — I'll keep the cash",
+          text: "Only the ₹620 minimum, I'll keep the cash",
           points: 0,
           feedback:
-            "No late fee, but about ₹11,780 is left unpaid. Card interest is often around 3–3.75% a month (roughly 36–45% a year), usually counted from each purchase date — and new purchases can lose their interest-free period. Illustrative; check your card's terms.",
+            "No late fee, but about ₹11,780 is left unpaid. Card interest is often around 3–3.75% a month (roughly 36–45% a year), usually counted from each purchase date, and new purchases can lose their interest-free period. Illustrative; check your card's terms.",
         },
         {
           text: "₹5,000 now, the rest next month",
@@ -180,7 +180,7 @@ const creditCardBill: ScenarioDef = {
           feedback: "Better than the minimum, but the unpaid ₹7,400 still attracts high interest until it's cleared.",
         },
         {
-          text: "Nothing this month — I'll pay it all next time",
+          text: "Nothing this month, I'll pay it all next time",
           points: 0,
           feedback: "You'd pay a late fee and interest, and a missed payment goes on your credit report, which can hurt your score.",
         },
@@ -191,7 +191,7 @@ const creditCardBill: ScenarioDef = {
       prompt: "Which habits protect you from costly credit-card bills? Select all that apply.",
       options: [
         { text: "Set up autopay for the full amount due", correct: true },
-        { text: "Keep your spending well under your limit — ideally under 30%", correct: true },
+        { text: "Keep your spending well under your limit, ideally under 30%", correct: true },
         { text: "Pay only the minimum to keep more cash", correct: false },
         { text: "Withdraw cash from the card when you're short", correct: false },
         { text: "Check every statement for charges you don't recognise", correct: true },
@@ -200,7 +200,7 @@ const creditCardBill: ScenarioDef = {
         "Paying in full, keeping utilisation low and checking statements keep cards cheap and your score healthy. Minimum-only payments and cash withdrawals are where interest piles up.",
     },
   ],
-  takeaway: "Pay the total amount due by the due date. The minimum due only avoids a late fee — it doesn't avoid interest.",
+  takeaway: "Pay the total amount due by the due date. The minimum due only avoids a late fee. It doesn't avoid interest.",
 };
 
 const upiRequest: ScenarioDef = {
@@ -234,7 +234,7 @@ const upiRequest: ScenarioDef = {
         { text: "It asks for your UPI PIN to \"receive\" money", correct: true },
         { text: "It's from an unknown ID, not a company you deal with", correct: true },
         { text: "It rushes you with a 10-minute deadline", correct: true },
-        { text: "It's a collect request — approving it pays them", correct: true },
+        { text: "It's a collect request. Approving it pays them", correct: true },
         { text: "It arrived in the evening", correct: false },
       ],
       explanation:
@@ -247,17 +247,17 @@ const upiRequest: ScenarioDef = {
         {
           text: "Decline it and block the sender",
           points: 2,
-          feedback: "Safe. Declining costs you nothing — approving would have sent ₹4,999 out of your account.",
+          feedback: "Safe. Declining costs you nothing. Approving would have sent ₹4,999 out of your account.",
         },
         {
-          text: "Approve it — free cashback!",
+          text: "Approve it, free cashback!",
           points: 0,
           feedback: "Approving a collect request with your PIN pays the sender. ₹4,999 would leave your account.",
         },
         {
           text: "Approve it but type a wrong PIN, just to see",
           points: 0,
-          feedback: "Never play along with a scam request — just decline. Repeated wrong PINs can also lock your UPI.",
+          feedback: "Never play along with a scam request. Just decline. Repeated wrong PINs can also lock your UPI.",
         },
         {
           text: "Message the sender to ask if it's genuine",
@@ -274,10 +274,10 @@ const upiRequest: ScenarioDef = {
           text: "Ignore the link, check KYC only in my bank's official app or branch, and report the SMS",
           points: 2,
           feedback:
-            "Exactly. Banks don't block accounts through SMS links. You can report suspected fraud messages on Sanchar Saathi — and if you ever lose money, call 1930 or use cybercrime.gov.in right away.",
+            "Exactly. Banks don't block accounts through SMS links. You can report suspected fraud messages on Sanchar Saathi, and if you ever lose money, call 1930 or use cybercrime.gov.in right away.",
         },
         {
-          text: "Tap the link — it's quicker",
+          text: "Tap the link. It's quicker",
           points: 0,
           feedback: "Shortened links in urgent messages often lead to fake bank pages that steal your details.",
         },
@@ -306,7 +306,7 @@ const firstSalary: ScenarioDef = {
   lessonSlug: "first-salary-tax",
   summary: "Read an illustrative first payslip: CTC, gross pay, deductions and what actually reaches your bank.",
   intro:
-    "Neha's offer letter says **₹6 LPA CTC**. Her first payslip has just arrived. Numbers are illustrative — real deductions depend on your employer, state and tax choices.",
+    "Neha's offer letter says **₹6 LPA CTC**. Her first payslip has just arrived. Numbers are illustrative. Real deductions depend on your employer, state and tax choices.",
   exhibit: {
     kind: "payslip",
     employee: "Neha, Junior Analyst · Tax year 2026-27, new regime",
@@ -332,8 +332,8 @@ const firstSalary: ScenarioDef = {
       kind: "choice",
       prompt: "What is Neha's gross monthly salary?",
       options: [
-        { text: "₹50,000 — CTC divided by 12", points: 0, feedback: "CTC ÷ 12 includes parts she never receives monthly, like her employer's PF." },
-        { text: "₹46,000", points: 2, feedback: "Right — basic ₹20,000 + HRA ₹8,000 + special allowance ₹18,000 = ₹46,000 before deductions." },
+        { text: "₹50,000: CTC divided by 12", points: 0, feedback: "CTC ÷ 12 includes parts she never receives monthly, like her employer's PF." },
+        { text: "₹46,000", points: 2, feedback: "Right: basic ₹20,000 + HRA ₹8,000 + special allowance ₹18,000 = ₹46,000 before deductions." },
         { text: "₹43,400", points: 0, feedback: "That's her take-home, after deductions. Gross is before deductions." },
         { text: "₹48,400", points: 0, feedback: "Add up the three earnings lines: basic, HRA and special allowance." },
       ],
@@ -345,11 +345,11 @@ const firstSalary: ScenarioDef = {
         {
           text: "₹43,400",
           points: 2,
-          feedback: "Yes — ₹46,000 gross minus ₹2,400 PF and ₹200 professional tax. TDS is ₹0 at her income under the new regime.",
+          feedback: "Yes, ₹46,000 gross minus ₹2,400 PF and ₹200 professional tax. TDS is ₹0 at her income under the new regime.",
         },
         { text: "₹46,000", points: 0, feedback: "That's gross pay. PF and professional tax come out before it reaches her." },
         { text: "₹50,000", points: 0, feedback: "CTC ÷ 12 is never what lands in your account." },
-        { text: "₹40,000", points: 0, feedback: "Too low — only ₹2,600 is deducted from her ₹46,000 gross." },
+        { text: "₹40,000", points: 0, feedback: "Too low. Only ₹2,600 is deducted from her ₹46,000 gross." },
       ],
     },
     {
@@ -362,19 +362,19 @@ const firstSalary: ScenarioDef = {
         { text: "House rent allowance", correct: false },
       ],
       explanation:
-        "Her employer's PF share goes into her PF account, and gratuity and insurance are benefits — all part of CTC, none paid out monthly. Basic and HRA are in her monthly pay.",
+        "Her employer's PF share goes into her PF account, and gratuity and insurance are benefits. All part of CTC, none paid out monthly. Basic and HRA are in her monthly pay.",
     },
     {
       kind: "choice",
       prompt: "A friend has the same ₹6 LPA CTC at another company but a lower take-home. Why could that be?",
       options: [
         {
-          text: "Their salary is structured differently — e.g. more variable pay or benefits, or different deductions",
+          text: "Their salary is structured differently, e.g. more variable pay or benefits, or different deductions",
           points: 2,
           feedback:
             "Exactly. Two offers with the same CTC can pay very different monthly amounts. Always ask for the salary breakup and compare in-hand pay.",
         },
-        { text: "One of them must be calculating wrong", points: 0, feedback: "Both can be right — CTC alone doesn't fix the monthly amount." },
+        { text: "One of them must be calculating wrong", points: 0, feedback: "Both can be right: CTC alone doesn't fix the monthly amount." },
         { text: "CTC means different things in different cities", points: 0, feedback: "CTC means the same thing everywhere; what differs is how it's split." },
         { text: "Take-home is always the same for the same CTC", points: 0, feedback: "Deductions and salary structure vary, so take-home varies too." },
       ],
@@ -408,14 +408,14 @@ const noCostEmi: ScenarioDef = {
       kind: "choice",
       prompt: "What does the phone really cost on EMI?",
       options: [
-        { text: "₹24,000 — it's no-cost", points: 0, feedback: "\"No-cost\" EMIs often still carry a processing fee and GST." },
+        { text: "₹24,000. It's no-cost", points: 0, feedback: "\"No-cost\" EMIs often still carry a processing fee and GST." },
         {
           text: "About ₹24,235",
           points: 2,
-          feedback: "Right: ₹24,000 + ₹199 fee + about ₹36 GST. And you'd give up the ₹1,000 discount for paying in full — so it's ₹1,235 more than paying upfront.",
+          feedback: "Right: ₹24,000 + ₹199 fee + about ₹36 GST. And you'd give up the ₹1,000 discount for paying in full, so it's ₹1,235 more than paying upfront.",
         },
-        { text: "₹23,000", points: 0, feedback: "That's the price if you pay in full with the discount — not on EMI." },
-        { text: "₹28,000", points: 0, feedback: "Too high — check the six instalments plus the fee and GST." },
+        { text: "₹23,000", points: 0, feedback: "That's the price if you pay in full with the discount, not on EMI." },
+        { text: "₹28,000", points: 0, feedback: "Too high. Check the six instalments plus the fee and GST." },
       ],
     },
     {
@@ -423,16 +423,16 @@ const noCostEmi: ScenarioDef = {
       prompt: "With ₹15,000 coming in and ₹10,000 of essentials, should you take the 6-month EMI?",
       options: [
         {
-          text: "No — ₹4,000 a month would leave just ₹1,000 for savings and everything else",
+          text: "No, ₹4,000 a month would leave just ₹1,000 for savings and everything else",
           points: 2,
           feedback: "Sensible. An EMI that eats almost all your spare money leaves no room for surprises.",
         },
-        { text: "Yes — it's no-cost, so why not", points: 0, feedback: "The cost isn't only the fee — it's six months of almost no breathing room." },
+        { text: "Yes. It's no-cost, so why not", points: 0, feedback: "The cost isn't only the fee. It's six months of almost no breathing room." },
         { text: "Yes, and add a laptop EMI too", points: 0, feedback: "Stacking EMIs on a stipend is how small debts become stressful ones." },
         {
           text: "Save for a few months and buy it with the discount instead",
           points: 2,
-          feedback: "Great plan — you pay less and owe nothing.",
+          feedback: "Great plan. You pay less and owe nothing.",
         },
       ],
     },
@@ -448,7 +448,7 @@ const noCostEmi: ScenarioDef = {
       explanation: "Total cost, lost discounts and monthly affordability decide whether an EMI makes sense. The colour doesn't change the maths!",
     },
   ],
-  takeaway: "\"No-cost\" EMI can still cost you — in fees, lost discounts and a tighter budget for months.",
+  takeaway: "\"No-cost\" EMI can still cost you, in fees, lost discounts and a tighter budget for months.",
 };
 
 const emergency: ScenarioDef = {
@@ -476,7 +476,7 @@ const emergency: ScenarioDef = {
       kind: "choice",
       prompt: "Where should the first ₹5,000 come from?",
       options: [
-        { text: "My emergency fund — this is exactly what it's for", points: 2, feedback: "Yes. Using your emergency fund avoids interest entirely." },
+        { text: "My emergency fund. This is exactly what it's for", points: 2, feedback: "Yes. Using your emergency fund avoids interest entirely." },
         {
           text: "The instant-loan app",
           points: 0,
@@ -485,9 +485,9 @@ const emergency: ScenarioDef = {
         {
           text: "A cash withdrawal on my credit card",
           points: 0,
-          feedback: "Card cash withdrawals carry a fee and interest from day one — the costliest way to use a card.",
+          feedback: "Card cash withdrawals carry a fee and interest from day one. It's the costliest way to use a card.",
         },
-        { text: "Skip the test", points: 0, feedback: "Health comes first — and you have better options than skipping it." },
+        { text: "Skip the test", points: 0, feedback: "Health comes first, and you have better options than skipping it." },
       ],
     },
     {
@@ -502,20 +502,20 @@ const emergency: ScenarioDef = {
         {
           text: "Borrow from family and agree on when you'll pay it back",
           points: 2,
-          feedback: "Also good — a clear repayment date keeps it fair and stress-free.",
+          feedback: "Also good. A clear repayment date keeps it fair and stress-free.",
         },
         { text: "Withdraw ₹3,000 cash from the credit card", points: 0, feedback: "Cash withdrawals cost a fee plus interest from day one." },
-        { text: "Take the instant loan — it's only ₹3,000", points: 0, feedback: "Small instant loans can carry very high effective interest. Avoid them." },
+        { text: "Take the instant loan. It's only ₹3,000", points: 0, feedback: "Small instant loans can carry very high effective interest. Avoid them." },
       ],
     },
     {
       kind: "choice",
       prompt: "The emergency is over. What should you do next month?",
       options: [
-        { text: "Rebuild my emergency fund before spending on wants", points: 2, feedback: "Exactly — refill the buffer so you're ready for the next surprise." },
+        { text: "Rebuild my emergency fund before spending on wants", points: 2, feedback: "Exactly. Refill the buffer so you're ready for the next surprise." },
         { text: "Go back to spending as usual", points: 0, feedback: "Without rebuilding it, the next emergency would hit with no buffer." },
         { text: "Celebrate with a shopping trip", points: 0, feedback: "Understandable, but your emergency fund comes first." },
-        { text: "Take a loan to refill the fund quickly", points: 0, feedback: "Borrowing to save just moves the problem — rebuild it from your income." },
+        { text: "Take a loan to refill the fund quickly", points: 0, feedback: "Borrowing to save just moves the problem. Rebuild it from your income." },
       ],
     },
   ],

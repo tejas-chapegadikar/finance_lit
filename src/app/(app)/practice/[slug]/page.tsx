@@ -16,7 +16,7 @@ import { ArrowLeftIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
 
 export async function generateMetadata(props: PageProps<"/practice/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  return { title: `${getScenario(slug)?.title ?? "Scenario"} — StockStreak` };
+  return { title: `${getScenario(slug)?.title ?? "Scenario"} | StockStreak` };
 }
 
 export default async function ScenarioPage(props: PageProps<"/practice/[slug]">) {
@@ -76,7 +76,7 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
           </span>
           <h2 className="mt-3 text-xl font-extrabold text-slate-900">Opens with Level {level?.number}</h2>
           <p className="mx-auto mt-1 max-w-sm text-slate-600">
-            This scenario practises a lesson in Level {level?.number} — {level?.title}. Finish Level {(level?.number ?? 2) - 1} to
+            This scenario practises a lesson in Level {level?.number}: {level?.title}. Finish Level {(level?.number ?? 2) - 1} to
             unlock it.
           </p>
           <Link href="/lessons" className={`${primaryButton} mt-5`}>
@@ -92,7 +92,7 @@ export default async function ScenarioPage(props: PageProps<"/practice/[slug]">)
           </span>
           <h2 className="mt-3 text-xl font-extrabold text-slate-900">This bonus scenario is locked</h2>
           <p className="mx-auto mt-1 max-w-sm text-slate-600">
-            It opens once you&apos;ve earned {reward?.cost} XP in total — you have {user.xpTotal}. Lessons and money check-ins are the quickest way.
+            It opens once you&apos;ve earned {reward?.cost} XP in total. You have {user.xpTotal}. Lessons and money check-ins are the quickest way.
           </p>
           <Link href="/lessons" className={`${primaryButton} mt-5`}>
             Back to Money IQ

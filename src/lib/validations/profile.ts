@@ -9,12 +9,13 @@ export const displayNameSchema = z
 
 export const stageSchema = z.enum(STAGE_VALUES, "Pick where you are right now");
 
-// The learning goal is optional — "" (skipped) is stored as no goal.
-export const goalSchema = z
-  .enum(["", ...GOAL_VALUES], "Pick what you want to get better at")
-  .transform((goal) => (goal === "" ? null : goal));
+// What they want to get better at: any number of topics, or none.
+export const goalsSchema = z
+  .array(z.enum(GOAL_VALUES, "Pick from the list"))
+  .max(GOAL_VALUES.length)
+  .transform((goals) => [...new Set(goals)]);
 
-// College is optional and free text — students type their own college name.
+// College is optional and free text, students type their own college name.
 export const collegeNameSchema = z
   .string()
   .trim()
@@ -25,7 +26,7 @@ export const profileSchema = z.object({
   displayName: displayNameSchema,
   stage: stageSchema,
   collegeName: collegeNameSchema,
-  goal: goalSchema,
+  goals: goalsSchema,
 });
 
 export type ProfileInput = z.input<typeof profileSchema>;

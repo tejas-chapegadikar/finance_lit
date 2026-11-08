@@ -10,7 +10,7 @@ export type OnboardingResult = { error: string };
 
 // Typed loosely on purpose: this is a public endpoint, so everything is
 // validated here rather than trusted from the browser.
-type OnboardingAnswers = { displayName: string; stage: string; collegeName: string; goal: string };
+type OnboardingAnswers = { displayName: string; stage: string; collegeName: string; goals: string[] };
 
 /** Saves the answers and opens the dashboard; only returns when something is wrong. */
 export async function completeOnboarding(input: OnboardingAnswers): Promise<OnboardingResult> {
@@ -27,10 +27,10 @@ export async function completeOnboarding(input: OnboardingAnswers): Promise<Onbo
       displayName: parsed.data.displayName,
       stage: parsed.data.stage,
       collegeName: parsed.data.collegeName,
-      goal: parsed.data.goal,
+      goals: parsed.data.goals,
       // Re-onboarding (e.g. a double submit) keeps the original date.
       onboardingCompletedAt: user.onboardingCompletedAt ?? new Date(),
-      // Every student gets their own avatar — it carries their name, not a mascot's.
+      // Every student gets their own avatar, it carries their name, not a mascot's.
       ...(user.avatar ? {} : { avatar: DEFAULT_AVATAR }),
     },
   });

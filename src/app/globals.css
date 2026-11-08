@@ -9,7 +9,7 @@
  *   remapped to warm neutrals, so every existing `slate` class follows);
  * - violet (`brand-*`) marks actions, navigation and "you are here";
  * - green (`emerald-*`) is progress and success;
- * - orange is XP, rewards and streaks — small doses only;
+ * - orange is XP, rewards and streaks, small doses only;
  * - each learning area has a quiet tint of its own (readiness-areas.ts).
  *
  * Type: Fraunces (a soft, characterful serif) for headings and big numbers,
@@ -343,6 +343,238 @@
   .reveal.is-in {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Everything tappable answers back. In the base layer, so a component's own
+   classes always win. */
+html {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  a,
+  button,
+  summary,
+  label,
+  select,
+  [role="button"],
+  [role="tab"],
+  [role="radio"],
+  [role="checkbox"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  button:not(:disabled),
+  summary,
+  [role="button"],
+  [role="tab"] {
+    cursor: pointer;
+  }
+
+  :is(a, button, summary, [role="button"], [role="tab"], [role="radio"], [role="checkbox"]) {
+    transition:
+      scale 0.15s var(--ease-out-soft),
+      translate 0.2s var(--ease-out-soft),
+      color 0.15s ease-out,
+      background-color 0.15s ease-out;
+  }
+
+  :is(a, button, summary, [role="button"], [role="tab"], [role="radio"], [role="checkbox"]):not(:disabled):active {
+    scale: 0.97;
+  }
+
+  input,
+  select,
+  textarea {
+    transition:
+      border-color 0.18s ease-out,
+      box-shadow 0.18s ease-out,
+      background-color 0.18s ease-out;
+  }
+
+  :is(a, button) > svg {
+    transition:
+      scale 0.2s var(--ease-out-soft),
+      translate 0.2s var(--ease-out-soft);
+  }
+
+  @media (hover: hover) {
+    :is(a, button):not(:disabled):hover > svg {
+      scale: 1.12;
+    }
+  }
+
+  /* Anything that becomes selected gives a small pop. */
+  [aria-checked="true"],
+  [aria-selected="true"],
+  [aria-pressed="true"] {
+    animation: select-pop 0.28s var(--ease-out-soft);
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    transition: scale 0.15s var(--ease-out-soft);
+  }
+
+  input[type="checkbox"]:active,
+  input[type="radio"]:active {
+    scale: 0.85;
+  }
+
+  /* Messages and confirmations slide in instead of popping. */
+  [role="alert"]:not(:empty),
+  [role="status"]:not(:empty) {
+    animation: fade-up 0.3s var(--ease-out-soft);
+  }
+
+  /* Comfortable touch targets on touch screens. */
+  @media (pointer: coarse) {
+    main button,
+    main [role="tab"],
+    main [role="radio"],
+    main [role="checkbox"] {
+      min-height: 40px;
+    }
+
+    footer nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+    }
+
+    input,
+    select,
+    textarea {
+      font-size: max(16px, 1em);
+    }
+  }
+}
+
+@keyframes select-pop {
+  40% {
+    scale: 1.025;
+  }
+}
+
+/* The ring where you tap (components/ui/Motion.tsx). */
+.tap-ring {
+  position: fixed;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-radius: 9999px;
+  background: rgb(98 80 214 / 0.18);
+  pointer-events: none;
+  animation: tap-ring 0.42s var(--ease-out-soft) both;
+}
+
+@keyframes tap-ring {
+  from {
+    scale: 0.3;
+    opacity: 1;
+  }
+  to {
+    scale: 1.6;
+    opacity: 0;
+  }
+}
+
+@media print {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* The first things on a page arrive one after another. */
+.animate-page > * > * {
+  animation: fade-up 0.5s var(--ease-out-soft) backwards;
+}
+.animate-page > * > :nth-child(2) {
+  animation-delay: 70ms;
+}
+.animate-page > * > :nth-child(3) {
+  animation-delay: 140ms;
+}
+.animate-page > * > :nth-child(n + 4) {
+  animation-delay: 210ms;
+}
+
+/* The sign-in page. */
+.auth-blob {
+  animation: auth-blob 14s ease-in-out infinite alternate;
+}
+
+@keyframes auth-blob {
+  to {
+    translate: 60px 40px;
+    scale: 1.15;
+  }
+}
+
+.google-button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-slate-200);
+  background: white;
+  padding: 0.8rem 1.25rem;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-slate-900);
+  box-shadow: 0 6px 16px -10px rgb(28 26 38 / 0.35);
+  transition:
+    translate 0.2s var(--ease-out-soft),
+    scale 0.15s var(--ease-out-soft),
+    box-shadow 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.google-button::before {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(from 210deg, #4285f4, #34a853, #fbbc05, #ea4335, #4285f4);
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+}
+
+.google-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: calc(0.75rem - 1px);
+  background: white;
+}
+
+.google-button:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.google-button:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .google-button:hover {
+    translate: 0 -2px;
+    border-color: transparent;
+    box-shadow: 0 14px 28px -14px rgb(66 133 244 / 0.55);
+  }
+  .google-button:hover::before {
+    opacity: 1;
   }
 }
 

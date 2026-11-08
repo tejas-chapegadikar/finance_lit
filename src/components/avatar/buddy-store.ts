@@ -16,7 +16,7 @@ export function buddySay(message: BuddyMessage) {
   listeners.forEach((l) => l(message, "say"));
 }
 
-/** Give the avatar this page's own line(s) — shown instead of the generic page line. */
+/** Give the avatar this page's own line(s), shown instead of the generic page line. */
 export function buddyPage(message: BuddyMessage) {
   listeners.forEach((l) => l(message, "page"));
 }

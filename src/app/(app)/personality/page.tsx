@@ -9,10 +9,10 @@ import { Burst } from "@/components/ui/Burst";
 import { primaryButton, secondaryButton, spotlight, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, CheckIcon, AlertIcon, SparklesIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Your money personality — StockStreak" };
+export const metadata: Metadata = { title: "Your money personality | StockStreak" };
 
 // The Money Personality Quiz and its result. A playful starting point that
-// shapes suggestions — never a permanent label. Retake it anytime.
+// shapes suggestions, never a permanent label. Retake it anytime.
 export default async function PersonalityPage(props: PageProps<"/personality">) {
   const user = await requireOnboardedUser();
   const params = await props.searchParams;
@@ -28,13 +28,13 @@ export default async function PersonalityPage(props: PageProps<"/personality">) 
           <p className="text-[13px] font-medium text-slate-500">{welcome ? "One last thing · about a minute" : "Money Personality Quiz"}</p>
           <h1 className="text-4xl leading-tight text-slate-900 sm:text-5xl">What&apos;s your money personality?</h1>
           <p className="text-[15px] leading-relaxed text-slate-600">
-            Six quick questions. We&apos;ll use your answers to suggest where to start — not to judge you. Everyone&apos;s a little bit of everything.
+            Six quick questions. We&apos;ll use your answers to suggest where to start, not to judge you. Everyone&apos;s a little bit of everything.
           </p>
         </header>
         <PersonalityQuiz next={welcome ? "/personality?welcome=1" : "/personality"} />
         {welcome ? (
           <Link href="/dashboard" className="self-start text-sm font-semibold text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline">
-            Skip for now — take me to my dashboard
+            Skip for now, take me to my dashboard
           </Link>
         ) : (
           personality && (
@@ -126,7 +126,7 @@ export default async function PersonalityPage(props: PageProps<"/personality">) 
       </section>
 
       <div className="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-slate-500">This isn&apos;t a label — it&apos;s a starting point. Habits change, and so can your result.</p>
+        <p className="text-sm text-slate-500">This isn&apos;t a label. It&apos;s a starting point. Habits change, and so can your result.</p>
         <div className="flex shrink-0 flex-wrap gap-2">
           <Link href="/personality?retake=1" className={secondaryButton}>
             Retake the quiz

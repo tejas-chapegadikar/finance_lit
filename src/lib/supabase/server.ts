@@ -6,7 +6,7 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./config";
 
 /**
  * Supabase for Server Components, Server Actions and Route Handlers. The
- * session lives in first-party, httpOnly cookies on our own domain — which is
+ * session lives in first-party, httpOnly cookies on our own domain, which is
  * why it works the same on phones and laptops (no cross-site redirects).
  * Server Components can't write cookies; the proxy refreshes the session.
  */
@@ -26,7 +26,7 @@ export async function supabaseServer() {
   });
 }
 
-/** Server-only admin client (service role) — used only to delete your own account. */
+/** Server-only admin client (service role), used only to delete your own account. */
 export function supabaseAdmin() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");

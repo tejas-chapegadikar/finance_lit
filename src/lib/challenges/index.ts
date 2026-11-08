@@ -6,7 +6,7 @@ export { CHALLENGES, HABIT_CHALLENGE, SAVING_CHALLENGES, findChallenge };
 export type { Challenge, ChallengeStep } from "./content";
 
 // Progress through a challenge. Steps go in order, one per IST day: finish
-// today's and the next one opens tomorrow. Missing days costs nothing — the
+// today's and the next one opens tomorrow. Missing days costs nothing, the
 // next step simply waits for you.
 
 export type ChallengeProgress = {

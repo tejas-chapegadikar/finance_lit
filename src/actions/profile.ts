@@ -17,7 +17,7 @@ export async function updateProfile(_prevState: ProfileState, formData: FormData
     displayName: formData.get("displayName") ?? "",
     stage: formData.get("stage") ?? "",
     collegeName: formData.get("collegeName") ?? "",
-    goal: formData.get("goal") ?? "",
+    goals: formData.getAll("goals"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check your details" };
@@ -29,7 +29,7 @@ export async function updateProfile(_prevState: ProfileState, formData: FormData
       displayName: parsed.data.displayName,
       stage: parsed.data.stage,
       collegeName: parsed.data.collegeName,
-      goal: parsed.data.goal,
+      goals: parsed.data.goals,
     },
   });
 

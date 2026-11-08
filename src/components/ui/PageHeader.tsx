@@ -3,7 +3,7 @@ import Link from "next/link";
 /**
  * The top of every app page, set like an editorial header: a quiet context
  * line, a large Fraunces title, a short description and an optional row
- * below (facts, metrics, progress or actions). No banner box — the page's
+ * below (facts, metrics, progress or actions). No banner box, the page's
  * main focus gets the colour, not its title.
  */
 export function PageHeader({

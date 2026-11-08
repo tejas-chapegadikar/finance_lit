@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Figtree, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
+import { Motion } from "@/components/ui/Motion";
 import "./globals.css";
 
-// Plus Jakarta Sans — a clean, modern geometric sans — for headings and big
+// Plus Jakarta Sans, a clean, modern geometric sans, for headings and big
 // numbers; Figtree for everything you read. Both are variable fonts
 // self-hosted by next/font (no request to Google at runtime), and both
 // include the ₹ sign in their latin-ext subset.
@@ -20,15 +21,16 @@ const figtree = Figtree({
 export const metadata: Metadata = {
   title: "StockStreak",
   description:
-    "Learn money before money teaches you the hard way. Practical money skills for Indian college students and first-job professionals — lessons, real-life scenarios, an AI Coach and smart revision.",
+    "Learn money before money teaches you the hard way. Practical money skills for Indian college students and first-job professionals: lessons, real-life scenarios, an AI Coach and smart revision.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${figtree.variable} h-full antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${jakarta.variable} ${figtree.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         {children}
         <Toaster richColors position="top-center" />
+        <Motion />
       </body>
     </html>
   );

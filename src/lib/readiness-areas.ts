@@ -23,7 +23,7 @@ type AreaMeta = {
   dot: string;
 };
 
-// Each learning area gets a quiet colour of its own — used for icon tiles,
+// Each learning area gets a quiet colour of its own, used for icon tiles,
 // small labels and dots, never for large surfaces.
 export const READINESS_AREA_META: Record<ReadinessAreaValue, AreaMeta> = {
   BUDGETING: { label: "Budgeting", icon: "💰", chipBg: "bg-emerald-50", labelText: "text-emerald-700", dot: "bg-emerald-500" },

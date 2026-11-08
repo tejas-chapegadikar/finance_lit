@@ -35,7 +35,7 @@ async function openScenario(userId: string, slug: string): Promise<ScenarioDef> 
   if (scenario.lessonSlug) {
     const { unlocked } = await lessonAccess(userId);
     if (!unlocked.some((lesson) => lesson.slug === scenario.lessonSlug)) {
-      throw new Error("This scenario's level is locked — finish the previous level first");
+      throw new Error("This scenario's level is locked. Finish the previous level first");
     }
   }
   return scenario;

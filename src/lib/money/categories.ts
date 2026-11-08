@@ -1,6 +1,6 @@
 // Money Manager categories. Kept free of server imports so client components
 // (the add-entry form, budgets) can use them. Ids are stored on MoneyEntry and
-// MoneyBudget rows, so they are permanent — rename labels, never ids.
+// MoneyBudget rows, so they are permanent, rename labels, never ids.
 
 export type SpendKind = "need" | "want" | "mixed";
 
@@ -46,7 +46,7 @@ export const INCOME_IDS = INCOME_CATEGORIES.map((c) => c.id) as [string, ...stri
 export const GOAL_ICONS = ["phone", "laptop", "travel", "clothes", "study", "emergency", "gift", "home", "target"] as const;
 export type GoalIconKey = (typeof GOAL_ICONS)[number];
 
-// Amount limits, in whole rupees — a sanity cap, not a judgement.
+// Amount limits, in whole rupees, a sanity cap, not a judgement.
 export const MAX_ENTRY = 10_00_000;
 export const MAX_GOAL = 1_00_00_000;
 

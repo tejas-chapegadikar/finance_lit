@@ -1,14 +1,14 @@
 import { findBadge } from "./badges";
 
 // The student's own avatar: a soft, rounded 3D-style character that IS the
-// student — it carries their account name, never a mascot name of its own.
+// student, it carries their account name, never a mascot name of its own.
 // Everything here is cosmetic: no item changes learning, XP or scores.
 //
 // Basics are free; "xp" items unlock on their own once you've earned that
 // much XP in total (earlier Rewards Store purchases stay unlocked too);
 // special items unlock with a badge, a streak or a number of lessons.
 // Slot names and item ids are stored on users and purchases, so they're
-// permanent — the earlier human-style avatar's ids map onto this character
+// permanent, the earlier human-style avatar's ids map onto this character
 // (skin tones are body colours, hairstyles are head tufts, hair colours are
 // tuft colours), so nothing anyone saved or bought is lost.
 // Kept free of Prisma imports so client components can use it.

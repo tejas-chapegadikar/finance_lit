@@ -22,7 +22,7 @@ export default async function AppLayout({
   const title = findReward(user.title)?.name ?? null;
   const avatar = readAvatar(user.avatar);
   // The avatar reacts to what you do: unseen events, newest state on every navigation.
-  // Once a day the avatar says hello — or welcome back, after a few days away.
+  // Once a day the avatar says hello, or welcome back, after a few days away.
   const today = istDay();
   const away = user.streakLastDay ? daysBetween(user.streakLastDay, today) : 0;
   if (user.avatarReactions) {

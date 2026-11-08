@@ -37,7 +37,7 @@ export async function beginQuiz(lessonId: string) {
   if (!lesson?.isPublished) {
     throw new Error("Lesson not found");
   }
-  // Levels open in order — checked here, not just hidden in the page.
+  // Levels open in order, checked here, not just hidden in the page.
   await assertLessonUnlocked(user.id, lesson.id);
 
   // Abandon any stale in-progress attempt for this lesson (e.g. from a
@@ -47,7 +47,7 @@ export async function beginQuiz(lessonId: string) {
       where: { userId: user.id, lessonId: lesson.id, status: "IN_PROGRESS" },
       data: { status: "ABANDONED" },
     }),
-    // When the student was last active — kept for Day-7 / Day-30 retention.
+    // When the student was last active, kept for Day-7 / Day-30 retention.
     db.user.update({ where: { id: user.id }, data: { lastActivityDate: new Date() } }),
   ]);
 
@@ -105,7 +105,7 @@ export async function submitAnswer(params: {
   const { attemptId, questionId, optionId } = params;
   const { question, tries } = await loadQuestionInAttempt(attemptId, questionId, user.id);
 
-  // Correctness is decided here from the DB — never trust the client. The
+  // Correctness is decided here from the DB, never trust the client. The
   // correct option only leaves the server once the question is resolved.
   const selected = question.options.find((o) => o.id === optionId);
   const correct = question.options.find((o) => o.isCorrect);
@@ -135,7 +135,7 @@ export async function submitAnswer(params: {
 
 /**
  * The AI Coach only ever sees this one question, its options, the course
- * explanation and the lesson text — never the rest of the curriculum or
+ * explanation and the lesson text, never the rest of the curriculum or
  * anything about the student.
  */
 export async function getCoachHint(params: { attemptId: string; questionId: string }): Promise<CoachHint> {
@@ -207,7 +207,7 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
   await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
 
-    // XP only on a student's FIRST completed attempt per lesson — retakes
+    // XP only on a student's FIRST completed attempt per lesson, retakes
     // still count toward Financial Readiness, they just don't farm XP.
     const priorCompleted = await tx.quizAttempt.count({
       where: { userId: user.id, lessonId: attempt.lessonId, status: "COMPLETED", NOT: { id: attempt.id } },
@@ -241,7 +241,7 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
         description: `Completed "${attempt.lesson.title}"`,
       });
       if (awarded !== xpAwarded) {
-        // This lesson's reward was already paid — the completion screen must say +0.
+        // This lesson's reward was already paid, the completion screen must say +0.
         await tx.quizAttempt.update({ where: { id: attempt.id }, data: { xpAwarded: awarded } });
       }
       await awardLevelBonusIfComplete(tx, user.id, attempt.id);
@@ -282,7 +282,7 @@ export type CoachCheckResult =
  * The AI Coach's follow-up after a missed question: the same idea with a
  * different example. Checked here, never in the browser. Getting it right
  * schedules a revision check in 3 days; missing it brings it back tomorrow.
- * One answer per question per attempt — asking again returns the first.
+ * One answer per question per attempt, asking again returns the first.
  */
 export async function answerCoachCheck(
   attemptId: string,
@@ -383,7 +383,7 @@ export async function askCoach(params: { attemptId: string; questionId: string; 
       select: { message: true, reply: true },
     }),
   ]);
-  // Only once the answer is on screen — follow-ups never give a question away.
+  // Only once the answer is on screen, follow-ups never give a question away.
   if (!questionOutcome(tries)) throw new Error("Answer the question first");
   if (history.length >= MAX_FOLLOW_UPS) return { status: "limit" };
 

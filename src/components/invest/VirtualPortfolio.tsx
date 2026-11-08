@@ -19,9 +19,9 @@ const RISK_TONE: Record<string, string> = {
 const jumpLabel = (m: number) => (m === 1 ? "1 month" : m === 12 ? "1 year" : m === 60 ? "5 years" : `${m} months`);
 const monthsLabel = (m: number) => (m === 0 ? "Day one" : m < 12 ? `${m} month${m === 1 ? "" : "s"} in` : `${Math.floor(m / 12)} yr${m >= 24 ? "s" : ""}${m % 12 ? ` ${m % 12} mo` : ""} in`);
 
-/** The portfolio's total over simulated time — one series, so no legend; hover titles and a table. */
+/** The portfolio's total over simulated time, one series, so no legend; hover titles and a table. */
 function ValueChart({ history }: { history: PortfolioView["history"] }) {
-  if (history.length < 2) return <p className="text-sm text-slate-500">Invest something, then fast-forward — your portfolio&apos;s value over time appears here.</p>;
+  if (history.length < 2) return <p className="text-sm text-slate-500">Invest something, then fast-forward. Your portfolio&apos;s value over time appears here.</p>;
   const W = 600;
   const H = 180;
   const P = 10;
@@ -252,7 +252,7 @@ export function VirtualPortfolio({ portfolio }: { portfolio: PortfolioView }) {
       </div>
 
       <p className="mt-5 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
-        A simulation with virtual money only. Returns are generated from assumed long-run rates with realistic ups and downs — not real market data, not a
+        A simulation with virtual money only. Returns are generated from assumed long-run rates with realistic ups and downs, not real market data, not a
         prediction, and not investment advice. Real investments can lose money.
       </p>
     </section>

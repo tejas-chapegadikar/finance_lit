@@ -61,7 +61,7 @@ export function LessonFinale({
           </p>
           <p className="mt-1 text-sm text-white/75">
             {alreadyCompleted
-              ? "You've completed this lesson — a retake can raise your readiness score."
+              ? "You've completed this lesson. A retake can raise your readiness score."
               : `Finish all 5 questions to complete this lesson and earn +${xpReward} XP.`}
           </p>
         </div>

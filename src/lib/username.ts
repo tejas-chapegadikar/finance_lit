@@ -1,5 +1,5 @@
 // Username + password sign-in. Supabase Auth needs an email for a password
-// account, so a username is stored as `<username>@users.stockstreak.in` — an
+// account, so a username is stored as `<username>@users.stockstreak.in`, an
 // address that is never emailed (Confirm email is off in Supabase, and
 // reminders skip it). Shared by the browser and the server.
 

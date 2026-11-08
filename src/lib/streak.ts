@@ -34,7 +34,7 @@ export async function recordStreakDay(tx: Prisma.TransactionClient, userId: stri
   const today = istDay();
   if (user.streakLastDay === today) return;
 
-  // Missed days since the last active day are covered by freezes — all of
+  // Missed days since the last active day are covered by freezes, all of
   // them or none, so a freeze is never wasted on a streak that breaks anyway.
   const missed = user.streakLastDay ? daysBetween(user.streakLastDay, today) - 1 : null;
   const covered =
@@ -75,7 +75,7 @@ export type StreakStatus = {
   /** The streak to show right now. */
   streak: number;
   doneToday: boolean;
-  /** Nothing yet today — one activity keeps it going. */
+  /** Nothing yet today, one activity keeps it going. */
   needsToday: boolean;
   /** Freezes that will be used to cover missed days when the student is next active. */
   freezesNeeded: number;

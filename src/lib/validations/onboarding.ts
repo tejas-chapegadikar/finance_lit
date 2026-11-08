@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { collegeNameSchema, displayNameSchema, goalSchema, stageSchema } from "./profile";
+import { collegeNameSchema, displayNameSchema, goalsSchema, stageSchema } from "./profile";
 
 export const onboardingSchema = z.object({
   displayName: displayNameSchema,
   stage: stageSchema,
   collegeName: collegeNameSchema,
-  goal: goalSchema,
+  goals: goalsSchema,
 });
 
 export type OnboardingInput = z.input<typeof onboardingSchema>;

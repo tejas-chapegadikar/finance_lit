@@ -1,6 +1,6 @@
 // The Money Personality Quiz: six quick, relatable questions and five
 // playful results. It describes how someone's habits look *right now* and
-// personalises suggestions — never a permanent label. Habits change, and the
+// personalises suggestions, never a permanent label. Habits change, and the
 // quiz can be retaken anytime (the newest result replaces the old one).
 // Client-safe (the quiz UI imports it); the server re-scores answers itself.
 
@@ -24,7 +24,7 @@ export const PERSONALITIES: Record<PersonalityId, Personality> = {
     name: "The Impulse Buyer",
     line: "Sees “70% off” and hears destiny.",
     description:
-      "Your money has a mysterious ability to disappear before the month ends. You decide fast and you're generous with yourself and others — but flash sales and 2 a.m. carts get a vote they didn't earn.",
+      "Your money has a mysterious ability to disappear before the month ends. You decide fast and you're generous with yourself and others, but flash sales and 2 a.m. carts get a vote they didn't earn.",
     strengths: ["Decisive", "Generous", "Knows a good deal (sometimes)"],
     watchOut: ["Countdown timers", "“Add to cart” at night", "Buying things to feel better"],
     focus: {
@@ -40,7 +40,7 @@ export const PERSONALITIES: Record<PersonalityId, Personality> = {
     line: "CEO on Saturday. Maggi by Wednesday.",
     description: "You make plans happen and memories count. The catch: weekends spend the money the weekdays were relying on.",
     strengths: ["Social", "Makes things happen", "Values experiences"],
-    watchOut: ["Unplanned Friday nights", "Splitting the bill for the whole table", "“It's just this once” — weekly"],
+    watchOut: ["Unplanned Friday nights", "Splitting the bill for the whole table", "“It's just this once”, weekly"],
     focus: {
       challengeId: "delivery-detox-7",
       lessonSlug: "budgeting-basics",
@@ -52,21 +52,21 @@ export const PERSONALITIES: Record<PersonalityId, Personality> = {
     id: "procrastinator",
     name: "The Professional Procrastinator",
     line: "Will definitely start saving. Next month.",
-    description: "You know what you should do — you've just scheduled it for future you. The catch: with money, waiting is the expensive part.",
+    description: "You know what you should do. You've just scheduled it for future you. The catch: with money, waiting is the expensive part.",
     strengths: ["Optimistic", "Not an impulse spender", "Great at research tabs"],
     watchOut: ["“I'll start next month”", "Unchecked balances", "Letting money sit idle"],
     focus: {
       challengeId: "habit-30",
       lessonSlug: "sip-starting-early",
       tool: { href: "/invest/simulator", label: "See the cost of waiting" },
-      tip: "Start tiny today — ₹100 counts. Time does more of the work than the amount.",
+      tip: "Start tiny today. ₹100 counts. Time does more of the work than the amount.",
     },
   },
   "secret-saver": {
     id: "secret-saver",
     name: "The Secret Saver",
     line: "Has money. Has no plan for it.",
-    description: "You're careful and steady — your account is quietly healthy. The catch: money parked with no plan slowly loses to rising prices.",
+    description: "You're careful and steady. Your account is quietly healthy. The catch: money parked with no plan slowly loses to rising prices.",
     strengths: ["Disciplined", "Calm about money", "Rarely in debt"],
     watchOut: ["Idle savings losing to inflation", "Fear of starting to invest", "No goals for the money"],
     focus: {
@@ -81,14 +81,14 @@ export const PERSONALITIES: Record<PersonalityId, Personality> = {
     name: "The Smart Planner",
     line: "Has a spreadsheet for the spreadsheet.",
     description:
-      "You budget, you track, and you mostly stick to it — honestly, impressive. The catch: careful can tip into rigid, and a plan that's all safety may still need a part that grows.",
+      "You budget, you track, and you mostly stick to it. Honestly, impressive. The catch: careful can tip into rigid, and a plan that's all safety may still need a part that grows.",
     strengths: ["Organised", "Consistent", "Thinks ahead"],
     watchOut: ["Over-planning, under-living", "Keeping everything in a savings account", "Guilt over every treat"],
     focus: {
       challengeId: "habit-30",
       lessonSlug: "compound-interest",
       tool: { href: "/invest", label: "Explore InvestSmart" },
-      tip: "Keep your system — and budget a guilt-free treat. Your next level is learning how long-term investing works.",
+      tip: "Keep your system, and budget a guilt-free treat. Your next level is learning how long-term investing works.",
     },
   },
 };
@@ -101,14 +101,14 @@ export const PERSONALITY_QUESTIONS: { prompt: string; options: [string, string, 
     prompt: "Your ₹10,000 stipend lands on the 1st. It's now the 8th. Your balance is…",
     options: [
       "Half gone. Those sneakers weren't going to buy themselves.",
-      "Mostly there — but this weekend's trip is about to fix that.",
+      "Mostly there, but this weekend's trip is about to fix that.",
       "No idea. I'll check… eventually.",
       "Almost untouched. It just sits there, safe and slightly bored.",
       "Right where my plan said it would be. Yes, I have a plan.",
     ],
   },
   {
-    prompt: "“FLASH SALE — ends in 10 minutes!” You…",
+    prompt: "“FLASH SALE, ends in 10 minutes!” You…",
     options: [
       "Already checked out. Didn't even need it.",
       "Add to cart, buy it on Saturday when I “deserve it”.",
@@ -121,7 +121,7 @@ export const PERSONALITY_QUESTIONS: { prompt: string; options: [string, string, 
     prompt: "A friend says, “You should start a SIP.” You think…",
     options: [
       "Is that a new app? Is there a sale?",
-      "Sure — after this month's plans.",
+      "Sure, after this month's plans.",
       "Definitely. Next month. Or the one after.",
       "I've read about it. I just haven't started.",
       "Already did the maths. It's in next payday's plan.",
@@ -133,7 +133,7 @@ export const PERSONALITY_QUESTIONS: { prompt: string; options: [string, string, 
       "Budget? I'm going.",
       "I'll eat light on weekdays to balance it out.",
       "I'll sort out the budget later.",
-      "I'll go — but suggest a cheaper plan.",
+      "I'll go, but suggest a cheaper plan.",
       "Saw this coming. There's a fun fund for exactly this.",
     ],
   },
@@ -154,7 +154,7 @@ export const PERSONALITY_QUESTIONS: { prompt: string; options: [string, string, 
       "Making memories (expensive ones).",
       "Unshakeable optimism about future me.",
       "Not spending. Ever.",
-      "A budget for everything — including fun.",
+      "A budget for everything, including fun.",
     ],
   },
 ];

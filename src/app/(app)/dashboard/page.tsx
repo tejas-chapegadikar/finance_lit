@@ -17,7 +17,7 @@ import { CountUp } from "@/components/ui/CountUp";
 import { card } from "@/components/ui/button-styles";
 import { FlameIcon, StarIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Dashboard — StockStreak" };
+export const metadata: Metadata = { title: "Dashboard | StockStreak" };
 
 /** "Good morning" etc. by the time in India; late at night, just "Hey". */
 function greetingFor(now: Date) {
@@ -38,11 +38,11 @@ function greetingFor(now: Date) {
 const GREETINGS: { expression: Expression; text: string }[] = [
   {
     expression: "welcoming",
-    text: "Ready to make smarter money moves today? Pick a block. Any block.",
+    text: "So, what are we fixing today? Pick a block. Any block.",
   },
   {
     expression: "happy",
-    text: "One small money move today — that's all I'm asking. For now.",
+    text: "One small money move today. That's all I'm asking. For now.",
   },
   {
     expression: "thinking",
@@ -61,7 +61,7 @@ const signedPct = (fraction: number) => `${fraction >= 0 ? "+" : "−"}${Math.ab
 
 // The dashboard is the avatar's home: a greeting, your avatar in the middle
 // (it talks, roasts your real spending, follows your pointer) and the three
-// pillars around it — Money Management, Money IQ and InvestSmart — each with
+// pillars around it, Money Management, Money IQ and InvestSmart, each with
 // one real number. Details live on each pillar's page.
 export default async function DashboardPage() {
   const user = await requireOnboardedUser();
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
     headline: money.entries.length === 0 ? "Nothing logged yet" : `${rupees(money.spent)} spent`,
     detail:
       money.entries.length === 0
-        ? "Log your first spend — it takes ten seconds."
+        ? "Log your first spend. It takes ten seconds."
         : left === null
           ? `${rupees(money.income)} came in this month. Set a budget to see what's left.`
           : left >= 0

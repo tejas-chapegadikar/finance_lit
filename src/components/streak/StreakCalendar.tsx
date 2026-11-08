@@ -42,7 +42,7 @@ function Cell({ day, mark, today, index }: { day: string; mark: DayMark | undefi
   );
 }
 
-/** The last five weeks as a calendar — for the profile. */
+/** The last five weeks as a calendar, for the profile. */
 export function StreakCalendar({ marks, today }: { marks: Map<string, DayMark>; today: string }) {
   const lastSunday = shiftDay(today, 6 - weekdayOf(today));
   const first = shiftDay(lastSunday, -34);

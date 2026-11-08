@@ -6,7 +6,7 @@ import { IconTile } from "@/components/ui/topic-icons";
 import { ArrowLeftIcon, CalculatorIcon } from "@/components/ui/icons";
 import { CompoundSimulator } from "@/components/practice/CompoundSimulator";
 
-export const metadata: Metadata = { title: "Compounding simulator — StockStreak" };
+export const metadata: Metadata = { title: "Compounding simulator | StockStreak" };
 
 const clamp = (value: unknown, min: number, max: number, fallback: number) => {
   const n = Number(value);
@@ -36,7 +36,7 @@ export default async function SimulatorPage(props: PageProps<"/invest/simulator"
         }
         eyebrow="InvestSmart · Compounding simulator"
         title="Watch time do the heavy lifting"
-        description="Move the sliders and see how a monthly amount could grow when returns earn returns — and what “I'll start next year” really costs."
+        description="Move the sliders and see how a monthly amount could grow when returns earn returns, and what “I'll start next year” really costs."
       />
       <CompoundSimulator initial={initial} />
     </div>

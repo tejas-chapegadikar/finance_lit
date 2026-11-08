@@ -9,7 +9,7 @@ import { ThumbDownIcon, ThumbUpIcon } from "@/components/ui/icons";
 
 type Feedback = { helpful: boolean; comment: string };
 
-/** "Was this lesson clear and useful?" — a thumbs choice plus an optional comment. */
+/** "Was this lesson clear and useful?", a thumbs choice plus an optional comment. */
 export function LessonFeedbackForm({
   save,
   initial,
@@ -45,7 +45,7 @@ export function LessonFeedbackForm({
     return (
       <div role="status" className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold text-slate-700">
-          Thanks — your feedback helps us make StockStreak clearer.
+          Thanks, your feedback helps us make StockStreak clearer.
         </p>
         <button type="button" onClick={() => setSaved(false)} className="text-sm font-semibold text-brand-700 hover:underline">
           Edit feedback

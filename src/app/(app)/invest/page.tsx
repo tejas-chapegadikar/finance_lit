@@ -13,11 +13,11 @@ import { IconTile, LessonIcon } from "@/components/ui/topic-icons";
 import { lightButton, spotlight, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, CheckIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "InvestSmart — StockStreak" };
+export const metadata: Metadata = { title: "InvestSmart | StockStreak" };
 
 // InvestSmart: understand investing before investing a rupee. Its first
 // three lessons are the investing lessons of the Money IQ path (shown here,
-// not duplicated); the InvestSmart track then goes further. Education only —
+// not duplicated); the InvestSmart track then goes further. Education only, 
 // no product recommendations, no promised returns.
 
 /** Which of the investing topics each lesson covers. */
@@ -93,7 +93,7 @@ export default async function InvestPage() {
       <PageHeader
         eyebrow="InvestSmart"
         title="Understand investing before you invest a rupee"
-        description="How investing works, why it matters, and how beginners start — then try it with virtual money, without risking a rupee. No stock tips, ever."
+        description="How investing works, why it matters, and how beginners start, then try it with virtual money, without risking a rupee. No stock tips, ever."
         aside={
           <div className="flex items-center gap-3">
             <ProgressRing value={done} max={all.length || 1} label="InvestSmart progress" />
@@ -122,7 +122,7 @@ export default async function InvestPage() {
               ₹1,000 a month. 20 years. About {shortRupees(example.value)}?
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-white/75">
-              That&apos;s {shortRupees(example.invested)} put in and about {shortRupees(example.growth)} from compounding — at an assumed 10% a year, which
+              That&apos;s {shortRupees(example.invested)} put in and about {shortRupees(example.growth)} from compounding, at an assumed 10% a year, which
               real markets don&apos;t promise. Change the numbers and see what time does.
             </p>
             <AvatarSays config={readAvatar(user.avatar)} name={avatarName(user)} expression="shocked" tone="dark" size="sm" className="mt-5">

@@ -14,7 +14,7 @@ import { IconTile, LessonIcon } from "@/components/ui/topic-icons";
 import { card, primaryButton, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, ClockIcon, TrendingUpIcon, WalletIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Money IQ — StockStreak" };
+export const metadata: Metadata = { title: "Money IQ | StockStreak" };
 
 // Stars on the map, from the best quiz: 90%+ three, 60%+ two, otherwise one.
 const starsFor = (score: number | null) => (score === null ? 0 : score >= 90 ? 3 : score >= 60 ? 2 : 1);
@@ -25,7 +25,7 @@ export default async function LearnPage() {
   const mastery = await getMastery(user.id, progress.lessons);
 
   const { lessons, levels, currentLevel, completedCount, totalLessons, levelComplete, next } = progress;
-  const focus = focusFor(user.stage, user.goal);
+  const focus = focusFor(user.stage, user.goals);
   const upNext = next && !next.isRetake ? next.lesson : null;
 
   const chapters: MapChapter[] = levels.map((level) => ({
@@ -36,7 +36,7 @@ export default async function LearnPage() {
     icon: level.chapter.icon,
     status: level.status,
     completed: level.completed,
-    isGoal: focus?.chapter.id === level.chapter.id,
+    isGoal: !!focus?.chapterIds.includes(level.chapter.id),
     lessons: level.slugs.flatMap((slug) =>
       lessons
         .filter((lesson) => lesson.slug === slug)
@@ -68,7 +68,7 @@ export default async function LearnPage() {
               : "Money IQ"
         }
         title={PATH_NAME}
-        description="Learn about money, from your first stipend to your first salary — short lessons, real Indian examples, four levels that unlock in order."
+        description="Learn about money, from your first stipend to your first salary. Short lessons, real Indian examples, four levels that unlock in order."
         aside={
           <div className="flex items-center gap-3">
             <ProgressRing value={completedCount} max={totalLessons} label={`${PATH_NAME} progress`} />
@@ -158,7 +158,7 @@ export default async function LearnPage() {
               </IconTile>
               <span className="min-w-0 flex-1">
                 <span className="block font-semibold text-slate-900">Go deeper on investing</span>
-                <span className="block text-sm text-slate-600">InvestSmart: inflation, the stock market, index funds, getting started — and the compounding simulator.</span>
+                <span className="block text-sm text-slate-600">InvestSmart: inflation, the stock market, index funds, getting started, and the compounding simulator.</span>
               </span>
               <ArrowRightIcon className="h-5 w-5 shrink-0 text-slate-400 transition group-hover:translate-x-0.5" />
             </Link>

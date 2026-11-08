@@ -2,7 +2,7 @@ import type { Expression } from "@/components/avatar/Avatar";
 
 // What the student's avatar says when something real happens. Each event
 // kind has an expression, a priority and several lines; the student's own
-// name appears in some lines, never all of them. Pure and client-safe — the
+// name appears in some lines, never all of them. Pure and client-safe, the
 // pop-up manager picks a line, avoiding the one shown last time.
 //
 // Priority: 0 ordinary (cooldown applies, newest wins), 1 important (queued),
@@ -58,9 +58,9 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     expression: "welcoming",
     priority: 0,
     lines: [
-      (name) => `Hey ${name}! Ready to make smarter money moves today?`,
+      (name) => `Hey ${name}! What are we not overspending on today?`,
       () => "Morning check: wallet still exists. Good start.",
-      (name) => `${name}! One small money move today — that's all we need.`,
+      (name) => `${name}! One small money thing today. That's the whole ask.`,
       () => "New day, new chance to not overspend on chai.",
     ],
   },
@@ -78,7 +78,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     priority: 0,
     lines: [
       () => "Logged. Future you appreciates the paperwork.",
-      () => "Noted! Knowing is half the battle.",
+      () => "Noted. Your wallet has been informed.",
       (name) => `Tracked, ${name}. Money can't hide from us now.`,
       () => "Another one in the books. Literally.",
     ],
@@ -105,7 +105,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     expression: "thinking",
     priority: 1,
     lines: [
-      (_, d) => `Heads up — ${n(d, "label", "this budget")} is at ${n(d, "pct", "80")}%. Slow and steady from here?`,
+      (_, d) => `Heads up, ${n(d, "label", "this budget")} is at ${n(d, "pct", "80")}%. Slow and steady from here?`,
       (name, d) => `${name}, ${n(d, "label", "a budget")} is nearly full. Maybe skip one treat this week?`,
       (_, d) => `${n(d, "label", "Budget")} at ${n(d, "pct", "80")}%. We can still land this month.`,
     ],
@@ -116,7 +116,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     lines: [
       (name) => `${name}, BRO! Where did all your money go?`,
       (_, d) => `Okay, that ${n(d, "label", "spending").toLowerCase()} spree was personal.`,
-      (_, d) => `${n(d, "label", "A budget")} just went over. Deep breath — we adjust, we don't panic.`,
+      (_, d) => `${n(d, "label", "A budget")} just went over. Deep breath. We adjust, we don't panic.`,
       () => "BROOO. The budget has left the chat.",
     ],
   },
@@ -153,7 +153,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     lines: [
       () => "LET'S GOOO! We actually did it!",
       (name) => `Let's go, ${name}! Savings goal completed!`,
-      (_, d) => `“${n(d, "goal", "The goal")}” — DONE. Treat yourself. Responsibly.`,
+      (_, d) => `“${n(d, "goal", "The goal")}”: DONE. Treat yourself. Responsibly.`,
     ],
   },
   "lesson-complete": {
@@ -162,7 +162,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     lines: [
       () => "Brain upgraded. Wallet next?",
       (name) => `${name}, one more lesson and you're officially smarter!`,
-      (_, d) => `“${n(d, "title", "That lesson")}” — done. Knowledge: acquired.`,
+      (_, d) => `“${n(d, "title", "That lesson")}”, done. Knowledge: acquired.`,
       () => "Lesson complete. I'd high-five you, but… tiny arms.",
     ],
   },
@@ -233,7 +233,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     expression: "happy",
     priority: 0,
     lines: [
-      (_, d) => `Day ${n(d, "day")} of 30 — done. Tiny steps, real habits.`,
+      (_, d) => `Day ${n(d, "day")} of 30, done. Tiny steps, real habits.`,
       () => "Habit step complete. Consistency is lowkey a superpower.",
       (name) => `${name}, another day in the books.`,
     ],
@@ -251,7 +251,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     priority: 2,
     title: () => "30-day challenge complete",
     lines: [
-      () => "30 DAYS. You didn't just build a habit — you built a new you.",
+      () => "30 DAYS. Thirty! I honestly had money on day 4.",
       (name) => `${name}, thirty days! That exclusive tracksuit is yours.`,
     ],
   },
@@ -260,7 +260,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     priority: 2,
     title: (d) => `${n(d, "title", "Challenge")} complete`,
     lines: [
-      (_, d) => `“${n(d, "title", "The challenge")}” — conquered!`,
+      (_, d) => `“${n(d, "title", "The challenge")}”, conquered!`,
       (name) => `${name} said “challenge accepted” and meant it.`,
     ],
   },
@@ -305,7 +305,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     priority: 2,
     title: (d) => `Unlocked: ${n(d, "item")}`,
     lines: [
-      (_, d) => `Ooh — you unlocked ${n(d, "item")}! Shall we try it on?`,
+      (_, d) => `Ooh. You unlocked ${n(d, "item")}! Shall we try it on?`,
       (name, d) => `${name}, ${n(d, "item")} is waiting in Avatar Studio.`,
     ],
   },
@@ -322,8 +322,8 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     expression: "shocked",
     priority: 1,
     lines: [
-      (_, d) => `Markets just fell — your portfolio is down ${String(d.pct ?? "")}% this month. Deep breath. This is normal. Selling now locks in the loss.`,
-      () => "Ouch. Red everywhere. Real investors see this too — the ones who panic-sell are the ones who lose.",
+      (_, d) => `Markets just fell. Your portfolio is down ${String(d.pct ?? "")}% this month. Deep breath. This is normal. Selling now locks in the loss.`,
+      () => "Ouch. Red everywhere. Real investors see this too. The ones who panic-sell are the ones who lose.",
       (name) => `${name}, don't touch that sell button. Falls like this are why we invest for years, not weeks.`,
     ],
   },
@@ -331,7 +331,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     expression: "celebrating",
     priority: 0,
     lines: [
-      (_, d) => `Up ${String(d.pct ?? "")}%! Don't get cocky — markets humble everyone eventually.`,
+      (_, d) => `Up ${String(d.pct ?? "")}%! Don't get cocky. Markets humble everyone eventually.`,
       () => "Green month! Compounding is doing push-ups for you.",
     ],
   },
@@ -347,7 +347,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     expression: "proud",
     priority: 1,
     lines: [
-      () => "Spread across different options — that's diversification, and that's what grown-up investors do.",
+      () => "Spread across different options. That's diversification, and that's what grown-up investors do.",
       (name) => `Okay ${name}, a balanced portfolio. I didn't expect this level of maturity.`,
     ],
   },
@@ -355,7 +355,7 @@ export const REACTIONS: Record<ReactionKind, ReactionDef> = {
     expression: "facepalm",
     priority: 1,
     lines: [
-      () => "Selling right after a crash? That's panic-selling — buying high, selling low. The classic.",
+      () => "Selling right after a crash? That's panic-selling: buying high, selling low. The classic.",
       (name) => `${name}, you sold in the dip. The market thanks you for your donation.`,
     ],
   },

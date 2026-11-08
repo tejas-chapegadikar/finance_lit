@@ -94,7 +94,7 @@ export function RewardCard({
       if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);
       if (result.status === "unlocked") {
         setJustUnlocked(true);
-        setMessage(reward.kind === "avatar" ? "Unlocked — your avatar is wearing it." : "Unlocked.");
+        setMessage(reward.kind === "avatar" ? "Unlocked. Your avatar is wearing it." : "Unlocked.");
       }
     });
   }

@@ -63,7 +63,7 @@ async function quickFireTopic(userId: string, day: string, area: ReadinessArea):
 const quickFireTitle = (topic: QuickFireTopic) =>
   topic.mixed ? "Quick-fire review" : `${READINESS_AREA_META[topic.area].label} quick-fire`;
 
-/** Today's challenge name and icon, without building it — for cards and links. */
+/** Today's challenge name and icon, without building it, for cards and links. */
 export async function dailyChallengeInfo(userId: string, day: string): Promise<{ title: string; icon: string }> {
   const slot = WEEK[dayNumber(day) % WEEK.length];
   if (slot.kind === "scams") return { title: "Spot the scams", icon: "🕵️" };
@@ -100,7 +100,7 @@ function spotTheScams(day: string): DailyChallengeDef {
     difficulty: "Medium",
     intro: "Six messages landed on your phone today. Three are scams. Can you tell which?",
     steps: [spot, ...SCAM_FOLLOW_UPS],
-    takeaway: "Urgency, a link, a fee to \"claim\" something, or a request for your PIN or OTP — any one of these is a red flag. Report fraud on 1930.",
+    takeaway: "Urgency, a link, a fee to \"claim\" something, or a request for your PIN or OTP: any one of these is a red flag. Report fraud on 1930.",
   };
 }
 
@@ -113,24 +113,24 @@ function buildABudget(week: number): DailyChallengeDef {
     total: income,
     increment: 500,
     buckets: [
-      { id: "essentials", label: "Essentials", hint: `Rent, food, travel, phone — about ${rupees(essentials)}`, initial: income / 2 },
+      { id: "essentials", label: "Essentials", hint: `Rent, food, travel, phone, about ${rupees(essentials)}`, initial: income / 2 },
       { id: "savings", label: "Savings", hint: "Emergency fund and goals", initial: income / 4 },
       { id: "wants", label: "Wants", hint: "Eating out, shopping, trips", initial: income / 4 },
     ],
     evaluate: (values) => {
       const feedback: string[] = [];
       if (values.essentials < essentials) {
-        feedback.push(`❌ Essentials need about ${rupees(essentials)} — ${rupees(values.essentials)} leaves a bill unpaid.`);
+        feedback.push(`❌ Essentials need about ${rupees(essentials)}. ${rupees(values.essentials)} leaves a bill unpaid.`);
         return { points: 0, feedback };
       }
       feedback.push("✅ Essentials covered.");
       const share = Math.round((values.savings / income) * 100);
       if (values.savings >= income * 0.1) {
-        feedback.push(`✅ ${rupees(values.savings)} saved — ${share}% of your income, set aside first.`);
+        feedback.push(`✅ ${rupees(values.savings)} saved, ${share}% of your income, set aside first.`);
         return { points: 2, feedback };
       }
       if (values.savings > 0) {
-        feedback.push(`⚠️ ${rupees(values.savings)} saved is a start — aim for at least 10% (${rupees(income * 0.1)}).`);
+        feedback.push(`⚠️ ${rupees(values.savings)} saved is a start. Aim for at least 10% (${rupees(income * 0.1)}).`);
         return { points: 1, feedback };
       }
       feedback.push(`❌ Nothing saved. Even 10% (${rupees(income * 0.1)}) builds an emergency fund over time.`);
@@ -145,7 +145,7 @@ function buildABudget(week: number): DailyChallengeDef {
     difficulty: "Medium",
     intro: "Plan a month on an internship stipend, then handle two everyday money moments.",
     steps: [plan, ...BUDGET_FOLLOW_UPS],
-    takeaway: "Cover essentials, save first (even 10% counts), and when a budget runs short, move money from wants — not from savings.",
+    takeaway: "Cover essentials, save first (even 10% counts), and when a budget runs short, move money from wants, not from savings.",
   };
 }
 
@@ -210,16 +210,16 @@ async function quickFire(topic: QuickFireTopic, level: Difficulty, userId: strin
     intro: topic.mixed
       ? "Five quick questions from the levels you've unlocked so far. How many can you get right?"
       : mastered
-        ? `Five quick ${label} questions — a step harder, because you've been acing this topic.`
+        ? `Five quick ${label} questions, a step harder, because you've been acing this topic.`
         : `Five quick ${label} questions. How many can you get right?`,
     steps,
     takeaway: topic.mixed
-      ? "Missed one? Revisit that lesson — and Revision brings back anything you miss in a lesson quiz."
-      : `Missed one? Revisit the ${label} lessons — and Revision brings back anything you miss in a lesson quiz.`,
+      ? "Missed one? Revisit that lesson, and Revision brings back anything you miss in a lesson quiz."
+      : `Missed one? Revisit the ${label} lessons, and Revision brings back anything you miss in a lesson quiz.`,
   };
 }
 
-/** The challenge without answers or feedback — safe to send to the browser. */
+/** The challenge without answers or feedback, safe to send to the browser. */
 export function publicDailyChallenge(def: DailyChallengeDef): PublicDailyChallenge {
   return { ...def, steps: publicSteps(def.steps) };
 }

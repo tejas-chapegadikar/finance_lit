@@ -8,7 +8,7 @@ export type WeeklySummary = {
   activeDays: number;
   lessonsCompleted: number;
   quizzes: number;
-  /** Average quiz accuracy over the last 7 days, and the 7 before — null without quizzes. */
+  /** Average quiz accuracy over the last 7 days, and the 7 before, null without quizzes. */
   quizAccuracy: number | null;
   previousQuizAccuracy: number | null;
   revisionCorrect: number;

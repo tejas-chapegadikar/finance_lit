@@ -10,12 +10,12 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "Aman gets ₹20,000 a month. Under the 50/30/20 rule, how much is meant for needs like rent and food?",
       options: choices(2, "₹4,000", "₹6,000", "₹10,000", "₹14,000"),
-      explanation: "Needs get 50% — half of ₹20,000 is ₹10,000. Wants get 30% (₹6,000) and savings 20% (₹4,000).",
+      explanation: "Needs get 50%: half of ₹20,000 is ₹10,000. Wants get 30% (₹6,000) and savings 20% (₹4,000).",
     },
     {
       prompt: "For a hostel student, which of these is a need rather than a want?",
       options: choices(0, "Monthly mess fees", "A concert ticket", "A second pair of sneakers", "A premium music app"),
-      explanation: "Mess fees pay for food, which you can't skip. The others make life nicer but are optional — they're wants.",
+      explanation: "Mess fees pay for food, which you can't skip. The others make life nicer but are optional. They're wants.",
     },
     {
       prompt: "Your ₹8,000 stipend arrives on the 1st. What does \"pay yourself first\" look like?",
@@ -26,7 +26,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "Wait for a bonus month to start saving",
         "Move ₹1,600 to savings on the 1st, then spend the rest",
       ),
-      explanation: "Saving first — the day money arrives — means savings actually happen, instead of depending on what's left at month-end.",
+      explanation: "Saving first, the day money arrives, means savings actually happen, instead of depending on what's left at month-end.",
     },
     {
       prompt: "Kabir earns ₹30,000 a month. Following 50/30/20, how much is his wants budget?",
@@ -36,14 +36,14 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "You spend about ₹150 a day on food delivery. Roughly how much is that in a 30-day month?",
       options: choices(2, "₹1,500", "₹3,000", "₹4,500", "₹15,000"),
-      explanation: "₹150 × 30 days = ₹4,500. Small daily spends add up fast — that's why a weekly limit helps.",
+      explanation: "₹150 × 30 days = ₹4,500. Small daily spends add up fast. That's why a weekly limit helps.",
     },
   ],
   "compound-interest": [
     {
       prompt: "₹1,000 earns 10% a year, compounded yearly. How much do you have after 2 years?",
       options: choices(1, "₹1,200", "₹1,210", "₹1,100", "₹1,020"),
-      explanation: "Year 1: ₹1,000 + ₹100 = ₹1,100. Year 2: 10% of ₹1,100 is ₹110, so ₹1,210 — the extra ₹10 is interest on interest.",
+      explanation: "Year 1: ₹1,000 + ₹100 = ₹1,100. Year 2: 10% of ₹1,100 is ₹110, so ₹1,210. The extra ₹10 is interest on interest.",
     },
     {
       prompt: "Using the Rule of 72, roughly how long does money take to double at 6% a year?",
@@ -55,8 +55,8 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "Meera invests ₹2,000 a month from age 22. Dev invests the same amount from age 32, at the same return. At 60, who is likely to have more?",
       options: choices(
         0,
-        "Meera — her money compounds for 10 more years",
-        "Dev — he invests when he earns more",
+        "Meera. Her money compounds for 10 more years",
+        "Dev. He invests when he earns more",
         "Both end up with the same amount",
         "There's no way to tell",
       ),
@@ -76,7 +76,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "The bank cancels the interest",
         "It stays exactly the same",
       ),
-      explanation: "Card interest is very high and compounds, so most of a minimum payment goes on interest — the debt barely falls.",
+      explanation: "Card interest is very high and compounds, so most of a minimum payment goes on interest. The debt barely falls.",
     },
   ],
   "saving-vs-spending": [
@@ -89,11 +89,11 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "An unexpected hospital bill",
         "A sale on sneakers",
       ),
-      explanation: "An emergency fund is only for genuine surprises like medical bills or urgent repairs — not for wants.",
+      explanation: "An emergency fund is only for genuine surprises like medical bills or urgent repairs, not for wants.",
     },
     {
       prompt: "Your monthly expenses are ₹15,000. What's a sensible long-term emergency fund target?",
-      options: choices(1, "₹5,000", "₹45,000–₹90,000", "₹15 lakh", "Nothing — a credit card is enough"),
+      options: choices(1, "₹5,000", "₹45,000–₹90,000", "₹15 lakh", "Nothing, a credit card is enough"),
       explanation: "Aim for 3–6 months of expenses: 3 × ₹15,000 = ₹45,000 up to 6 × ₹15,000 = ₹90,000. Build it gradually.",
     },
     {
@@ -102,7 +102,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         3,
         "Move to a costlier flat straight away",
         "Add a new subscription with every raise",
-        "Spend all of it — you earned it",
+        "Spend all of it. You earned it",
         "Put a big part of the raise into savings first",
       ),
       explanation: "Lifestyle creep is spending rising with every raise. Saving part of each raise lets you enjoy some of it and still get ahead.",
@@ -126,7 +126,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
   ],
   "upi-digital-payments": [
     {
-      prompt: "A buyer on a resale app says: \"I've sent a request — enter your UPI PIN to receive ₹2,000.\" What's true?",
+      prompt: "A buyer on a resale app says: \"I've sent a request, enter your UPI PIN to receive ₹2,000.\" What's true?",
       options: choices(
         1,
         "Entering your PIN will receive the money",
@@ -151,12 +151,12 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
       prompt: "You get a UPI collect request for ₹1,500 from someone you don't know. What should you do?",
       options: choices(
         0,
-        "Decline it — approving would send them money",
+        "Decline it. Approving would send them money",
         "Approve it to see what happens",
         "Approve it and ask for a refund later",
         "Share your PIN to check the details",
       ),
-      explanation: "A collect request asks you to pay. Approving it with your PIN sends the money — decline anything you don't recognise.",
+      explanation: "A collect request asks you to pay. Approving it with your PIN sends the money. Decline anything you don't recognise.",
     },
     {
       prompt: "You notice a ₹4,000 UPI debit you didn't make. What's the right first step?",
@@ -167,13 +167,13 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "Search online for a refund helpline",
         "Report it quickly to your bank and on 1930 or cybercrime.gov.in",
       ),
-      explanation: "Speed matters — reporting quickly to your bank and the national cyber-crime helpline (1930) gives the best chance of stopping the money.",
+      explanation: "Speed matters. Reporting quickly to your bank and the national cyber-crime helpline (1930) gives the best chance of stopping the money.",
     },
     {
       prompt: "A caller says your refund is stuck and asks you to install a remote-access app. What should you do?",
       options: choices(
         1,
-        "Install it — they're helping you",
+        "Install it. They're helping you",
         "Refuse and hang up; genuine support never needs control of your phone",
         "Install it but cover your screen",
         "Share only your OTP, not your PIN",
@@ -186,18 +186,18 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
       prompt: "A caller says they're from your bank and need the OTP you just received to \"stop a fraud\". What do you do?",
       options: choices(
         2,
-        "Share it — they're from the bank",
+        "Share it. They're from the bank",
         "Share half of it",
-        "Don't share it — banks never ask for your OTP",
+        "Don't share it. Banks never ask for your OTP",
         "Share it if they know your name",
       ),
-      explanation: "An OTP is like a key to your account. Banks never ask for it — anyone who does is trying to use it.",
+      explanation: "An OTP is like a key to your account. Banks never ask for it. Anyone who does is trying to use it.",
     },
     {
       prompt: "Which message is most likely a scam?",
       options: choices(
         0,
-        "\"Your account will be blocked in 2 hours — update your KYC at this link\"",
+        "\"Your account will be blocked in 2 hours, update your KYC at this link\"",
         "\"Your monthly statement is ready in the app\"",
         "\"Your FD has matured\"",
         "\"Thank you for your payment\"",
@@ -208,10 +208,10 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
       prompt: "An \"internship\" offer asks you to pay a ₹2,000 registration fee before you start. What's the safest view?",
       options: choices(
         3,
-        "Normal — all internships charge fees",
+        "Normal, all internships charge fees",
         "Fine if the company has a website",
         "Pay now and ask for a refund later",
-        "A big red flag — genuine employers don't charge you to join",
+        "A big red flag. Genuine employers don't charge you to join",
       ),
       explanation: "Real employers pay you, not the other way round. Fee-to-join offers are a common scam aimed at students.",
     },
@@ -220,7 +220,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
       options: choices(
         1,
         "Transfer the money quickly",
-        "Hang up — there's no such thing as a \"digital arrest\", and police don't collect money on calls",
+        "Hang up. There's no such thing as a \"digital arrest\", and police don't collect money on calls",
         "Keep the call going and negotiate",
         "Share your bank details to prove you're innocent",
       ),
@@ -248,7 +248,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "To get a higher interest rate",
         "Because UPI won't work without one",
       ),
-      explanation: "A nominee is the person your deposits go to if something happens to you — it saves your family a lot of paperwork.",
+      explanation: "A nominee is the person your deposits go to if something happens to you. It saves your family a lot of paperwork.",
     },
     {
       prompt: "Riya is a college student who keeps her allowance in the bank. Which account suits her best?",
@@ -258,7 +258,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "You have ₹3 lakh in a savings account and ₹3 lakh in an FD at the same bank. How much is covered by DICGC insurance?",
       options: choices(2, "₹6 lakh", "₹3 lakh", "₹5 lakh", "Nothing"),
-      explanation: "DICGC covers up to ₹5 lakh per person, per bank — savings, FDs and RDs at that bank added together.",
+      explanation: "DICGC covers up to ₹5 lakh per person, per bank: savings, FDs and RDs at that bank added together.",
     },
     {
       prompt: "Prices rise about 5% a year and your savings account pays 3%. What happens to your money's buying power over time?",
@@ -269,14 +269,14 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
       prompt:
         "Your account needs a ₹3,000 average monthly balance. In a 30-day month you keep ₹9,000 for 10 days and ₹0 for 20 days. What's your average monthly balance?",
       options: choices(0, "₹3,000", "₹9,000", "₹4,500", "₹1,000"),
-      explanation: "(₹9,000 × 10 days + ₹0 × 20 days) ÷ 30 days = ₹3,000 — just enough to meet the requirement.",
+      explanation: "(₹9,000 × 10 days + ₹0 × 20 days) ÷ 30 days = ₹3,000, just enough to meet the requirement.",
     },
   ],
   "fd-rd": [
     {
       prompt: "You have ₹20,000 you won't need for a year and want a fixed, known return. Which fits best?",
       options: choices(1, "A Recurring Deposit", "A Fixed Deposit", "A current account", "Cash at home"),
-      explanation: "An FD locks a lump sum for a fixed period at a fixed rate — a good fit for money you won't need soon.",
+      explanation: "An FD locks a lump sum for a fixed period at a fixed rate, a good fit for money you won't need soon.",
     },
     {
       prompt: "You want to save ₹2,000 every month for a year. Which product is built for this?",
@@ -292,7 +292,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "You must wait until maturity no matter what",
         "The bank pays a higher rate",
       ),
-      explanation: "Banks usually allow early withdrawal with a small penalty on the interest — your money isn't lost.",
+      explanation: "Banks usually allow early withdrawal with a small penalty on the interest. Your money isn't lost.",
     },
     {
       prompt: "Your FD earns ₹4,000 in interest this year. How is that interest treated?",
@@ -308,7 +308,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "Asha puts ₹500 a month into a 12-month RD at about 6.5% interest. Which is closest to her maturity amount?",
       options: choices(1, "₹6,000", "₹6,210", "₹6,500", "₹7,200"),
-      explanation: "She deposits ₹6,000 in total. Earlier instalments earn interest for longer, adding about ₹210 — roughly ₹6,210.",
+      explanation: "She deposits ₹6,000 in total. Earlier instalments earn interest for longer, adding about ₹210, roughly ₹6,210.",
     },
   ],
   "cibil-score": [
@@ -353,7 +353,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "Use a first card lightly and pay it in full and on time every month",
         "Apply for many cards in one week",
       ),
-      explanation: "Your first card or loan, repaid on time, starts your credit history — paying in full also means no interest.",
+      explanation: "Your first card or loan, repaid on time, starts your credit history. Paying in full also means no interest.",
     },
   ],
   "credit-cards-101": [
@@ -411,7 +411,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "Less than ₹5 lakh ÷ 12, after deductions like PF",
         "Nothing until the year ends",
       ),
-      explanation: "CTC includes parts she never gets monthly (like her employer's PF share), and deductions come out — so in-hand is lower.",
+      explanation: "CTC includes parts she never gets monthly (like her employer's PF share), and deductions come out, so in-hand is lower.",
     },
     {
       prompt: "Your payslip shows \"TDS: ₹2,000\". What is it?",
@@ -422,7 +422,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "A savings scheme",
         "A bank charge",
       ),
-      explanation: "TDS is income tax deducted at source — your employer takes it from your salary and deposits it with the government.",
+      explanation: "TDS is income tax deducted at source. Your employer takes it from your salary and deposits it with the government.",
     },
     {
       prompt: "You never told HR which tax regime you want. Which one will they usually apply?",
@@ -431,7 +431,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "The old regime",
         "The new regime, because it's the default",
         "Both at once",
-        "Neither — no tax is deducted",
+        "Neither, no tax is deducted",
       ),
       explanation: "The new regime is the default. You have to opt for the old one if its deductions would save you more.",
     },
@@ -456,7 +456,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "If you buy shares of a company, what do you own?",
       options: choices(1, "A loan to the company", "A small part of the company", "A fixed deposit with the company", "The company's products"),
-      explanation: "A share is a small piece of ownership — its value rises and falls with the company and the market.",
+      explanation: "A share is a small piece of ownership. Its value rises and falls with the company and the market.",
     },
     {
       prompt: "Which of these is the most diversified?",
@@ -473,7 +473,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
       prompt: "An app promises \"30% guaranteed returns every month\". What should you think?",
       options: choices(
         0,
-        "Very high \"guaranteed\" returns are a warning sign — real investments carry risk",
+        "Very high \"guaranteed\" returns are a warning sign. Real investments carry risk",
         "It's safe because it says guaranteed",
         "Invest more to earn faster",
         "All returns are guaranteed in India",
@@ -489,7 +489,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
         "They spread money across a whole index of companies in one go",
         "They're the same as FDs",
       ),
-      explanation: "An index fund copies an index like the Nifty 50, so one investment spreads your money across many companies — but returns aren't guaranteed.",
+      explanation: "An index fund copies an index like the Nifty 50, so one investment spreads your money across many companies, but returns aren't guaranteed.",
     },
     {
       prompt: "You're saving for a laptop you'll buy in 4 months. Where should that money sit?",
@@ -546,7 +546,7 @@ export const PRACTICE: Record<string, SeedPractice[]> = {
       prompt: "Markets fall and your SIP shows a loss after a year. Your goal is 8 years away. What's the sensible move?",
       options: choices(
         0,
-        "Keep investing — the dip lets your fixed amount buy more units",
+        "Keep investing. The dip lets your fixed amount buy more units",
         "Stop the SIP and sell everything",
         "Move all your money to cash for good",
         "Use your emergency fund to invest more",

@@ -20,10 +20,10 @@ const inflation: SeedLesson = {
   order: 101,
   hook: `A plate of momos cost ₹60 when you were in school. Now it's ₹120.
 
-The momos didn't get bigger. So what changed — the momos, or your money?`,
+The momos didn't get bigger. So what changed: the momos, or your money?`,
   learn: `## Purchasing power
 
-**Inflation** is prices rising over time. When prices rise, the same ₹100 buys less — its **purchasing power** falls. Money that just sits still slowly shrinks, even though the number doesn't change.
+**Inflation** is prices rising over time. When prices rise, the same ₹100 buys less, its **purchasing power** falls. Money that just sits still slowly shrinks, even though the number doesn't change.
 
 ## How India measures it
 
@@ -31,20 +31,20 @@ India tracks inflation with the **Consumer Price Index (CPI)**, a basket of ever
 
 ## Saving vs investing
 
-**Saving** keeps money safe and ready — for next month's rent or an emergency. **Investing** puts money into things that can grow faster than prices, like shares or mutual funds, in exchange for ups and downs along the way. You need both: savings for the near future, investing for goals that are years away.
+**Saving** keeps money safe and ready, for next month's rent or an emergency. **Investing** puts money into things that can grow faster than prices, like shares or mutual funds, in exchange for ups and downs along the way. You need both: savings for the near future, investing for goals that are years away.
 
 ## The real return
 
-What you earn after inflation is your **real return** — roughly the return minus inflation. A 7% FD with 5% inflation grows your buying power by only about 2% a year (before tax). A 3% savings account with 5% inflation is a slow leak.
+What you earn after inflation is your **real return**: roughly the return minus inflation. A 7% FD with 5% inflation grows your buying power by only about 2% a year (before tax). A 3% savings account with 5% inflation is a slow leak.
 
 ## Your inflation isn't the average
 
-CPI is an average across the country. If most of your money goes on rent, tuition or travel — and those rise faster — your personal inflation can be well above the headline number. That's why the goal is to grow money faster than the prices *you* pay.`,
+CPI is an average across the country. If most of your money goes on rent, tuition or travel, and those rise faster, your personal inflation can be well above the headline number. That's why the goal is to grow money faster than the prices *you* pay.`,
   keyTerms: [
     { term: "Inflation", definition: "The general rise in prices over time." },
     { term: "Purchasing power", definition: "How much your money can actually buy." },
-    { term: "CPI", definition: "Consumer Price Index — India's main measure of retail inflation." },
-    { term: "Real return", definition: "Your return after inflation — roughly the return minus the inflation rate." },
+    { term: "CPI", definition: "Consumer Price Index: India's main measure of retail inflation." },
+    { term: "Real return", definition: "Your return after inflation, roughly the return minus the inflation rate." },
   ],
   example: `**Megha keeps ₹50,000 in a savings account at 3%** for 5 years while prices rise about 6% a year.
 
@@ -54,21 +54,21 @@ CPI is an average across the country. If most of your money goes on rent, tuitio
 Her number went up. **What happened to what her money can buy?**`,
   scenario: {
     prompt:
-      "Your grandmother gives you ₹20,000 and says, “Keep it safe in cash at home — banks and markets are risky.” You won't need it for at least 10 years. What would you do?",
+      "Your grandmother gives you ₹20,000 and says, “Keep it safe in cash at home, banks and markets are risky.” You won't need it for at least 10 years. What would you do?",
     options: choices(
       2,
-      "Keep the cash at home — the amount will always stay ₹20,000",
+      "Keep the cash at home. The amount will always stay ₹20,000",
       "Spend it now, since it'll be worth less later anyway",
       "Thank her, keep some aside for emergencies, and learn how to grow the rest faster than prices rise",
       "Put it all into whatever a friend says is going up this week",
     ),
     explanation:
-      "Cash at home never loses rupees, but it loses buying power every year — at 6% inflation, it buys about half as much in 12 years. Money you won't need for a decade has time to be invested sensibly, after an emergency buffer is in place.",
+      "Cash at home never loses rupees, but it loses buying power every year. At 6% inflation, it buys about half as much in 12 years. Money you won't need for a decade has time to be invested sensibly, after an emergency buffer is in place.",
   },
   questions: [
     {
       prompt: "A ₹100 note buys less today than it did five years ago. What has fallen?",
-      explanation: "The note's face value is the same — its purchasing power, what it can buy, has fallen because prices rose.",
+      explanation: "The note's face value is the same, but its purchasing power (what it can buy) has fallen because prices rose.",
       hint: "The number printed on the note didn't change. What did?",
       difficulty: "EASY",
       options: choices(
@@ -82,7 +82,7 @@ Her number went up. **What happened to what her money can buy?**`,
     {
       prompt: "What's the key difference between saving and investing?",
       explanation:
-        "Saving keeps money safe and available for near-term needs. Investing puts it into assets that can grow faster than prices — with ups and downs along the way.",
+        "Saving keeps money safe and available for near-term needs. Investing puts it into assets that can grow faster than prices, with ups and downs along the way.",
       hint: "One is about safety and access; the other is about growth over time.",
       difficulty: "EASY",
       options: choices(
@@ -103,7 +103,7 @@ Her number went up. **What happened to what her money can buy?**`,
     {
       prompt: "What does India's Consumer Price Index (CPI) track?",
       explanation:
-        "CPI tracks the prices of a basket of everyday goods and services — food, rent, fuel, clothes and more. Its change over a year is the headline retail inflation rate.",
+        "CPI tracks the prices of a basket of everyday goods and services: food, rent, fuel, clothes and more. Its change over a year is the headline retail inflation rate.",
       hint: "The name says “consumer” and “price”.",
       difficulty: "MEDIUM",
       options: choices(
@@ -116,8 +116,8 @@ Her number went up. **What happened to what her money can buy?**`,
     },
     {
       prompt: "A thali costs ₹500 today. If prices rise 6% every year, about how much will it cost in 10 years?",
-      explanation: "₹500 × 1.06¹⁰ ≈ ₹895. Rising prices compound just like returns do — which is why money needs to grow too.",
-      hint: "It isn't 6% × 10 = 60% — each year's rise builds on the last.",
+      explanation: "₹500 × 1.06¹⁰ ≈ ₹895. Rising prices compound just like returns do, which is why money needs to grow too.",
+      hint: "It isn't 6% × 10 = 60%. Each year's rise builds on the last.",
       difficulty: "HARD",
       options: choices(2, "₹530", "₹800", "About ₹895", "₹1,500"),
     },
@@ -129,7 +129,7 @@ const stockMarket: SeedLesson = {
   title: "How the Stock Market Actually Works",
   icon: "🏛️",
   area: "INVESTING",
-  description: "Exchanges, SEBI, demat accounts, IPOs and the Sensex — what's really happening when people say “the market fell today”.",
+  description: "Exchanges, SEBI, demat accounts, IPOs and the Sensex: what's really happening when people say “the market fell today”.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 102,
@@ -138,11 +138,11 @@ const stockMarket: SeedLesson = {
 What is the Sensex, and should you care?`,
   learn: `## Where shares are bought and sold
 
-A **stock exchange** is a marketplace where shares change hands. India's two main ones are the **NSE** (National Stock Exchange) and the **BSE** (Bombay Stock Exchange). You don't trade there directly — you go through a **broker**, usually an app.
+A **stock exchange** is a marketplace where shares change hands. India's two main ones are the **NSE** (National Stock Exchange) and the **BSE** (Bombay Stock Exchange). You don't trade there directly. You go through a **broker**, usually an app.
 
 ## Who keeps it fair
 
-**SEBI** (Securities and Exchange Board of India) regulates the market: exchanges, brokers, mutual funds and advisers. A broker or adviser should be **SEBI-registered** — you can check on SEBI's website.
+**SEBI** (Securities and Exchange Board of India) regulates the market: exchanges, brokers, mutual funds and advisers. A broker or adviser should be **SEBI-registered**, you can check on SEBI's website.
 
 ## Where your shares live
 
@@ -150,15 +150,15 @@ Shares are held electronically in a **demat account**, linked to your trading ac
 
 ## IPOs vs the regular market
 
-When a company first sells shares to the public, that's an **IPO** — the primary market. After listing, investors buy and sell those shares among themselves on the exchange — the secondary market. Most trading happens there; the company doesn't get your money when you buy from another investor.
+When a company first sells shares to the public, that's an **IPO**: the primary market. After listing, investors buy and sell those shares among themselves on the exchange. That's the secondary market. Most trading happens there; the company doesn't get your money when you buy from another investor.
 
 ## Why prices move
 
-Prices move with **demand and supply**: when more people want to buy than sell, the price rises. What people expect about a company's future profits drives that demand — which is why prices can jump or drop on news.
+Prices move with **demand and supply**: when more people want to buy than sell, the price rises. What people expect about a company's future profits drives that demand, which is why prices can jump or drop on news.
 
 ## The indices
 
-The **Sensex** tracks 30 large companies on the BSE; the **Nifty 50** tracks 50 on the NSE. They're averages that show the general mood — not what any one share did.`,
+The **Sensex** tracks 30 large companies on the BSE; the **Nifty 50** tracks 50 on the NSE. They're averages that show the general mood, not what any one share did.`,
   keyTerms: [
     { term: "Stock exchange", definition: "The regulated marketplace where shares are bought and sold, like the NSE and BSE." },
     { term: "SEBI", definition: "India's market regulator for exchanges, brokers, mutual funds and advisers." },
@@ -168,7 +168,7 @@ The **Sensex** tracks 30 large companies on the BSE; the **Nifty 50** tracks 50 
   ],
   example: `**Aditya buys 10 shares of a company at ₹200** through his broker app on Monday.
 
-- His ₹2,000 goes to **another investor** who was selling — not to the company.
+- His ₹2,000 goes to **another investor** who was selling, not to the company.
 - The shares show up in his **demat account** on Tuesday (T+1).
 - On Wednesday, the company reports weak profits. More people want to sell than buy, and the price drops to **₹185**.
 
@@ -189,15 +189,15 @@ The **Sensex** tracks 30 large companies on the BSE; the **Nifty 50** tracks 50 
   questions: [
     {
       prompt: "Who regulates India's stock market, brokers and mutual funds?",
-      explanation: "SEBI, the Securities and Exchange Board of India, regulates the securities market — exchanges, brokers, mutual funds and investment advisers.",
+      explanation: "SEBI, the Securities and Exchange Board of India, regulates the securities market: exchanges, brokers, mutual funds and investment advisers.",
       hint: "It's the market regulator, not the bank regulator.",
       difficulty: "EASY",
       options: choices(2, "The RBI", "The stock exchanges themselves", "SEBI", "Your broker app"),
     },
     {
       prompt: "What's a demat account for?",
-      explanation: "A demat account holds your shares electronically — like a bank account, but for securities instead of cash.",
-      hint: "“Demat” comes from dematerialised — shares that used to be paper certificates.",
+      explanation: "A demat account holds your shares electronically, like a bank account, but for securities instead of cash.",
+      hint: "“Demat” comes from dematerialised: shares that used to be paper certificates.",
       difficulty: "EASY",
       options: choices(
         0,
@@ -210,7 +210,7 @@ The **Sensex** tracks 30 large companies on the BSE; the **Nifty 50** tracks 50 
     {
       prompt: "You buy shares of a company that listed five years ago, through your broker app. Who gets your money?",
       explanation:
-        "After an IPO, shares trade between investors on the exchange. Your money goes to whoever sold the shares — not to the company.",
+        "After an IPO, shares trade between investors on the exchange. Your money goes to whoever sold the shares, not to the company.",
       hint: "The company sold its shares to the public once, at its IPO. Who's selling now?",
       difficulty: "MEDIUM",
       options: choices(
@@ -224,7 +224,7 @@ The **Sensex** tracks 30 large companies on the BSE; the **Nifty 50** tracks 50 
     {
       prompt: "A company's share price jumps 8% in a day. What usually explains it?",
       explanation:
-        "Prices move with demand and supply. When more people want to buy than sell — often after news that changes expectations — the price rises.",
+        "Prices move with demand and supply. When more people want to buy than sell, often after news that changes expectations, the price rises.",
       hint: "Think of an auction: what happens when more people want the same thing?",
       difficulty: "MEDIUM",
       options: choices(
@@ -245,7 +245,7 @@ The **Sensex** tracks 30 large companies on the BSE; the **Nifty 50** tracks 50 
         2,
         "Your share also fell exactly 2%",
         "Your share must have fallen more than 2%",
-        "Not much — it's an average of 30 large companies, and your share could have moved differently",
+        "Not much. It's an average of 30 large companies, and your share could have moved differently",
         "Your share is now worth nothing",
       ),
     },
@@ -266,43 +266,43 @@ const indexFunds: SeedLesson = {
 Same companies, same market. Where did the gap come from?`,
   learn: `## The fee you never see
 
-Every mutual fund charges a yearly fee called the **expense ratio**, taken quietly from the fund's value. A 1% expense ratio on ₹50,000 is about ₹500 a year. It sounds small — but it's charged every year, on a growing amount, so it compounds against you.
+Every mutual fund charges a yearly fee called the **expense ratio**, taken quietly from the fund's value. A 1% expense ratio on ₹50,000 is about ₹500 a year. It sounds small, but it's charged every year, on a growing amount, so it compounds against you.
 
 ## Direct vs regular plans
 
-The same fund comes in two versions. A **regular plan** pays a commission to the distributor who sold it; a **direct plan** doesn't, so its expense ratio is lower. Same portfolio, same manager — less cost.
+The same fund comes in two versions. A **regular plan** pays a commission to the distributor who sold it; a **direct plan** doesn't, so its expense ratio is lower. Same portfolio, same manager, less cost.
 
 ## Why index funds are cheap
 
-An **index fund** copies an index instead of paying a team to pick stocks, so its costs are usually low. Many actively managed funds fail to beat their index over long periods once fees are counted — which is a big reason index funds are popular with beginners.
+An **index fund** copies an index instead of paying a team to pick stocks, so its costs are usually low. Many actively managed funds fail to beat their index over long periods once fees are counted, which is a big reason index funds are popular with beginners.
 
 ## Time in the market beats timing the market
 
-Nobody reliably predicts the next fall or rise. Some of the market's best days have come soon after its worst ones — so people who sell in a panic and wait for “the right time” often miss the recovery. Staying invested through ups and downs, for goals many years away, has historically mattered more than clever timing. That's history, not a guarantee.`,
+Nobody reliably predicts the next fall or rise. Some of the market's best days have come soon after its worst ones, so people who sell in a panic and wait for “the right time” often miss the recovery. Staying invested through ups and downs, for goals many years away, has historically mattered more than clever timing. That's history, not a guarantee.`,
   keyTerms: [
     { term: "Expense ratio", definition: "A fund's yearly fee, as a percentage of what you've invested." },
     { term: "Direct plan", definition: "A version of a fund bought without a distributor, with a lower expense ratio." },
     { term: "Active fund", definition: "A fund whose managers pick investments, trying to beat the market." },
-    { term: "Market timing", definition: "Trying to buy before rises and sell before falls — very hard to do reliably." },
+    { term: "Market timing", definition: "Trying to buy before rises and sell before falls, very hard to do reliably." },
   ],
   example: `**Kunal and Simran each invest ₹1,00,000 once** in Nifty 50 index funds and leave it for 20 years. Assume the index returns 10% a year.
 
 - **Kunal's fund** charges 0.2% → he earns about 9.8% a year → about **₹6.5 lakh**.
 - **Simran's fund** charges 1.5% → she earns about 8.5% a year → about **₹5.1 lakh**.
 
-Illustration only — real returns vary. **Is a 1.3% difference in fees really “small”?**`,
+Illustration only. Real returns vary. **Is a 1.3% difference in fees really “small”?**`,
   scenario: {
     prompt:
       "Markets have fallen for three months straight. A friend says, “Stop your SIP, keep the cash, and restart when markets look safe again.” Your goal is 15 years away. What would you do?",
     options: choices(
       0,
-      "Keep investing as planned — nobody can reliably tell when “safe” is",
+      "Keep investing as planned. Nobody can reliably tell when “safe” is",
       "Stop now and restart once prices have recovered",
       "Sell everything to avoid further falls",
       "Double down by borrowing money to invest",
     ),
     explanation:
-      "Waiting for markets to “look safe” usually means buying back after prices have already recovered. For a goal 15 years away, steady investing through falls has historically worked better than trying to time them — though nothing is guaranteed.",
+      "Waiting for markets to “look safe” usually means buying back after prices have already recovered. For a goal 15 years away, steady investing through falls has historically worked better than trying to time them, though nothing is guaranteed.",
   },
   questions: [
     {
@@ -333,7 +333,7 @@ Illustration only — real returns vary. **Is a 1.3% difference in fees really �
     },
     {
       prompt: "You have ₹50,000 in a fund with a 1% expense ratio. Roughly what does that cost you this year?",
-      explanation: "1% of ₹50,000 is ₹500 — and it's charged every year on a growing amount.",
+      explanation: "1% of ₹50,000 is ₹500, and it's charged every year on a growing amount.",
       hint: "Find 1% of your investment.",
       difficulty: "MEDIUM",
       options: choices(0, "About ₹500", "About ₹50", "About ₹5,000", "Nothing unless you sell"),
@@ -356,10 +356,10 @@ Illustration only — real returns vary. **Is a 1.3% difference in fees really �
       prompt:
         "Two index funds track the same index. One charges 0.2% a year, the other 1.5%. You invest ₹1 lakh in one for 20 years. Assuming the index grows 10% a year, about how much more does the cheaper one leave you?",
       explanation:
-        "At about 9.8% a year you'd have roughly ₹6.5 lakh; at about 8.5%, roughly ₹5.1 lakh — a gap of about ₹1.4 lakh from fees alone (illustration only).",
-      hint: "The fee gap is 1.3% a year — but it compounds over 20 years.",
+        "At about 9.8% a year you'd have roughly ₹6.5 lakh; at about 8.5%, roughly ₹5.1 lakh, a gap of about ₹1.4 lakh from fees alone (illustration only).",
+      hint: "The fee gap is 1.3% a year, but it compounds over 20 years.",
       difficulty: "HARD",
-      options: choices(1, "About ₹1,300", "About ₹1.4 lakh", "About ₹13,000", "Nothing — the same index gives the same result"),
+      options: choices(1, "About ₹1,300", "About ₹1.4 lakh", "About ₹13,000", "Nothing, the same index gives the same result"),
     },
   ],
 };
@@ -380,9 +380,9 @@ Where do you even begin?`,
 
 To invest in mutual funds or shares in India you complete **KYC** (Know Your Customer) once, with your **PAN** and an ID and address proof such as Aadhaar. You'll also need a bank account in your name.
 
-## Demat — only if you need it
+## Demat, only if you need it
 
-You need a **demat account** to buy shares or exchange-traded funds. You **don't** need one for regular mutual funds — you can invest directly with the fund house or through a mutual fund platform.
+You need a **demat account** to buy shares or exchange-traded funds. You **don't** need one for regular mutual funds. You can invest directly with the fund house or through a mutual fund platform.
 
 ## Start with the why
 
@@ -407,21 +407,21 @@ Many funds let you start a SIP from ₹100–₹500 a month. Starting small lets
   ],
   example: `**Nisha, 22, has her first salary.** Before picking a fund, she writes down:
 
-1. **Emergency fund** — 3 months of expenses, in a savings account and FD. Done.
-2. **Goal** — a bike in 18 months (steady option) and “future me” in 20+ years (can take ups and downs).
-3. **KYC** — done once, with PAN and Aadhaar.
-4. **Start** — a ₹1,000 SIP for the long-term goal, and an RD for the bike.
+1. **Emergency fund**: 3 months of expenses, in a savings account and FD. Done.
+2. **Goal**: a bike in 18 months (steady option) and “future me” in 20+ years (can take ups and downs).
+3. **KYC**: done once, with PAN and Aadhaar.
+4. **Start**: a ₹1,000 SIP for the long-term goal, and an RD for the bike.
 
 **Why do you think she split the money by goal instead of picking one “best” fund?**`,
   scenario: {
     prompt:
-      "An influencer with 2 million followers says, “This small-cap fund will give 40% this year — use my link to invest.” You're just starting. What would you do?",
+      "An influencer with 2 million followers says, “This small-cap fund will give 40% this year. Use my link to invest.” You're just starting. What would you do?",
     options: choices(
       3,
       "Invest your whole savings through the link before it's too late",
       "Invest, since so many followers can't be wrong",
       "Ask in the comments whether it's guaranteed",
-      "Skip it — no one can promise a return, and a referral link means they may earn from your choice",
+      "Skip it. No one can promise a return, and a referral link means they may earn from your choice",
     ),
     explanation:
       "Nobody can promise what a fund will return this year. Influencers can earn from links and courses, and only SEBI-registered advisers may charge for personal advice. Start from your own goal and time horizon, not someone else's tip.",
@@ -442,7 +442,7 @@ Many funds let you start a SIP from ₹100–₹500 a month. Starting small lets
       options: choices(
         1,
         "Yes, always",
-        "No — demat is for shares and ETFs; mutual funds can be bought without one",
+        "No, demat is for shares and ETFs; mutual funds can be bought without one",
         "Only for SIPs above ₹10,000",
         "Only if you're under 25",
       ),
@@ -476,7 +476,7 @@ Many funds let you start a SIP from ₹100–₹500 a month. Starting small lets
     {
       prompt: "You realise you'd probably sell in a panic if your investments fell 30%. What does that suggest?",
       explanation:
-        "Pick an asset allocation you can stick with — perhaps a smaller share in equity for now. A mix you abandon in a fall does more damage than a steadier one you hold.",
+        "Pick an asset allocation you can stick with, perhaps a smaller share in equity for now. A mix you abandon in a fall does more damage than a steadier one you hold.",
       hint: "The best plan is the one you'll actually follow when things get rough.",
       difficulty: "HARD",
       options: choices(
@@ -497,7 +497,7 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "A ₹500 recharge pack now gives less data than it did three years ago, at the same price. What's that an example of?",
       options: choices(1, "Higher interest rates", "Your money's purchasing power falling", "Better value for money", "A tax refund"),
-      explanation: "Paying the same and getting less means your rupees buy less — that's falling purchasing power.",
+      explanation: "Paying the same and getting less means your rupees buy less. That's falling purchasing power.",
     },
     {
       prompt: "Which of these is investing rather than saving?",
@@ -508,12 +508,12 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
         "Keeping cash in your wallet",
         "Dropping coins in a piggy bank",
       ),
-      explanation: "Investing means putting money into assets that can grow over years, accepting ups and downs. The others keep money safe and ready — that's saving.",
+      explanation: "Investing means putting money into assets that can grow over years, accepting ups and downs. The others keep money safe and ready. That's saving.",
     },
     {
       prompt: "An RD pays 6.5% a year and inflation runs at 5%. Roughly what's the real return, before tax?",
       options: choices(3, "11.5%", "6.5%", "0%", "About 1.5%"),
-      explanation: "6.5% − 5% ≈ 1.5%. Your money still grows faster than prices — just not by much.",
+      explanation: "6.5% − 5% ≈ 1.5%. Your money still grows faster than prices, just not by much.",
     },
     {
       prompt: "Headline CPI inflation is 5%, but your PG rent and mess fees rose 10% this year. What does that tell you?",
@@ -523,7 +523,7 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "A ₹1,000 pair of jeans today. At 6% inflation a year, about what will it cost in 10 years?",
       options: choices(1, "₹1,060", "About ₹1,790", "₹1,600", "₹6,000"),
-      explanation: "₹1,000 × 1.06¹⁰ ≈ ₹1,790 — inflation compounds, so it's more than 60% higher.",
+      explanation: "₹1,000 × 1.06¹⁰ ≈ ₹1,790. Inflation compounds, so it's more than 60% higher.",
     },
   ],
   "how-stock-market-works": [
@@ -540,7 +540,7 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "A company's IPO opens next week. Who receives the money from shares sold in the IPO?",
       options: choices(0, "The company (and any existing owners selling)", "The stock exchange", "Your broker", "Other retail investors"),
-      explanation: "In an IPO, the company sells shares to the public — this is the primary market. After listing, investors trade among themselves.",
+      explanation: "In an IPO, the company sells shares to the public. This is the primary market. After listing, investors trade among themselves.",
     },
     {
       prompt: "After disappointing results, more investors want to sell a share than buy it. What usually happens to its price?",
@@ -549,7 +549,7 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
     },
     {
       prompt: "The Nifty 50 rose 1% today, but your one share fell 3%. Is that possible?",
-      options: choices(2, "No — it's an error", "Only on weekends", "Yes — the index is an average of 50 companies, and single shares can move differently", "Only if you own an index fund"),
+      options: choices(2, "No. It's an error", "Only on weekends", "Yes, the index is an average of 50 companies, and single shares can move differently", "Only if you own an index fund"),
       explanation: "An index is an average. Individual shares can rise or fall on their own news, whatever the index does.",
     },
   ],
@@ -567,7 +567,7 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
     {
       prompt: "₹2,00,000 sits in a fund with a 1.5% expense ratio. Roughly what's this year's fee?",
       options: choices(2, "₹300", "₹1,500", "About ₹3,000", "₹30,000"),
-      explanation: "1.5% of ₹2,00,000 is ₹3,000 — every year.",
+      explanation: "1.5% of ₹2,00,000 is ₹3,000, every year.",
     },
     {
       prompt: "After a 15% fall, a friend moves everything to cash, planning to buy back “when it's safe”. What's the usual risk?",
@@ -576,7 +576,7 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
     },
     {
       prompt: "Over 20 years, why can a 1% higher yearly fee make a big difference?",
-      options: choices(1, "It's charged only once", "It's charged every year on a growing amount, so the cost compounds", "It doesn't — 1% is tiny", "Fees are refunded after 20 years"),
+      options: choices(1, "It's charged only once", "It's charged every year on a growing amount, so the cost compounds", "It doesn't, 1% is tiny", "Fees are refunded after 20 years"),
       explanation: "A fee charged every year on a growing balance compounds against you, just like returns compound for you.",
     },
   ],
@@ -588,18 +588,18 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
     },
     {
       prompt: "You only want to invest in mutual funds through SIPs. Do you need a demat account?",
-      options: choices(0, "No — mutual funds can be bought without one", "Yes, it's mandatory", "Only for index funds", "Only after age 21"),
+      options: choices(0, "No, mutual funds can be bought without one", "Yes, it's mandatory", "Only for index funds", "Only after age 21"),
       explanation: "A demat account is for shares and ETFs; mutual fund SIPs don't require one.",
     },
     {
       prompt: "You want money for a laptop in 10 months and for retirement in 35 years. What's the sensible approach?",
       options: choices(1, "Put both in the same high-risk fund", "Treat them as separate goals: steady for the laptop, growth-oriented for the long term", "Put both in cash at home", "Skip the laptop goal"),
-      explanation: "Different time horizons need different approaches — near-term money stays steady, long-term money can take ups and downs.",
+      explanation: "Different time horizons need different approaches: near-term money stays steady, long-term money can take ups and downs.",
     },
     {
       prompt: "A Telegram channel charges ₹2,999 a month for “sure-shot” fund tips. What's the key check?",
       options: choices(3, "Its number of members", "Whether the tips sound confident", "Whether it accepts UPI", "Whether it's SEBI-registered to give paid advice"),
-      explanation: "Paid personal investment advice requires SEBI registration — and no one can guarantee “sure-shot” returns.",
+      explanation: "Paid personal investment advice requires SEBI registration, and no one can guarantee “sure-shot” returns.",
     },
     {
       prompt: "You picked a high-risk mix but lost sleep when it fell 10%. What's a sensible next step?",

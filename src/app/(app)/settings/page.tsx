@@ -12,7 +12,7 @@ import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/Men
 import { card, secondaryButton } from "@/components/ui/button-styles";
 import { AlertIcon, DocumentIcon, InfoIcon, LockIcon, MailIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Settings — StockStreak" };
+export const metadata: Metadata = { title: "Settings | StockStreak" };
 
 const LEGAL_ICONS: Record<string, React.ReactNode> = {
   "/about": <InfoIcon />,
@@ -39,7 +39,7 @@ export default async function SettingsPage() {
         </h2>
         <p className="mt-1 text-sm text-slate-600">Your name, college, stage and learning goal. Your avatar uses your name, so it updates everywhere.</p>
         <div className="mt-4">
-          <ProfileForm displayName={displayName} collegeName={user.collegeName ?? ""} stage={user.stage ?? ""} goal={user.goal ?? ""} />
+          <ProfileForm displayName={displayName} collegeName={user.collegeName ?? ""} stage={user.stage ?? ""} goals={user.goals} />
         </div>
       </section>
 

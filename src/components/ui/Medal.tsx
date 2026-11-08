@@ -9,7 +9,7 @@ const TAIL_SHAPE = "[clip-path:polygon(0_0,100%_0,100%_100%,50%_78%,0_100%)]";
 /**
  * A medal on a violet ribbon, for badges and celebrations: warm gold with a
  * slow shine when earned, a quiet outline while still locked. Takes an icon
- * from the app's icon family. Purely decorative — pair it with a text label.
+ * from the app's icon family. Purely decorative, pair it with a text label.
  */
 export function Medal({ icon, earned = true, size = "md" }: { icon: React.ReactNode; earned?: boolean; size?: keyof typeof SIZES }) {
   const s = SIZES[size];

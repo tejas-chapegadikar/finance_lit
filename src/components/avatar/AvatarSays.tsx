@@ -3,7 +3,7 @@ import { Avatar, type Expression } from "./Avatar";
 
 /**
  * The student's avatar with a speech bubble, placed in a page (not a pop-up)
- * — the same avatar everywhere, with the expression and line for the place.
+ *, the same avatar everywhere, with the expression and line for the place.
  */
 export function AvatarSays({
   config,
