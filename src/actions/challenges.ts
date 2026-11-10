@@ -7,7 +7,7 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { istDay } from "@/lib/ist-date";
 import { isAllowed, moneyRatelimit } from "@/lib/ratelimit";
 import { awardXp, lockUser, xpKeys } from "@/lib/xp";
-import { recordStreakDay } from "@/lib/streak";
+import { completeQuest } from "@/lib/quests";
 import { awardMoneyBadges } from "@/lib/badges";
 import { findChallenge, getChallengeProgress } from "@/lib/challenges";
 
@@ -102,7 +102,7 @@ export async function completeChallengeStep(challengeId: string, choice?: number
     } else if (challenge.kind === "habit") {
       await queueAvatarEvent(tx, user.id, "habit-step", `habit-step:${enrollment.id}:${stepNumber}`, { day: stepNumber });
     }
-    await recordStreakDay(tx, user.id);
+    await completeQuest(tx, user.id, "learn");
     return { status: "done" as const, stepNumber, xpAwarded, finished };
   }, SLOW_DB_TRANSACTION);
 

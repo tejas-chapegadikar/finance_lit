@@ -108,7 +108,7 @@ export function DailyColumns({ month }: { month: MoneyMonth }) {
   return (
     <div>
       <div className="flex gap-2">
-        <div aria-hidden className="flex h-40 flex-col justify-between py-0 text-right text-[11px] text-slate-400 tabular-nums">
+        <div aria-hidden className="flex h-40 flex-col justify-between py-0 text-right text-[11px] text-slate-500 tabular-nums">
           <span>{rupees(top)}</span>
           <span>₹0</span>
         </div>
@@ -138,7 +138,7 @@ export function DailyColumns({ month }: { month: MoneyMonth }) {
             <div aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-slate-900/60" style={{ bottom: `${(dailyBudget / top) * 100}%` }}>
             </div>
           )}
-          <div aria-hidden className="mt-1.5 flex justify-between text-[11px] text-slate-400 tabular-nums">
+          <div aria-hidden className="mt-1.5 flex justify-between text-[11px] text-slate-500 tabular-nums">
             {[1, 8, 15, 22, month.daysInMonth].map((n) => (
               <span key={n}>{n}</span>
             ))}
@@ -185,7 +185,7 @@ export function TrendColumns({ points, unit, caption }: { points: { key: string;
   return (
     <div>
       <div className="flex gap-2">
-        <div aria-hidden className="flex h-32 flex-col justify-between text-right text-[11px] text-slate-400 tabular-nums">
+        <div aria-hidden className="flex h-32 flex-col justify-between text-right text-[11px] text-slate-500 tabular-nums">
           <span>{rupees(top)}</span>
           <span>₹0</span>
         </div>
@@ -202,7 +202,7 @@ export function TrendColumns({ points, unit, caption }: { points: { key: string;
               </div>
             ))}
           </div>
-          <div aria-hidden className="mt-1.5 flex gap-1 text-[11px] text-slate-400 tabular-nums">
+          <div aria-hidden className="mt-1.5 flex gap-1 text-[11px] text-slate-500 tabular-nums">
             {points.map((p, i) => (
               <span key={p.key} className="flex-1 truncate text-center">
                 {unit === "month" || i === 0 || i === points.length - 1 ? (p.current ? (unit === "week" ? "This wk" : p.label) : p.label) : ""}

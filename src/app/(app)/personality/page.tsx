@@ -9,7 +9,7 @@ import { Burst } from "@/components/ui/Burst";
 import { primaryButton, secondaryButton, spotlight, tile } from "@/components/ui/button-styles";
 import { ArrowRightIcon, CheckIcon, AlertIcon, SparklesIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Your money personality | StockStreak" };
+export const metadata: Metadata = { title: "Your money personality | Rupli" };
 
 // The Money Personality Quiz and its result. A playful starting point that
 // shapes suggestions, never a permanent label. Retake it anytime.
@@ -55,7 +55,7 @@ export default async function PersonalityPage(props: PageProps<"/personality">) 
       <section className={`${spotlight} p-7 text-center sm:p-10`} aria-labelledby="personality-name">
         <span
           aria-hidden
-          className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]"
+          className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.5),transparent_62%)]"
         />
         <span className="relative mx-auto flex h-16 w-16 animate-pop items-center justify-center rounded-full bg-white/10 text-brand-300">
           <Burst />

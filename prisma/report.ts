@@ -119,7 +119,7 @@ async function main() {
   // AI Coach follow-ups: how many, on how many distinct questions.
   const followUpQuestions = new Set(followUps.map((f) => `${f.userId}|${f.questionId}`));
 
-  console.log(`\nStockStreak launch metrics, ${students.length} students\n`);
+  console.log(`\nRupli launch metrics, ${students.length} students\n`);
   row("Signup → opened first lesson", pct(viewed.size, students.length), `${viewed.size} of ${students.length}`);
   row("Signup → completed first lesson", pct(finishedOne.size, students.length), `${finishedOne.size} of ${students.length}`);
   row("Lesson completion rate", pct(completedPairs.size, startedPairs.size), `${completedPairs.size} of ${startedPairs.size} started lessons`);

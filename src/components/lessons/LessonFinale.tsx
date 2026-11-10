@@ -52,7 +52,7 @@ export function LessonFinale({
       <section className={`${spotlight} flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:p-8`} aria-labelledby="quiz-heading">
         <span
           aria-hidden
-          className="pointer-events-none absolute -top-32 -right-24 -z-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.45),transparent_62%)]"
+          className="pointer-events-none absolute -top-32 -right-24 -z-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.45),transparent_62%)]"
         />
         <div className="flex-1">
           <StepLabel id="quiz-heading" step={quizStep} title="Ready for the quiz?" tone="dark" />

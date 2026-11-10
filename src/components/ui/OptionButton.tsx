@@ -10,7 +10,7 @@ const TILE: Record<OptionState, string> = {
   idle: "border-slate-200 bg-white text-slate-800 enabled:hover:-translate-y-px enabled:hover:border-slate-300 enabled:hover:shadow-[0_8px_20px_-16px_rgb(30_28_26/0.4)]",
   pending: "border-brand-500 bg-brand-50 text-slate-900",
   wrong: "animate-shake border-rose-300 bg-rose-50 text-rose-900",
-  correct: "border-emerald-500 bg-emerald-50 text-emerald-950",
+  correct: "answer-right border-emerald-500 bg-emerald-50 text-emerald-950",
   dimmed: "border-slate-200 bg-white text-slate-500 opacity-60",
 };
 
@@ -19,7 +19,7 @@ const BADGE: Record<OptionState, string> = {
   pending: "bg-brand-600 text-white",
   wrong: "bg-rose-600 text-white",
   correct: "bg-emerald-600 text-white",
-  dimmed: "bg-slate-100 text-slate-400",
+  dimmed: "bg-slate-100 text-slate-500",
 };
 
 /** One lettered answer tile, used by quiz questions, lesson scenarios and the daily challenge. */

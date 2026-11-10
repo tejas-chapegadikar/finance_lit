@@ -147,7 +147,7 @@ const creditCardBill: ScenarioDef = {
         {
           text: "₹620, the minimum amount due",
           points: 0,
-          feedback: "The minimum only avoids a late fee. Anything unpaid starts attracting interest.",
+          feedback: "The minimum only avoids a late fee. Anything unpaid starts getting charged interest.",
         },
         {
           text: "₹12,400, the total amount due",
@@ -172,7 +172,7 @@ const creditCardBill: ScenarioDef = {
           text: "Only the ₹620 minimum, I'll keep the cash",
           points: 0,
           feedback:
-            "No late fee, but about ₹11,780 is left unpaid. Card interest is often around 3–3.75% a month (roughly 36–45% a year), usually counted from each purchase date, and new purchases can lose their interest-free period. Illustrative; check your card's terms.",
+            "No late fee, but about ₹11,780 is left unpaid. Card interest is often around 3–3.75% a month (roughly 36–45% a year), usually counted from each purchase date, and new purchases can lose their interest-free period. Just an example; check your card's terms.",
         },
         {
           text: "₹5,000 now, the rest next month",
@@ -306,7 +306,7 @@ const firstSalary: ScenarioDef = {
   lessonSlug: "first-salary-tax",
   summary: "Read an illustrative first payslip: CTC, gross pay, deductions and what actually reaches your bank.",
   intro:
-    "Neha's offer letter says **₹6 LPA CTC**. Her first payslip has just arrived. Numbers are illustrative. Real deductions depend on your employer, state and tax choices.",
+    "Neha's offer letter says **₹6 LPA CTC**. Her first payslip has just arrived. Numbers are just examples. Real deductions depend on your employer, state and tax choices.",
   exhibit: {
     kind: "payslip",
     employee: "Neha, Junior Analyst · Tax year 2026-27, new regime",

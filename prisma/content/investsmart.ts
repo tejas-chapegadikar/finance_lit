@@ -14,35 +14,43 @@ const inflation: SeedLesson = {
   title: "Inflation: Why Saving Alone Isn't Enough",
   icon: "🎈",
   area: "INVESTING",
-  description: "What investing actually means, why prices quietly shrink your money, and how to tell a real return from a fake one.",
+  description: "Your money is shrinking while it sits there. Nobody told you because nobody likes you. Kidding. Mostly.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 101,
   hook: `A plate of momos cost ₹60 when you were in school. Now it's ₹120.
 
-The momos didn't get bigger. So what changed: the momos, or your money?`,
-  learn: `## Purchasing power
+The momos didn't get bigger. Your money got weaker, and you didn't even notice.`,
+  learn: `## Buying power
 
-**Inflation** is prices rising over time. When prices rise, the same ₹100 buys less, its **purchasing power** falls. Money that just sits still slowly shrinks, even though the number doesn't change.
+**Inflation** is prices rising over time. When prices rise, the same ₹100 buys less, its **buying power** falls. Money that just sits still slowly shrinks, even though the number doesn't change.
 
 ## How India measures it
+
+There's an official number for why you're broke.
 
 India tracks inflation with the **Consumer Price Index (CPI)**, a basket of everyday things like food, rent, fuel and clothes. The RBI aims to keep CPI inflation around **4%**, within a band of **2–6%**. Some years run hotter, and your own inflation (rent, tuition, data plans) can be higher than the average.
 
 ## Saving vs investing
 
+You've been using these words as if they mean the same thing.
+
 **Saving** keeps money safe and ready, for next month's rent or an emergency. **Investing** puts money into things that can grow faster than prices, like shares or mutual funds, in exchange for ups and downs along the way. You need both: savings for the near future, investing for goals that are years away.
 
 ## The real return
+
+That 7% you're proud of? Hold on.
 
 What you earn after inflation is your **real return**: roughly the return minus inflation. A 7% FD with 5% inflation grows your buying power by only about 2% a year (before tax). A 3% savings account with 5% inflation is a slow leak.
 
 ## Your inflation isn't the average
 
+Government says prices rose a bit. Your rent disagrees.
+
 CPI is an average across the country. If most of your money goes on rent, tuition or travel, and those rise faster, your personal inflation can be well above the headline number. That's why the goal is to grow money faster than the prices *you* pay.`,
   keyTerms: [
     { term: "Inflation", definition: "The general rise in prices over time." },
-    { term: "Purchasing power", definition: "How much your money can actually buy." },
+    { term: "Buying power", definition: "How much your money can actually buy." },
     { term: "CPI", definition: "Consumer Price Index: India's main measure of retail inflation." },
     { term: "Real return", definition: "Your return after inflation, roughly the return minus the inflation rate." },
   ],
@@ -68,13 +76,13 @@ Her number went up. **What happened to what her money can buy?**`,
   questions: [
     {
       prompt: "A ₹100 note buys less today than it did five years ago. What has fallen?",
-      explanation: "The note's face value is the same, but its purchasing power (what it can buy) has fallen because prices rose.",
+      explanation: "The note's face value is the same, but its buying power (what it can buy) has fallen because prices rose.",
       hint: "The number printed on the note didn't change. What did?",
       difficulty: "EASY",
       options: choices(
         1,
         "The number printed on the note",
-        "Its purchasing power",
+        "Its buying power",
         "The interest rate on your account",
         "The value of gold",
       ),
@@ -129,34 +137,44 @@ const stockMarket: SeedLesson = {
   title: "How the Stock Market Actually Works",
   icon: "🏛️",
   area: "INVESTING",
-  description: "Exchanges, SEBI, demat accounts, IPOs and the Sensex: what's really happening when people say “the market fell today”.",
+  description: "What people actually mean when they say \"the market fell\". You've been nodding at this for years.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 102,
-  hook: `The news says: “Sensex crashes 800 points!” Your uncle panics. Your roommate shrugs.
+  hook: `The news says: "Sensex crashes 800 points!" Your uncle panics. Your roommate shrugs.
 
-What is the Sensex, and should you care?`,
+You have no idea which one to copy. What is the Sensex, and should you care?`,
   learn: `## Where shares are bought and sold
 
 A **stock exchange** is a marketplace where shares change hands. India's two main ones are the **NSE** (National Stock Exchange) and the **BSE** (Bombay Stock Exchange). You don't trade there directly. You go through a **broker**, usually an app.
 
 ## Who keeps it fair
 
+Yes, someone's in charge. No, it's not that guy on Telegram.
+
 **SEBI** (Securities and Exchange Board of India) regulates the market: exchanges, brokers, mutual funds and advisers. A broker or adviser should be **SEBI-registered**, you can check on SEBI's website.
 
 ## Where your shares live
+
+Not in the app. Surprise.
 
 Shares are held electronically in a **demat account**, linked to your trading account and bank account. When you buy, the shares land in your demat account; India settles most trades the next working day (**T+1**).
 
 ## IPOs vs the regular market
 
+You've heard the word IPO at parties. Time to find out what it means.
+
 When a company first sells shares to the public, that's an **IPO**: the primary market. After listing, investors buy and sell those shares among themselves on the exchange. That's the secondary market. Most trading happens there; the company doesn't get your money when you buy from another investor.
 
 ## Why prices move
 
+Not because of the astrologer your uncle follows.
+
 Prices move with **demand and supply**: when more people want to buy than sell, the price rises. What people expect about a company's future profits drives that demand, which is why prices can jump or drop on news.
 
 ## The indices
+
+Those numbers on the news that you've been pretending to understand.
 
 The **Sensex** tracks 30 large companies on the BSE; the **Nifty 50** tracks 50 on the NSE. They're averages that show the general mood, not what any one share did.`,
   keyTerms: [
@@ -257,26 +275,32 @@ const indexFunds: SeedLesson = {
   title: "Index Funds and the Long Game",
   icon: "🐢",
   area: "INVESTING",
-  description: "Why costs matter more than they look, what direct plans are, and why staying invested beats guessing the market.",
+  description: "A tiny fee can eat lakhs. Yes, the one you never read about.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 103,
   hook: `Two friends invest in funds that hold exactly the same 50 companies. Twenty years later, one has about ₹1.4 lakh more.
 
-Same companies, same market. Where did the gap come from?`,
+Same companies, same market. One of them read the fine print. Guess which one you'd be.`,
   learn: `## The fee you never see
 
 Every mutual fund charges a yearly fee called the **expense ratio**, taken quietly from the fund's value. A 1% expense ratio on ₹50,000 is about ₹500 a year. It sounds small, but it's charged every year, on a growing amount, so it compounds against you.
 
 ## Direct vs regular plans
 
+Same fund. One of them pays someone for selling it to you.
+
 The same fund comes in two versions. A **regular plan** pays a commission to the distributor who sold it; a **direct plan** doesn't, so its expense ratio is lower. Same portfolio, same manager, less cost.
 
 ## Why index funds are cheap
 
+Turns out, copying the list costs less than guessing. Exam logic.
+
 An **index fund** copies an index instead of paying a team to pick stocks, so its costs are usually low. Many actively managed funds fail to beat their index over long periods once fees are counted, which is a big reason index funds are popular with beginners.
 
 ## Time in the market beats timing the market
+
+You can't time the market. You can't even wake up for your 9 AM.
 
 Nobody reliably predicts the next fall or rise. Some of the market's best days have come soon after its worst ones, so people who sell in a panic and wait for “the right time” often miss the recovery. Staying invested through ups and downs, for goals many years away, has historically mattered more than clever timing. That's history, not a guarantee.`,
   keyTerms: [
@@ -369,34 +393,44 @@ const startInvesting: SeedLesson = {
   title: "Starting to Invest: A Beginner's Checklist",
   icon: "🧭",
   area: "INVESTING",
-  description: "KYC, demat or not, who you can trust for advice, and how to pick a mix of risk you'll actually stick with.",
+  description: "How to actually start, without trusting a stranger on Instagram.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 104,
-  hook: `You've decided: this is the month you start investing. You open an app and see 1,500 funds, a KYC form and a “Talk to an expert” button.
+  hook: `You've decided: this is the month you start investing. You said that last month too.
 
-Where do you even begin?`,
+You open an app and see 1,500 funds, a KYC form and a "Talk to an expert" button. Now what?`,
   learn: `## First, the paperwork
 
 To invest in mutual funds or shares in India you complete **KYC** (Know Your Customer) once, with your **PAN** and an ID and address proof such as Aadhaar. You'll also need a bank account in your name.
 
 ## Demat, only if you need it
 
+One less form. You're welcome.
+
 You need a **demat account** to buy shares or exchange-traded funds. You **don't** need one for regular mutual funds. You can invest directly with the fund house or through a mutual fund platform.
 
 ## Start with the why
+
+"To get rich" is not a goal. It's a daydream.
 
 Before choosing anything, answer: **what is this money for, and when will I need it?** Money for a goal 1–2 years away belongs somewhere steady. Money for goals many years away can take more ups and downs. Your emergency fund and health cover come first.
 
 ## Pick a risk you can live with
 
+Everyone's brave until their portfolio turns red.
+
 Your **asset allocation** is how you split money between riskier things like equity and steadier ones like debt or deposits. The “best” mix on paper is useless if you'd panic-sell in a fall. Choose a mix you'd still hold if it dropped 30%.
 
 ## Check who's advising you
 
+Having a ring light is not a qualification.
+
 Only **SEBI-registered investment advisers** may charge you for personal investment advice. Influencers selling tips, courses or referral links may earn from what you buy. You can check any adviser or broker on SEBI's website.
 
 ## Start small
+
+You don't need a lakh. You need to actually begin.
 
 Many funds let you start a SIP from ₹100–₹500 a month. Starting small lets you learn how it feels before the amounts get bigger.`,
   keyTerms: [
@@ -496,8 +530,8 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
   "inflation-purchasing-power": [
     {
       prompt: "A ₹500 recharge pack now gives less data than it did three years ago, at the same price. What's that an example of?",
-      options: choices(1, "Higher interest rates", "Your money's purchasing power falling", "Better value for money", "A tax refund"),
-      explanation: "Paying the same and getting less means your rupees buy less. That's falling purchasing power.",
+      options: choices(1, "Higher interest rates", "Your money's buying power falling", "Better value for money", "A tax refund"),
+      explanation: "Paying the same and getting less means your rupees buy less. That's falling buying power.",
     },
     {
       prompt: "Which of these is investing rather than saving?",
@@ -582,13 +616,13 @@ export const INVEST_PRACTICE: Record<string, SeedPractice[]> = {
   ],
   "start-investing-checklist": [
     {
-      prompt: "You're 19 and want to start a SIP. Which pair do you typically need for KYC?",
+      prompt: "You're 19 and want to start a SIP. Which pair do you usually need for KYC?",
       options: choices(2, "College ID and ration card", "Driving licence only", "PAN plus an ID/address proof such as Aadhaar", "Your parents' bank passbook"),
       explanation: "Investment KYC needs your PAN and an ID/address proof like Aadhaar.",
     },
     {
       prompt: "You only want to invest in mutual funds through SIPs. Do you need a demat account?",
-      options: choices(0, "No, mutual funds can be bought without one", "Yes, it's mandatory", "Only for index funds", "Only after age 21"),
+      options: choices(0, "No, mutual funds can be bought without one", "Yes, it's compulsory", "Only for index funds", "Only after age 21"),
       explanation: "A demat account is for shares and ETFs; mutual fund SIPs don't require one.",
     },
     {

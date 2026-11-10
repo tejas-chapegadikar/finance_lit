@@ -47,7 +47,7 @@ export function AccountActions() {
       {confirming && (
         <div className="animate-fade-up rounded-2xl bg-rose-50 p-4 ring-1 ring-rose-100">
           <p className="text-sm text-rose-950">
-            This permanently deletes your StockStreak account: your progress, XP, money records and avatar. It can&apos;t be undone.
+            This permanently deletes your Rupli account: your progress, XP, money records and avatar. It can&apos;t be undone.
           </p>
           <label htmlFor="delete-confirm" className="mt-3 block text-sm font-medium text-rose-950">
             Type <span className="font-bold">DELETE</span> to confirm

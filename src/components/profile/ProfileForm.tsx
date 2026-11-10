@@ -65,12 +65,10 @@ export function ProfileForm({
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="stage" className="text-sm font-semibold text-slate-700">
-            Stage
+            Stage <span className="font-normal text-slate-600">(optional)</span>
           </label>
-          <select id="stage" name="stage" required defaultValue={stage} className={inputClass}>
-            <option value="" disabled>
-              Where are you right now?
-            </option>
+          <select id="stage" name="stage" defaultValue={stage} className={inputClass}>
+            <option value="">Prefer not to say</option>
             {LEARNER_STAGES.map((s) => (
               <option key={s.value} value={s.value}>
                 {s.label}

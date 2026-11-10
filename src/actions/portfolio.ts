@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { SLOW_DB_TRANSACTION, db } from "@/lib/db";
 import { requireOnboardedUser } from "@/lib/auth";
+import { LOCKED_TOOL_MESSAGE, investToolsUnlocked } from "@/lib/invest/access";
 import { isAllowed, moneyRatelimit } from "@/lib/ratelimit";
 import { queueAvatarEvents, type AvatarEventInput } from "@/lib/avatar/queue";
 import { ASSETS, FAST_FORWARD, MIN_TRADE, START_CASH, portfolioShape, simulateMonth, type AssetId, type Holding } from "@/lib/invest/sim";
@@ -45,6 +46,7 @@ function shapeEvents(holdings: Holding[], cash: number, run: number): AvatarEven
 
 export async function investVirtual(input: { asset: string; amount: number | string }): Promise<PortfolioResult> {
   const user = await requireOnboardedUser();
+  if (!(await investToolsUnlocked(user.id))) return { status: "invalid", message: LOCKED_TOOL_MESSAGE };
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };
   const parsed = tradeSchema.safeParse(input);
   if (!parsed.success) return { status: "invalid", message: parsed.error.issues[0]?.message ?? "Check the amount" };
@@ -75,6 +77,7 @@ export async function investVirtual(input: { asset: string; amount: number | str
 
 export async function sellVirtual(input: { asset: string; amount: number | string | "all" }): Promise<PortfolioResult> {
   const user = await requireOnboardedUser();
+  if (!(await investToolsUnlocked(user.id))) return { status: "invalid", message: LOCKED_TOOL_MESSAGE };
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };
   const asset = z.enum(assetIds).safeParse(input.asset);
   if (!asset.success) return { status: "invalid", message: "Pick something to sell" };
@@ -105,6 +108,7 @@ export async function sellVirtual(input: { asset: string; amount: number | strin
 /** Fast-forwards simulated months; the history replays the same for the same choices. */
 export async function fastForward(months: number): Promise<PortfolioResult> {
   const user = await requireOnboardedUser();
+  if (!(await investToolsUnlocked(user.id))) return { status: "invalid", message: LOCKED_TOOL_MESSAGE };
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };
   if (!(FAST_FORWARD as readonly number[]).includes(months)) return { status: "invalid", message: "Pick how far to fast-forward" };
 
@@ -146,6 +150,7 @@ export async function fastForward(months: number): Promise<PortfolioResult> {
 /** Starts over with virtual ₹1,00,000. */
 export async function resetPortfolio(): Promise<PortfolioResult> {
   const user = await requireOnboardedUser();
+  if (!(await investToolsUnlocked(user.id))) return { status: "invalid", message: LOCKED_TOOL_MESSAGE };
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };
   await db.$transaction(async (tx) => {
     const { portfolio } = await load(tx, user.id);

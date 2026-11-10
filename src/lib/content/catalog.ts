@@ -1,5 +1,5 @@
 // The central content catalogue, every piece of learning content on
-// StockStreak, with a unique id, the pillar it belongs to, a topic tag and
+// Rupli, with a unique id, the pillar it belongs to, a topic tag and
 // (for lessons) a learning objective. It exists for one rule:
 //
 //   DO NOT REPEAT TOPICS. Nothing may re-ask what another item already asks.

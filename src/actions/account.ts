@@ -13,7 +13,7 @@ export async function signOut() {
 }
 
 /**
- * Deletes your own account for good: your StockStreak data, then your login
+ * Deletes your own account for good: your Rupli data, then your login
  * in Supabase. Only ever the signed-in student's own account.
  */
 export async function deleteAccount(confirmation: string): Promise<{ status: "wrong-confirmation" }> {
@@ -25,7 +25,15 @@ export async function deleteAccount(confirmation: string): Promise<{ status: "wr
     db.quizAttempt.deleteMany({ where: { userId: user.id } }),
     db.user.delete({ where: { id: user.id } }),
   ]);
-  if (user.authId) await supabaseAdmin().auth.admin.deleteUser(user.authId);
+  // The data above is already gone. If the login can't be removed too (the
+  // server key is missing or Supabase is down), still finish and log it.
+  if (user.authId) {
+    try {
+      await supabaseAdmin().auth.admin.deleteUser(user.authId);
+    } catch (error) {
+      console.error("[account] login not removed for", user.authId, error);
+    }
+  }
   const supabase = await supabaseServer();
   await supabase.auth.signOut();
   redirect("/");

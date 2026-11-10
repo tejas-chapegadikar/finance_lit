@@ -11,34 +11,44 @@ export const loansEmis: SeedLesson = {
   title: "Loans and EMIs",
   icon: "🏦",
   area: "CREDIT",
-  description: "What's inside an EMI, why a “flat 10%” isn't 10%, and how to spot a loan app you should run from.",
+  description: "Why \"just ₹1,500 a month\" is the most expensive sentence in India.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 10,
-  hook: `A loan app pings you: “Pre-approved! ₹50,000 instantly, just ₹1,500 a month!”
+  hook: `A loan app pings you: "Pre-approved! ₹50,000 instantly, just ₹1,500 a month!"
 
-₹1,500 sounds tiny. But for how many months, and how much do you actually pay back?`,
+You feel chosen. You are not chosen. For how many months, and how much do you really pay back?`,
   learn: `## The three numbers in every loan
 
 Every loan has a **principal** (what you borrow), an **interest rate** (the yearly price of borrowing) and a **tenure** (how long you take to repay). Change any one, and the total you pay changes.
 
 ## What's inside an EMI
 
+That monthly number has a secret. It's mostly interest.
+
 An **EMI** (equated monthly instalment) is a fixed monthly payment that covers **interest plus part of the principal**. On most loans, interest is charged on what you still owe, the **reducing balance**. So early EMIs are mostly interest, and later ones mostly principal.
 
 ## Flat rates look cheaper than they are
+
+If it sounds cheap, someone's doing maths you aren't.
 
 A **flat rate** charges interest on the full amount for the whole tenure, even as you repay it. A “10% flat” loan over two years costs about the same as roughly **18%** on a reducing balance. Always compare loans on the same basis.
 
 ## Read the Key Fact Statement
 
+Yes, read it. All of it. I know. Terrible.
+
 Banks and regulated lenders must give you a **Key Fact Statement (KFS)** before you sign: the **annual percentage rate (APR)**, the all-in yearly cost including fees, the EMI, the number of instalments and any charges. Compare APRs, not ads.
 
 ## Loan apps: check before you tap
 
+If an app wants your contacts for a loan, it's not a bank. It's a problem.
+
 A genuine digital lender names the **bank or NBFC** behind the loan, which you can check on the RBI's website. Red flags: no named lender, demands for access to your contacts or photos, and threats when you're late. Report harassment at 1930 or cybercrime.gov.in.
 
 ## Being a guarantor is borrowing too
+
+"Just sign here, bro" has ruined friendships and credit scores.
 
 If you **guarantee** a friend's loan and they stop paying, the lender can ask **you** to pay, and it can show on your credit report. Only guarantee what you could afford to repay yourself.`,
   keyTerms: [

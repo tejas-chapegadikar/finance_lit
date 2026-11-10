@@ -10,6 +10,7 @@ import { Logo } from "@/components/ui/Logo";
 import { Parallax, Reveal } from "@/components/ui/Reveal";
 import { Avatar, type Expression } from "@/components/avatar/Avatar";
 import { HeroAvatar } from "@/components/landing/HeroAvatar";
+import { RoastMarquee, RoastMeter } from "@/components/landing/RoastMeter";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 
 // Marketing copy is static on purpose: the landing page shouldn't wait on (or
@@ -32,7 +33,7 @@ const PILLARS: {
     id: "money",
     Icon: WalletIcon,
     eyebrow: "Money Management",
-    title: "Find out where your money actually goes",
+    title: "Find out where your money keeps running off to",
     text: "Log what comes in and what goes out, set budgets, and watch your week and month on clear charts, then hear what your avatar thinks about it.",
     points: [
       "Income, expenses and balance at a glance",
@@ -50,7 +51,7 @@ const PILLARS: {
     id: "iq",
     Icon: BookIcon,
     eyebrow: "Money IQ",
-    title: "The money lessons college forgot",
+    title: "The stuff you pretend you already know",
     text: "Short lessons in four levels on budgeting, UPI safety, credit and CIBIL, payslips and tax. Each comes with a quiz, real-life scenarios and revision that brings back what you missed.",
     points: [
       "Five-minute lessons with real ₹ examples",
@@ -68,7 +69,7 @@ const PILLARS: {
     id: "invest",
     Icon: TrendingUpIcon,
     eyebrow: "InvestSmart",
-    title: "Practise investing with money that isn't real",
+    title: "Lose pretend money before you lose real money",
     text: "Start with ₹1,00,000 of virtual money. Spread it across FDs, gold, index funds or a single risky stock, fast-forward months or years, and see what risk really feels like.",
     points: [
       "Virtual ₹1,00,000, zero real risk",
@@ -151,7 +152,7 @@ function IqMock() {
       {CHAPTERS.map((c, i) => (
         <li key={c.id} className={`flex items-center gap-3 rounded-2xl p-3 ${i === 1 ? "bg-brand-50 ring-1 ring-brand-200" : "bg-slate-50"}`}>
           <span
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${i === 0 ? "bg-emerald-500 text-white" : i === 1 ? "bg-brand-600 text-white" : "bg-white text-slate-400 ring-1 ring-slate-200"}`}
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${i === 0 ? "bg-emerald-700 text-white" : i === 1 ? "bg-brand-600 text-white" : "bg-white text-slate-500 ring-1 ring-slate-200"}`}
           >
             {i === 0 ? <CheckIcon className="h-4 w-4" /> : c.number}
           </span>
@@ -222,7 +223,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <main className="flex flex-1 flex-col overflow-x-clip">
+      <main id="main" tabIndex={-1} className="flex flex-1 flex-col overflow-x-clip">
         {/* Hero */}
         <section className="relative border-b border-slate-200">
           <span
@@ -252,11 +253,18 @@ export default async function HomePage() {
                 For college students and first-job professionals in India
               </p>
               <h1 className="text-[2.75rem] leading-[1.02] text-slate-900 sm:text-6xl lg:text-7xl">
-                Learn money before money teaches you <span className="bg-[linear-gradient(transparent_62%,var(--color-brand-200)_62%)]">the hard way.</span>
+                {["Learn","money","before","money","teaches","you"].map((word, i) => (
+                  <span key={word + i} className="word-rise" style={{ animationDelay: `${i * 70}ms` }}>
+                    {word}&nbsp;
+                  </span>
+                ))}
+                <span className="word-rise bg-[linear-gradient(transparent_62%,var(--color-brand-200)_62%)]" style={{ animationDelay: "480ms" }}>
+                  the hard way.
+                </span>
               </h1>
               <p className="max-w-lg text-lg leading-relaxed text-slate-600">
-                Track your spending, learn the money skills nobody teaches, and practise investing with virtual money, with an avatar buddy who cheers your
-                wins and roasts your food-delivery habit.
+                You can split a food bill in four seconds, but you can&apos;t explain what a credit score is. Rupli fixes that, in simple words, with an avatar who
+                will not be nice about it.
               </p>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Link href="/sign-up" className={`${primaryButton} group px-8 py-4 text-base`}>
@@ -297,12 +305,16 @@ export default async function HomePage() {
           </div>
         </section>
 
+        <RoastMarquee />
+
+        <RoastMeter />
+
         {/* The three pillars */}
         <section id="features" className="mx-auto w-full max-w-6xl scroll-mt-4 px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="features-heading">
           <Reveal className="mx-auto max-w-2xl text-center">
-            <p className="text-[13px] font-medium text-slate-500">Three things, one buddy</p>
+            <p className="text-[13px] font-medium text-slate-500">Harsh, but someone had to say it</p>
             <h2 id="features-heading" className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
-              Manage it. Understand it. Grow it.
+              You&apos;re worse at money than you think.
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-slate-600">
               Everything a student needs to get good with money, and an avatar that reacts to every move you make.
@@ -336,9 +348,9 @@ export default async function HomePage() {
                     <div className="relative">
                       <div
                         aria-hidden
-                        className="rounded-[2rem] bg-white p-5 shadow-[0_24px_60px_-30px_rgb(60_40_150/0.45)] ring-1 ring-slate-200 transition duration-500 hover:-translate-y-1 hover:rotate-[-0.5deg] sm:p-7"
+                        className="rounded-[2rem] bg-white p-5 shadow-[0_24px_60px_-30px_rgb(15_31_24/0.45)] ring-1 ring-slate-200 transition duration-500 hover:-translate-y-1 hover:rotate-[-0.5deg] sm:p-7"
                       >
-                        <p className="mb-4 text-xs font-medium text-slate-400">Example</p>
+                        <p className="mb-4 text-xs font-medium text-slate-500">Example</p>
                         <Mock />
                       </div>
                       <div className="relative z-10 -mt-8 ml-auto flex w-[min(100%,22rem)] items-end gap-2 sm:-mr-4">
@@ -350,7 +362,7 @@ export default async function HomePage() {
                           expression={p.say.expression}
                           crop="head"
                           className="h-20 w-auto shrink-0 animate-bob"
-                          label="The StockStreak avatar"
+                          label="The Rupli avatar"
                         />
                       </div>
                     </div>
@@ -365,7 +377,7 @@ export default async function HomePage() {
         <section className="border-y border-slate-200 bg-white px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="helps-heading">
           <div className="mx-auto max-w-6xl lg:px-6">
             <Reveal className="max-w-2xl">
-              <p className="text-[13px] font-medium text-slate-500">How StockStreak helps</p>
+              <p className="text-[13px] font-medium text-slate-500">How Rupli helps</p>
               <h2 id="helps-heading" className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
                 Your first stipend, salary and credit card are coming. Be ready.
               </h2>
@@ -373,7 +385,7 @@ export default async function HomePage() {
             <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {HELPS.map(({ Icon, title, text }, i) => (
                 <Reveal as="li" key={title} delay={i * 90}>
-                  <div className="group h-full rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_40px_-22px_rgb(60_40_150/0.4)]">
+                  <div className="group h-full rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_40px_-22px_rgb(15_31_24/0.4)]">
                     <span
                       aria-hidden
                       className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand-700 shadow-sm ring-1 ring-slate-200 transition group-hover:scale-110 group-hover:rotate-[-6deg]"
@@ -415,16 +427,16 @@ export default async function HomePage() {
         <section className="px-4 pb-20 sm:px-6 sm:pb-28">
           <Reveal>
             <div className={`${spotlight} mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-14 text-center sm:px-12 md:flex-row md:text-left`}>
-              <span className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]" />
+              <span className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.5),transparent_62%)]" />
               <Avatar
                 config={DEFAULT_AVATAR}
                 expression="celebrating"
                 className="h-44 w-auto shrink-0 animate-bob sm:h-52"
-                label="The StockStreak avatar, celebrating"
+                label="The Rupli avatar, celebrating"
               />
               <div className="min-w-0">
-                <h2 className="max-w-2xl text-4xl leading-tight text-white sm:text-5xl">Your money buddy is waiting</h2>
-                <p className="mt-3 max-w-xl text-lg text-white/70">Free to start. Two minutes to set up. Lifelong opinions about your spending.</p>
+                <h2 className="max-w-2xl text-4xl leading-tight text-white sm:text-5xl">Your wallet can&apos;t take much more of this</h2>
+                <p className="mt-3 max-w-xl text-lg text-white/70">Free to start. Takes two minutes. You&apos;ve wasted longer on worse.</p>
                 <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row md:items-start">
                   <Link href="/sign-up" className={`${lightButton} group px-8 py-4 text-base`}>
                     Get started, it&apos;s free

@@ -16,7 +16,7 @@ import { ArrowLeftIcon, ClockIcon, LockIcon } from "@/components/ui/icons";
 
 export async function generateMetadata(props: PageProps<"/practice/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  return { title: `${getScenario(slug)?.title ?? "Scenario"} | StockStreak` };
+  return { title: `${getScenario(slug)?.title ?? "Scenario"} | Rupli` };
 }
 
 export default async function ScenarioPage(props: PageProps<"/practice/[slug]">) {

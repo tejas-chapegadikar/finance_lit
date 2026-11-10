@@ -25,7 +25,7 @@ export function Sidebar({
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-slate-50 lg:flex">
-      <Link href="/dashboard" aria-label="StockStreak home" className="px-7 pt-7 pb-9">
+      <Link href="/dashboard" aria-label="Rupli home" className="px-7 pt-7 pb-9">
         <Logo />
       </Link>
 
@@ -43,7 +43,7 @@ export function Sidebar({
                   : "font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900"
               }`}
             >
-              <Icon className={`h-5 w-5 shrink-0 transition ${active ? "text-brand-600" : "text-slate-400 group-hover:text-slate-600"}`} />
+              <Icon className={`h-5 w-5 shrink-0 transition ${active ? "text-brand-600" : "text-slate-500 group-hover:text-slate-600"}`} />
               {label}
             </Link>
           );
@@ -55,7 +55,7 @@ export function Sidebar({
             pathname.startsWith("/settings") ? "bg-white font-semibold text-slate-900 ring-1 ring-slate-200" : "font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900"
           }`}
         >
-          <SettingsIcon className="h-5 w-5 shrink-0 text-slate-400" />
+          <SettingsIcon className="h-5 w-5 shrink-0 text-slate-500" />
           Settings
         </Link>
       </nav>

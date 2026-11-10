@@ -68,7 +68,7 @@ export function EntryRow({ entry, label, dayText, today, minDay }: { entry: Entr
           }}
           aria-expanded={editing}
           aria-label={`Edit ${label} ${rupees(entry.amount)}`}
-          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
         >
           <PencilIcon className="h-4 w-4" />
         </button>

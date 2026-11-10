@@ -226,7 +226,7 @@ export function IconTile({
   children: React.ReactNode;
 }) {
   const meta = area ? READINESS_AREA_META[area] : undefined;
-  const tone = muted ? "bg-slate-100 text-slate-400" : meta ? `${meta.chipBg} ${meta.labelText}` : "bg-slate-100 text-slate-700";
+  const tone = muted ? "bg-slate-100 text-slate-500" : meta ? `${meta.chipBg} ${meta.labelText}` : "bg-slate-100 text-slate-700";
   return (
     <span aria-hidden className={`flex shrink-0 items-center justify-center ${TILE_SIZES[size]} ${tone} ${className}`}>
       {children}

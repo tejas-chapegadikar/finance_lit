@@ -27,7 +27,7 @@ export function MobileTabBar() {
               >
                 <span
                   className={`flex h-7 w-12 items-center justify-center rounded-full transition duration-200 ${
-                    active ? "bg-brand-50 text-brand-600" : "text-slate-400"
+                    active ? "bg-brand-500 text-brand-900" : "text-slate-500"
                   }`}
                 >
                   <Icon className="h-[22px] w-[22px]" />

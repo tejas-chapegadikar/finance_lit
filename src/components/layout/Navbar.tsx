@@ -10,7 +10,7 @@ export function Navbar({ xpTotal, displayName, avatar }: { xpTotal: number; disp
     // Fixed h-14 so sticky elements below it (the lesson progress bar) can sit at top-14.
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50/90 backdrop-blur-md lg:hidden">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href="/dashboard" aria-label="StockStreak home" className="shrink-0">
+        <Link href="/dashboard" aria-label="Rupli home" className="shrink-0">
           <Logo />
         </Link>
         <div className="flex items-center gap-2">

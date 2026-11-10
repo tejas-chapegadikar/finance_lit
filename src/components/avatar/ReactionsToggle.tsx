@@ -28,8 +28,8 @@ export function ReactionsToggle({ initial }: { initial: boolean }) {
     <div>
       <div className="flex items-center justify-between gap-4">
         <span id="reactions-label" className="text-sm">
-          <span className="block font-semibold text-slate-900">Avatar pop-ups</span>
-          <span className="text-slate-600">Your avatar pops up with a short comment when you finish a lesson, log money, reach a goal and more.</span>
+          <span className="block font-semibold text-slate-900">Buddy tip</span>
+          <span className="text-slate-600">One small tip from your avatar on Today. Turn it off if you can&apos;t take the criticism.</span>
         </span>
         <button
           type="button"

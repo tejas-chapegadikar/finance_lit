@@ -7,7 +7,7 @@ import { istDay } from "@/lib/ist-date";
 import { readChoiceOptions } from "@/lib/lesson-content";
 import { isAllowed, practiceRatelimit } from "@/lib/ratelimit";
 import { REVISION_XP, nextSchedule, revisionQuestion, whenDue } from "@/lib/revision";
-import { recordStreakDay } from "@/lib/streak";
+import { completeQuest } from "@/lib/quests";
 import { awardRevisionBadges, findBadge } from "@/lib/badges";
 import { awardXp, lockUser, xpKeys } from "@/lib/xp";
 
@@ -48,7 +48,7 @@ export async function answerRevision(itemId: string, optionIndex: number): Promi
   const isCorrect = options[optionIndex].isCorrect;
   const next = nextSchedule(item, isCorrect, today);
   const note = !isCorrect
-    ? "Not quite. This one comes back tomorrow."
+    ? "Wrong again. This one comes back tomorrow, and it remembers you."
     : next.status === "DONE"
       ? "That's locked in. This one is retained! 🎉"
       : `Correct. You'll see it once more ${whenDue(next.stage)}.`;
@@ -77,7 +77,7 @@ export async function answerRevision(itemId: string, optionIndex: number): Promi
       description: "Revision practice",
     });
     const badgeIds = next.status === "DONE" ? await awardRevisionBadges(tx, user.id) : [];
-    await recordStreakDay(tx, user.id);
+    await completeQuest(tx, user.id, "learn");
     return { xpAwarded: awarded, badgeIds };
   }, SLOW_DB_TRANSACTION);
 

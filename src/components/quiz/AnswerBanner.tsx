@@ -18,13 +18,13 @@ export function AnswerBanner({
     >
       <span
         aria-hidden
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${correct ? "animate-check bg-emerald-500 text-white" : "bg-brand-50 text-brand-700"}`}
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${correct ? "animate-check bg-emerald-700 text-white" : "bg-brand-50 text-brand-700"}`}
       >
         {correct ? <CheckIcon className="h-4 w-4" /> : <InfoIcon className="h-4 w-4" />}
       </span>
       <div className="min-w-0">
         <p className={`text-base font-semibold ${correct ? "text-emerald-900" : "text-slate-900"}`}>
-          {correct ? (tryNumber === 1 ? "Correct!" : "Exactly right.") : "Let's learn this one"}
+          {correct ? (tryNumber === 1 ? "Correct! I'm as shocked as you are." : "There it is. Only took a few tries.") : "Okay, let's actually learn this one."}
         </p>
         {!correct && <p className="mt-0.5 text-slate-600">The right answer is highlighted in green.</p>}
         <p className={`mt-1 leading-relaxed ${correct ? "text-emerald-950" : "text-slate-800"}`}>{explanation}</p>

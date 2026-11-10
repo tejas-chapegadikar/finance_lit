@@ -7,7 +7,8 @@ export const displayNameSchema = z
   .min(2, "Your name must be at least 2 characters")
   .max(40, "Your name must be 40 characters or fewer");
 
-export const stageSchema = z.enum(STAGE_VALUES, "Pick where you are right now");
+// Optional: only used to suggest where to start.
+export const stageSchema = z.enum(["", ...STAGE_VALUES], "Pick from the list").transform((stage) => (stage === "" ? null : stage));
 
 // What they want to get better at: any number of topics, or none.
 export const goalsSchema = z

@@ -45,7 +45,7 @@ export function LessonFeedbackForm({
     return (
       <div role="status" className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold text-slate-700">
-          Thanks, your feedback helps us make StockStreak clearer.
+          Thanks, your feedback helps us make Rupli clearer.
         </p>
         <button type="button" onClick={() => setSaved(false)} className="text-sm font-semibold text-brand-700 hover:underline">
           Edit feedback

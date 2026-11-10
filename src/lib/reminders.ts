@@ -23,7 +23,7 @@ export function formatHour(hour: number): string {
 }
 
 export function siteUrl(): string {
-  return (process.env.SITE_URL ?? "https://stockstreak.in").replace(/\/$/, "");
+  return (process.env.SITE_URL ?? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL ?? "localhost:3000"}`).replace(/\/$/, "");
 }
 
 export function emailRemindersConfigured(): boolean {
@@ -70,7 +70,7 @@ export async function sendDueReminders(now = new Date()) {
       "",
       `Today's Reality Check and Daily Challenge are ready. A couple of minutes, whenever suits you.${due ? ` You also have ${due} revision ${due === 1 ? "question" : "questions"} due.` : ""}`,
       "",
-      `Open StockStreak: ${siteUrl()}/dashboard`,
+      `Open Rupli: ${siteUrl()}/dashboard`,
       "",
       `You asked for this daily reminder. Turn it off or change the time any time: ${siteUrl()}/profile#reminders`,
     ].join("\n");

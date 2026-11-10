@@ -71,7 +71,7 @@ export function League({
             <ol className="mt-3 divide-y divide-slate-200 border-y border-slate-200">
               {rows.map((row) => (
                 <li key={`${row.rank}-${row.name}`} className={`flex items-center gap-3 py-2.5 text-sm ${row.isYou ? "font-semibold" : ""}`}>
-                  <span className={`w-6 text-center font-display tabular-nums ${row.rank <= 3 ? "text-orange-600" : "text-slate-400"}`}>{row.rank}</span>
+                  <span className={`w-6 text-center font-display tabular-nums ${row.rank <= 3 ? "text-orange-600" : "text-slate-500"}`}>{row.rank}</span>
                   <span aria-hidden className="flex h-8 w-8 shrink-0 items-end justify-center overflow-hidden rounded-full bg-peach-100">
                     <Avatar config={row.avatar} crop="head" className="h-8 w-8" />
                   </span>

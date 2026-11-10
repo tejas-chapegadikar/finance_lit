@@ -30,7 +30,7 @@ export function CoachPanel({
 
   return (
     <section aria-live="polite" aria-label="AI Coach" className="flex flex-col gap-3">
-      <p className="text-base font-semibold text-rose-700">Not quite.</p>
+      <p className="text-base font-semibold text-rose-700">Nope. Bold guess, though.</p>
 
       <div className="flex animate-fade-up gap-3">
         <CoachAvatar />

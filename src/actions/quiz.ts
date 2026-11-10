@@ -20,7 +20,7 @@ import {
   type CoachHint,
 } from "@/lib/coach";
 import { assertLessonUnlocked, fetchProgress, readinessAfterQuiz } from "@/lib/progress";
-import { recordStreakDay } from "@/lib/streak";
+import { completeQuest } from "@/lib/quests";
 import { coachCheckNote, dueDayFor, revisionQuestion, scheduleRevisionForAttempt } from "@/lib/revision";
 import { readChoiceOptions } from "@/lib/lesson-content";
 import { coachRatelimit, isAllowed, quizAnswerRatelimit } from "@/lib/ratelimit";
@@ -255,7 +255,7 @@ export async function completeAttempt(attemptId: string): Promise<{ status: "res
       answers: attempt.answers,
       firstCompletion: priorCompleted === 0,
     });
-    await recordStreakDay(tx, user.id);
+    await completeQuest(tx, user.id, "learn");
   }, SLOW_DB_TRANSACTION);
 
   // The avatar reacts to what this attempt changed (lesson, level, rank, unlocks).

@@ -9,7 +9,7 @@ import { AvatarStudio, type StudioItem } from "@/components/avatar/AvatarStudio"
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Avatar Studio | StockStreak" };
+export const metadata: Metadata = { title: "Avatar Studio | Rupli" };
 
 const RECENT_DAYS = 14;
 

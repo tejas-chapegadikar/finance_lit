@@ -13,18 +13,20 @@ const budgeting: SeedLesson = {
   title: "Budgeting",
   icon: "💰",
   area: "BUDGETING",
-  description: "Make your first ₹15,000 stipend last the month. Plan it with the 50/30/20 rule.",
+  description: "Your money runs out before the month does. Here's why, and the fix.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 1,
-  hook: `It's the 1st. ₹8,000 just landed from home. By the 20th, you're checking your balance before buying chai.
+  hook: `It's the 1st. ₹8,000 lands from home. You feel rich. By the 20th, you're checking your balance before buying chai.
 
-Sound familiar? Where did the money actually go?`,
+You call that bad luck. It's actually bad maths. Where did the money go?`,
   learn: `## What is a budget?
 
-A budget is a **plan for your money, made before you spend it**. It isn't about saying no to everything. It's about deciding in advance, instead of wondering at month-end where it all went.
+A budget is a **plan for your money, made before you spend it**. It isn't about saying no to everything. It's about deciding beforehand, instead of wondering at month-end where it all went.
 
 ## The 50/30/20 rule
+
+Three numbers. Even you can remember three numbers.
 
 A simple way to split any income (allowance, stipend or salary):
 
@@ -36,9 +38,13 @@ It's a starting point, not a strict law. Adjust it to your life.
 
 ## Pay yourself first
 
+Your current system is called "save whatever's left". How's that going?
+
 Most people spend first and save whatever is left, which is usually nothing. Flip it: the day money arrives, **move your savings out first**. Then spend what remains.
 
 ## Watch the small leaks
+
+No, the ₹40 samosa isn't the problem. All 30 of them are.
 
 A ₹500 purchase makes you stop and think. Five ₹100 UPI payments don't, but they cost exactly the same. **Small, frequent spends** are the #1 reason budgets quietly fail. Check your UPI history once a week.`,
   keyTerms: [
@@ -131,18 +137,20 @@ const compoundInterest: SeedLesson = {
   title: "Compound Interest",
   icon: "🌱",
   area: "BUDGETING",
-  description: "See how money grows on its own growth, and why your college years are the best time to start.",
+  description: "Your money can make money while you sleep. You've just been too busy not knowing that.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 2,
-  hook: `Two friends each put away ₹50,000 once: one at 20, the other at 30. Same amount, same returns.
+  hook: `Two friends each put away ₹50,000, once. One at 20, the other at 30. Same amount, same returns.
 
-At 60, one has about ₹22 lakh and the other under ₹9 lakh. What made the difference?`,
+At 60, one has about ₹22 lakh and the other has under ₹9 lakh. Guess which one spent their twenties saying "I'll start later".`,
   learn: `## Simple vs compound interest
 
 **Simple interest** is paid only on your original amount. **Compound interest** is paid on your original amount *plus* the interest it has already earned, your money earns money on its money.
 
 ## See the difference
+
+Maths is about to make you feel bad about your twenties.
 
 ₹10,000 at 10% a year for 30 years:
 
@@ -153,13 +161,19 @@ Same money, same rate. Compounding did all the extra work.
 
 ## Time is the secret ingredient
 
+The one thing you have, and you're spending it on reels.
+
 Compounding is slow at first and fast later. The longer money stays invested, the bigger each year's growth gets. That's why **starting early often beats starting big**.
 
 ## The Rule of 72
 
+A party trick that's actually useful. Rare.
+
 A quick trick: **72 ÷ yearly interest rate ≈ years to double**. At 8%, money doubles in about 9 years. At 12%, in about 6.
 
 ## It works against you too
+
+Plot twist. The same magic works for the bank, and you're the ingredient.
 
 Debt compounds as well. Unpaid credit card dues can grow at **36–45% a year**. That's compounding working for the bank, not for you.`,
   keyTerms: [
@@ -237,7 +251,7 @@ Ravi didn't invest more. He just gave compounding 10 extra years.
     {
       prompt: "Why is unpaid credit card debt so dangerous?",
       explanation:
-        "Unpaid card dues attract interest of roughly 36–45% a year, and that interest is added to what you owe. That's compounding working against you.",
+        "Unpaid card dues get charged interest of roughly 36–45% a year, and that interest is added to what you owe. That's compounding working against you.",
       hint: "Compounding works on anything that charges interest, including money you owe. How high is credit card interest?",
       difficulty: "HARD",
       options: choices(
@@ -253,33 +267,41 @@ Ravi didn't invest more. He just gave compounding 10 extra years.
 
 const savingVsSpending: SeedLesson = {
   slug: "saving-vs-spending",
-  title: "Saving vs Spending Psychology",
+  title: "Why You Keep Spending Like This",
   icon: "🐷",
   area: "BUDGETING",
-  description: "Spot impulse buys, beat lifestyle creep before your first salary, and start an emergency fund.",
+  description: "Why you keep buying things you don't need, and how to stop being so easy to sell to.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 3,
-  hook: `A ₹150 chai-and-snack break every day doesn't feel like much.
+  hook: `A ₹150 chai-and-snack break every day feels like nothing. You've said "it's only ₹150" so many times it should be on your gravestone.
 
-But over a year, it adds up to ₹54,000. What else could that money have done for you?`,
+Over a year, it's ₹54,000. What did you get for that? Exactly.`,
   learn: `## Need it, want it, or want it right now?
 
 Before buying, ask yourself that question. **Impulse buys**, the "right now" ones, are where most money quietly disappears.
 
 ## Try the 24-hour rule
 
+That thing in your cart can wait a day. It's not a hospital.
+
 For anything non-essential, **wait a day** before buying. If you still want it tomorrow, go ahead. Most of the time, the urge fades.
 
 ## Beware of lifestyle creep
+
+Salary doubles. Savings stay zero. Somehow you now have opinions on coffee beans.
 
 When income goes up, spending quietly rises with it: a pricier phone, more deliveries, fancier outings. **Raise your savings every time your income rises**, not just your spending.
 
 ## Build an emergency fund
 
+"Emergency" does not include a sale.
+
 An **emergency fund** is money kept aside only for surprises: a laptop repair, a medical bill, a gap between jobs. Over time, aim for **3–6 months of expenses**. Start with even ₹500 a month.
 
 ## "No-cost EMI" isn't always free
+
+Nothing is free. You knew that. You clicked anyway.
 
 Splitting a purchase into EMIs makes it feel cheaper. Check for **processing fees** and lost discounts, and remember that every EMI locks up part of your future income.`,
   keyTerms: [
@@ -378,30 +400,38 @@ const upiPayments: SeedLesson = {
   title: "UPI and Digital Payments",
   icon: "📱",
   area: "DIGITAL_SAFETY",
-  description: "Pay and get paid on UPI with confidence, and the one rule that stops most UPI frauds.",
+  description: "You use UPI ten times a day. Let's find out if you know how it works.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 4,
   hook: `You're selling your old cycle online. The buyer says: "I've sent you a request. Just enter your PIN to receive ₹5,000."
 
-Do you need your PIN to receive money?`,
+You've used UPI a thousand times, so this should be easy. Do you need a PIN to receive money?`,
   learn: `## How UPI works
 
 **UPI (Unified Payments Interface)** moves money instantly between bank accounts using a UPI ID or a QR code. Every payment is approved with your **UPI PIN**, think of it as your signature.
 
 ## The golden rule
 
+One rule. Please, just this one.
+
 **You never need your UPI PIN to receive money.** Entering your PIN always means money is leaving your account. Anyone who says otherwise is trying to scam you.
 
 ## Collect requests
+
+The button that says "Pay" pays. Wild, I know.
 
 A **collect request** asks you to *pay*. Scammers send them disguised as refunds, prizes or payments for something you're selling. Read every screen: if it says **"Pay"** or asks for your PIN, money will go out.
 
 ## QR codes
 
+Scanning is for paying. Say it again slowly.
+
 Scanning a QR code is for **paying**, not receiving. If someone sends you a QR code to "receive" money, it's a trap.
 
 ## If something goes wrong
+
+Don't panic and don't hide it. Being scammed isn't stupid. Staying quiet is what costs you.
 
 Call the **cybercrime helpline 1930** or report at **cybercrime.gov.in** right away, and inform your bank. The faster you report, the better the chance of stopping the money.`,
   keyTerms: [
@@ -509,12 +539,16 @@ const financialScams: SeedLesson = {
   order: 5,
   hook: `"Earn ₹3,000 a day just by liking YouTube videos!" The first task pays you ₹150. The next one asks you to deposit ₹2,000 to unlock bigger tasks.
 
-Is this a job, or a trap?`,
+You'd never fall for this, obviously. Everyone who fell for it said the same thing.
+
+So: is this a job, or a trap?`,
   learn: `## How scams work
 
 Almost every scam uses the same three tricks: **urgency** (act now!), **fear** (your account will be blocked) or **greed** (easy money). If a message makes you panic or feel lucky, slow down.
 
 ## Scams that target students
+
+Scammers love students: broke, hopeful, and always online.
 
 - **Task and job scams**: paid "likes" or reviews that ask you to deposit money to continue
 - **KYC update calls**: "your account will be blocked today", plus a link or an OTP request
@@ -523,9 +557,13 @@ Almost every scam uses the same three tricks: **urgency** (act now!), **fear** (
 
 ## The "digital arrest" scam
 
+No, the CBI does not do video calls about your parcel.
+
 Someone posing as the police, CBI or customs video-calls you, says you're under "digital arrest" and demands money to clear your name. **There is no such thing as a digital arrest.** Real officials never demand money over a call.
 
 ## Your safety rules
+
+Screenshot these. Your memory has not earned our trust.
 
 - Never share your **OTP, UPI PIN, CVV or passwords** with anyone
 - Never install an app because someone on a call asked you to
@@ -641,21 +679,23 @@ const bankAccounts: SeedLesson = {
   title: "Savings and Current Accounts",
   icon: "🏦",
   area: "BANKING",
-  description: "Pick the right account for your stipend or salary, dodge minimum-balance charges, and know your money is protected.",
+  description: "Your bank has been quietly charging you, and you never noticed. Let's fix that.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 6,
   hook: `Your bank cut ₹350 plus GST from your account this quarter. You didn't buy anything.
 
-What did you just pay for?`,
+You paid for something you don't even know exists. Very generous of you. What was it?`,
   learn: `## Savings vs current accounts
 
-- **Savings account**: for individuals keeping their own money. It earns a little interest.
+- **Savings account**: for people keeping their own money. It earns a little interest.
 - **Current account**: for businesses, shops and freelancers who make many payments every day. It earns **no interest** and usually needs a much higher minimum balance.
 
 As a student or young employee, a **savings account** is almost always the right choice.
 
 ## Kinds of savings accounts
+
+You have a bank account. Do you know which kind? Didn't think so.
 
 - **Regular savings account**: often needs a minimum balance
 - **Salary account**: opened through your employer; usually zero-balance while your salary comes in
@@ -663,17 +703,25 @@ As a student or young employee, a **savings account** is almost always the right
 
 ## Minimum balance (AMB)
 
+The fee you've been paying for the crime of being broke.
+
 Many savings accounts need an **Average Monthly Balance**: the average of your balance across *every day* of the month. Fall below it and the bank charges a **non-maintenance fee**.
 
 ## Savings interest vs rising prices
+
+Your savings account is losing a race it doesn't know it's in.
 
 Savings accounts at large banks usually pay a low rate, often around **2.5–3% a year**. Prices often rise faster than that, so money left idle slowly loses value. Keep everyday and emergency money here, not every long-term goal.
 
 ## Your money is protected
 
+Finally, some good news. Enjoy it, it's short.
+
 Deposits in a bank are insured by **DICGC up to ₹5 lakh per person, per bank**: savings, FDs and RDs combined.
 
 ## Safety basics
+
+Boring. Also the reason you'll still have money next year.
 
 Add a **nominee**, turn on SMS alerts, and never share your debit card PIN, CVV or net-banking password.`,
   keyTerms: [
@@ -771,30 +819,36 @@ const fdRd: SeedLesson = {
   title: "Fixed Deposits and Recurring Deposits",
   icon: "🪙",
   area: "BANKING",
-  description: "Park your first savings in FDs and RDs, a simple, low-risk way to grow them.",
+  description: "Your savings account is barely trying. Meet two boring options that work harder.",
   estimatedMinutes: 5,
   xpReward: 75,
   order: 7,
-  hook: `You want a ₹24,000 phone a year from now, and you can spare about ₹2,000 a month.
+  hook: `You want a ₹24,000 phone a year from now, and you can spare ₹2,000 a month.
 
-Should that money just sit in your savings account?`,
+Your plan is to leave it in your savings account and hope you don't touch it. Cute. Is there a better plan?`,
   learn: `## Fixed Deposit (FD)
 
 You deposit a **lump sum** for a fixed period, anywhere from 7 days to 10 years, at a **fixed interest rate**. The rate is locked when you open it, so you know exactly what you'll get.
 
 ## Recurring Deposit (RD)
 
+A savings habit for people who have proven they can't be trusted.
+
 You deposit a **fixed amount every month** for a set period. It's perfect for building towards a goal from your monthly allowance or salary.
 
 ## FD vs savings account
+
+One of these is trying. The other one is your current plan.
 
 FDs usually pay **more interest** than savings accounts, but the money is locked in. You can break an FD early, but banks usually cut the rate. That's a **premature withdrawal penalty**.
 
 ## Good to know
 
+Small print, in big letters, because you weren't going to read it.
+
 - FD and RD interest is **taxable** as part of your income
 - Bank FDs and RDs are covered by **DICGC insurance up to ₹5 lakh** per person, per bank
-- Keep emergency money accessible. Don't lock all of it in an FD`,
+- Keep emergency money easy to reach. Don't lock all of it in an FD`,
   keyTerms: [
     { term: "Fixed Deposit (FD)", definition: "A one-time deposit locked for a fixed period at a fixed interest rate." },
     { term: "Recurring Deposit (RD)", definition: "Fixed monthly deposits for a set period that earn interest." },
@@ -822,7 +876,7 @@ The interest covers part of the cost, and the fixed monthly deposit keeps him on
       "Put it all in a 5-year FD for a higher rate",
     ),
     explanation:
-      "Splitting works best: emergency money stays accessible in savings, while money you won't need earns more in an FD. Locking up everything means paying a penalty if an emergency hits.",
+      "Splitting works best: emergency money stays easy to reach in savings, while money you won't need earns more in an FD. Locking up everything means paying a penalty if an emergency hits.",
   },
   questions: [
     {
@@ -891,22 +945,26 @@ const cibilScore: SeedLesson = {
   title: "CIBIL Score",
   icon: "📊",
   area: "CREDIT",
-  description: "Build a credit score from zero before you need your first loan or card.",
+  description: "There's a number that decides if banks trust you. You probably don't know yours.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 8,
-  hook: `Two friends apply for the same bike loan. One gets it at a good rate. The other gets rejected.
+  hook: `Two friends apply for the same bike loan. One gets a good rate. The other gets rejected.
 
-They earn the same. What does the bank know that they don't?`,
+They earn the same. So what does the bank know about them that you don't know about yourself?`,
   learn: `## What is a credit score?
 
 A **credit score** is a 3-digit number from **300 to 900** that shows how reliably you've repaid borrowed money. **CIBIL** is India's best-known credit bureau; Experian, Equifax and CRIF High Mark are the others.
 
 ## Why it matters
 
+Banks judge you. Might as well find out how.
+
 Banks check it before giving you a loan or a credit card. A score of **750+** usually means easier approvals and better interest rates.
 
 ## What moves your score
+
+Your score has been keeping notes on you.
 
 - **Payment history**: paying EMIs and card bills on time (the biggest factor)
 - **Credit utilisation**: how much of your limit you use; **under 30%** is healthy
@@ -914,6 +972,8 @@ Banks check it before giving you a loan or a credit card. A score of **750+** us
 - **Too many applications**: lots of loan or card applications in a short time can pull it down
 
 ## Starting from zero
+
+No score is not a bad score. It just means banks have no idea who you are.
 
 Never borrowed? You may simply have **no score** yet. That's not the same as a bad score. Your first card or loan, repaid on time, starts building it. And checking your own score does **not** lower it.`,
   keyTerms: [
@@ -944,7 +1004,7 @@ Her score stays stuck around 690. She starts paying part of her bill mid-month s
   questions: [
     {
       prompt: "A friend brags about a CIBIL score of 1,200. What's the actual range of a CIBIL score?",
-      explanation: "CIBIL scores range from 300 to 900. Higher is better. 750+ is generally considered good.",
+      explanation: "CIBIL scores range from 300 to 900. Higher is better. 750+ is usually seen as good.",
       hint: "It's a three-digit number, and the top of the range is below 1,000.",
       difficulty: "EASY",
       options: choices(1, "0 to 100", "300 to 900", "1 to 10", "100 to 1,000"),
@@ -1006,18 +1066,20 @@ const creditCards: SeedLesson = {
   title: "Credit Cards 101",
   icon: "💳",
   area: "CREDIT",
-  description: "Learn how credit cards, billing cycles, due dates, and minimum payments work.",
+  description: "A credit card is a loan in a nice outfit. Learn how it works before it works you.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 9,
-  hook: `You just got your first job. Your bank gives you a credit card with a ₹1,00,000 limit.
+  hook: `You got your first job, and your bank gives you a credit card with a ₹1,00,000 limit.
 
-Does that mean you have ₹1,00,000 to spend?`,
+You're already picturing what to buy, aren't you. Does that mean you have ₹1,00,000 to spend?`,
   learn: `## What is a credit card?
 
 A credit card lets you **borrow money from the bank up to a specific limit** and repay it later. It isn't your money. It's a short-term loan.
 
 ## How the cycle works
+
+Your card has a calendar. You should probably look at it.
 
 - You spend during a **billing cycle** (about 30 days)
 - The bank sends a **statement** with your total bill
@@ -1027,9 +1089,13 @@ Pay the **full amount** by the due date and you pay **zero interest**.
 
 ## The minimum payment trap
 
-The **minimum amount due** is a small part of your bill, often around 5%. Paying only that avoids a late fee, but the rest attracts interest of about **3–4% a month (36–45% a year)**, and new purchases can lose their interest-free period too.
+The bank made this button easy for a reason. It isn't kindness.
+
+The **minimum amount due** is a small part of your bill, often around 5%. Paying only that avoids a late fee, but the rest gets charged interest of about **3–4% a month (36–45% a year)**, and new purchases can lose their interest-free period too.
 
 ## Use it well
+
+A credit card is a sharp knife. You've been juggling it.
 
 - Spend only what you could pay in cash today
 - Set up auto-pay for the **full** bill
@@ -1039,7 +1105,7 @@ The **minimum amount due** is a small part of your bill, often around 5%. Paying
     { term: "Credit limit", definition: "The maximum amount you can borrow using the card." },
     { term: "Billing cycle", definition: "The roughly 30-day period whose spends are added into one bill." },
     { term: "Payment due date", definition: "The last date to pay your bill without a late fee." },
-    { term: "Minimum payment", definition: "The small amount that avoids a late fee. The unpaid rest still attracts interest." },
+    { term: "Minimum payment", definition: "The small amount that avoids a late fee. The unpaid rest still gets charged interest." },
     {
       term: "Interest and credit history",
       definition: "Unpaid balances cost around 36–45% a year, and every payment, on time or late, shapes your credit score.",
@@ -1047,7 +1113,7 @@ The **minimum amount due** is a small part of your bill, often around 5%. Paying
   ],
   example: `**Rahul earns ₹30,000/month.** His credit-card bill is **₹12,000**. He has **₹15,000** available in his bank account.
 
-If he pays only the minimum (about ₹600), the remaining ₹11,400 starts attracting interest at around 3.5% a month, roughly **₹400 extra by next month**, and it keeps growing.
+If he pays only the minimum (about ₹600), the remaining ₹11,400 starts getting charged interest at around 3.5% a month, roughly **₹400 extra by next month**, and it keeps growing.
 
 **What should he consider before paying only the minimum amount?**`,
   scenario: {
@@ -1088,7 +1154,7 @@ If he pays only the minimum (about ₹600), the remaining ₹11,400 starts attra
     {
       prompt: "What happens if you pay only the minimum amount due?",
       explanation:
-        "The minimum payment only avoids a late fee. The unpaid balance attracts interest at roughly 36–45% a year.",
+        "The minimum payment only avoids a late fee. The unpaid balance gets charged interest at roughly 36–45% a year.",
       hint: "\"Minimum\" means the least you can pay without a penalty. What happens to the part you didn't pay?",
       difficulty: "MEDIUM",
       options: choices(
@@ -1135,18 +1201,20 @@ const firstSalaryTax: SeedLesson = {
   title: "Income Tax for Your First Salary",
   icon: "🧾",
   area: "TAX",
-  description: "Read your first payslip: CTC vs in-hand, PF, TDS and the tax regimes for tax year 2026-27.",
+  description: "CTC, PF, TDS, tax regimes. What your payslip means, in actual words.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 11,
-  hook: `Your offer letter says ₹6 LPA. That's ₹50,000 a month, right?
+  hook: `Your offer letter says ₹6 LPA. So ₹50,000 a month, right? You've already told your parents.
 
-Then your first salary arrives: about ₹46,000. Where did the rest go?`,
+Then your first salary arrives: about ₹46,000. Who took the rest?`,
   learn: `## CTC vs in-hand
 
 **CTC (Cost to Company)** is everything your employer spends on you in a year. Your **in-hand salary** is what actually reaches your bank after deductions. They're never the same.
 
 ## What gets deducted
+
+Say goodbye to some of your salary. It was nice while it lasted, which was never.
 
 - **EPF (Provident Fund)**: usually 12% of your basic pay goes into your retirement savings, and your employer adds a matching share
 - **Professional tax**: a small state tax of up to ₹2,500 a year (about ₹200 a month in states like Maharashtra and Karnataka)
@@ -1154,13 +1222,19 @@ Then your first salary arrives: about ₹46,000. Where did the rest go?`,
 
 ## Which rules apply?
 
+Yes, tax has rules. No, "my friend said" isn't one of them.
+
 From **1 April 2026**, the **Income-tax Act, 2025** replaced the 1961 Act. It talks about a **tax year** (April to March) instead of "financial year" and "assessment year", and many section numbers changed. The ideas in this lesson stay the same.
 
 ## New vs old tax regime
 
+Two options, and you were going to pick whichever your colleague picked.
+
 India has two tax regimes. The **new regime is the default**: lower tax rates, but fewer deductions. The **old regime** has higher rates but lets you claim deductions like rent (HRA) and some investments. Salaried people can choose each year.
 
 ## File your ITR
+
+"My company handles it" is the most confident wrong sentence in India.
 
 Even when TDS is deducted, file your **Income Tax Return (ITR)** on incometax.gov.in. It's your official income record, useful for loans and visas, and it's how you claim a refund if extra tax was deducted.`,
   keyTerms: [
@@ -1267,30 +1341,38 @@ const stocksFundsFds: SeedLesson = {
   title: "Stocks vs Mutual Funds vs FDs",
   icon: "📈",
   area: "INVESTING",
-  description: "Before you invest your first salary: how stocks, mutual funds and FDs differ, and the risk behind returns.",
+  description: "Stocks, mutual funds and FDs, explained for someone who nods along at family dinners.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 12,
   hook: `Your friend says he doubled his money in a stock in three months. Your parents say only FDs are safe.
 
-Who's right?`,
+You have no idea who's right, so you nodded at both. Let's fix that.`,
   learn: `## Stocks
 
 A **stock (share)** is a small piece of ownership in a company. If the company does well, the share's price may rise. If it struggles, the price can fall a lot. Prices move every day.
 
 ## Mutual funds
 
+For people who'd like to invest but not pretend to be a stock expert. So, you.
+
 A **mutual fund** pools money from many people and spreads it across many stocks or bonds, managed by professionals. An **index fund** simply copies an index like the **Nifty 50**. Spreading money across many companies is called **diversification**.
 
 ## Fixed deposits
+
+Your parents' favourite. They're not completely wrong.
 
 An **FD** pays a fixed, known interest rate. Your money is safe (insured up to ₹5 lakh per bank), but returns are modest and may only just beat rising prices.
 
 ## Risk and return go together
 
+Anyone selling high returns with no risk is selling you. Simple as that.
+
 Higher possible returns always come with higher risk. **No genuine investment can promise high, guaranteed returns**. Anyone who does is a red flag. In India, stock markets and mutual funds are regulated by **SEBI**.
 
 ## Time matters
+
+You keep waiting for the right moment. That was years ago.
 
 Money you'll need within a year or two is usually kept somewhere safe. Stocks and equity funds can swing a lot in the short term, so they're generally suited to goals that are **many years away**.`,
   keyTerms: [
@@ -1399,18 +1481,20 @@ const sipsStartingEarly: SeedLesson = {
   title: "SIPs and Starting Early",
   icon: "⏳",
   area: "INVESTING",
-  description: "See how small monthly SIPs add up, and why starting early beats starting big.",
+  description: "Small money, started early, beats big money started late. Sadly, late is your current plan.",
   estimatedMinutes: 6,
   xpReward: 75,
   order: 13,
   hook: `₹3,000 a month is about one weekend out with friends.
 
-What if putting it away at 21 instead of 31 made a difference of over ₹1 crore by the time you're 60?`,
+Start at 21 instead of 31, and it could mean over ₹1 crore more by 60. But sure, do tell me about that weekend.`,
   learn: `## What is a SIP?
 
 A **SIP (Systematic Investment Plan)** invests a fixed amount in a mutual fund every month, automatically. Many funds let you start with as little as **₹100–₹500 a month**.
 
 ## Why SIPs work
+
+It works because it removes the weak link: you.
 
 - **Habit**: the money is invested before you can spend it
 - **Rupee cost averaging**: the same amount buys more units when prices are low, and fewer when they're high
@@ -1420,13 +1504,19 @@ Returns are **not guaranteed**. Markets go up and down.
 
 ## Why starting early matters
 
+Future you is begging. Present you is ordering fries.
+
 **Compounding** means your returns start earning returns of their own. The longer your money stays invested, the bigger that snowball gets, so **time matters more than the amount**. A small SIP started at 21 can end up bigger than a larger one started at 31.
 
 ## Stay invested through the dips
 
+When prices fall, your instinct will be wrong. Sorry.
+
 Markets will fall sometimes. Stopping your SIP when prices drop means you miss buying units cheaply. SIPs in equity funds suit goals that are **5+ years away**, so there's time to ride out the dips.
 
 ## Protect before you invest
+
+No, your stock tip won't pay the hospital bill.
 
 Before starting a SIP, build an **emergency fund** and get **health insurance**, so a hospital bill or a gap between jobs doesn't force you to sell your investments at a bad time.`,
   keyTerms: [

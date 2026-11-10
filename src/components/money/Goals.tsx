@@ -101,7 +101,7 @@ export function GoalCard({ goal }: { goal: GoalView }) {
           </p>
           {!goal.completed && left > 0 && goal.targetDay && <p className="mt-0.5 text-xs text-slate-500">{perMonthHint(left, goal.targetDay, goal.today)}</p>}
         </div>
-        <button type="button" onClick={remove} disabled={isPending} aria-label={`Remove ${goal.name}`} className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+        <button type="button" onClick={remove} disabled={isPending} aria-label={`Remove ${goal.name}`} className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
           <TrashIcon className="h-4 w-4" />
         </button>
       </div>
@@ -115,7 +115,7 @@ export function GoalCard({ goal }: { goal: GoalView }) {
             Amount for {goal.name}
           </label>
           <span className="flex min-w-0 flex-1 items-center rounded-xl border border-slate-200 px-3 transition focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100">
-            <span aria-hidden className="text-slate-400">
+            <span aria-hidden className="text-slate-500">
               ₹
             </span>
             <input
@@ -145,7 +145,7 @@ export function GoalCard({ goal }: { goal: GoalView }) {
 }
 
 /** Creates a savings goal. */
-export function NewGoalForm({ today }: { today: string }) {
+export function NewGoalForm({ today, empty = false }: { today: string; empty?: boolean }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<GoalIconKey>("target");
@@ -172,6 +172,19 @@ export function NewGoalForm({ today }: { today: string }) {
         setError(GENERIC_ERROR_MESSAGE);
       }
     });
+  }
+
+  if (!open && empty) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center">
+        <p className="font-display text-lg font-bold text-slate-900">No savings goal yet</p>
+        <p className="text-sm text-slate-600">Money without a job goes on food delivery. Give it one.</p>
+        <button type="button" onClick={() => setOpen(true)} className={`${primaryButton} mt-2 py-3`}>
+          Create a goal
+        </button>
+        <p className="text-xs font-semibold text-orange-700">+50 XP when you reach a goal of ₹500 or more</p>
+      </div>
+    );
   }
 
   if (!open) {
@@ -254,7 +267,7 @@ export function DeleteEntryButton({ id, label }: { id: string; label: string }) 
           await deleteMoneyEntry(id);
         });
       }}
-      className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+      className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
     >
       <TrashIcon className="h-4 w-4" />
     </button>

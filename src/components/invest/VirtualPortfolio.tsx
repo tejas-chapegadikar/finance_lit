@@ -244,12 +244,12 @@ export function VirtualPortfolio({ portfolio }: { portfolio: PortfolioView }) {
         </p>
       )}
 
-      <div className="mt-6 border-t border-slate-100 pt-5">
-        <h3 className="font-sans text-sm font-semibold tracking-normal text-slate-900">Value over time</h3>
+      <details className="mt-6 border-t border-slate-100 pt-5">
+        <summary className="min-h-6 cursor-pointer text-sm font-semibold text-slate-900">See value over time</summary>
         <div className="mt-3">
           <ValueChart history={portfolio.history} />
         </div>
-      </div>
+      </details>
 
       <p className="mt-5 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
         A simulation with virtual money only. Returns are generated from assumed long-run rates with realistic ups and downs, not real market data, not a

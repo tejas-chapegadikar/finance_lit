@@ -43,7 +43,10 @@ export type ReactionKind =
   | "invest-up"
   | "invest-allin"
   | "invest-diversified"
-  | "invest-panic";
+  | "invest-panic"
+  | "quest-done"
+  | "quests-all"
+  | "xp-level";
 
 export type ReactionData = Record<string, string | number | boolean | undefined>;
 
@@ -53,7 +56,29 @@ export type ReactionDef = { expression: Expression; priority: 0 | 1 | 2; title?:
 
 const n = (d: ReactionData, key: string, fallback = "") => String(d[key] ?? fallback);
 
+const CELEBRATIONS: string[] = ["quest-done", "quests-all", "xp-level", "badge", "streak"];
+/** Shown as a small celebration rather than the Today tip. */
+export const isCelebration = (kind: string) => CELEBRATIONS.includes(kind);
+
 export const REACTIONS: Record<ReactionKind, ReactionDef> = {
+  "quest-done": {
+    expression: "happy",
+    priority: 1,
+    title: (d) => `Quest done · +${n(d, "xp", "0")} XP`,
+    lines: [() => "One down. Look at you, doing things.", () => "Done. Don't let it go to your head.", () => "Quest cleared. Mild applause."],
+  },
+  "quests-all": {
+    expression: "celebrating",
+    priority: 2,
+    title: (d) => `All 3 quests done · +${n(d, "xp", "15")} XP bonus`,
+    lines: [() => "All three? Who are you and what did you do with my student?", () => "Full set. I'll be telling everyone."],
+  },
+  "xp-level": {
+    expression: "celebrating",
+    priority: 2,
+    title: (d) => `Level ${n(d, "level", "2")}!`,
+    lines: [() => "You levelled up. I'd say I'm proud, but I have a reputation.", () => "New level. Same spending habits, but we're working on it."],
+  },
   greeting: {
     expression: "welcoming",
     priority: 0,

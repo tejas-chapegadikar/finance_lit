@@ -12,7 +12,7 @@ import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/Men
 import { card, secondaryButton } from "@/components/ui/button-styles";
 import { AlertIcon, DocumentIcon, InfoIcon, LockIcon, MailIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Settings | StockStreak" };
+export const metadata: Metadata = { title: "Settings | Rupli" };
 
 const LEGAL_ICONS: Record<string, React.ReactNode> = {
   "/about": <InfoIcon />,
@@ -33,15 +33,13 @@ export default async function SettingsPage() {
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
       <PageHeader eyebrow="Settings" title="Your settings" description="Your details, your avatar's pop-ups and your account." />
 
-      <section aria-labelledby="settings-heading" className={`${card} p-5 sm:p-6`}>
-        <h2 id="settings-heading" className="text-xl text-slate-900">
-          Edit profile
-        </h2>
+      <details className={`${card} p-5 sm:p-6`}>
+        <summary className="min-h-6 cursor-pointer font-display text-xl font-semibold text-slate-900">Edit profile</summary>
         <p className="mt-1 text-sm text-slate-600">Your name, college, stage and learning goal. Your avatar uses your name, so it updates everywhere.</p>
         <div className="mt-4">
           <ProfileForm displayName={displayName} collegeName={user.collegeName ?? ""} stage={user.stage ?? ""} goals={user.goals} />
         </div>
-      </section>
+      </details>
 
       <section aria-labelledby="avatar-settings-heading" className={`${card} flex flex-col gap-4 p-5 sm:p-6`}>
         <h2 id="avatar-settings-heading" className="text-xl text-slate-900">
@@ -72,10 +70,8 @@ export default async function SettingsPage() {
         <AccountActions />
       </section>
 
-      <section aria-labelledby="legal-heading">
-        <h2 id="legal-heading" className="text-xl text-slate-900">
-          Help, privacy &amp; legal
-        </h2>
+      <details className={`${card} p-5 sm:p-6`}>
+        <summary className="min-h-6 cursor-pointer font-display text-xl font-semibold text-slate-900">Help, privacy &amp; legal</summary>
         <ul className={`mt-3 ${menuListClass}`}>
           {LEGAL_LINKS.map((link) => (
             <li key={link.href}>
@@ -85,7 +81,7 @@ export default async function SettingsPage() {
             </li>
           ))}
         </ul>
-      </section>
+      </details>
     </div>
   );
 }

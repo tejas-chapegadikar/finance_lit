@@ -4,9 +4,10 @@ import type { User as AuthUser } from "@supabase/supabase-js";
 import { db } from "./db";
 import { supabaseServer } from "./supabase/server";
 import { supabaseConfigured } from "./supabase/config";
+import { CONSENT_VERSION } from "./site";
 
 // Who's signed in. Login is Supabase Auth (username + password); the
-// StockStreak account, profile, XP, lessons, money, is a
+// Rupli account, profile, XP, lessons, money, is a
 // User row in our database, linked by `authId` (the Supabase user id).
 
 /** The signed-in Supabase user (verified with Supabase, not just read from a cookie), or null. */
@@ -28,7 +29,7 @@ export async function requireSession() {
 const getUserByAuthId = cache((authId: string) => db.user.findUnique({ where: { authId } }));
 
 /**
- * Finds or creates the StockStreak account for a Supabase user.
+ * Finds or creates the Rupli account for a Supabase user.
  *
  * An older account with the same email (made before the move from Clerk to
  * Supabase, so not linked yet) is only taken over through Google sign-in:
@@ -47,6 +48,8 @@ async function linkOrCreateUser(auth: AuthUser) {
     (typeof meta.username === "string" && meta.username) ||
     null;
   const fields = { email, emailVerified: viaGoogle, phone: auth.phone || null, phoneVerified: !!auth.phone_confirmed_at };
+  // Ticked on the sign-up form, before the account existed.
+  const consent = meta.consent_version === CONSENT_VERSION ? { consentAt: new Date(), consentVersion: CONSENT_VERSION } : {};
 
   const sameEmail = await db.user.findUnique({ where: { email } });
   if (sameEmail) {
@@ -56,7 +59,7 @@ async function linkOrCreateUser(auth: AuthUser) {
     return db.user.update({ where: { id: sameEmail.id }, data: { authId: auth.id, ...fields, name: sameEmail.name ?? name } });
   }
   try {
-    return await db.user.upsert({ where: { authId: auth.id }, create: { authId: auth.id, ...fields, name }, update: fields });
+    return await db.user.upsert({ where: { authId: auth.id }, create: { authId: auth.id, ...fields, ...consent, name }, update: fields });
   } catch (error) {
     // Lost the race to create the row: use the one that won.
     const existing = await db.user.findUnique({ where: { authId: auth.id } });
@@ -65,14 +68,14 @@ async function linkOrCreateUser(auth: AuthUser) {
   }
 }
 
-/** Ensures a signed-in session AND a matching StockStreak account (created on the first sign-in). */
+/** Ensures a signed-in session AND a matching Rupli account (created on the first sign-in). */
 export async function requireAppUser() {
   const { userId: authId, user: auth } = await requireSession();
   const user = (await getUserByAuthId(authId)) ?? (await linkOrCreateUser(auth));
   // This email already belongs to an older account: open it with Google.
   if (user === "claim") redirect("/sign-in?error=claim");
   if (!user) {
-    throw new Error("We couldn't set up your StockStreak account. Please sign in with an email address.");
+    throw new Error("We couldn't set up your Rupli account. Please sign in with an email address.");
   }
   return user;
 }
@@ -80,6 +83,7 @@ export async function requireAppUser() {
 /** Ensures the signed-in user has finished onboarding. */
 export async function requireOnboardedUser() {
   const user = await requireAppUser();
+  if (user.consentVersion !== CONSENT_VERSION) redirect("/consent");
   if (!user.onboardingCompletedAt) {
     redirect("/onboarding");
   }

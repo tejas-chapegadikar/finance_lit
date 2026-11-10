@@ -36,9 +36,9 @@ export type Challenge = {
 
 const SIMULATOR = { href: "/invest/simulator", label: "Open the simulator" };
 const MONEY = { href: "/money", label: "Open Money Manager" };
-const INSIGHTS = { href: "/money#insights", label: "See your insights" };
-const BUDGETS = { href: "/money#budgets", label: "Set a budget" };
-const GOALS = { href: "/money#goals", label: "Open your goals" };
+const INSIGHTS = { href: "/money", label: "See your insights" };
+const BUDGETS = { href: "/money?tab=budgets", label: "Set a budget" };
+const GOALS = { href: "/money?tab=goals", label: "Open your goals" };
 const lesson = (slug: string, label: string) => ({ href: `/lessons/${slug}`, label });
 
 export const HABIT_CHALLENGE: Challenge = {
@@ -98,7 +98,7 @@ export const HABIT_CHALLENGE: Challenge = {
       body: "Money Manager's report sorts your spending by category. The biggest bar is where small changes make the biggest difference.",
       task: "Open your monthly report and note your biggest category so far.",
       kind: "do",
-      link: { href: "/money#report", label: "Open the report" },
+      link: { href: "/money", label: "Open the report" },
     },
     {
       title: "Week 1 review",
@@ -338,7 +338,7 @@ export const SAVING_CHALLENGES: Challenge[] = [
       body: JAR_TIPS[d - 1],
       task: "Put ₹20 aside today.",
       kind: "do",
-      link: { href: "/money#goals", label: "Add to a goal" },
+      link: { href: "/money?tab=goals", label: "Add to a goal" },
     })),
   },
   {

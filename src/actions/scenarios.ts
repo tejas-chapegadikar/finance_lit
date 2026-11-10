@@ -16,7 +16,7 @@ import {
   type StepAnswer,
   type StepCheck,
 } from "@/lib/scenarios";
-import { recordStreakDay } from "@/lib/streak";
+import { completeQuest } from "@/lib/quests";
 import { awardScenarioBadges, findBadge } from "@/lib/badges";
 import { awardXp, lockUser, xpKeys } from "@/lib/xp";
 
@@ -89,7 +89,7 @@ export async function completeScenario(slug: string, answers: StepAnswer[]): Pro
         : 0;
     // Only a first run of a scenario can complete the set.
     const badgeIds = earlier === 0 ? await awardScenarioBadges(tx, user.id) : [];
-    await recordStreakDay(tx, user.id);
+    await completeQuest(tx, user.id, "learn");
     return { xpAwarded: awarded, firstTime: earlier === 0, badgeIds };
   }, SLOW_DB_TRANSACTION);
 

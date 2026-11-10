@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Avatar } from "@/components/avatar/Avatar";
 import { avatarName, readAvatar } from "@/lib/avatar";
+import { verdictFor } from "@/lib/avatar/quiz-lines";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireOnboardedUser } from "@/lib/auth";
@@ -22,7 +23,7 @@ import { card, gameSurface, primaryButton, secondaryButton, tile } from "@/compo
 import { CORE_SCENARIOS } from "@/lib/scenarios";
 import { ArrowRightIcon, CheckIcon, GraduationCapIcon, RefreshIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Lesson complete | StockStreak" };
+export const metadata: Metadata = { title: "Lesson complete | Rupli" };
 
 const OUTCOME_BADGE: Record<QuestionOutcome, { label: string; className: string }> = {
   "first-try": { label: "First try", className: "bg-emerald-50 text-emerald-800" },
@@ -119,7 +120,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
       <header className={`${gameSurface} flex animate-fade-up flex-col items-center px-6 pt-10 pb-6 text-center sm:px-10`}>
         <span
           aria-hidden
-          className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(124_104_255/0.5),transparent_62%)]"
+          className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.5),transparent_62%)]"
         />
         <span className="relative flex animate-pop items-end gap-3">
           {lessonXp > 0 && <Burst />}
@@ -131,7 +132,8 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
             ? `Lesson ${lessonNumber ? String(lessonNumber).padStart(2, "0") : ""} completed`
             : "Already completed. This retake can raise your readiness"}
         </p>
-        <h1 className="mt-1 text-4xl text-white sm:text-5xl">Lesson Complete!</h1>
+        <h1 className="mt-1 text-4xl text-white sm:text-5xl">Lesson done!</h1>
+        {attempt.mastery !== null && <p className="mt-2 text-base font-medium text-white/80">{verdictFor(attempt.mastery)}</p>}
         <p className="mt-2 text-white/75">{attempt.lesson.title}</p>
 
         <section className="mt-8 w-full" aria-labelledby="performance-heading">
@@ -206,7 +208,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
           </p>
           {levelBonus > 0 && <p className="mt-2 text-sm font-semibold text-orange-800">+{levelBonus} XP completion bonus</p>}
           <p className="mx-auto mt-2 max-w-sm text-sm text-slate-700">
-            Next: the {NEXT_PATH_NAME} path is coming soon. Until then, keep your skills sharp with the daily question and challenge.
+            Next: the {NEXT_PATH_NAME} path is coming soon. Until then, revise. You&apos;ve already forgotten some of it.
           </p>
         </section>
       )}
@@ -287,7 +289,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
             <span className="block text-[13px] font-medium text-brand-700">Practise it for real</span>
             <span className="block font-semibold text-slate-900">{practiceScenario.title}</span>
           </span>
-          <ArrowRightIcon className="h-5 w-5 shrink-0 text-slate-400" />
+          <ArrowRightIcon className="h-5 w-5 shrink-0 text-slate-500" />
         </Link>
       )}
 
@@ -312,9 +314,9 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
 
       <section className="border-t border-slate-200 pt-8" aria-labelledby="feedback-heading">
         <h2 id="feedback-heading" className="text-xl text-slate-900">
-          Was this lesson clear and useful?
+          Did this lesson make sense?
         </h2>
-        <p className="mt-1 mb-4 text-sm text-slate-600">Your answer goes straight to the StockStreak team.</p>
+        <p className="mt-1 mb-4 text-sm text-slate-600">Your answer goes straight to the Rupli team.</p>
         <LessonFeedbackForm
           save={saveLessonFeedback.bind(null, attempt.lessonId)}
           initial={feedback ? { helpful: feedback.helpful, comment: feedback.comment ?? "" } : null}
@@ -334,7 +336,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
 
             return (
               <li key={question.id} className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-2 py-4 text-sm">
-                <span aria-hidden className="font-display text-sm font-semibold text-slate-400 tabular-nums">
+                <span aria-hidden className="font-display text-sm font-semibold text-slate-500 tabular-nums">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="min-w-0">

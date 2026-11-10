@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { rightLine, wrongLine } from "@/lib/avatar/quiz-lines";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { OptionButton, type OptionState } from "./OptionButton";
 import { StarIcon } from "./icons";
@@ -39,7 +40,7 @@ export function ChoiceQuestion({
   answer,
   initialAnswer,
   onAnswered,
-  labels = { right: "Correct", wrong: "Not quite, here's why" },
+  labels,
 }: {
   labels?: { right: string; wrong: string };
   prompt: string;
@@ -112,7 +113,7 @@ export function ChoiceQuestion({
           className={`animate-fade-up rounded-2xl p-4 ring-1 ${result.isCorrect ? "bg-emerald-50 ring-emerald-200" : "bg-rose-50 ring-rose-200"}`}
         >
           <p className={`font-semibold ${result.isCorrect ? "text-emerald-900" : "text-rose-900"}`}>
-            {result.isCorrect ? labels.right : labels.wrong}
+            {result.isCorrect ? (labels?.right ?? rightLine(prompt)) : (labels?.wrong ?? wrongLine(prompt))}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-slate-800">{result.explanation}</p>
           {result.note && <p className="mt-2 text-sm font-semibold text-slate-900">{result.note}</p>}

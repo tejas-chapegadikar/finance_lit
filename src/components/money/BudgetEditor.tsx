@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { saveBudgets } from "@/actions/money";
 import { EXPENSE_CATEGORIES } from "@/lib/money/categories";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
@@ -28,6 +29,7 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
         const result = await saveBudgets(Object.entries(values).map(([category, amount]) => ({ category, amount: amount === "" ? null : amount })));
         if (result.status === "saved") {
           setMessage("Budgets saved. Now the fun part: sticking to them.");
+          if (result.xp > 0) toast.success(`+${result.xp} XP`, { description: "First budget set" });
           setOpen(false);
         }
         if (result.status === "invalid") setMessage(result.message);
@@ -36,6 +38,19 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
         setMessage(GENERIC_ERROR_MESSAGE);
       }
     });
+  }
+
+  if (!open && Object.keys(budgets).length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center">
+        <p className="font-display text-lg font-bold text-slate-900">No budget yet</p>
+        <p className="text-sm text-slate-600">Bold strategy. Decide your limit before the month decides for you.</p>
+        <button type="button" onClick={() => setOpen(true)} className={`${primaryButton} mt-2 py-3`}>
+          Set your first budget
+        </button>
+        <p className="text-xs font-semibold text-orange-700">+10 XP, first time</p>
+      </div>
+    );
   }
 
   if (!open) {
@@ -60,7 +75,7 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
         <label htmlFor="budget-total" className="font-semibold text-slate-900">
           Whole month
         </label>
-        <span className="flex items-center gap-1.5 text-slate-400">
+        <span className="flex items-center gap-1.5 text-slate-500">
           ₹<input id="budget-total" inputMode="numeric" value={values.total} onChange={(e) => set("total", e.target.value)} className={fieldClass} placeholder="-" />
         </span>
       </div>
@@ -71,7 +86,7 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
               <CategoryIcon id={c.id} className="h-4 w-4 shrink-0 text-slate-500" />
               <span className="truncate">{c.label}</span>
             </label>
-            <span className="flex items-center gap-1.5 text-slate-400">
+            <span className="flex items-center gap-1.5 text-slate-500">
               ₹<input id={`budget-${c.id}`} inputMode="numeric" value={values[c.id]} onChange={(e) => set(c.id, e.target.value)} className={fieldClass} placeholder="-" />
             </span>
           </li>

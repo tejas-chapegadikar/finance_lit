@@ -1,6 +1,7 @@
 import type { Prisma, XPTransactionType } from "@prisma/client";
 import { PATH_SLUGS } from "./journey";
 import { queueAvatarEvent } from "./avatar/queue";
+import { levelFor } from "./levels";
 
 /** The avatar celebrates every this-many lifetime XP. */
 export const XP_MILESTONE_STEP = 500;
@@ -73,6 +74,10 @@ export async function awardXp(tx: Prisma.TransactionClient, params: AwardXpParam
     data: { xpTotal: { increment: amount } },
     select: { xpTotal: true },
   });
+  const level = levelFor(xpTotal).level;
+  if (amount > 0 && level > levelFor(xpTotal - amount).level) {
+    await queueAvatarEvent(tx, userId, "xp-level", `xp-level:${level}`, { level });
+  }
   const crossed = Math.floor(xpTotal / XP_MILESTONE_STEP);
   if (amount > 0 && crossed > Math.floor((xpTotal - amount) / XP_MILESTONE_STEP)) {
     await queueAvatarEvent(tx, userId, "xp-milestone", `xp:${crossed * XP_MILESTONE_STEP}`, { xp: crossed * XP_MILESTONE_STEP });

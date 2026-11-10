@@ -1,11 +1,17 @@
 import { z } from "zod";
-import { collegeNameSchema, displayNameSchema, goalsSchema, stageSchema } from "./profile";
+import { MAX_ENTRY, MAX_GOAL } from "../money/categories";
 
+const optionalAmount = (max: number) =>
+  z
+    .union([z.literal(""), z.coerce.number().int("Use whole rupees").min(1, "Enter an amount above ₹0").max(max, "That amount is too big")])
+    .transform((v) => (v === "" ? null : v));
+
+// Every step can be skipped, so every field is optional.
 export const onboardingSchema = z.object({
-  displayName: displayNameSchema,
-  stage: stageSchema,
-  collegeName: collegeNameSchema,
-  goals: goalsSchema,
+  income: optionalAmount(MAX_ENTRY),
+  budget: optionalAmount(MAX_ENTRY),
+  goalName: z.string().trim().max(40, "Keep the name under 40 characters"),
+  goalTarget: optionalAmount(MAX_GOAL),
 });
 
 export type OnboardingInput = z.input<typeof onboardingSchema>;

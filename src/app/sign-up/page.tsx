@@ -4,7 +4,7 @@ import { getAuthUser } from "@/lib/auth";
 import { AuthBackdrop } from "@/components/layout/AuthBackdrop";
 import { AuthCard } from "@/components/auth/AuthCard";
 
-export const metadata: Metadata = { title: "Sign up | StockStreak" };
+export const metadata: Metadata = { title: "Sign up | Rupli" };
 
 // New accounts go to the dashboard, which sends them through onboarding first.
 export default async function SignUpPage() {

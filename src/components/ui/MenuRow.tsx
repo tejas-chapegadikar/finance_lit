@@ -28,7 +28,7 @@ export function MenuRowContent({
         {icon}
       </span>
       <span className={`flex-1 ${tone === "danger" ? "text-rose-700" : "text-slate-800"}`}>{label}</span>
-      <ChevronRightIcon className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5" />
+      <ChevronRightIcon className="h-4 w-4 shrink-0 text-slate-500 transition group-hover:translate-x-0.5" />
     </>
   );
 }

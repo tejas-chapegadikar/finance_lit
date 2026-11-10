@@ -30,7 +30,7 @@ const STATUS_LABEL: Record<LessonStatus, string> = {
 export async function generateMetadata(props: PageProps<"/lessons/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
   const lesson = await db.lesson.findUnique({ where: { slug }, select: { title: true } });
-  return { title: lesson ? `${lesson.title} | StockStreak` : "Lesson | StockStreak" };
+  return { title: lesson ? `${lesson.title} | Rupli` : "Lesson | Rupli" };
 }
 
 export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
@@ -78,7 +78,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
 
   const backLink = (
     <Link
-      href={inInvest ? "/invest" : "/lessons"}
+      href="/lessons"
       className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900"
     >
       <ArrowLeftIcon className="h-4 w-4" />
@@ -217,7 +217,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
         <div className="mt-6 flex flex-col">
           {sections.map((section, i) => (
             <div key={i} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3 border-b border-slate-200 py-6 first:pt-0 last:border-b-0 sm:grid-cols-[2.5rem_minmax(0,1fr)]">
-              <span aria-hidden className="pt-1 font-display text-sm font-semibold text-slate-400 tabular-nums">
+              <span aria-hidden className="pt-1 font-display text-sm font-semibold text-slate-500 tabular-nums">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div className="min-w-0">

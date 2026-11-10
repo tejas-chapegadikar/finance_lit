@@ -7,7 +7,7 @@ import { coachCheckNote, revisionQuestion } from "@/lib/revision";
 import { readChoiceOptions } from "@/lib/lesson-content";
 import { QuizRunner, type QuizQuestion } from "@/components/quiz/QuizRunner";
 
-export const metadata: Metadata = { title: "Quiz | StockStreak" };
+export const metadata: Metadata = { title: "Quiz | Rupli" };
 
 export default async function QuizPage(props: PageProps<"/lessons/[slug]/quiz/[attemptId]">) {
   const user = await requireOnboardedUser();

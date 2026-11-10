@@ -5,13 +5,13 @@ import { DEFAULT_AVATAR } from "@/lib/avatar";
 import { Avatar, type Expression } from "@/components/avatar/Avatar";
 import { usePointerGaze } from "@/components/avatar/use-gaze";
 
-// The landing page's star: the StockStreak avatar, blinking, watching your
+// The landing page's star: the Rupli avatar, blinking, watching your
 // pointer, and roasting you a little every time you poke it.
 
 const LINES: { expression: Expression; text: string }[] = [
   {
     expression: "welcoming",
-    text: "Hi! I'm your money buddy. I'll teach you money… and roast your spending.",
+    text: "Hi! I'll teach you money and judge your spending. Mostly judge.",
   },
   {
     expression: "shocked",
@@ -53,7 +53,7 @@ export function HeroAvatar() {
     <div ref={stage} className="relative mx-auto flex w-full max-w-md flex-col items-center">
       <span
         aria-hidden
-        className="pointer-events-none absolute top-16 left-1/2 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(150_130_255/0.42),transparent_68%)] sm:h-96 sm:w-96"
+        className="pointer-events-none absolute top-16 left-1/2 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.42),transparent_68%)] sm:h-96 sm:w-96"
       />
       <div
         key={i}
@@ -70,7 +70,7 @@ export function HeroAvatar() {
       <button
         type="button"
         onClick={() => setI((n) => (n + 1) % LINES.length)}
-        aria-label="Poke the StockStreak avatar for another line"
+        aria-label="Poke the Rupli avatar for another line"
         className="group relative rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
       >
         <Avatar
@@ -79,8 +79,8 @@ export function HeroAvatar() {
           expression={line.expression}
           alive
           gaze={gaze}
-          className="h-64 w-auto animate-bob drop-shadow-[0_18px_26px_rgb(60_40_150/0.28)] transition-transform duration-300 group-hover:scale-105 group-active:scale-95 sm:h-80"
-          label="The StockStreak avatar"
+          className="h-64 w-auto animate-bob drop-shadow-[0_18px_26px_rgb(15_31_24/0.28)] transition-transform duration-300 group-hover:scale-105 group-active:scale-95 sm:h-80"
+          label="The Rupli avatar"
         />
       </button>
       <p className="mt-2 text-xs font-medium text-slate-500">Go on, poke it.</p>

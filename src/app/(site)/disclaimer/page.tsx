@@ -2,36 +2,45 @@ import type { Metadata } from "next";
 import { InfoPage } from "@/components/layout/InfoPage";
 import { LEGAL_LAST_UPDATED } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Disclaimer | StockStreak" };
+export const metadata: Metadata = { title: "Disclaimer | Rupli" };
 
+// Keep this page plain and exact. No roasting on legal pages.
 const CONTENT = `
-**StockStreak is for education only.** It teaches general financial concepts. It is **not** a personalised investment-advisory service, and nothing on StockStreak is financial, investment, tax or legal advice.
+**Rupli is for education and entertainment.** It teaches general money concepts. Nothing on Rupli is financial, investment, tax or legal advice.
 
 ## No personal advice
 
-- StockStreak is not registered with SEBI as an investment adviser or research analyst.
-- We don't recommend specific stocks, mutual funds, insurance policies, credit cards or any other financial product.
-- We don't know your personal situation, so our lessons can't tell you what *you* should do with your money.
+- Rupli is not registered with SEBI as an investment adviser or research analyst.
+- We don't recommend specific stocks, mutual funds, insurance, credit cards or any other financial product.
+- We don't know your situation, so we can't tell you what *you* should do with your money.
 
-## Examples are illustrations
+## Examples are examples
 
-Numbers in lessons (returns, interest rates, salaries) are examples to show how the maths works. Any return figure is an assumption, not a promise. Real investments can go up or down, and you can lose money.
+Numbers in lessons (returns, interest rates, salaries) only show how the maths works. Any return is an assumption, not a promise. Real investments go up and down, and you can lose money.
+
+## The simulator is pretend
+
+The virtual portfolio uses fake money and made-up market moves based on assumed long-term rates. It uses no real market data, and doing well in it means nothing about real investing.
+
+## The roasts are jokes
+
+The avatar's comments are automated jokes based on what you enter. They are not advice and not a judgement of you. Money stress is real: if you are struggling with debt or feel overwhelmed, please talk to someone you trust or a qualified professional.
 
 ## Rules change
 
-Tax rules, interest rates, deposit-insurance limits and other regulations change over time. Before you act, check the latest rules with official sources such as the Income Tax Department, the RBI or SEBI.
+Tax rules, interest rates and other regulations change. Before you act, check official sources such as the Income Tax Department, the RBI or SEBI.
 
-## The AI Coach can make mistakes
+## The AI Coach can be wrong
 
-AI Coach hints are generated automatically to help you understand a quiz question. They may sometimes be incomplete or wrong.
+Coach hints are generated automatically and may be incomplete or wrong.
 
-## About the Financial Readiness Score
+## The Financial Readiness Score
 
-Your Financial Readiness Score reflects the lessons you've completed and your quiz results on StockStreak. It is **not** a credit score, it doesn't assess your actual finances, and it isn't a scientifically validated measure.
+It only reflects your lessons and quiz results on Rupli. It is **not** a credit score and says nothing about your real finances.
 
 ## Before a big decision
 
-For decisions about investing, insurance, loans or tax, consider talking to a SEBI-registered investment adviser or a qualified chartered accountant.
+For investing, insurance, loans or tax decisions, talk to a SEBI-registered investment adviser or a chartered accountant.
 `;
 
 export default function DisclaimerPage() {

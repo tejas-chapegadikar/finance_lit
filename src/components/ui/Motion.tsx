@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 // Two small site-wide effects, mounted once in the root layout. Both work by
 // watching the page, so no page has to opt in, and both switch off for people
@@ -9,7 +9,90 @@ import { useEffect } from "react";
 const TAPPABLE = 'a, button, summary, label, select, [role="button"], [role="radio"], [role="checkbox"], [role="tab"]';
 const REVEALABLE = 'main section, main article, main h2, main li, main [class*="rounded-2xl"], main [class*="rounded-3xl"]';
 
-const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CALM_KEY = "rupli-calm";
+const calmListeners = new Set<() => void>();
+
+function storedCalm() {
+  try {
+    return window.localStorage.getItem(CALM_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function applyCalm(on: boolean) {
+  if (on) document.documentElement.dataset.calm = "1";
+  else delete document.documentElement.dataset.calm;
+}
+
+const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches || storedCalm();
+
+/** Footer switch: stops every animation on the site, remembered on this device. */
+export function MotionToggle({ className = "" }: { className?: string }) {
+  const paused = useSyncExternalStore(
+    (listener) => {
+      calmListeners.add(listener);
+      return () => calmListeners.delete(listener);
+    },
+    storedCalm,
+    () => false,
+  );
+  function toggle() {
+    try {
+      if (paused) window.localStorage.removeItem(CALM_KEY);
+      else window.localStorage.setItem(CALM_KEY, "1");
+    } catch {
+      /* private mode, fine */
+    }
+    applyCalm(!paused);
+    calmListeners.forEach((listener) => listener());
+  }
+  return (
+    <button type="button" onClick={toggle} className={`font-medium text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline ${className}`}>
+      {paused ? "Play animations" : "Pause animations"}
+    </button>
+  );
+}
+
+/** Cards lean towards the pointer; the big purple cards get a glow that follows it. Mouse only. */
+function usePointerEffects() {
+  useEffect(() => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    let current: HTMLElement | null = null;
+    let frame = 0;
+    function clear() {
+      current?.style.removeProperty("--rx");
+      current?.style.removeProperty("--ry");
+      current = null;
+    }
+    function move(e: PointerEvent) {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const target = e.target as Element | null;
+        const card = target?.closest?.<HTMLElement>(".tilt, .glow-follow") ?? null;
+        if (card !== current) clear();
+        if (!card || calm()) return;
+        current = card;
+        const box = card.getBoundingClientRect();
+        const x = (e.clientX - box.left) / box.width;
+        const y = (e.clientY - box.top) / box.height;
+        card.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+        card.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+        if (card.matches(".tilt")) {
+          card.style.setProperty("--rx", `${((0.5 - y) * 5).toFixed(2)}deg`);
+          card.style.setProperty("--ry", `${((x - 0.5) * 5).toFixed(2)}deg`);
+        }
+      });
+    }
+    document.addEventListener("pointermove", move, { passive: true });
+    document.addEventListener("pointerleave", clear);
+    return () => {
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerleave", clear);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+}
 
 /** A soft ring where you tap or click anything interactive (mouse and touch). */
 function useTapRings() {
@@ -109,7 +192,9 @@ function useScrollReveal() {
 }
 
 export function Motion() {
+  useEffect(() => applyCalm(storedCalm()), []);
   useTapRings();
   useScrollReveal();
-  return null;
+  usePointerEffects();
+  return <div aria-hidden className="scroll-progress" />;
 }

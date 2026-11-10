@@ -91,7 +91,7 @@ export function moneyFactFor(day: string, month?: MoneyMonth): MoneyFact {
       return {
         id: "personal-top-want",
         text: `${rupees(topWant.amount)} on ${topWant.label.toLowerCase()} this month. That's about ${Math.floor(topWant.amount / 15).toLocaleString("en-IN")} cutting chais at ₹15 each.`,
-        href: "/money#report",
+        href: "/money",
         cta: "See your spending",
       };
     }

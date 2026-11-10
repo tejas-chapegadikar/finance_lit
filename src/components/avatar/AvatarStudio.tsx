@@ -91,7 +91,7 @@ export function AvatarStudio({ initial, items, xpTotal, name }: { initial: Avata
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:items-start">
       <section className={`${card} flex flex-col items-center overflow-hidden p-0 md:sticky md:top-6`} aria-labelledby="preview-heading">
         {/* The stage: a game-style purple backdrop, like the rest of the avatar experience. */}
-        <div className="relative flex w-full flex-col items-center bg-[radial-gradient(120%_90%_at_50%_0%,oklch(66%_0.16_284),oklch(48%_0.19_283))] px-5 pt-5 pb-4">
+        <div className="relative flex w-full flex-col items-center bg-[radial-gradient(120%_90%_at_50%_0%,#2a5240,#0f1f18)] px-5 pt-5 pb-4">
           <p className="text-[13px] font-medium text-white/70">This is you</p>
           <h2 id="preview-heading" className="text-2xl text-white">
             {name}

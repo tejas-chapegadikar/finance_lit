@@ -29,7 +29,7 @@ export function Medal({ icon, earned = true, size = "md" }: { icon: React.ReactN
         {earned && <span className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 animate-shine bg-white/45 blur-[2px]" />}
         <span
           className={`relative flex items-center justify-center rounded-full ${s.face} ${
-            earned ? "bg-white/90 text-orange-700 ring-1 ring-white" : "bg-white text-slate-400 ring-1 ring-slate-200"
+            earned ? "bg-white/90 text-orange-700 ring-1 ring-white" : "bg-white text-slate-500 ring-1 ring-slate-200"
           }`}
         >
           {icon}

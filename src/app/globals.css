@@ -2,62 +2,58 @@
 @plugin "@tailwindcss/typography";
 
 /*
- * StockStreak's design system.
+ * Rupli's design system.
  *
- * Colour has a job here, so it is used sparingly:
- * - warm whites and charcoal carry the page (the `slate-*` ramp below is
- *   remapped to warm neutrals, so every existing `slate` class follows);
- * - violet (`brand-*`) marks actions, navigation and "you are here";
+ * - cream and near-black carry the page (the `slate-*` ramp is remapped to
+ *   warm neutrals, so every existing `slate` class follows);
+ * - `brand-*` is Rupli's ink for actions and navigation, with gold at 300-500;
  * - green (`emerald-*`) is progress and success;
- * - orange is XP, rewards and streaks, small doses only;
- * - each learning area has a quiet tint of its own (readiness-areas.ts).
+ * - orange is XP and streaks, small doses only.
  *
- * Type: Fraunces (a soft, characterful serif) for headings and big numbers,
- * Figtree for everything you read. Both are self-hosted by next/font and
- * include the ₹ sign (latin-ext).
+ * Type: Poppins for headings and big numbers, Inter for everything you read.
  */
 
 :root {
-  --background: #f7f6fb;
-  --foreground: #1c1a26;
+  --rupli-black: #0f1f18;
+  --rupli-cream: #f7f2e8;
+  --rupli-gold: #ffb81f;
+  --rupli-white: #ffffff;
+  --background: var(--rupli-cream);
+  --foreground: var(--rupli-black);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-figtree);
-  --font-display: var(--font-jakarta);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-poppins);
 }
 
 @theme {
-  /* Brand violet. White text needs brand-600 or darker; coloured text on light backgrounds needs brand-700+. */
-  --color-brand-50: oklch(97% 0.016 288);
-  --color-brand-100: oklch(94% 0.034 287);
-  --color-brand-200: oklch(88.5% 0.064 286);
-  --color-brand-300: oklch(80.5% 0.105 285);
-  --color-brand-400: oklch(71% 0.15 284);
-  --color-brand-500: oklch(62% 0.185 283);
-  --color-brand-600: oklch(54.5% 0.205 282);
-  --color-brand-700: oklch(48% 0.195 282);
-  --color-brand-800: oklch(41% 0.165 283);
-  --color-brand-900: oklch(34% 0.125 284);
+  /* Rupli ink for actions (white text needs brand-600 or darker), gold in the middle, cream at the light end. */
+  --color-brand-50: #fbf6e9;
+  --color-brand-100: #f5ecd3;
+  --color-brand-200: #f0dca8;
+  --color-brand-300: #ffdc8a;
+  --color-brand-400: #ffc94d;
+  --color-brand-500: #ffb81f;
+  --color-brand-600: #0f1f18;
+  --color-brand-700: #1d3a2c;
+  --color-brand-800: #142a20;
+  --color-brand-900: #0f1f18;
 
-  /*
-   * Warm neutrals, in place of Tailwind's cool slate. 600 and darker pass AA
-   * for small text on white and on slate-100; 500 passes on white and on the
-   * page background only.
-   */
-  --color-slate-50: #f7f6fb;
-  --color-slate-100: #efedf6;
-  --color-slate-200: #e4e1ee;
-  --color-slate-300: #cfcbdc;
-  --color-slate-400: #9d98ae;
-  --color-slate-500: #726d83;
-  --color-slate-600: #5b576b;
-  --color-slate-700: #444053;
-  --color-slate-800: #2d2a39;
-  --color-slate-900: #1c1a26;
-  --color-slate-950: #12111a;
+  /* Warm neutrals in place of Tailwind's slate. 500 and darker pass AA for small text on white and cream. */
+  --color-slate-50: #f7f2e8;
+  --color-slate-100: #efe9db;
+  --color-slate-200: #e4dccb;
+  --color-slate-300: #cfc6b3;
+  --color-slate-400: #a39b88;
+  --color-slate-500: #6a6455;
+  --color-slate-600: #575245;
+  --color-slate-700: #423e33;
+  --color-slate-800: #2a2a22;
+  --color-slate-900: #0f1f18;
+  --color-slate-950: #0a1510;
 
   /* Soft warm tints for avatar stages and highlights. */
   --color-peach-100: #ffeadd;
@@ -70,7 +66,7 @@
   /* Motion. Every animation is short and switched off for reduced motion (below). */
   --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
   --animate-pop: pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  --animate-page: page-in 0.4s var(--ease-out-soft) both;
+  --animate-page: page-in 0.4s var(--ease-out-soft) backwards;
   --animate-fade-up: fade-up 0.55s var(--ease-out-soft) both;
   --animate-bar: bar-grow 0.9s var(--ease-out-soft) both;
   --animate-reveal: reveal-down 1.6s var(--ease-out-soft) both;
@@ -466,7 +462,7 @@ html {
   height: 44px;
   margin: -22px 0 0 -22px;
   border-radius: 9999px;
-  background: rgb(98 80 214 / 0.18);
+  background: rgb(255 184 31 / 0.3);
   pointer-events: none;
   animation: tap-ring 0.42s var(--ease-out-soft) both;
 }
@@ -578,6 +574,174 @@ html {
   }
 }
 
+/* Cards that lean towards the pointer. */
+.tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+}
+
+/* A glow that follows the pointer on the big purple cards. */
+.glow-follow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 0%), rgb(255 255 255 / 0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .glow-follow:hover::after {
+    opacity: 1;
+  }
+}
+
+/* How far down the page you are. */
+.scroll-progress {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 55;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-brand-500), #ffb81f);
+    transform-origin: left;
+    pointer-events: none;
+    animation: scroll-progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes scroll-progress {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+/* Headline words rising one by one. */
+.word-rise {
+  display: inline-block;
+  animation: fade-up 0.6s var(--ease-out-soft) backwards;
+}
+
+/* The endless strip of roasts. */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  animation: marquee 42s linear infinite;
+}
+
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    translate: -50% 0;
+  }
+}
+
+/* Quiz answers: right pops, wrong shakes. */
+.answer-right {
+  animation: answer-right 0.45s var(--ease-out-soft);
+}
+
+.answer-wrong {
+  animation: answer-wrong 0.42s ease-in-out;
+}
+
+@keyframes answer-right {
+  40% {
+    scale: 1.03;
+  }
+}
+
+@keyframes answer-wrong {
+  20%,
+  60% {
+    translate: -7px 0;
+  }
+  40%,
+  80% {
+    translate: 7px 0;
+  }
+}
+
+/* The "Pause animations" switch in the footer. */
+html[data-calm] *,
+html[data-calm] *::before,
+html[data-calm] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-calm] .marquee-track {
+  animation: none !important;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 70;
+  border-radius: 0.75rem;
+  background: var(--color-slate-900);
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  color: white;
+  translate: 0 -200%;
+}
+
+.skip-link:focus {
+  translate: 0 0;
+}
+
+/* The Quick add bottom sheet. */
+.sheet-up {
+  animation: sheet-up 0.32s var(--ease-out-soft) both;
+}
+
+.sheet-backdrop {
+  animation: sheet-fade 0.25s ease-out both;
+}
+
+@keyframes sheet-up {
+  from {
+    translate: 0 40px;
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The "you are here" stop on the Learn path. */
+.path-pulse {
+  animation: path-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes path-pulse {
+  50% {
+    scale: 1.07;
+  }
+}
+
 /* Motion is decoration: people who ask for less get none of it. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -588,5 +752,9 @@ html {
     animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .marquee-track {
+    animation: none !important;
   }
 }

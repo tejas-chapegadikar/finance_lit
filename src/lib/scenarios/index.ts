@@ -80,5 +80,5 @@ export function scoreLabel(score: number, max: number): string {
   const ratio = max ? score / max : 0;
   if (ratio >= 0.8) return "Smart moves! 🎉";
   if (ratio >= 0.5) return "Good start 👍";
-  return "Tricky one. Try it again 💪";
+  return "Yikes. Good thing this wasn't your real money. Try again.";
 }

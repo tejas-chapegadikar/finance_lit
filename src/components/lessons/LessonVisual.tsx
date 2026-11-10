@@ -179,7 +179,7 @@ function BankAccounts() {
 
 function FdRd() {
   return (
-    <Figure title="FD: once. RD: every month." caption="Rohit's RD: ₹1,950 a month for 12 months at about 6.5%: ₹23,400 deposited plus about ₹820 interest. Illustrative; check your bank's rates.">
+    <Figure title="FD: once. RD: every month." caption="Rohit's RD: ₹1,950 a month for 12 months at about 6.5%: ₹23,400 deposited plus about ₹820 interest. Just an example; check your bank's rates.">
       <div className="flex flex-col gap-4">
         <div>
           <p className="text-sm font-semibold text-slate-900">Fixed Deposit: one lump sum, locked for a fixed time</p>
@@ -242,7 +242,7 @@ function Cibil() {
 
 function CreditCards() {
   return (
-    <Figure title="One credit card cycle" caption="Rahul's ₹12,000 bill: paying in full costs nothing extra; paying only the minimum leaves ₹11,400 growing at around 3.5% a month. Illustrative. Check your card's terms.">
+    <Figure title="One credit card cycle" caption="Rahul's ₹12,000 bill: paying in full costs nothing extra; paying only the minimum leaves ₹11,400 growing at around 3.5% a month. Just an example. Check your card's terms.">
       <ol className="grid grid-cols-3 gap-2 text-center text-sm">
         {[
           ["Spend", "About 30 days of purchases"],

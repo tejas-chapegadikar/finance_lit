@@ -135,7 +135,7 @@ export function CompoundSimulator({ initial }: { initial: { monthly: number; yea
               </div>
             ))}
           </div>
-          <div aria-hidden className="mt-1.5 flex justify-between text-[11px] text-slate-400 tabular-nums">
+          <div aria-hidden className="mt-1.5 flex justify-between text-[11px] text-slate-500 tabular-nums">
             <span>Year 1</span>
             <span>Year {years}</span>
           </div>

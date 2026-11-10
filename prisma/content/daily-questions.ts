@@ -145,7 +145,7 @@ export const DAILY_QUESTIONS: SeedDailyQuestion[] = [
       2,
       "Skip all festivals",
       "Borrow from friends every November",
-      "Save a small amount each month in advance, so the money's there when November arrives",
+      "Save a small amount each month beforehand, so the money's there when November arrives",
       "Buy gifts on EMI",
     ),
     explanation:

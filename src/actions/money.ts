@@ -8,13 +8,13 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { daysBetween, istDay, istDayStart } from "@/lib/ist-date";
 import { isAllowed, moneyRatelimit } from "@/lib/ratelimit";
 import { awardXp, lockUser, xpKeys } from "@/lib/xp";
-import { recordStreakDay } from "@/lib/streak";
+import { completeQuest } from "@/lib/quests";
 import { awardMoneyBadges } from "@/lib/badges";
 import { alertAfterSpend, monthBounds, monthOf } from "@/lib/money";
 import { queueAvatarEvent, queueAvatarEvents, type AvatarEventInput } from "@/lib/avatar/events";
 import { BUDGET_WARN_PCT } from "@/lib/money";
 import { expenseCategory } from "@/lib/money/categories";
-import { MONEY_CHECKIN_XP, SAVINGS_GOAL_XP, SAVINGS_GOAL_XP_MIN_DAYS, SAVINGS_GOAL_XP_MIN_TARGET } from "@/lib/constants";
+import { SAVINGS_GOAL_XP, SAVINGS_GOAL_XP_MIN_DAYS, SAVINGS_GOAL_XP_MIN_TARGET } from "@/lib/constants";
 import { EXPENSE_IDS, GOAL_ICONS, INCOME_IDS, MAX_ENTRY, MAX_GOAL } from "@/lib/money/categories";
 
 // Money Manager actions. Every one checks the signed-in student, validates
@@ -34,26 +34,17 @@ function refresh() {
   revalidatePath("/", "layout");
   revalidatePath("/money");
   revalidatePath("/dashboard");
-  revalidatePath("/practice", "layout");
 }
 
-/** Records today's money check-in: once a day, a little XP and a streak day. */
-async function checkIn(tx: Prisma.TransactionClient, userId: string, day: string, kind: "LOGGED" | "NO_SPEND"): Promise<number> {
+/**
+ * Records today's money check-in (used by the money badges). The XP and the
+ * streak day now come from the "log" daily quest.
+ */
+async function checkIn(tx: Prisma.TransactionClient, userId: string, day: string, kind: "LOGGED" | "NO_SPEND") {
   const { count } = await tx.moneyCheckIn.createMany({ data: [{ userId, day, kind }], skipDuplicates: true });
-  if (count === 0) {
-    // Logging a spend on a day first marked "no-spend" makes it a logged day.
-    if (kind === "LOGGED") await tx.moneyCheckIn.updateMany({ where: { userId, day, kind: "NO_SPEND" }, data: { kind: "LOGGED" } });
-    return 0;
-  }
-  const xp = await awardXp(tx, {
-    userId,
-    amount: MONEY_CHECKIN_XP,
-    type: "MONEY_CHECKIN",
-    idempotencyKey: xpKeys.moneyCheckIn(userId, day),
-    description: kind === "NO_SPEND" ? "Money check-in · no-spend day" : "Money check-in",
-  });
-  await recordStreakDay(tx, userId);
-  return xp;
+  // Logging a spend on a day first marked "no-spend" makes it a logged day.
+  if (count === 0 && kind === "LOGGED") await tx.moneyCheckIn.updateMany({ where: { userId, day, kind: "NO_SPEND" }, data: { kind: "LOGGED" } });
+  return count > 0;
 }
 
 const entrySchema = z
@@ -66,7 +57,7 @@ const entrySchema = z
   })
   .refine((e) => (e.kind === "EXPENSE" ? EXPENSE_IDS : INCOME_IDS).includes(e.category), { message: "Pick a category", path: ["category"] });
 
-export type AddEntryResult = { status: "saved"; checkInXp: number; alert: string | null } | Fail;
+export type AddEntryResult = { status: "saved"; questXp: number; alert: string | null } | Fail;
 
 type EntryInput = { kind: string; amount: number | string; category: string; note?: string; day: string };
 
@@ -118,7 +109,7 @@ export async function addMoneyEntry(input: EntryInput): Promise<AddEntryResult> 
   const parsed = parseEntry(input, today);
   if (!parsed.ok) return parsed.fail;
 
-  const { checkInXp, alert } = await db.$transaction(async (tx) => {
+  const { questXp, alert } = await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
     const entry = await tx.moneyEntry.create({
       data: {
@@ -130,18 +121,19 @@ export async function addMoneyEntry(input: EntryInput): Promise<AddEntryResult> 
         day: parsed.data.day,
       },
     });
-    const xp = parsed.data.day === today ? await checkIn(tx, user.id, today, "LOGGED") : 0;
+    if (parsed.data.day === today) await checkIn(tx, user.id, today, "LOGGED");
+    const quest = parsed.data.day === today && parsed.data.kind === "EXPENSE" ? await completeQuest(tx, user.id, "log") : { xp: 0, bonus: 0 };
     await awardMoneyBadges(tx, user.id);
     if (parsed.data.kind === "EXPENSE") {
       const expenses = await tx.moneyEntry.count({ where: { userId: user.id, kind: "EXPENSE" } });
       await queueAvatarEvent(tx, user.id, expenses === 1 ? "first-expense" : "expense", expenses === 1 ? "first-expense" : `expense:${entry.id}`);
     }
     const warning = parsed.data.kind === "EXPENSE" ? await budgetAlertFor(tx, user.id, parsed.data.category, parsed.data.day) : null;
-    return { checkInXp: xp, alert: warning };
+    return { questXp: quest.xp + quest.bonus, alert: warning };
   }, SLOW_DB_TRANSACTION);
 
   refresh();
-  return { status: "saved", checkInXp, alert };
+  return { status: "saved", questXp, alert };
 }
 
 export type UpdateEntryResult = { status: "saved"; alert: string | null } | { status: "not-found" } | Fail;
@@ -187,10 +179,13 @@ export async function markNoSpendDay(): Promise<NoSpendResult> {
 
   const xp = await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
-    const awarded = await checkIn(tx, user.id, day, "NO_SPEND");
+    const fresh = await checkIn(tx, user.id, day, "NO_SPEND");
     await awardMoneyBadges(tx, user.id);
-    if (awarded > 0) await queueAvatarEvent(tx, user.id, "no-spend", `no-spend:${day}`);
-    return awarded;
+    if (!fresh) return 0;
+    await queueAvatarEvent(tx, user.id, "no-spend", `no-spend:${day}`);
+    // A genuine no-spend day counts as today's "log" quest.
+    const quest = await completeQuest(tx, user.id, "log");
+    return Math.max(1, quest.xp + quest.bonus);
   }, SLOW_DB_TRANSACTION);
 
   refresh();
@@ -205,14 +200,15 @@ const budgetSchema = z.array(
 );
 
 /** Sets this month's budgets; an empty or zero amount removes that budget. */
-export async function saveBudgets(input: { category: string; amount: number | string | null }[]): Promise<{ status: "saved" } | Fail> {
+export async function saveBudgets(input: { category: string; amount: number | string | null }[]): Promise<{ status: "saved"; xp: number } | Fail> {
   const user = await requireOnboardedUser();
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };
   const parsed = budgetSchema.safeParse(input.map((b) => ({ ...b, amount: b.amount === "" ? null : b.amount })));
   if (!parsed.success) return { status: "invalid", message: "Budgets must be whole rupees between ₹0 and ₹10 lakh" };
   const month = monthOf(istDay());
 
-  await db.$transaction(async (tx) => {
+  const xp = await db.$transaction(async (tx) => {
+    await lockUser(tx, user.id);
     for (const { category, amount } of parsed.data) {
       if (!amount) {
         await tx.moneyBudget.deleteMany({ where: { userId: user.id, month, category } });
@@ -224,10 +220,12 @@ export async function saveBudgets(input: { category: string; amount: number | st
         });
       }
     }
+    if (!parsed.data.some((b) => b.amount)) return 0;
+    return awardXp(tx, { userId: user.id, amount: 10, type: "SIGNUP_BONUS", idempotencyKey: `first-budget:${user.id}`, description: "First budget set" });
   }, SLOW_DB_TRANSACTION);
 
   refresh();
-  return { status: "saved" };
+  return { status: "saved", xp };
 }
 
 const goalSchema = z.object({
@@ -323,4 +321,15 @@ export async function deleteSavingsGoal(goalId: string): Promise<{ status: "dele
   const { count } = await db.savingsGoal.deleteMany({ where: { id: String(goalId), userId: user.id } });
   refresh();
   return { status: count > 0 ? "deleted" : "not-found" };
+}
+
+/** The "check your budget and insights" quest: done by opening the Money overview. */
+export async function completeCheckQuest(): Promise<{ xp: number }> {
+  const user = await requireOnboardedUser();
+  const result = await db.$transaction(async (tx) => {
+    await lockUser(tx, user.id);
+    return completeQuest(tx, user.id, "check");
+  }, SLOW_DB_TRANSACTION);
+  if (result.xp > 0) refresh();
+  return { xp: result.xp + result.bonus };
 }

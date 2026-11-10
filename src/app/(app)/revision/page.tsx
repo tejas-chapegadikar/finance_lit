@@ -10,7 +10,7 @@ import { PageHeader, MetaRow } from "@/components/ui/PageHeader";
 import { card, primaryButton } from "@/components/ui/button-styles";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Revision | StockStreak" };
+export const metadata: Metadata = { title: "Revision | Rupli" };
 
 // A session covers at most this many questions, so revision stays short.
 const SESSION_SIZE = 8;
@@ -49,7 +49,7 @@ export default async function RevisionPage() {
       <PageHeader
         eyebrow="Review & revise"
         title="Revision"
-        description="Questions you missed come back after 1, 3 and 7 days, each time with a fresh example."
+        description="The questions you got wrong are back. They come after 1, 3 and 7 days, until you stop getting them wrong."
       >
         <MetaRow
           items={[
@@ -65,7 +65,7 @@ export default async function RevisionPage() {
         <RevisionRunner cards={cards} />
       ) : (
         <section className={`${card} p-8 text-center`}>
-          <h2 className="text-xl font-extrabold text-slate-900">You&apos;re all caught up</h2>
+          <h2 className="text-xl font-extrabold text-slate-900">Nothing to revise. Enjoy it, it won&apos;t last</h2>
           <p className="mx-auto mt-1 max-w-sm text-slate-600">
             Questions you miss in quizzes come back here after 1, 3 and 7 days, each time with a fresh example.
           </p>

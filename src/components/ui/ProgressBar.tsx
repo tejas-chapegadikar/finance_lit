@@ -1,7 +1,7 @@
 /**
  * A progress bar that grows in from zero when it first appears (pure CSS, so
  * it works without JavaScript and stays still for reduced motion). Green by
- * default: in StockStreak, progress is green.
+ * default: in Rupli, progress is green.
  */
 export function ProgressBar({
   value,

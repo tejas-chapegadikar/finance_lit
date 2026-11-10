@@ -4,7 +4,7 @@
 
 const PIECES = [
   { x: -46, y: -30, c: "bg-orange-400", s: "h-2 w-2 rounded-full" },
-  { x: 42, y: -36, c: "bg-brand-500", s: "h-2 w-2 rounded-sm rotate-45" },
+  { x: 42, y: -36, c: "bg-amber-400", s: "h-2 w-2 rounded-sm rotate-45" },
   { x: -30, y: 34, c: "bg-emerald-400", s: "h-1.5 w-1.5 rounded-full" },
   { x: 50, y: 22, c: "bg-orange-300", s: "h-2.5 w-1 rounded-full" },
   { x: 6, y: -50, c: "bg-emerald-500", s: "h-1.5 w-1.5 rounded-full" },

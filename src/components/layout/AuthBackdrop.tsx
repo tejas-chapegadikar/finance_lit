@@ -11,7 +11,7 @@ const COINS = [
 /** The fun page behind the sign-in and sign-up cards: drifting colour, floating coins, dotted paper. */
 export function AuthBackdrop({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative isolate flex min-h-dvh flex-col items-center justify-center gap-5 overflow-hidden bg-slate-50 px-4 py-8">
+    <main id="main" tabIndex={-1} className="relative isolate flex min-h-dvh flex-col items-center justify-center gap-5 overflow-hidden bg-slate-50 px-4 py-8">
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 opacity-60"
@@ -19,7 +19,7 @@ export function AuthBackdrop({ children }: { children: React.ReactNode }) {
       />
       <span
         aria-hidden
-        className="auth-blob pointer-events-none absolute -top-32 -left-24 -z-10 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgb(150_130_255/0.4),transparent_68%)]"
+        className="auth-blob pointer-events-none absolute -top-32 -left-24 -z-10 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.4),transparent_68%)]"
       />
       <span
         aria-hidden
@@ -35,11 +35,11 @@ export function AuthBackdrop({ children }: { children: React.ReactNode }) {
           {coin.label}
         </span>
       ))}
-      <Link href="/" aria-label="StockStreak home" className="relative transition hover:scale-105">
+      <Link href="/" aria-label="Rupli home" className="relative transition hover:scale-105">
         <Logo />
       </Link>
       <div className="relative animate-fade-up">{children}</div>
       <p className="relative max-w-xs text-center text-sm text-slate-500">Learn money before money teaches you the hard way.</p>
-    </div>
+    </main>
   );
 }

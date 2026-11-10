@@ -72,6 +72,8 @@ enum XPTransactionType {
   PRACTICE_CHALLENGE
   // Taking the Money Personality Quiz (once).
   PERSONALITY_QUIZ
+  // A daily quest (log, learn, check).
+  DAILY_QUEST
   // Reaching a savings goal (limits in src/actions/money.ts).
   SAVINGS_GOAL
 }
@@ -127,6 +129,9 @@ model User {
   goals                 LearningGoal[] @default([])
   collegeName           String?
   onboardingCompletedAt DateTime?
+  // When they ticked "I'm 18+ and agree", and which version of the terms that was.
+  consentAt             DateTime?
+  consentVersion        String?
 
   // Lifetime XP earned, never goes down. Spendable XP is xpTotal - xpSpent.
   xpTotal Int     @default(0)
@@ -176,6 +181,7 @@ model User {
   scenarioRuns         ScenarioRun[]
   rewardUnlocks        RewardUnlock[]
   activityDays         ActivityDay[]
+  dailyQuests          DailyQuest[]
   dailyChallengeRuns   DailyChallengeRun[]
   coachFollowUps       CoachFollowUp[]
   moneyEntries         MoneyEntry[]
@@ -739,4 +745,19 @@ model VirtualSnapshot {
   total       Float
 
   @@unique([portfolioId, month])
+}
+
+// A daily quest finished on an IST day. One row per quest per day, so a quest
+// can only pay once however many times it is done.
+model DailyQuest {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day       String
+  // "log" | "learn" | "check" (src/lib/quests.ts)
+  quest     String
+  xp        Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, day, quest])
 }

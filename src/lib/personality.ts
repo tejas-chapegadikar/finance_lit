@@ -14,7 +14,7 @@ export type Personality = {
   description: string;
   strengths: string[];
   watchOut: string[];
-  /** What StockStreak suggests first. */
+  /** What Rupli suggests first. */
   focus: { challengeId: string; lessonSlug: string; tool: { href: string; label: string }; tip: string };
 };
 

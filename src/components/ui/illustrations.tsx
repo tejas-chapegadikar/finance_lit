@@ -1,4 +1,4 @@
-// StockStreak's spot illustrations: flat, geometric, one shared palette, a
+// Rupli's spot illustrations: flat, geometric, one shared palette, a
 // soft disc behind each object. One per level (the journey's chapters) plus
 // the path's trophy. Decorative, always paired with a text label.
 

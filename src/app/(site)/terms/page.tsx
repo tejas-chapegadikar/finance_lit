@@ -1,72 +1,90 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/layout/InfoPage";
-import { CONTACT_EMAIL, LEGAL_LAST_UPDATED } from "@/lib/site";
+import { CONTACT_EMAIL, OPERATOR_LOCATION, OPERATOR, LEGAL_LAST_UPDATED } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Terms of Use | StockStreak" };
+export const metadata: Metadata = { title: "Terms and Conditions | Rupli" };
 
+// Keep this page plain and exact. No roasting on legal pages.
 const CONTENT = `
-These terms apply when you use StockStreak at stockstreak.in. By creating an account or using the site, you agree to them.
+These terms are a contract between you and ${OPERATOR}, ${OPERATOR_LOCATION}, who runs Rupli. By creating an account, you agree to them. If you don't agree, please don't use Rupli.
 
-## 1. What StockStreak is
+## 1. What Rupli is
 
-StockStreak is a financial-education platform. It teaches general money concepts through lessons, scenarios, quizzes and an AI Coach. It is **not** financial, investment, tax or legal advice. Please read our [Disclaimer](/disclaimer).
+Rupli teaches general money concepts through lessons, quizzes, a money tracker, a simulator with pretend money, and an avatar that makes jokes. It is education and entertainment. It is **not** financial, investment, tax or legal advice. Please read the [Disclaimer](/disclaimer).
 
-## 2. Your account
+## 2. Who can use it
 
-- You must be 18 or older to create an account.
-- Give accurate details, keep your sign-in secure, and don't share your account. One account per person.
-- You're responsible for what happens on your account.
+You must be 18 or older and able to enter a contract under Indian law. One account per person.
 
-## 3. Fair use
+## 3. Your account
+
+- Give accurate details and keep your password private.
+- You are responsible for what happens on your account.
+- Username accounts have no email on file, so a lost password may mean a lost account. We may not be able to verify that an account is yours.
+
+## 4. Fair use
 
 Please don't:
 
-- Use scripts, bots or other tricks to earn XP, badges or scores
-- Try to break, overload or get around the security of the site
-- Copy or scrape our lessons and quizzes at scale
-- Misuse the AI Coach, for example by trying to make it produce content unrelated to the lesson
+- Use bots or scripts, or cheat XP, badges or scores
+- Try to break, overload or get around the site's security
+- Copy or scrape our lessons at scale
+- Misuse the AI Coach, or use it for anything unrelated to the lesson
 - Pretend to be someone else
+- Pick a username or display name that is abusive, misleading, or belongs to someone else
 
-## 4. XP, badges, streaks and scores
+## 5. Roasts and jokes
 
-XP, badges, ranks, streaks and the Financial Readiness Score track your learning. You can spend XP in the Rewards Store on digital unlocks such as avatar items, profile titles, themes and bonus scenarios; some avatar items unlock only through badges or streaks. XP, unlocks and streak freezes have **no monetary value**, can't be bought or exchanged for cash, and spent XP can't be refunded. Unlocks are cosmetic or extra practice. They give no advantage. Spending XP never lowers your lifetime XP, badges or readiness score. We may correct XP, streaks or unlocks given by mistake, and we may change the store and how XP works.
+The avatar teases you about your money and your knowledge. That is the point of the character. The jokes are automated, based on what you enter, and are not a judgement of you as a person. If they stop being fun, you can turn avatar pop-ups off in Settings.
 
-## 5. Our content
+## 6. XP, badges and streaks
 
-Lessons, quizzes, challenges and the design of StockStreak belong to us. You may use them for your own personal learning. If you send us feedback, we may use it to improve StockStreak.
+XP, badges, ranks, streaks, unlocks and the Financial Readiness Score only track your learning on Rupli. They have **no money value** and can't be bought, sold, transferred or exchanged for cash. We may correct mistakes and change how they work.
 
-## 6. The AI Coach
+## 7. Pretend money
 
-The AI Coach generates hints automatically. They can be incomplete or wrong, and they are not advice. If a hint doesn't match the lesson, trust the lesson and [tell us](/contact).
+The portfolio simulator uses virtual money and made-up market moves. You can't withdraw, invest or lose real money in it. Its results don't predict real returns.
 
-## 7. Availability
+## 8. It's free
 
-We're improving StockStreak all the time. We provide it "as is", may change or remove features, and can't promise it will always be available or error-free.
+Rupli is free and takes no payments. See the [Refund Policy](/refunds).
 
-## 8. Liability
+## 9. Our content
 
-You're responsible for your own financial decisions. To the extent the law allows, StockStreak isn't liable for any loss arising from decisions you make based on what you learned here, or from the site being unavailable.
+Lessons, quizzes, characters, the logo and the design belong to us. You can use them for your own personal learning. If you send feedback, we may use it to improve Rupli without paying you.
 
-## 9. Ending your account
+## 10. The AI Coach
 
-You can delete your account at any time from your Profile page. We may suspend or close accounts that break these terms.
+The Coach generates hints automatically. They can be incomplete or wrong. If a hint doesn't match the lesson, trust the lesson and [tell us](/contact).
 
-## 10. Governing law
+## 11. No guarantees
 
-These terms are governed by the laws of India.
+We provide Rupli "as is". We work hard on accuracy, but lessons can contain mistakes or go out of date, and the site may change, break or stop.
 
-## 11. Changes
+## 12. Liability
 
-If we change these terms, we'll update this page and the date at the top. Continuing to use StockStreak means you accept the updated terms.
+You are responsible for your own money decisions. To the extent the law allows, we are not liable for losses from decisions you make after using Rupli, or from the site being unavailable. Nothing here takes away rights you have under Indian consumer law that can't legally be waived.
+
+## 13. Ending your account
+
+You can delete your account at any time in Settings. We may suspend or close accounts that break these terms.
+
+## 14. Law and disputes
+
+These terms are governed by the laws of India. Please contact us first so we can try to fix the problem. Any dispute is subject to the courts of India that have jurisdiction.
+
+## 15. Changes
+
+If we change these terms, we will update this page and the date at the top. If the change matters, we will ask you to agree again.
 
 ## Contact
 
-Questions? Email [${CONTACT_EMAIL}](mailto:${CONTACT_EMAIL}).
+${OPERATOR}, ${OPERATOR_LOCATION}. Email: [${CONTACT_EMAIL}](mailto:${CONTACT_EMAIL})
 `;
 
 export default function TermsPage() {
   return (
-    <InfoPage title="Terms of Use" updated={LEGAL_LAST_UPDATED}>
+    <InfoPage title="Terms and Conditions" updated={LEGAL_LAST_UPDATED}>
       {CONTENT}
     </InfoPage>
   );

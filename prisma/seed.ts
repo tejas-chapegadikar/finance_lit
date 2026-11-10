@@ -77,7 +77,7 @@ function validateContent() {
     keys.add(question.key);
     assertChoices(`question ${question.key}`, question.options);
   }
-  // The no-repeats rule: nothing anywhere on StockStreak may re-ask
+  // The no-repeats rule: nothing anywhere on Rupli may re-ask
   // something another item already asks (see src/lib/content/catalog.ts).
   const duplicates = findDuplicates();
   if (duplicates.length) {

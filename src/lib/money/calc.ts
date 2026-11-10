@@ -311,7 +311,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
       tone: "warn",
       title: `${worst.label} is ${rupees(worst.amount - worst.budget!)} over budget`,
       text: over.length > 1 ? `${over.length} categories are over their budgets this month.` : "A budget only works if it's a little annoying. This is the annoying part.",
-      href: "/money#budgets",
+      href: "/money?tab=budgets",
       cta: "Review budgets",
     });
   } else if (m.totalBudget !== null && m.spent > m.totalBudget) {
@@ -326,7 +326,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
       tone: "good",
       title: `You're close to “${near.name}”`,
       text: `${rupees(near.saved)} of ${rupees(near.target)} saved, just ${rupees(near.target - near.saved)} to go.`,
-      href: "/money#goals",
+      href: "/money?tab=goals",
       cta: "Add to it",
     });
   }
@@ -388,7 +388,7 @@ export function moneyInsights(m: MoneyMonth, goals: GoalSummary[] = []): Insight
       id: "weekend",
       tone: "info",
       title: `Weekend you spends ${(m.weekend.perDay / m.weekday.perDay).toFixed(1)}× more per day`,
-      text: `${rupees(m.weekend.perDay)} a day on weekends vs ${rupees(m.weekday.perDay)} on weekdays. Plan the weekend in advance and it stops being an ambush.`,
+      text: `${rupees(m.weekend.perDay)} a day on weekends vs ${rupees(m.weekday.perDay)} on weekdays. Plan the weekend beforehand and it stops being an ambush.`,
     });
   }
 

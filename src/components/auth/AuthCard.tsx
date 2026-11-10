@@ -12,6 +12,8 @@ import { usePointerGaze } from "@/components/avatar/use-gaze";
 import { Burst } from "@/components/ui/Burst";
 import { card, primaryButton } from "@/components/ui/button-styles";
 import { CheckIcon, LockIcon, UserIcon } from "@/components/ui/icons";
+import { CONSENT_VERSION } from "@/lib/site";
+import { ConsentCheck } from "./ConsentCheck";
 
 // Sign in or sign up with Google, or with a username and password. Google
 // hands us the name and email, so nobody types them. Passwords are checked
@@ -91,6 +93,7 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
   const usernameRef = useRef<HTMLInputElement>(null);
   const rememberRef = useRef<HTMLInputElement>(null);
   const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [shown, setShown] = useState(false);
   const [error, setError] = useState<string | null>(initialError ?? null);
   const [busy, setBusy] = useState<"form" | "google" | null>(null);
@@ -149,6 +152,10 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
       setError(`Your password needs at least ${MIN_PASSWORD} characters.`);
       return;
     }
+    if (signUp && !agreed) {
+      setError("Please confirm you're 18 or older and agree to the Terms.");
+      return;
+    }
     if (!password) {
       setError("You forgot the password bit.");
       return;
@@ -158,7 +165,7 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
     const auth = supabaseBrowser().auth;
     const email = usernameToEmail(name);
     const { data, error: err } = signUp
-      ? await auth.signUp({ email, password, options: { data: { username: name } } })
+      ? await auth.signUp({ email, password, options: { data: { username: name, consent_version: CONSENT_VERSION } } })
       : await auth.signInWithPassword({ email, password });
     if (err || !data.session) {
       setBusy(null);
@@ -216,7 +223,7 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
             alive
             gaze={gaze}
             className={`h-24 w-auto transition-transform duration-300 group-hover:scale-105 ${done ? "animate-hop" : "animate-bob"}`}
-            label="The StockStreak avatar"
+            label="The Rupli avatar"
           />
         </button>
         <p
@@ -313,6 +320,15 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
                   Remember me
                 </label>
               )}
+              {signUp && (
+                <ConsentCheck
+                  checked={agreed}
+                  onChange={(v) => {
+                    setAgreed(v);
+                    setError(null);
+                  }}
+                />
+              )}
               <button type="submit" disabled={busy !== null} className={`${primaryButton} w-full py-3 text-[15px]`}>
                 {busy === "form" ? (signUp ? "Setting you up…" : "Signing in…") : signUp ? "Sign up" : "Sign in"}
               </button>
@@ -346,17 +362,18 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
               {busy === "google" ? "Opening Google…" : "Continue with Google"}
             </button>
 
-            <p className="mt-5 text-xs text-slate-500">
-              By continuing you agree to our{" "}
-              <Link href="/terms" className="underline underline-offset-2">
-                Terms
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy" className="underline underline-offset-2">
-                Privacy Policy
-              </Link>
-              .
-            </p>
+            {!signUp && (
+              <p className="mt-5 text-xs text-slate-500">
+                Terms and privacy:{" "}
+                <Link href="/terms" className="underline underline-offset-2">
+                  Terms
+                </Link>{" "}
+                ·{" "}
+                <Link href="/privacy" className="underline underline-offset-2">
+                  Privacy Policy
+                </Link>
+              </p>
+            )}
           </>
         )}
       </section>
