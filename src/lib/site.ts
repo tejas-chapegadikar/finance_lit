@@ -7,11 +7,11 @@ export const CONTACT_EMAIL = "tejass.dev15@gmail.com";
 export const OPERATOR = "Tejas Chapegadikar";
 export const OPERATOR_LOCATION = "India";
 
-export const LEGAL_LAST_UPDATED = "10 November 2026";
+export const LEGAL_LAST_UPDATED = "11 November 2026";
 
 // Bump this when the Terms or Privacy Policy change in a way people must
 // agree to again: everyone is asked once more on their next visit.
-export const CONSENT_VERSION = "2026-11-10";
+export const CONSENT_VERSION = "2026-11-11";
 
 export const LEGAL_LINKS = [
   { href: "/about", label: "About" },

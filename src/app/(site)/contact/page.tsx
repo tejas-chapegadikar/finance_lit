@@ -11,7 +11,7 @@ Email us at **[${CONTACT_EMAIL}](mailto:${CONTACT_EMAIL})** about:
 - **Feedback**: what you liked, and what made no sense
 - **A mistake in a lesson**: tell us the lesson and what looks wrong
 - **Your account or data**: questions, corrections, deletion or a grievance (see the [Privacy Policy](/privacy))
-- **A forgotten password**: tell us your username. We may not be able to prove the account is yours, because username accounts have no email on file
+- **Trouble signing in**: tell us the email address of the Google account you use
 - **Colleges and partnerships**
 
 We try to reply within a few working days.

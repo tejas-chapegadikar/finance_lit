@@ -18,9 +18,8 @@ You must be 18 or older and able to enter a contract under Indian law. One accou
 
 ## 3. Your account
 
-- Give accurate details and keep your password private.
+- You sign in with your Google account. Keep it secure: anyone who can get into it can get into your Rupli account.
 - You are responsible for what happens on your account.
-- Username accounts have no email on file, so a lost password may mean a lost account. We may not be able to verify that an account is yours.
 
 ## 4. Fair use
 
@@ -31,7 +30,7 @@ Please don't:
 - Copy or scrape our lessons at scale
 - Misuse the AI Coach, or use it for anything unrelated to the lesson
 - Pretend to be someone else
-- Pick a username or display name that is abusive, misleading, or belongs to someone else
+- Pick a display name that is abusive, misleading, or belongs to someone else
 
 ## 5. Roasts and jokes
 

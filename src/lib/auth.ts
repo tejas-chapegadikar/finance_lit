@@ -6,7 +6,8 @@ import { supabaseServer } from "./supabase/server";
 import { supabaseConfigured } from "./supabase/config";
 import { CONSENT_VERSION } from "./site";
 
-// Who's signed in. Login is Supabase Auth (username + password); the
+// Who's signed in. Login is Supabase Auth with Google (older test accounts
+// may still be username + password); the
 // Rupli account, profile, XP, lessons, money, is a
 // User row in our database, linked by `authId` (the Supabase user id).
 

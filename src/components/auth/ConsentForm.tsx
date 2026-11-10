@@ -3,8 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
-import { acceptTerms } from "@/actions/consent";
-import { signOut } from "@/actions/account";
+import { acceptTerms, declineTerms } from "@/actions/consent";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 import { card, primaryButton, secondaryButton } from "@/components/ui/button-styles";
 import { ConsentCheck } from "./ConsentCheck";
@@ -57,7 +56,7 @@ export function ConsentForm() {
       <button type="submit" disabled={pending} className={`${primaryButton} w-full py-3 text-[15px]`}>
         {pending ? "Saving…" : "Agree and continue"}
       </button>
-      <button type="button" onClick={() => start(() => signOut())} className={`${secondaryButton} w-full py-3 text-[15px]`}>
+      <button type="button" onClick={() => start(() => declineTerms())} className={`${secondaryButton} w-full py-3 text-[15px]`}>
         No thanks, sign out
       </button>
     </form>

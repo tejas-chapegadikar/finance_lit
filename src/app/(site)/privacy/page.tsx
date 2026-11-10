@@ -17,7 +17,7 @@ Rupli is run by ${OPERATOR}, ${OPERATOR_LOCATION} ("we", "us"). This page explai
 
 ## What we collect and why
 
-- **Sign-in details.** With a username: your username and password. The password is stored only by our login provider, Supabase, in scrambled (hashed) form, and we can't read it. With Google: the name and email address Google shares. We use these to let you sign in.
+- **Sign-in details.** You sign in with your Google account. Google shares your name and email address with us, and we use them to create your account and let you back in. We never see your Google password. Our login provider, Supabase, keeps the sign-in record.
 - **Your name.** Whatever you tell us to call you. We use it to greet you.
 - **Your year of study and college (optional).** Used only to suggest where to start. Skip them if you like.
 - **What you want to learn (optional).** Used to suggest lessons.
@@ -46,7 +46,7 @@ We use your data because you agreed to it when you signed up. You can withdraw t
 - **Vercel**: hosting
 - **Anthropic**: AI Coach
 - **Upstash**: limiting abuse, when it is switched on
-- **Google**: only if you choose Google sign-in
+- **Google**: sign-in
 
 They handle data only to provide their service to us. We don't sell your data or share it for advertising.
 
@@ -76,7 +76,7 @@ ${OPERATOR}, ${OPERATOR_LOCATION}. Email: [${CONTACT_EMAIL}](mailto:${CONTACT_EM
 
 ## If something goes wrong
 
-If a data breach affects you, we will tell you and the authorities as the law requires. Username accounts have no email address on file, so for those we will post the notice inside the app.
+If a data breach affects you, we will tell you and the authorities as the law requires, by email and inside the app.
 
 ## Age
 
@@ -88,7 +88,7 @@ We only use what the site needs to work. See the [Cookie Policy](/cookies).
 
 ## Security
 
-Data is encrypted in transit and access to it is restricted. No system is perfectly safe, so use a strong password and don't reuse it.
+Data is encrypted in transit and access to it is restricted. No system is perfectly safe, so keep your Google account secure, for example with 2-step verification.
 
 ## Changes
 

@@ -276,7 +276,7 @@ export default async function HomePage() {
                 </Link>
               </div>
               <p className="text-sm text-slate-500">
-                Free · Just a username and password ·{" "}
+                Free · Sign in with Google ·{" "}
                 <a href="#features" className="font-semibold text-brand-700 underline-offset-4 hover:underline">
                   See what&apos;s inside
                 </a>

@@ -18,7 +18,6 @@ If we ever add analytics or anything else optional, we will ask you first, and t
 
 These stay on your device and aren't used to track you:
 
-- **\`stockstreak-username\`**: your username, only if you tick "Remember me". Never your password. It stays until you untick the box and sign in again, or clear your browser.
 - **\`rupli-calm\`**: remembers if you paused animations.
 - **\`rupli-tip-dismissed\`**: remembers you closed today's buddy tip.
 - **Session items** for animated numbers. These go when you close the tab.
@@ -29,7 +28,7 @@ You can clear cookies and site data in your browser settings at any time. If you
 
 ## Third parties
 
-Rupli loads no outside scripts, video embeds, social widgets or ad pixels. Our fonts are served from our own site. If you choose Google sign-in, Google's own pages and cookies apply while you are on Google.
+Rupli loads no outside scripts, video embeds, social widgets or ad pixels. Our fonts are served from our own site. When you sign in, Google's own pages and cookies apply while you are on Google.
 
 ## Contact
 
