@@ -12,7 +12,8 @@ import { SCENARIOS, SCENARIO_XP, maxScore } from "@/lib/scenarios";
 import { bonusScenarioOpen, rewardForScenario } from "@/lib/rewards";
 import { NO_LESSONS_MESSAGE } from "@/lib/constants";
 import { investToolsUnlocked } from "@/lib/invest/access";
-import { LearnPath, type PathStop, type PathUnit, type StopState } from "@/components/lessons/LearnPath";
+import { readAvatar } from "@/lib/avatar";
+import { LearnMap, type PathStop, type PathUnit, type StopState } from "@/components/lessons/LearnMap";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { card, primaryButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon } from "@/components/ui/icons";
@@ -22,8 +23,17 @@ export const metadata: Metadata = { title: "Learn | Rupli" };
 const lessonState = (lesson: LessonProgress, currentId: string | undefined): StopState =>
   lesson.status === "completed" ? "done" : lesson.locked ? "locked" : lesson.id === currentId ? "current" : "open";
 
+/** Stars for a finished lesson's best quiz score: 90%+ is three, 60%+ two. */
+const starsFor = (quizScore: number | null) => (quizScore === null ? 0 : quizScore >= 90 ? 3 : quizScore >= 60 ? 2 : 1);
+
 const unitState = (stops: PathStop[]): StopState =>
-  stops.some((s) => s.state === "current") ? "current" : stops.every((s) => s.state === "done") ? "done" : stops.every((s) => s.state === "locked") ? "locked" : "open";
+  stops.some((s) => s.state === "current")
+    ? "current"
+    : stops.every((s) => s.state === "done")
+      ? "done"
+      : stops.every((s) => s.state === "locked")
+        ? "locked"
+        : "open";
 
 export default async function LearnPage() {
   const user = await requireOnboardedUser();
@@ -47,18 +57,38 @@ export default async function LearnPage() {
     text: fill(LOCKED.level.text, { level: levelNumber }),
     action: { label: fill(LOCKED.level.button, { level: levelNumber }), target: chapterId ? `unit-${chapterId}` : "learn-path" },
   });
-  const lessonTip = (title: string, slug: string): GuideTip => ({ kind: "locked", text: fill(LOCKED.lesson.text, { lesson: title }), action: { label: LOCKED.lesson.button, href: `/lessons/${slug}` } });
+  const lessonTip = (title: string, slug: string): GuideTip => ({
+    kind: "locked",
+    text: fill(LOCKED.lesson.text, { lesson: title }),
+    action: { label: LOCKED.lesson.button, href: `/lessons/${slug}` },
+  });
   const chapterOf = (n: number) => levels.find((l) => l.chapter.number === n)?.chapter.id;
   const before = (lesson: LessonProgress) => invest[invest.findIndex((l) => l.id === lesson.id) - 1];
 
+  // Lessons are numbered 1, 2, 3... along the whole map, InvestSmart included.
+  let lessonNumber = 0;
   const lessonStop = (lesson: LessonProgress, levelNumber?: number): PathStop => ({
     key: lesson.id,
     kind: "lesson",
+    number: ++lessonNumber,
+    stars: starsFor(lesson.quizScore),
     title: lesson.title,
-    note: lesson.locked ? (levelNumber ? `Finish Level ${levelNumber - 1} to unlock` : "Finish the lesson before to unlock") : lesson.status === "completed" ? "Done" : `${lesson.estimatedMinutes} min · +${lesson.xpReward} XP`,
+    note: lesson.locked
+      ? levelNumber
+        ? `Finish Level ${levelNumber - 1} to unlock`
+        : "Finish the one before"
+      : lesson.status === "completed"
+        ? "Done"
+        : `${lesson.estimatedMinutes} min · +${lesson.xpReward} XP`,
     href: lesson.locked ? null : `/lessons/${lesson.slug}`,
     state: lessonState(lesson, next?.id),
-    lockedTip: !lesson.locked ? undefined : levelNumber ? levelTip(levelNumber - 1, chapterOf(levelNumber - 1)) : before(lesson) ? lessonTip(before(lesson)!.title, before(lesson)!.slug) : undefined,
+    lockedTip: !lesson.locked
+      ? undefined
+      : levelNumber
+        ? levelTip(levelNumber - 1, chapterOf(levelNumber - 1))
+        : before(lesson)
+          ? lessonTip(before(lesson)!.title, before(lesson)!.slug)
+          : undefined,
   });
 
   const scenarioStop = (scenario: (typeof SCENARIOS)[number], levelNumber: number): PathStop => {
@@ -71,13 +101,23 @@ export default async function LearnPage() {
       key: scenario.slug,
       kind: "practice",
       title: scenario.title,
-      note: levelLocked ? `Finish Level ${levelNumber - 1} to unlock` : xpLocked ? `Opens at ${reward!.cost} XP` : score !== undefined ? `Best score ${score}/${maxScore(scenario)}` : `${scenario.minutes} min · +${SCENARIO_XP} XP`,
+      note: levelLocked
+        ? `Finish Level ${levelNumber - 1} to unlock`
+        : xpLocked
+          ? `Opens at ${reward!.cost} XP`
+          : score !== undefined
+            ? `Best score ${score}/${maxScore(scenario)}`
+            : `${scenario.minutes} min · +${SCENARIO_XP} XP`,
       href: levelLocked || xpLocked ? null : `/practice/${scenario.slug}`,
       state: levelLocked || xpLocked ? "locked" : score !== undefined ? "done" : "open",
       lockedTip: levelLocked
         ? levelTip(levelNumber - 1, chapterOf(levelNumber - 1))
         : xpLocked
-          ? { kind: "locked", text: fill(LOCKED.xp.text, { xp: reward!.cost }), action: { label: LOCKED.xp.button, href: next ? `/lessons/${next.slug}` : "/lessons" } }
+          ? {
+              kind: "locked",
+              text: fill(LOCKED.xp.text, { xp: reward!.cost }),
+              action: { label: LOCKED.xp.button, href: next ? `/lessons/${next.slug}` : "/lessons" },
+            }
           : undefined,
     };
   };
@@ -96,9 +136,24 @@ export default async function LearnPage() {
       }
     }
     if (level.chapter.id === furthest?.chapter.id) {
-      stops.push({ key: `revision-${level.chapter.id}`, kind: "revision", title: "Revision", note: due > 0 ? `${due} ${due === 1 ? "question" : "questions"} waiting for you` : "Nothing due. Enjoy it, it won't last", href: "/revision", state: "open" });
+      stops.push({
+        key: `revision-${level.chapter.id}`,
+        kind: "revision",
+        title: "Revision",
+        note: due > 0 ? `${due} ${due === 1 ? "question" : "questions"} waiting for you` : "Nothing due. Enjoy it, it won't last",
+        href: "/revision",
+        state: "open",
+      });
     }
-    return { id: level.chapter.id, eyebrow: `Level ${level.chapter.number}`, title: level.chapter.title, state: unitState(stops), done: stops.filter((s) => s.state === "done").length, total: stops.length, stops };
+    return {
+      id: level.chapter.id,
+      eyebrow: `Level ${level.chapter.number}`,
+      title: level.chapter.title,
+      state: unitState(stops),
+      done: stops.filter((s) => s.state === "done").length,
+      total: stops.length,
+      stops,
+    };
   });
 
   // Anything not tied to a lesson goes at the end of Money IQ, locked ones by what opens them.
@@ -115,16 +170,44 @@ export default async function LearnPage() {
   const investStops: PathStop[] = invest.flatMap((lesson, i) => {
     const stop = lessonStop(lesson);
     if (i !== 0) return [stop];
-    const note = toolsOpen ? "Try it with pretend money" : `Finish "${lesson.title}" to unlock`;
-    const toolTip: GuideTip = { kind: "locked", text: fill(LOCKED.tool.text, { lesson: lesson.title }), action: { label: LOCKED.tool.button, href: `/lessons/${lesson.slug}` } };
+    const note = toolsOpen ? "Try it with pretend money" : `Finish lesson ${stop.number} to unlock`;
+    const toolTip: GuideTip = {
+      kind: "locked",
+      text: fill(LOCKED.tool.text, { lesson: lesson.title }),
+      action: { label: LOCKED.tool.button, href: `/lessons/${lesson.slug}` },
+    };
     return [
       stop,
-      { key: "tool-portfolio", kind: "tool" as const, title: "Virtual investing simulator", note, href: toolsOpen ? "/invest" : null, state: (toolsOpen ? "open" : "locked") as StopState, lockedTip: toolTip },
-      { key: "tool-compound", kind: "tool" as const, title: "Compounding simulator", note: toolsOpen ? "See what waiting costs you" : note, href: toolsOpen ? "/invest/simulator" : null, state: (toolsOpen ? "open" : "locked") as StopState, lockedTip: toolTip },
+      {
+        key: "tool-portfolio",
+        kind: "tool" as const,
+        title: "Virtual investing simulator",
+        note,
+        href: toolsOpen ? "/invest" : null,
+        state: (toolsOpen ? "open" : "locked") as StopState,
+        lockedTip: toolTip,
+      },
+      {
+        key: "tool-compound",
+        kind: "tool" as const,
+        title: "Compounding simulator",
+        note: toolsOpen ? "See what waiting costs you" : note,
+        href: toolsOpen ? "/invest/simulator" : null,
+        state: (toolsOpen ? "open" : "locked") as StopState,
+        lockedTip: toolTip,
+      },
     ];
   });
   if (investStops.length && INVEST_TRACK.length) {
-    units.push({ id: "investsmart", eyebrow: "InvestSmart", title: "How investing really works", state: unitState(investStops), done: investStops.filter((s) => s.state === "done").length, total: investStops.length, stops: investStops });
+    units.push({
+      id: "investsmart",
+      eyebrow: "InvestSmart",
+      title: "How investing really works",
+      state: unitState(investStops),
+      done: investStops.filter((s) => s.state === "done").length,
+      total: investStops.length,
+      stops: investStops,
+    });
   }
 
   return (
@@ -151,7 +234,7 @@ export default async function LearnPage() {
               <ArrowRightIcon className="h-5 w-5 shrink-0" />
             </Link>
           )}
-          <LearnPath units={units} />
+          <LearnMap units={units} avatar={readAvatar(user.avatar)} />
         </>
       )}
     </div>

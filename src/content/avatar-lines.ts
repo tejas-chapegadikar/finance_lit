@@ -157,7 +157,7 @@ export const TOURS: Record<string, GuideStep[]> = {
     { target: "money-chart", text: "Ye chart batayega paisa kahan ja raha hai. Sach thoda kadwa ho sakta hai." },
   ],
   learn: [
-    { target: "learn-path", text: "Ye tera level map hai. Ek level khatam, agla unlock. Shortcut nahi hai, sorry." },
+    { target: "learn-current", text: "Ye tera level map hai, aur tu yahan khada hai. Lesson khatam, aage chal. Shortcut nahi hai, sorry." },
     { target: "learn-continue", text: "Yahan se seedha agla lesson. Bas tap kar." },
   ],
   invest: [

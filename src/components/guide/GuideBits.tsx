@@ -20,12 +20,12 @@ export function GuideButton({ className = "" }: { className?: string }) {
 }
 
 /** A locked stop: tapping it explains why, and points to what opens it. */
-export function LockedStop({ tip, children }: { tip: GuideTip; children: React.ReactNode }) {
+export function LockedStop({ tip, className, children }: { tip: GuideTip; className?: string; children: React.ReactNode }) {
   return (
     <button
       type="button"
       onClick={() => guideSay(tip)}
-      className="flex min-h-16 w-full items-center gap-3 rounded-2xl py-1 pr-2 text-left transition hover:bg-white/70"
+      className={className ?? "flex min-h-16 w-full items-center gap-3 rounded-2xl py-1 pr-2 text-left transition hover:bg-white/70"}
     >
       {children}
     </button>

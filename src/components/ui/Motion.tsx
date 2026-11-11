@@ -48,7 +48,11 @@ export function MotionToggle({ className = "" }: { className?: string }) {
     calmListeners.forEach((listener) => listener());
   }
   return (
-    <button type="button" onClick={toggle} className={`inline-flex min-h-6 items-center font-medium text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline ${className}`}>
+    <button
+      type="button"
+      onClick={toggle}
+      className={`inline-flex min-h-6 items-center font-medium text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline ${className}`}
+    >
       {paused ? "Play animations" : "Pause animations"}
     </button>
   );
@@ -144,7 +148,7 @@ function useScrollReveal() {
 
     function hasRevealingParent(node: Element) {
       for (let parent = node.parentElement; parent; parent = parent.parentElement) {
-        if (waiting.has(parent) || parent.matches('.reveal, [role="status"]')) return true;
+        if (waiting.has(parent) || parent.matches('.reveal, [role="status"], [data-no-reveal]')) return true;
       }
       return false;
     }
@@ -153,7 +157,8 @@ function useScrollReveal() {
       for (const node of document.querySelectorAll<HTMLElement>(REVEALABLE)) {
         if (seen.has(node)) continue;
         seen.add(node);
-        if (node.matches(".reveal") || hasRevealingParent(node)) continue;
+        // [data-no-reveal]: things with their own motion (the Learn map) stay as they are.
+        if (node.matches(".reveal, [data-no-reveal]") || hasRevealingParent(node)) continue;
         if (node.getBoundingClientRect().top < window.innerHeight) continue;
         const animation = node.animate(
           [

@@ -845,6 +845,48 @@ html[data-hub-seen] .hub-intro :is(.hub-pop, .hub-cloud, .hub-fly) {
   }
 }
 
+/* The Learn map (components/lessons/LearnMap.tsx). Stops ahead of the walking
+   avatar wait dimmed, then pop as it reaches them. Transform and opacity only
+   (plus a grayscale filter while waiting). */
+.map-pending {
+  opacity: 0.45;
+  filter: grayscale(1);
+  transform: scale(0.85);
+}
+.map-pop {
+  animation: map-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.map-walk {
+  transform-origin: 50% 100%;
+  animation: map-walk 0.34s ease-in-out infinite;
+}
+.map-flash {
+  animation: map-flash 0.9s var(--ease-out-soft);
+}
+@keyframes map-pop {
+  from {
+    opacity: 0.45;
+    filter: grayscale(1);
+    transform: scale(0.85);
+  }
+  55% {
+    opacity: 1;
+    filter: none;
+    transform: scale(1.18);
+  }
+}
+@keyframes map-walk {
+  50% {
+    transform: translateY(-7px) rotate(-4deg);
+  }
+}
+@keyframes map-flash {
+  35% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 7px rgb(255 184 31 / 0.55);
+  }
+}
+
 /* Motion is decoration: people who ask for less get none of it. */
 @media (prefers-reduced-motion: reduce) {
   *,
