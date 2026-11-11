@@ -35,9 +35,9 @@ export function RoastMeter() {
   const [share, setShare] = useState(35);
   const { expression, text } = verdict(share);
   return (
-    <section className="mx-auto w-full max-w-3xl px-4 pt-16 sm:px-6 sm:pt-20" aria-labelledby="meter-heading">
-      <div className="flex flex-col items-center gap-5 rounded-3xl bg-white p-6 text-center shadow-[0_24px_60px_-30px_rgb(15_31_24/0.45)] ring-1 ring-slate-200 sm:p-9">
-        <h2 id="meter-heading" className="text-2xl leading-tight text-slate-900 sm:text-3xl">
+    <section className="page-wrap pt-16 sm:pt-20" aria-labelledby="meter-heading">
+      <div className="mx-auto flex max-w-4xl flex-col items-center gap-5 rounded-3xl bg-white p-6 text-center shadow-[0_24px_60px_-30px_rgb(15_31_24/0.45)] ring-1 ring-slate-200 sm:p-9 lg:p-12">
+        <h2 id="meter-heading" className="text-[clamp(1.5rem,1.1rem+1.2vw,2.4rem)] leading-tight text-slate-900">
           Go on. Tell me how bad it is.
         </h2>
         <Avatar

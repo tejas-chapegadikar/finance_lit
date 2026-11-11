@@ -234,7 +234,7 @@ export default async function HomePage() {
               backgroundSize: "24px 24px",
             }}
           />
-          <header className="relative mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 sm:px-6">
+          <header className="page-wrap relative flex items-center justify-between gap-3 py-5 lg:py-7">
             <Logo />
             <nav aria-label="Account" className="flex items-center gap-2">
               <Link href="/sign-in" className={`${secondaryButton} px-4 py-2 whitespace-nowrap sm:px-5`}>
@@ -246,14 +246,14 @@ export default async function HomePage() {
             </nav>
           </header>
 
-          <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-8 pb-20 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:pt-14 lg:pb-28">
+          <div className="page-wrap relative grid items-center gap-12 pt-8 pb-20 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16 lg:pt-14 lg:pb-28 xl:gap-24">
             <div className="flex animate-fade-up flex-col items-start gap-6">
-              <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[13px] font-medium text-slate-700 ring-1 ring-slate-200">
+              <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[0.8125rem] font-medium text-slate-700 ring-1 ring-slate-200">
                 <SparklesIcon className="h-3.5 w-3.5 text-brand-600" />
                 For college students and first-job professionals in India
               </p>
-              <h1 className="text-[2.75rem] leading-[1.02] text-slate-900 sm:text-6xl lg:text-7xl">
-                {["Learn","money","before","money","teaches","you"].map((word, i) => (
+              <h1 className="text-[clamp(2.6rem,1.2rem+4.4vw,6.5rem)] leading-[1.02] text-slate-900">
+                {["Learn", "money", "before", "money", "teaches", "you"].map((word, i) => (
                   <span key={word + i} className="word-rise" style={{ animationDelay: `${i * 70}ms` }}>
                     {word}&nbsp;
                   </span>
@@ -262,9 +262,9 @@ export default async function HomePage() {
                   the hard way.
                 </span>
               </h1>
-              <p className="max-w-lg text-lg leading-relaxed text-slate-600">
-                You can split a food bill in four seconds, but you can&apos;t explain what a credit score is. Rupli fixes that, in simple words, with an avatar who
-                will not be nice about it.
+              <p className="max-w-xl text-[clamp(1.05rem,0.95rem+0.3vw,1.3rem)] leading-relaxed text-slate-600">
+                You can split a food bill in four seconds, but you can&apos;t explain what a credit score is. Rupli fixes that, in simple words, with an avatar
+                who will not be nice about it.
               </p>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Link href="/sign-up" className={`${primaryButton} group px-8 py-4 text-base`}>
@@ -310,13 +310,13 @@ export default async function HomePage() {
         <RoastMeter />
 
         {/* The three pillars */}
-        <section id="features" className="mx-auto w-full max-w-6xl scroll-mt-4 px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="features-heading">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <p className="text-[13px] font-medium text-slate-500">Harsh, but someone had to say it</p>
-            <h2 id="features-heading" className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
+        <section id="features" className="page-wrap scroll-mt-4 py-20 sm:py-28" aria-labelledby="features-heading">
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <p className="text-[0.8125rem] font-medium text-slate-500">Harsh, but someone had to say it</p>
+            <h2 id="features-heading" className="mt-2 text-[clamp(1.9rem,1.1rem+2.2vw,3.5rem)] leading-tight text-slate-900">
               You&apos;re worse at money than you think.
             </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-slate-600">
+            <p className="mt-3 text-[0.9375rem] lg:text-base leading-relaxed text-slate-600">
               Everything a student needs to get good with money, and an avatar that reacts to every move you make.
             </p>
           </Reveal>
@@ -325,17 +325,17 @@ export default async function HomePage() {
             {PILLARS.map((p, i) => {
               const Mock = MOCKS[p.id];
               return (
-                <div key={p.id} className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+                <div key={p.id} className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16 xl:gap-28">
                   <Reveal className={i % 2 === 1 ? "lg:order-2" : ""}>
-                    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[13px] font-semibold ring-1 ${p.tone}`}>
+                    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.8125rem] font-semibold ring-1 ${p.tone}`}>
                       <p.Icon className="h-4 w-4" />
                       {p.eyebrow}
                     </span>
-                    <h3 className="mt-4 text-3xl leading-tight text-slate-900 sm:text-4xl">{p.title}</h3>
-                    <p className="mt-3 text-[15px] leading-relaxed text-slate-600">{p.text}</p>
+                    <h3 className="mt-4 text-[clamp(1.75rem,1.15rem+1.5vw,2.75rem)] leading-tight text-slate-900">{p.title}</h3>
+                    <p className="mt-3 text-[0.9375rem] lg:text-base leading-relaxed text-slate-600">{p.text}</p>
                     <ul className="mt-6 flex flex-col gap-2.5">
                       {p.points.map((pt) => (
-                        <li key={pt} className="flex items-start gap-2.5 text-[15px] text-slate-700">
+                        <li key={pt} className="flex items-start gap-2.5 text-[0.9375rem] lg:text-base text-slate-700">
                           <span aria-hidden className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
                             <CheckIcon className="h-3 w-3" />
                           </span>
@@ -374,11 +374,11 @@ export default async function HomePage() {
         </section>
 
         {/* How it helps */}
-        <section className="border-y border-slate-200 bg-white px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="helps-heading">
-          <div className="mx-auto max-w-6xl lg:px-6">
-            <Reveal className="max-w-2xl">
-              <p className="text-[13px] font-medium text-slate-500">How Rupli helps</p>
-              <h2 id="helps-heading" className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
+        <section className="border-y border-slate-200 bg-white py-20 sm:py-28" aria-labelledby="helps-heading">
+          <div className="page-wrap">
+            <Reveal className="max-w-3xl">
+              <p className="text-[0.8125rem] font-medium text-slate-500">How Rupli helps</p>
+              <h2 id="helps-heading" className="mt-2 text-[clamp(1.9rem,1.1rem+2.2vw,3.5rem)] leading-tight text-slate-900">
                 Your first stipend, salary and credit card are coming. Be ready.
               </h2>
             </Reveal>
@@ -393,7 +393,7 @@ export default async function HomePage() {
                       <Icon className="h-5 w-5" />
                     </span>
                     <h3 className="mt-4 text-lg leading-snug text-slate-900">{title}</h3>
-                    <p className="mt-1.5 text-[15px] text-slate-600">{text}</p>
+                    <p className="mt-1.5 text-[0.9375rem] lg:text-base text-slate-600">{text}</p>
                   </div>
                 </Reveal>
               ))}
@@ -402,13 +402,15 @@ export default async function HomePage() {
         </section>
 
         {/* The journey */}
-        <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 sm:py-28" aria-labelledby="journey-heading">
-          <Reveal className="max-w-2xl">
-            <p className="text-[13px] font-medium text-slate-500">Your Money IQ journey</p>
-            <h2 id="journey-heading" className="mt-2 text-3xl leading-tight text-slate-900 sm:text-[2.75rem]">
+        <section className="page-wrap py-20 sm:py-28" aria-labelledby="journey-heading">
+          <Reveal className="max-w-3xl">
+            <p className="text-[0.8125rem] font-medium text-slate-500">Your Money IQ journey</p>
+            <h2 id="journey-heading" className="mt-2 text-[clamp(1.9rem,1.1rem+2.2vw,3.5rem)] leading-tight text-slate-900">
               From your first stipend to your first salary
             </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-slate-600">Four levels. Each one unlocks the next, so every step builds on the last.</p>
+            <p className="mt-3 text-[0.9375rem] lg:text-base leading-relaxed text-slate-600">
+              Four levels. Each one unlocks the next, so every step builds on the last.
+            </p>
           </Reveal>
           <ol className="relative mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             <span aria-hidden className="absolute top-14 right-[12%] left-[12%] hidden border-t-2 border-dashed border-slate-200 lg:block" />
@@ -424,9 +426,11 @@ export default async function HomePage() {
         </section>
 
         {/* Final call to action */}
-        <section className="px-4 pb-20 sm:px-6 sm:pb-28">
+        <section className="page-wrap pb-20 sm:pb-28">
           <Reveal>
-            <div className={`${spotlight} mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-14 text-center sm:px-12 md:flex-row md:text-left`}>
+            <div
+              className={`${spotlight} flex flex-col items-center gap-8 px-6 py-14 text-center sm:px-12 md:flex-row md:justify-center md:gap-14 md:text-left lg:py-20`}
+            >
               <span className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.5),transparent_62%)]" />
               <Avatar
                 config={DEFAULT_AVATAR}
@@ -435,7 +439,7 @@ export default async function HomePage() {
                 label="The Rupli avatar, celebrating"
               />
               <div className="min-w-0">
-                <h2 className="max-w-2xl text-4xl leading-tight text-white sm:text-5xl">Your wallet can&apos;t take much more of this</h2>
+                <h2 className="max-w-3xl text-[clamp(2.1rem,1.3rem+2.4vw,3.75rem)] leading-tight text-white">Your wallet can&apos;t take much more of this</h2>
                 <p className="mt-3 max-w-xl text-lg text-white/70">Free to start. Takes two minutes. You&apos;ve wasted longer on worse.</p>
                 <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row md:items-start">
                   <Link href="/sign-up" className={`${lightButton} group px-8 py-4 text-base`}>

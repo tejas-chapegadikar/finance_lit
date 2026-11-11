@@ -6,8 +6,8 @@ import { MotionToggle } from "@/components/ui/Motion";
 /** The public footer: landing page and the About / legal pages. */
 export function SiteFooter() {
   return (
-    <footer className="border-t border-slate-200 bg-slate-50 px-4 py-10 sm:px-6">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <footer className="border-t border-slate-200 bg-slate-50 py-10">
+      <div className="page-wrap flex flex-col gap-6">
         <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
           <div className="flex flex-col items-center gap-2 sm:items-start">
             <Link href="/" aria-label="Rupli home">

@@ -18,16 +18,16 @@ export function HeroAvatar() {
   const line = LINES[i];
 
   return (
-    <div ref={stage} className="relative mx-auto flex w-full max-w-md flex-col items-center">
+    <div ref={stage} className="relative mx-auto flex w-full max-w-md flex-col items-center xl:max-w-lg">
       <span
         aria-hidden
-        className="pointer-events-none absolute top-16 left-1/2 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.42),transparent_68%)] sm:h-96 sm:w-96"
+        className="pointer-events-none absolute top-16 left-1/2 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(255_184_31/0.42),transparent_68%)] sm:h-96 sm:w-96 xl:h-[30rem] xl:w-[30rem]"
       />
       <div
         key={i}
         role="status"
         aria-live="polite"
-        className="relative z-10 mb-3 min-h-[4.5rem] w-full max-w-xs animate-avatar-in rounded-3xl bg-white px-5 py-3.5 text-center text-[15px] leading-snug font-medium text-slate-800 shadow-[0_14px_36px_-14px_rgb(28_26_38/0.35)] ring-1 ring-slate-200"
+        className="relative z-10 mb-3 min-h-[4.5rem] w-full max-w-xs animate-avatar-in rounded-3xl bg-white px-5 py-3.5 text-center text-[0.9375rem] leading-snug sm:max-w-sm lg:text-base font-medium text-slate-800 shadow-[0_14px_36px_-14px_rgb(28_26_38/0.35)] ring-1 ring-slate-200"
       >
         {line.text}
         <span
@@ -47,7 +47,7 @@ export function HeroAvatar() {
           expression={line.expression}
           alive
           gaze={gaze}
-          className="h-64 w-auto animate-bob drop-shadow-[0_18px_26px_rgb(15_31_24/0.28)] transition-transform duration-300 group-hover:scale-105 group-active:scale-95 sm:h-80"
+          className="h-64 w-auto animate-bob drop-shadow-[0_18px_26px_rgb(15_31_24/0.28)] transition-transform duration-300 group-hover:scale-105 group-active:scale-95 sm:h-80 xl:h-96"
           label="The Rupli avatar"
         />
       </button>

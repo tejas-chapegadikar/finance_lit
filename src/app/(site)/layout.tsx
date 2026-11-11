@@ -12,7 +12,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <>
       <header className="border-b border-slate-900/5 bg-white">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div className="page-wrap flex items-center justify-between gap-4 py-3">
           <Link href="/" aria-label="Rupli home">
             <Logo />
           </Link>
@@ -21,7 +21,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           </Link>
         </div>
       </header>
-      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 sm:py-14">{children}</main>
+      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
+        {children}
+      </main>
       <SiteFooter />
     </>
   );
