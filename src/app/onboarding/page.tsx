@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireAppUser } from "@/lib/auth";
-import { nicknameOf } from "@/lib/user";
 import { CONSENT_VERSION } from "@/lib/site";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { Logo } from "@/components/ui/Logo";
@@ -27,7 +26,7 @@ export default async function OnboardingPage() {
           <Logo />
         </div>
         <div className="animate-fade-up rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_50px_-30px_rgb(30_28_26/0.35)] sm:p-8">
-          <OnboardingFlow defaultNickname={nicknameOf(user)} />
+          <OnboardingFlow defaultName={(user.displayName ?? user.name ?? "").trim().slice(0, 40)} />
         </div>
       </div>
     </main>

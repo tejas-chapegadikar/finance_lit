@@ -1,11 +1,21 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { AVATAR_ITEMS, AVATAR_SLOTS, DEFAULT_AVATAR, avatarName, isAvatarItemUnlocked, readAvatar } from "../avatar";
-import { REACTIONS, pickLine, type ReactionKind } from "./reactions";
+import { REACTIONS, reactionText, type ReactionKind } from "./reactions";
 
 test("an avatar saved before the redesign still loads, keeping every valid choice", () => {
   // A real pre-redesign config: human-style ids, no mouth/special slots.
-  const old = { skin: "skin-5", hair: "hair-spiky", hairColor: "hc-blue", eyes: "eyes-wink", top: "top-hoodie-orange", headwear: "hw-cap", glasses: "gl-round", shoes: "sh-sneakers", backpack: "bp-campus" };
+  const old = {
+    skin: "skin-5",
+    hair: "hair-spiky",
+    hairColor: "hc-blue",
+    eyes: "eyes-wink",
+    top: "top-hoodie-orange",
+    headwear: "hw-cap",
+    glasses: "gl-round",
+    shoes: "sh-sneakers",
+    backpack: "bp-campus",
+  };
   const config = readAvatar(old);
   for (const [slot, id] of Object.entries(old)) assert.equal(config[slot as keyof typeof config], id, slot);
   assert.equal(config.mouth, DEFAULT_AVATAR.mouth);
@@ -23,7 +33,11 @@ test("unknown or wrong-slot items fall back to the default", () => {
 test("every item id is unique, every slot has a free option, and the default is all free", () => {
   const ids = AVATAR_ITEMS.map((i) => i.id);
   assert.equal(new Set(ids).size, ids.length);
-  for (const { slot } of AVATAR_SLOTS) assert.ok(AVATAR_ITEMS.some((i) => i.slot === slot && i.unlock.type === "free"), `${slot} needs a free item`);
+  for (const { slot } of AVATAR_SLOTS)
+    assert.ok(
+      AVATAR_ITEMS.some((i) => i.slot === slot && i.unlock.type === "free"),
+      `${slot} needs a free item`,
+    );
   for (const id of Object.values(DEFAULT_AVATAR)) assert.equal(AVATAR_ITEMS.find((i) => i.id === id)?.unlock.type, "free", id);
 });
 
@@ -47,22 +61,31 @@ test("the avatar's name is always the student's own", () => {
   assert.equal(avatarName({ displayName: "  ", name: null }), "You");
 });
 
-test("every reaction has several lines; the name appears in some but not all", () => {
-  for (const [kind, def] of Object.entries(REACTIONS)) {
-    assert.ok(def.lines.length >= 2, `${kind} needs at least two lines`);
-    const lines = def.lines.map((line) => line("Zorawar", { label: "Food", pct: 85, goal: "Goa trip", title: "Budgeting", days: 7, xp: 500, badge: "Goal Getter", rank: "Budget Boss", item: "Party hat", level: 1, day: 3, week: 1, amount: "₹500" }));
-    for (const text of lines) assert.ok(text.length > 5 && !text.includes("undefined"), `${kind}: “${text}”`);
-    const named = lines.filter((t) => t.includes("Zorawar")).length;
-    assert.ok(named < lines.length, `${kind}: the name is in every line`);
+test("every moment has words, and the blanks get filled", () => {
+  const data = {
+    label: "Food",
+    pct: 85,
+    goal: "Goa trip",
+    title: "Budgeting",
+    days: 7,
+    xp: 500,
+    badge: "Goal Getter",
+    rank: "Budget Boss",
+    item: "Party hat",
+    level: 1,
+    day: 3,
+    week: 1,
+    amount: "₹500",
+  };
+  for (const kind of Object.keys(REACTIONS) as ReactionKind[]) {
+    for (let i = 0; i < 6; i++) {
+      const { text, title } = reactionText(kind, data, "Zorawar", `event-${i}`);
+      assert.ok(text.length > 5 && !text.includes("{") && !text.includes("undefined"), `${kind}: ${text}`);
+      if (title) assert.ok(!title.includes("{"), title);
+    }
   }
 });
 
-test("line picking varies by event and never repeats the last line", () => {
-  const kind: ReactionKind = "lesson-complete";
-  const count = REACTIONS[kind].lines.length;
-  const picks = new Set(Array.from({ length: 30 }, (_, i) => pickLine(kind, `event-${i}`)));
-  assert.ok(picks.size > 1, "always the same line");
-  for (let avoid = 0; avoid < count; avoid++) {
-    for (let i = 0; i < 20; i++) assert.notEqual(pickLine(kind, `e${i}`, avoid), avoid);
-  }
+test("a line with a missing detail is skipped (older events)", () => {
+  for (let i = 0; i < 10; i++) assert.ok(!reactionText("deposit", { goal: "Laptop", amount: "₹200" }, "A", `e${i}`).text.includes("%"));
 });

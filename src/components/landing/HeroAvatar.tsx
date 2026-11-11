@@ -2,46 +2,14 @@
 
 import { useRef, useState } from "react";
 import { DEFAULT_AVATAR } from "@/lib/avatar";
-import { Avatar, type Expression } from "@/components/avatar/Avatar";
+import { LANDING_HERO } from "@/content/buddy-messages";
+import { Avatar } from "@/components/avatar/Avatar";
 import { usePointerGaze } from "@/components/avatar/use-gaze";
 
 // The landing page's star: the Rupli avatar, blinking, watching your
 // pointer, and roasting you a little every time you poke it.
 
-const LINES: { expression: Expression; text: string }[] = [
-  {
-    expression: "welcoming",
-    text: "Hi! I'll teach you money and judge your spending. Mostly judge.",
-  },
-  {
-    expression: "shocked",
-    text: "₹400 on food delivery? In one night? We need to talk.",
-  },
-  {
-    expression: "thinking",
-    text: "A credit limit is not free money. I will repeat this until you believe me.",
-  },
-  {
-    expression: "proud",
-    text: "Saved 40% this month? Look at you, future crorepati.",
-  },
-  {
-    expression: "confused",
-    text: "Your bank will never ask for your OTP. That 'bank' calling you? Not a bank.",
-  },
-  {
-    expression: "excited",
-    text: "Want to try investing? I've got ₹1,00,000 of virtual money. Zero risk.",
-  },
-  {
-    expression: "facepalm",
-    text: "Three weeks over budget in a row? I'm not mad. I'm just… disappointed.",
-  },
-  {
-    expression: "happy",
-    text: "Keep poking me. I have a lot of opinions about your wallet.",
-  },
-];
+const LINES = LANDING_HERO;
 
 export function HeroAvatar() {
   const stage = useRef<HTMLDivElement>(null);

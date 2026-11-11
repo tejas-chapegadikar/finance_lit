@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
-import { LOCKED, fill } from "@/content/avatar-lines";
+import { LOCKED, fill, pick } from "@/content/buddy-messages";
 import type { GuideTip } from "@/lib/guide/bus";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
@@ -54,12 +54,12 @@ export default async function LearnPage() {
 
   const levelTip = (levelNumber: number, chapterId: string | undefined): GuideTip => ({
     kind: "locked",
-    text: fill(LOCKED.level.text, { level: levelNumber }),
+    text: fill(pick(LOCKED.level.lines, levelNumber), { level: levelNumber }),
     action: { label: fill(LOCKED.level.button, { level: levelNumber }), target: chapterId ? `unit-${chapterId}` : "learn-path" },
   });
   const lessonTip = (title: string, slug: string): GuideTip => ({
     kind: "locked",
-    text: fill(LOCKED.lesson.text, { lesson: title }),
+    text: fill(pick(LOCKED.lesson.lines, title.length), { lesson: title }),
     action: { label: LOCKED.lesson.button, href: `/lessons/${slug}` },
   });
   const chapterOf = (n: number) => levels.find((l) => l.chapter.number === n)?.chapter.id;
@@ -115,7 +115,7 @@ export default async function LearnPage() {
         : xpLocked
           ? {
               kind: "locked",
-              text: fill(LOCKED.xp.text, { xp: reward!.cost }),
+              text: fill(pick(LOCKED.xp.lines, reward!.cost), { xp: reward!.cost }),
               action: { label: LOCKED.xp.button, href: next ? `/lessons/${next.slug}` : "/lessons" },
             }
           : undefined,
@@ -173,7 +173,7 @@ export default async function LearnPage() {
     const note = toolsOpen ? "Try it with pretend money" : `Finish lesson ${stop.number} to unlock`;
     const toolTip: GuideTip = {
       kind: "locked",
-      text: fill(LOCKED.tool.text, { lesson: lesson.title }),
+      text: fill(pick(LOCKED.tool.lines, lesson.title.length), { lesson: lesson.title }),
       action: { label: LOCKED.tool.button, href: `/lessons/${lesson.slug}` },
     };
     return [

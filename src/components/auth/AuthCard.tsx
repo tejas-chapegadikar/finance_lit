@@ -1,5 +1,6 @@
 "use client";
 
+import { SIGN_IN } from "@/content/buddy-messages";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -38,12 +39,7 @@ function friendly(message: string): string {
 
 const safeNext = (next: string | undefined) => (next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard");
 
-const POKES: { expression: Expression; text: string }[] = [
-  { expression: "happy", text: "Hey! Fingers off the merchandise." },
-  { expression: "shocked", text: "You poke me before you've even logged in?" },
-  { expression: "thinking", text: "Still here? The button's right there." },
-  { expression: "excited", text: "Fine. One more poke, then we talk about your spending." },
-];
+const POKES = SIGN_IN.pokes;
 
 type Mood = { expression: Expression; text: string };
 
@@ -90,13 +86,10 @@ export function AuthCard({ mode, next, initialError }: { mode: "sign-in" | "sign
   }
 
   const mood: Mood = error
-    ? { expression: "shocked", text: "Oops. Small hiccup, we'll sort it." }
+    ? { expression: "shocked", text: SIGN_IN.oops[0] }
     : busy
-      ? { expression: "excited", text: "Off to Google. Back in a sec!" }
-      : (poke ??
-        (signUp
-          ? { expression: "welcoming", text: "Hi! I'm your new money buddy." }
-          : { expression: "welcoming", text: "You're back! I missed roasting you." }));
+      ? { expression: "excited", text: SIGN_IN.busy[0] }
+      : (poke ?? (signUp ? { expression: "welcoming", text: SIGN_IN.hello[0] } : { expression: "welcoming", text: SIGN_IN.welcomeBack[0] }));
 
   return (
     <div className="flex flex-col items-center">

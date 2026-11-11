@@ -887,6 +887,116 @@ html[data-hub-seen] .hub-intro :is(.hub-pop, .hub-cloud, .hub-fly) {
   }
 }
 
+/* The money buddy (components/buddy/BuddyPeek.tsx): a head peeking up from
+   behind the bottom tabs (the screen's bottom edge on desktop) and a comic
+   speech bubble above it. Transform and opacity only. */
+:root {
+  --buddy-nav: calc(3.5rem + 1px + env(safe-area-inset-bottom));
+  --buddy-head: 84px;
+}
+@media (min-width: 64rem) {
+  :root {
+    --buddy-nav: 0px;
+    --buddy-head: 96px;
+  }
+}
+.buddy-well {
+  bottom: var(--buddy-nav);
+  width: var(--buddy-head);
+  height: calc(var(--buddy-head) * 0.83);
+  touch-action: none;
+}
+.buddy-well > div {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(var(--buddy-head) * -0.084);
+}
+.buddy-bubble {
+  bottom: calc(var(--buddy-nav) + var(--buddy-head) * 0.83 + 22px);
+  touch-action: pan-x;
+}
+.buddy-head .avatar-blink {
+  animation-duration: 3.6s;
+}
+.buddy-head-in {
+  animation: buddy-head-in 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.buddy-head-out {
+  animation: buddy-head-out 180ms 120ms ease-in both;
+}
+.buddy-head-look {
+  transform-origin: 50% 90%;
+  animation:
+    buddy-look 240ms 380ms ease-out both,
+    buddy-idle 3.2s 700ms ease-in-out infinite;
+}
+.buddy-bubble-in {
+  animation: buddy-pop 260ms 300ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.buddy-bubble-out {
+  animation: buddy-shrink 150ms ease-in both;
+}
+.buddy-fade-in {
+  animation: buddy-fade 160ms ease-out both;
+}
+.buddy-fade-out {
+  animation: buddy-fade 160ms ease-in reverse both;
+}
+@keyframes buddy-head-in {
+  from {
+    transform: translateY(110%);
+  }
+}
+@keyframes buddy-head-out {
+  to {
+    transform: translateY(110%);
+  }
+}
+@keyframes buddy-look {
+  50% {
+    transform: translateY(-3px) rotate(-7deg);
+  }
+}
+@keyframes buddy-idle {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  50% {
+    transform: rotate(2deg) translateY(-1.5px);
+  }
+}
+@keyframes buddy-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+@keyframes buddy-shrink {
+  to {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@keyframes buddy-fade {
+  from {
+    opacity: 0;
+  }
+}
+/* While the bubble is up, the page gets extra room at the bottom so nothing is stuck under it. */
+html[data-buddy] #main {
+  padding-bottom: calc(7rem + var(--buddy-space, 0px));
+}
+@media (min-width: 64rem) {
+  html[data-buddy] #main {
+    padding-bottom: calc(3rem + var(--buddy-space, 0px));
+  }
+}
+
 /* Motion is decoration: people who ask for less get none of it. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -908,4 +1018,16 @@ html[data-hub-seen] .hub-intro :is(.hub-pop, .hub-cloud, .hub-fly) {
   ::view-transition-new(*) {
     animation: none !important;
   }
+}
+
+/* Reduced motion still gets the buddy's quick fade (opacity only), instead of a jump. */
+@media (prefers-reduced-motion: reduce) {
+  .buddy-fade-in,
+  .buddy-fade-out {
+    animation-duration: 160ms !important;
+  }
+}
+html[data-calm] .buddy-fade-in,
+html[data-calm] .buddy-fade-out {
+  animation-duration: 160ms !important;
 }

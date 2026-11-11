@@ -1,7 +1,8 @@
-import { HUB_CLOSERS, HUB_LINES, fill, type HubOptionId, type HubState, type RoastLevel } from "../../content/avatar-lines";
+import { HOME, HOME_CLOSERS, fill, pick, type HubOptionId, type HubState, type RoastLevel } from "../../content/buddy-messages";
 
 // What the avatar says on Home, worked out from the student's real state.
-// Pure, so every state is unit-tested (hub.test.ts).
+// Words live in src/content/buddy-messages.ts. Pure, so every state is
+// unit-tested (hub.test.ts).
 
 export const ROAST_LEVELS: RoastLevel[] = ["mild", "spicy", "savage"];
 export const readRoastLevel = (value: string | null | undefined): RoastLevel => (ROAST_LEVELS.includes(value as RoastLevel) ? (value as RoastLevel) : "spicy");
@@ -13,7 +14,7 @@ export type HubInput = {
   isNew: boolean;
   unfinishedLesson: { title: string; minutes: number } | null;
   nextLesson: { title: string; minutes: number } | null;
-  /** The roast engine's verdict for this month, if it says spending is a problem. */
+  /** A roast about this week's real spending (already in the student's roast level), if there is one. */
   spendingRoast: string | null;
   spentToday: boolean;
   investTouched: boolean;
@@ -43,17 +44,15 @@ export function hubState(input: HubInput): HubState {
   return "done";
 }
 
-/** The full message: a line for the situation (rotating by `seed`), then which option to pick. */
+/** The full message: a line for the situation (rotating by `seed`), then which bubble to tap. */
 export function hubMessage(input: HubInput, level: RoastLevel, seed: number): HubMessage {
   const state = hubState(input);
   const highlight = HIGHLIGHT[state];
   const lesson = state === "unfinished" ? input.unfinishedLesson : input.nextLesson;
-  const lines = HUB_LINES[state][level];
-  let line = fill(lines[Math.abs(seed) % lines.length], { lesson: lesson?.title ?? "", minutes: lesson?.minutes ?? 5 });
-  // Your real numbers make the best roast, but Mild keeps it gentle.
-  if (state === "spent" && level !== "mild" && input.spendingRoast) line = input.spendingRoast;
-  return { state, highlight, text: `${line} ${HUB_CLOSERS[highlight ?? "none"]}` };
+  // Your real numbers make the best roast.
+  const line =
+    state === "spent" && input.spendingRoast
+      ? input.spendingRoast
+      : fill(pick(HOME[state][level], seed), { lesson: lesson?.title ?? "", minutes: lesson?.minutes ?? 5 });
+  return { state, highlight, text: `${line} ${pick(HOME_CLOSERS[highlight ?? "none"], seed)}` };
 }
-
-/** Roast-engine verdicts that mean "spending is a problem" (none of them mention income). */
-export const SPENDING_ROAST_IDS = ["weeks-over", "over-budget", "food", "shopping", "entertainment"];

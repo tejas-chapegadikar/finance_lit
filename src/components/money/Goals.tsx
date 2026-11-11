@@ -5,7 +5,7 @@ import { addToSavingsGoal, createSavingsGoal, deleteSavingsGoal, deleteMoneyEntr
 import { GOAL_ICONS, rupees, type GoalIconKey } from "@/lib/money/categories";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { AvatarEmpty } from "@/components/guide/AvatarEmpty";
-import { EMPTY } from "@/content/avatar-lines";
+import { EMPTY, ERRORS, pick } from "@/content/buddy-messages";
 import { guideSay } from "@/lib/guide/bus";
 import { GoalIcon } from "@/components/ui/topic-icons";
 import { ProgressRing } from "@/components/ui/ProgressBar";
@@ -30,7 +30,8 @@ const GOAL_LABELS: Record<GoalIconKey, string> = {
   target: "Something else",
 };
 
-const formatDay = (day: string) => new Date(`${day}T00:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const formatDay = (day: string) =>
+  new Date(`${day}T00:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 
 /** “About ₹X a month to get there on time”, from the amount left and the target date. */
 function perMonthHint(left: number, targetDay: string, today: string) {
@@ -104,7 +105,13 @@ export function GoalCard({ goal }: { goal: GoalView }) {
           </p>
           {!goal.completed && left > 0 && goal.targetDay && <p className="mt-0.5 text-xs text-slate-500">{perMonthHint(left, goal.targetDay, goal.today)}</p>}
         </div>
-        <button type="button" onClick={remove} disabled={isPending} aria-label={`Remove ${goal.name}`} className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
+        <button
+          type="button"
+          onClick={remove}
+          disabled={isPending}
+          aria-label={`Remove ${goal.name}`}
+          className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+        >
           <TrashIcon className="h-4 w-4" />
         </button>
       </div>
@@ -133,7 +140,13 @@ export function GoalCard({ goal }: { goal: GoalView }) {
           <button type="button" onClick={() => move(1)} disabled={isPending || !amount} className={`${primaryButton} px-3.5`}>
             <PlusIcon className="h-4 w-4" /> Save
           </button>
-          <button type="button" onClick={() => move(-1)} disabled={isPending || !amount || goal.saved === 0} aria-label={`Take money out of ${goal.name}`} className={`${secondaryButton} px-3`}>
+          <button
+            type="button"
+            onClick={() => move(-1)}
+            disabled={isPending || !amount || goal.saved === 0}
+            aria-label={`Take money out of ${goal.name}`}
+            className={`${secondaryButton} px-3`}
+          >
             <MinusIcon className="h-4 w-4" />
           </button>
         </div>
@@ -173,14 +186,14 @@ export function NewGoalForm({ today, empty = false }: { today: string; empty?: b
         if (result.status === "slow-down") setError(SLOW_DOWN_MESSAGE);
       } catch {
         setError(GENERIC_ERROR_MESSAGE);
-        guideSay({ kind: "error", text: GENERIC_ERROR_MESSAGE });
+        guideSay({ kind: "error", text: pick(ERRORS, Date.now() / 1000) });
       }
     });
   }
 
   if (!open && empty) {
     return (
-      <AvatarEmpty text={EMPTY.goals.text}>
+      <AvatarEmpty text={EMPTY.goals.lines[0]}>
         <button type="button" onClick={() => setOpen(true)} className={`${primaryButton} py-3`}>
           {EMPTY.goals.button}
         </button>
@@ -191,7 +204,11 @@ export function NewGoalForm({ today, empty = false }: { today: string; empty?: b
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="flex min-h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-300 p-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-white">
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex min-h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-300 p-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-white"
+      >
         <PlusIcon className="h-5 w-5" />
         New savings goal
       </button>
@@ -204,7 +221,15 @@ export function NewGoalForm({ today, empty = false }: { today: string; empty?: b
         <label htmlFor="goal-name" className="text-sm font-medium text-slate-700">
           What are you saving for?
         </label>
-        <input id="goal-name" required maxLength={40} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Goa trip with the gang" className={`${fieldClass} mt-1.5`} />
+        <input
+          id="goal-name"
+          required
+          maxLength={40}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g. Goa trip with the gang"
+          className={`${fieldClass} mt-1.5`}
+        />
       </div>
       <fieldset>
         <legend className="text-sm font-medium text-slate-700">Pick an icon</legend>
@@ -229,7 +254,15 @@ export function NewGoalForm({ today, empty = false }: { today: string; empty?: b
           <label htmlFor="goal-target" className="text-sm font-medium text-slate-700">
             Target (₹)
           </label>
-          <input id="goal-target" required inputMode="numeric" value={target} onChange={(e) => setTarget(e.target.value.replace(/[^\d]/g, "").slice(0, 8))} placeholder="5000" className={`${fieldClass} mt-1.5`} />
+          <input
+            id="goal-target"
+            required
+            inputMode="numeric"
+            value={target}
+            onChange={(e) => setTarget(e.target.value.replace(/[^\d]/g, "").slice(0, 8))}
+            placeholder="5000"
+            className={`${fieldClass} mt-1.5`}
+          />
         </div>
         <div>
           <label htmlFor="goal-day" className="text-sm font-medium text-slate-700">

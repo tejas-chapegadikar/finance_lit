@@ -11,17 +11,7 @@ import type { AvatarConfig } from "@/lib/avatar";
 // without it the avatar wears the face the student chose in Avatar Studio.
 
 export type Expression =
-  | "happy"
-  | "excited"
-  | "shocked"
-  | "confused"
-  | "sad"
-  | "proud"
-  | "thinking"
-  | "celebrating"
-  | "facepalm"
-  | "sleepy"
-  | "welcoming";
+  "happy" | "excited" | "shocked" | "confused" | "sad" | "proud" | "thinking" | "celebrating" | "facepalm" | "sleepy" | "welcoming" | "smirk";
 
 export const EXPRESSIONS: { id: Expression; label: string }[] = [
   { id: "happy", label: "Happy" },
@@ -35,9 +25,10 @@ export const EXPRESSIONS: { id: Expression; label: string }[] = [
   { id: "facepalm", label: "Facepalm" },
   { id: "sleepy", label: "Sleepy" },
   { id: "welcoming", label: "Waving" },
+  { id: "smirk", label: "Smirk" },
 ];
 
-type Eyes = "dot" | "happy" | "wink" | "calm" | "sparkle" | "wide" | "sad" | "closed" | "up" | "sleepy";
+type Eyes = "brow" | "dot" | "happy" | "wink" | "calm" | "sparkle" | "wide" | "sad" | "closed" | "up" | "sleepy";
 type Mouth = "smile" | "grin" | "smirk" | "small" | "tongue" | "o" | "frown" | "squiggle" | "flat" | "open";
 type Pose = "rest" | "up" | "wave" | "chin" | "face";
 type Extra = "sparkles" | "sweat" | "question" | "tear" | "zzz" | "confetti" | "star";
@@ -48,16 +39,23 @@ const LOOK: Record<Expression, { eyes: Eyes; mouth: Mouth; pose: Pose; extras: E
   shocked: { eyes: "wide", mouth: "o", pose: "rest", extras: ["sweat"] },
   confused: { eyes: "dot", mouth: "squiggle", pose: "chin", extras: ["question"] },
   sad: { eyes: "sad", mouth: "frown", pose: "rest", extras: ["tear"] },
-  proud: { eyes: "closed", mouth: "smirk", pose: "rest", extras: ["star"] },
+  proud: { eyes: "happy", mouth: "smile", pose: "rest", extras: ["star"] },
   thinking: { eyes: "up", mouth: "flat", pose: "chin", extras: [] },
   celebrating: { eyes: "happy", mouth: "open", pose: "up", extras: ["confetti"] },
   facepalm: { eyes: "closed", mouth: "flat", pose: "face", extras: [] },
   sleepy: { eyes: "sleepy", mouth: "small", pose: "rest", extras: ["zzz"] },
   welcoming: { eyes: "happy", mouth: "smile", pose: "wave", extras: [] },
+  smirk: { eyes: "brow", mouth: "smirk", pose: "rest", extras: [] },
 };
 
 const EYES_FOR: Record<string, Eyes> = { "eyes-classic": "dot", "eyes-happy": "happy", "eyes-wink": "wink", "eyes-calm": "calm", "eyes-sparkle": "sparkle" };
-const MOUTH_FOR: Record<string, Mouth> = { "mouth-smile": "smile", "mouth-grin": "grin", "mouth-smirk": "smirk", "mouth-small": "small", "mouth-tongue": "tongue" };
+const MOUTH_FOR: Record<string, Mouth> = {
+  "mouth-smile": "smile",
+  "mouth-grin": "grin",
+  "mouth-smirk": "smirk",
+  "mouth-small": "small",
+  "mouth-tongue": "tongue",
+};
 
 // Body colours: a light, a base and a shade, for the 3D look.
 const BODY: Record<string, { light: string; base: string; shade: string }> = {
@@ -78,7 +76,13 @@ const TUFT: Record<string, string> = {
   "hc-pink": "#e0458c",
 };
 
-type Top = { body: string; sleeve?: string; long?: boolean; trim?: string; kind: "tee" | "hoodie" | "jacket" | "shirt" | "kurta" | "blazer" | "gown" | "varsity" | "tracksuit" };
+type Top = {
+  body: string;
+  sleeve?: string;
+  long?: boolean;
+  trim?: string;
+  kind: "tee" | "hoodie" | "jacket" | "shirt" | "kurta" | "blazer" | "gown" | "varsity" | "tracksuit";
+};
 
 const TOPS: Record<string, Top> = {
   "top-tee-sky": { kind: "tee", body: "#3b9be0" },
@@ -120,6 +124,19 @@ const INK = "#2a2533";
 
 function Eye({ kind, cx, cy, side }: { kind: Eyes; cx: number; cy: number; side: "l" | "r" }) {
   switch (kind) {
+    case "brow":
+      // One eyebrow up (left), the other eye half-shut under a flat brow.
+      return side === "l" ? (
+        <g>
+          <ellipse cx={cx} cy={cy} rx={4} ry={5.5} fill={INK} />
+          <path d={`M${cx - 7} ${cy - 10} Q${cx} ${cy - 17} ${cx + 7} ${cy - 11}`} stroke={INK} strokeWidth={2.6} fill="none" strokeLinecap="round" />
+        </g>
+      ) : (
+        <g>
+          <path d={`M${cx - 6} ${cy + 1} L${cx + 6} ${cy + 1}`} stroke={INK} strokeWidth={3.2} strokeLinecap="round" />
+          <path d={`M${cx - 7} ${cy - 7} L${cx + 7} ${cy - 8}`} stroke={INK} strokeWidth={2.6} strokeLinecap="round" />
+        </g>
+      );
     case "dot":
       return <ellipse cx={cx} cy={cy} rx={4} ry={5.5} fill={INK} />;
     case "happy":
@@ -151,7 +168,12 @@ function Eye({ kind, cx, cy, side }: { kind: Eyes; cx: number; cy: number; side:
       return (
         <g>
           <ellipse cx={cx} cy={cy + 1} rx={3.6} ry={4.6} fill={INK} />
-          <path d={side === "l" ? `M${cx - 7} ${cy - 6} L${cx + 4} ${cy - 10}` : `M${cx - 4} ${cy - 10} L${cx + 7} ${cy - 6}`} stroke={INK} strokeWidth={2.4} strokeLinecap="round" />
+          <path
+            d={side === "l" ? `M${cx - 7} ${cy - 6} L${cx + 4} ${cy - 10}` : `M${cx - 4} ${cy - 10} L${cx + 7} ${cy - 6}`}
+            stroke={INK}
+            strokeWidth={2.4}
+            strokeLinecap="round"
+          />
         </g>
       );
     case "closed":
@@ -255,7 +277,9 @@ function Outfit({ top, clip }: { top: Top; clip: string }) {
           <path d="M66 114 Q100 146 134 114" stroke={top.trim} strokeWidth={9} fill="none" strokeLinecap="round" />
           <rect x={78} y={158} width={44} height={22} rx={9} fill={top.trim} opacity={0.55} />
           <path d="M94 128 L92 146 M106 128 L108 146" stroke="#fbfbfe" strokeWidth={2.2} strokeLinecap="round" />
-          {top.trim === "#ffb02e" && <path d="M58 200 Q64 176 72 188 Q76 168 86 184 Q92 164 100 182 Q108 164 114 184 Q124 168 128 188 Q136 176 142 200 Z" fill="#ffb02e" />}
+          {top.trim === "#ffb02e" && (
+            <path d="M58 200 Q64 176 72 188 Q76 168 86 184 Q92 164 100 182 Q108 164 114 184 Q124 168 128 188 Q136 176 142 200 Z" fill="#ffb02e" />
+          )}
         </g>
       )}
       {top.kind === "jacket" && (
@@ -430,7 +454,10 @@ function Shoes({ id }: { id: string }) {
     <g>
       {[80, 120].map((cx) => (
         <g key={cx}>
-          <path d={`M${cx - 17} ${tall ? 198 : 204} Q${cx - 17} ${tall ? 190 : 196} ${cx} ${tall ? 190 : 196} Q${cx + 18} ${tall ? 192 : 198} ${cx + 18} 208 L${cx - 17} 208 Z`} fill={fill} />
+          <path
+            d={`M${cx - 17} ${tall ? 198 : 204} Q${cx - 17} ${tall ? 190 : 196} ${cx} ${tall ? 190 : 196} Q${cx + 18} ${tall ? 192 : 198} ${cx + 18} 208 L${cx - 17} 208 Z`}
+            fill={fill}
+          />
           <rect x={cx - 18} y={206} width={37} height={6} rx={3} fill={sole} />
         </g>
       ))}
@@ -486,7 +513,16 @@ function Special({ id, front }: { id: string; front: boolean }) {
             [18, 90, "#6d54ea"],
             [184, 96, "#e0458c"],
           ].map(([x, y, c]) => (
-            <rect key={`${x}-${y}`} x={x as number} y={y as number} width={7} height={4} rx={1} fill={c as string} transform={`rotate(${(x as number) % 50} ${x} ${y})`} />
+            <rect
+              key={`${x}-${y}`}
+              x={x as number}
+              y={y as number}
+              width={7}
+              height={4}
+              rx={1}
+              fill={c as string}
+              transform={`rotate(${(x as number) % 50} ${x} ${y})`}
+            />
           ))}
         </g>
       );
@@ -552,7 +588,16 @@ function Extras({ extras }: { extras: Extra[] }) {
             [186, 82, "#e0458c"],
             [100, 0, "#59b36a"],
           ].map(([x, y, c]) => (
-            <rect key={`${x}-${y}`} x={x as number} y={y as number} width={8} height={4} rx={1} fill={c as string} transform={`rotate(${((x as number) * 7) % 90} ${x} ${y})`} />
+            <rect
+              key={`${x}-${y}`}
+              x={x as number}
+              y={y as number}
+              width={8}
+              height={4}
+              rx={1}
+              fill={c as string}
+              transform={`rotate(${((x as number) * 7) % 90} ${x} ${y})`}
+            />
           ))}
         </g>
       )}
@@ -570,8 +615,8 @@ export function Avatar({
   gaze,
 }: {
   config: AvatarConfig;
-  /** "head" shows a close-up of the face. */
-  crop?: "full" | "head";
+  /** "head" shows a close-up of the face; "peek" is the head alone (no body, arms or clothes), for the buddy pop-up. */
+  crop?: "full" | "head" | "peek";
   className?: string;
   /** Accessible name; leave out when the avatar is decorative. */
   label?: string;
@@ -587,11 +632,14 @@ export function Avatar({
   const clipId = `av-clip-${uid}`;
   const shineId = `av-shine-${uid}`;
   const colors = BODY[config.skin] ?? BODY["skin-3"];
-  const look = expression ? LOOK[expression] : { eyes: EYES_FOR[config.eyes] ?? "dot", mouth: MOUTH_FOR[config.mouth] ?? "smile", pose: "rest" as Pose, extras: [] as Extra[] };
+  const look = expression
+    ? LOOK[expression]
+    : { eyes: EYES_FOR[config.eyes] ?? "dot", mouth: MOUTH_FOR[config.mouth] ?? "smile", pose: "rest" as Pose, extras: [] as Extra[] };
   const top = TOPS[config.top];
   const armColor = top?.long ? (top.sleeve ?? top.body) : `url(#${bodyId})`;
   const arms = ARMS[look.pose];
-  const viewBox = crop === "head" ? "28 4 144 140" : "0 -12 200 236";
+  const peek = crop === "peek";
+  const viewBox = crop === "head" ? "28 4 144 140" : peek ? "30 -4 140 128" : "0 -12 200 236";
 
   return (
     <svg viewBox={viewBox} className={className} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
@@ -616,25 +664,28 @@ export function Avatar({
       </defs>
 
       {/* ground shadow */}
-      <ellipse cx={100} cy={214} rx={54} ry={7} fill="#2a1f5c" opacity={0.14} />
-      <Special id={config.special} front={false} />
-      <Backpack id={config.backpack} front={false} />
-
-      {/* legs */}
-      <ellipse cx={80} cy={202} rx={16} ry={11} fill={`url(#${bodyId})`} />
-      <ellipse cx={120} cy={202} rx={16} ry={11} fill={`url(#${bodyId})`} />
-      <Shoes id={config.shoes} />
+      {!peek && (
+        <g>
+          <ellipse cx={100} cy={214} rx={54} ry={7} fill="#2a1f5c" opacity={0.14} />
+          <Special id={config.special} front={false} />
+          <Backpack id={config.backpack} front={false} />
+          {/* legs */}
+          <ellipse cx={80} cy={202} rx={16} ry={11} fill={`url(#${bodyId})`} />
+          <ellipse cx={120} cy={202} rx={16} ry={11} fill={`url(#${bodyId})`} />
+          <Shoes id={config.shoes} />
+        </g>
+      )}
 
       {/* body, belly button and a soft shine */}
       <path d={BODY_PATH} fill={`url(#${bodyId})`} />
       <path d={BODY_PATH} fill="none" stroke={colors.shade} strokeOpacity={0.5} strokeWidth={1} />
       {!top && <path d="M99 158 Q100 161 101 158" stroke={colors.shade} strokeWidth={2} fill="none" strokeLinecap="round" />}
-      {top && <Outfit top={top} clip={clipId} />}
-      {top && <path d={BODY_PATH} fill={`url(#${bodyId}-fold)`} />}
+      {top && !peek && <Outfit top={top} clip={clipId} />}
+      {top && !peek && <path d={BODY_PATH} fill={`url(#${bodyId}-fold)`} />}
       <ellipse cx={78} cy={52} rx={20} ry={14} fill={`url(#${shineId})`} opacity={0.8} />
 
-      <Backpack id={config.backpack} front />
-      <Special id={config.special} front />
+      {!peek && <Backpack id={config.backpack} front />}
+      {!peek && <Special id={config.special} front />}
 
       {/* face */}
       {expression !== "facepalm" && (
@@ -659,12 +710,13 @@ export function Avatar({
       <Headwear id={config.headwear} />
 
       {/* arms, in front of the body */}
-      {[arms.left, arms.right].map((points) => (
-        <g key={points}>
-          <polyline points={points} fill="none" stroke={colors.shade} strokeOpacity={0.35} strokeWidth={22} strokeLinecap="round" strokeLinejoin="round" />
-          <polyline points={points} fill="none" stroke={armColor} strokeWidth={20} strokeLinecap="round" strokeLinejoin="round" />
-        </g>
-      ))}
+      {!peek &&
+        [arms.left, arms.right].map((points) => (
+          <g key={points}>
+            <polyline points={points} fill="none" stroke={colors.shade} strokeOpacity={0.35} strokeWidth={22} strokeLinecap="round" strokeLinejoin="round" />
+            <polyline points={points} fill="none" stroke={armColor} strokeWidth={20} strokeLinecap="round" strokeLinejoin="round" />
+          </g>
+        ))}
 
       <Extras extras={look.extras} />
     </svg>

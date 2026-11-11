@@ -8,7 +8,7 @@ import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { CategoryIcon } from "@/components/ui/topic-icons";
 import { primaryButton, secondaryButton } from "@/components/ui/button-styles";
 import { AvatarEmpty } from "@/components/guide/AvatarEmpty";
-import { EMPTY } from "@/content/avatar-lines";
+import { EMPTY, ERRORS, pick } from "@/content/buddy-messages";
 import { guideSay } from "@/lib/guide/bus";
 
 const fieldClass =
@@ -39,14 +39,14 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
         if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);
       } catch {
         setMessage(GENERIC_ERROR_MESSAGE);
-        guideSay({ kind: "error", text: GENERIC_ERROR_MESSAGE });
+        guideSay({ kind: "error", text: pick(ERRORS, Date.now() / 1000) });
       }
     });
   }
 
   if (!open && Object.keys(budgets).length === 0) {
     return (
-      <AvatarEmpty text={EMPTY.budget.text}>
+      <AvatarEmpty text={EMPTY.budget.lines[0]}>
         <button type="button" onClick={() => setOpen(true)} className={`${primaryButton} py-3`}>
           {EMPTY.budget.button}
         </button>
@@ -78,7 +78,15 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
           Whole month
         </label>
         <span className="flex items-center gap-1.5 text-slate-500">
-          ₹<input id="budget-total" inputMode="numeric" value={values.total} onChange={(e) => set("total", e.target.value)} className={fieldClass} placeholder="-" />
+          ₹
+          <input
+            id="budget-total"
+            inputMode="numeric"
+            value={values.total}
+            onChange={(e) => set("total", e.target.value)}
+            className={fieldClass}
+            placeholder="-"
+          />
         </span>
       </div>
       <ul className="divide-y divide-slate-100">
@@ -89,7 +97,15 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
               <span className="truncate">{c.label}</span>
             </label>
             <span className="flex items-center gap-1.5 text-slate-500">
-              ₹<input id={`budget-${c.id}`} inputMode="numeric" value={values[c.id]} onChange={(e) => set(c.id, e.target.value)} className={fieldClass} placeholder="-" />
+              ₹
+              <input
+                id={`budget-${c.id}`}
+                inputMode="numeric"
+                value={values[c.id]}
+                onChange={(e) => set(c.id, e.target.value)}
+                className={fieldClass}
+                placeholder="-"
+              />
             </span>
           </li>
         ))}

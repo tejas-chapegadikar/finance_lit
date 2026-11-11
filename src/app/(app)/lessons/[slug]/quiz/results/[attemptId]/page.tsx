@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Avatar } from "@/components/avatar/Avatar";
 import { avatarName, readAvatar } from "@/lib/avatar";
 import { verdictFor } from "@/lib/avatar/quiz-lines";
-import { AFTER } from "@/content/avatar-lines";
+import { AFTER, pick, seedOf } from "@/content/buddy-messages";
 import { GuideOnMount } from "@/components/guide/GuideBits";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -77,9 +77,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
   const summary = summarizeAttempt(attempt.answers, attempt.totalQuestions);
   const percent = Math.round((summary.firstTry / attempt.totalQuestions) * 100);
   const lessonXp = attempt.xpAwarded ?? 0;
-  const levelBonus = attempt.xpTransactions
-    .filter((tx) => tx.type === "LEVEL_COMPLETION")
-    .reduce((sum, tx) => sum + tx.amount, 0);
+  const levelBonus = attempt.xpTransactions.filter((tx) => tx.type === "LEVEL_COMPLETION").reduce((sum, tx) => sum + tx.amount, 0);
   const readinessBefore = attempt.readinessBefore ?? progress.overall;
   const readinessAfter = attempt.readinessAfter ?? progress.overall;
   const keyTerms = readKeyTerms(attempt.lesson.keyTerms);
@@ -118,7 +116,9 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-8">
-      <GuideOnMount tip={{ kind: "after", text: AFTER.lesson.text, expression: "proud", action: { label: AFTER.lesson.button, href: "/money" } }} />
+      <GuideOnMount
+        tip={{ kind: "after", text: pick(AFTER.lesson.lines, seedOf(attemptId)), expression: "proud", action: { label: AFTER.lesson.button, href: "/money" } }}
+      />
       {/* Completing the lesson: the one dark, celebratory card */}
       <header className={`${gameSurface} flex animate-fade-up flex-col items-center px-6 pt-10 pb-6 text-center sm:px-10`}>
         <span
@@ -127,7 +127,12 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
         />
         <span className="relative flex animate-pop items-end gap-3">
           {lessonXp > 0 && <Burst />}
-          <Avatar config={readAvatar(user.avatar)} expression={lessonXp > 0 ? "celebrating" : "proud"} className="h-28 w-auto animate-hop sm:h-32" label={`${avatarName(user)}'s avatar celebrating`} />
+          <Avatar
+            config={readAvatar(user.avatar)}
+            expression={lessonXp > 0 ? "celebrating" : "proud"}
+            className="h-28 w-auto animate-hop sm:h-32"
+            label={`${avatarName(user)}'s avatar celebrating`}
+          />
           <Medal icon={levelJustCompleted ? <GraduationCapIcon /> : <LessonIcon slug={slug} area={attempt.lesson.area} />} size="lg" />
         </span>
         <p className="mt-4 text-[13px] font-medium text-white/60">
@@ -238,7 +243,10 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
           <h2 className="text-xl text-slate-900">Concepts learned</h2>
           <ul className="mt-3 flex flex-wrap gap-2">
             {keyTerms.map((term) => (
-              <li key={term.term} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-medium text-slate-800 ring-1 ring-slate-200">
+              <li
+                key={term.term}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-medium text-slate-800 ring-1 ring-slate-200"
+              >
                 <CheckIcon className="h-3.5 w-3.5 text-emerald-600" />
                 {term.term}
               </li>
@@ -257,8 +265,8 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
               Revision scheduled
             </h2>
             <p className="text-sm text-slate-600">
-              The {summary.withCoach + summary.revealed} {summary.withCoach + summary.revealed === 1 ? "question" : "questions"} you missed will come back
-              in Revision over the next week, with fresh examples. That&apos;s how it sticks.
+              The {summary.withCoach + summary.revealed} {summary.withCoach + summary.revealed === 1 ? "question" : "questions"} you missed will come back in
+              Revision over the next week, with fresh examples. That&apos;s how it sticks.
             </p>
           </div>
         </section>

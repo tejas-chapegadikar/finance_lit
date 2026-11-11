@@ -13,6 +13,8 @@ import { awardMoneyBadges } from "@/lib/badges";
 import { alertAfterSpend, monthBounds, monthOf } from "@/lib/money";
 import { queueAvatarEvent, queueAvatarEvents, type AvatarEventInput } from "@/lib/avatar/events";
 import { BUDGET_WARN_PCT } from "@/lib/money";
+import { getSpendingVerdict, sayVerdict } from "@/lib/buddy/spending";
+import type { Expression } from "@/components/avatar/Avatar";
 import { expenseCategory } from "@/lib/money/categories";
 import { SAVINGS_GOAL_XP, SAVINGS_GOAL_XP_MIN_DAYS, SAVINGS_GOAL_XP_MIN_TARGET } from "@/lib/constants";
 import { EXPENSE_IDS, GOAL_ICONS, INCOME_IDS, MAX_ENTRY, MAX_GOAL } from "@/lib/money/categories";
@@ -50,21 +52,27 @@ async function checkIn(tx: Prisma.TransactionClient, userId: string, day: string
 const entrySchema = z
   .object({
     kind: z.enum(["INCOME", "EXPENSE"]),
-    amount: z.coerce.number({ message: "Enter an amount" }).int("Use whole rupees").min(1, "Enter an amount above ₹0").max(MAX_ENTRY, "That's more than ₹10 lakh, double-check the amount"),
+    amount: z.coerce
+      .number({ message: "Enter an amount" })
+      .int("Use whole rupees")
+      .min(1, "Enter an amount above ₹0")
+      .max(MAX_ENTRY, "That's more than ₹10 lakh, double-check the amount"),
     category: z.string(),
     note: z.string().trim().max(80, "Keep the note under 80 characters").optional(),
     day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date"),
   })
   .refine((e) => (e.kind === "EXPENSE" ? EXPENSE_IDS : INCOME_IDS).includes(e.category), { message: "Pick a category", path: ["category"] });
 
-export type AddEntryResult = { status: "saved"; questXp: number; alert: string | null } | Fail;
+/** buddy: what the money buddy says about your spending now (a roast or praise), if anything. */
+export type AddEntryResult = { status: "saved"; questXp: number; alert: string | null; buddy: { text: string; expression: Expression } | null } | Fail;
 
 type EntryInput = { kind: string; amount: number | string; category: string; note?: string; day: string };
 
 /** Validates an entry, including its date: not in the future, at most 60 days back. */
 function parseEntry(input: EntryInput, today: string) {
   const parsed = entrySchema.safeParse(input);
-  if (!parsed.success) return { ok: false as const, fail: { status: "invalid" as const, message: parsed.error.issues[0]?.message ?? "Please check the entry" } };
+  if (!parsed.success)
+    return { ok: false as const, fail: { status: "invalid" as const, message: parsed.error.issues[0]?.message ?? "Please check the entry" } };
   const age = daysBetween(parsed.data.day, today);
   if (age < 0) return { ok: false as const, fail: { status: "invalid" as const, message: "That date is in the future" } };
   if (age > MAX_BACKDATE_DAYS) return { ok: false as const, fail: { status: "invalid" as const, message: "Entries can go back up to 60 days" } };
@@ -89,7 +97,12 @@ async function budgetAlertFor(tx: Prisma.TransactionClient, userId: string, cate
   const level = (spent: number, cap: number | null) => (!cap ? null : spent > cap ? "over" : spent * 100 >= BUDGET_WARN_PCT * cap ? "near" : null);
   const add = (id: string, label: string, spent: number, cap: number | null) => {
     const l = level(spent, cap);
-    if (l) events.push({ kind: l === "over" ? "budget-over" : "budget-near", key: `budget-${l}:${month}:${id}`, data: { label, pct: Math.round((spent / cap!) * 100) } });
+    if (l)
+      events.push({
+        kind: l === "over" ? "budget-over" : "budget-near",
+        key: `budget-${l}:${month}:${id}`,
+        data: { label, pct: Math.round((spent / cap!) * 100) },
+      });
   };
   add(category, expenseCategory(category).label, spentIn, budget);
   add("total", "Monthly budget", spentAll, totalBudget);
@@ -109,7 +122,7 @@ export async function addMoneyEntry(input: EntryInput): Promise<AddEntryResult> 
   const parsed = parseEntry(input, today);
   if (!parsed.ok) return parsed.fail;
 
-  const { questXp, alert } = await db.$transaction(async (tx) => {
+  const { questXp, alert, buddy } = await db.$transaction(async (tx) => {
     await lockUser(tx, user.id);
     const entry = await tx.moneyEntry.create({
       data: {
@@ -129,11 +142,12 @@ export async function addMoneyEntry(input: EntryInput): Promise<AddEntryResult> 
       await queueAvatarEvent(tx, user.id, expenses === 1 ? "first-expense" : "expense", expenses === 1 ? "first-expense" : `expense:${entry.id}`);
     }
     const warning = parsed.data.kind === "EXPENSE" ? await budgetAlertFor(tx, user.id, parsed.data.category, parsed.data.day) : null;
-    return { questXp: quest.xp + quest.bonus, alert: warning };
+    const verdict = parsed.data.kind === "EXPENSE" ? await getSpendingVerdict(tx, user.id, today) : null;
+    return { questXp: quest.xp + quest.bonus, alert: warning, buddy: verdict ? sayVerdict(verdict, user.roastLevel, entry.id) : null };
   }, SLOW_DB_TRANSACTION);
 
   refresh();
-  return { status: "saved", questXp, alert };
+  return { status: "saved", questXp, alert, buddy };
 }
 
 export type UpdateEntryResult = { status: "saved"; alert: string | null } | { status: "not-found" } | Fail;
@@ -231,7 +245,11 @@ export async function saveBudgets(input: { category: string; amount: number | st
 const goalSchema = z.object({
   name: z.string().trim().min(1, "Give your goal a name").max(40, "Keep the name under 40 characters"),
   icon: z.enum(GOAL_ICONS),
-  target: z.coerce.number({ message: "Enter a target" }).int("Use whole rupees").min(100, "Set a target of at least ₹100").max(MAX_GOAL, "That target is too big"),
+  target: z.coerce
+    .number({ message: "Enter a target" })
+    .int("Use whole rupees")
+    .min(100, "Set a target of at least ₹100")
+    .max(MAX_GOAL, "That target is too big"),
   targetDay: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -239,14 +257,20 @@ const goalSchema = z.object({
     .or(z.literal("").transform(() => undefined)),
 });
 
-export async function createSavingsGoal(input: { name: string; icon: string; target: number | string; targetDay?: string }): Promise<{ status: "created" } | Fail> {
+export async function createSavingsGoal(input: {
+  name: string;
+  icon: string;
+  target: number | string;
+  targetDay?: string;
+}): Promise<{ status: "created" } | Fail> {
   const user = await requireOnboardedUser();
   if (!(await isAllowed(moneyRatelimit, user.id))) return { status: "slow-down" };
   const parsed = goalSchema.safeParse(input);
   if (!parsed.success) return { status: "invalid", message: parsed.error.issues[0]?.message ?? "Please check the goal" };
   if (parsed.data.targetDay && parsed.data.targetDay < istDay()) return { status: "invalid", message: "Pick a date in the future" };
   const active = await db.savingsGoal.count({ where: { userId: user.id, completedAt: null } });
-  if (active >= ACTIVE_GOAL_LIMIT) return { status: "invalid", message: `You can have up to ${ACTIVE_GOAL_LIMIT} goals going at once. Finish or remove one first` };
+  if (active >= ACTIVE_GOAL_LIMIT)
+    return { status: "invalid", message: `You can have up to ${ACTIVE_GOAL_LIMIT} goals going at once. Finish or remove one first` };
 
   await db.savingsGoal.create({
     data: { userId: user.id, name: parsed.data.name, icon: parsed.data.icon, target: parsed.data.target, targetDay: parsed.data.targetDay ?? null },
@@ -300,6 +324,7 @@ export async function addToSavingsGoal(goalId: string, amountInput: number | str
       await queueAvatarEvent(tx, user.id, halfway ? "goal-half" : "deposit", halfway ? `goal-half:${goal.id}` : `deposit:${deposit.id}`, {
         goal: goal.name,
         amount: `₹${amount.toLocaleString("en-IN")}`,
+        pct: Math.min(99, Math.floor((saved / goal.target) * 100)),
       });
     }
     if (justCompleted) await queueAvatarEvent(tx, user.id, "goal-reached", `goal:${goal.id}`, { goal: goal.name });

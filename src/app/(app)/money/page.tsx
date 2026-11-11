@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
-import { EMPTY } from "@/content/avatar-lines";
+import { EMPTY, pick } from "@/content/buddy-messages";
 import { readAvatar } from "@/lib/avatar";
 import { AvatarEmpty } from "@/components/guide/AvatarEmpty";
 import { primaryButton } from "@/components/ui/button-styles";
@@ -92,7 +92,9 @@ export default async function MoneyPage(props: PageProps<"/money">) {
   const savedTotal = goals.reduce((sum, g) => sum + g.saved, 0);
   const budgetUsed = m.totalBudget ? Math.round((m.spent / m.totalBudget) * 100) : null;
   const spentToday = m.entries.some((e) => e.day === today && e.kind === "EXPENSE");
-  const shown = m.entries.filter((e) => (type === "all" || (type === "in" ? e.kind === "INCOME" : e.kind === "EXPENSE")) && (!cat || (e.kind === "EXPENSE" && e.category === cat)));
+  const shown = m.entries.filter(
+    (e) => (type === "all" || (type === "in" ? e.kind === "INCOME" : e.kind === "EXPENSE")) && (!cat || (e.kind === "EXPENSE" && e.category === cat)),
+  );
   const chip = (on: boolean) =>
     `inline-flex min-h-10 shrink-0 items-center rounded-full border px-3 text-sm transition ${on ? "border-slate-900 bg-slate-900 font-semibold text-white" : "border-slate-200 bg-white font-medium text-slate-700"}`;
   const tiles = [
@@ -109,12 +111,20 @@ export default async function MoneyPage(props: PageProps<"/money">) {
           <h1 className="text-2xl text-slate-900">Money</h1>
         </ViewTransition>
         <nav aria-label="Month" className="flex items-center gap-1 text-sm font-medium text-slate-600">
-          <Link href={href({ month: shiftMonth(month, -1) })} aria-label="Previous month" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100">
+          <Link
+            href={href({ month: shiftMonth(month, -1) })}
+            aria-label="Previous month"
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
+          >
             <ArrowLeftIcon className="h-4 w-4" />
           </Link>
           <span className="tabular-nums">{m.label}</span>
           {month !== thisMonth && (
-            <Link href={href({ month: shiftMonth(month, 1) })} aria-label="Next month" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100">
+            <Link
+              href={href({ month: shiftMonth(month, 1) })}
+              aria-label="Next month"
+              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
+            >
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
           )}
@@ -123,7 +133,12 @@ export default async function MoneyPage(props: PageProps<"/money">) {
 
       <nav aria-label="Money sections" data-guide="money-tabs" className="grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1">
         {TABS.map((t) => (
-          <Link key={t.id} href={href({ tab: t.id, type: "all", cat: null })} aria-current={tab === t.id ? "page" : undefined} className={`flex min-h-10 items-center justify-center rounded-lg text-[13px] transition sm:text-sm ${tab === t.id ? "bg-white font-semibold text-slate-900 shadow-sm" : "font-medium text-slate-600"}`}>
+          <Link
+            key={t.id}
+            href={href({ tab: t.id, type: "all", cat: null })}
+            aria-current={tab === t.id ? "page" : undefined}
+            className={`flex min-h-10 items-center justify-center rounded-lg text-[13px] transition sm:text-sm ${tab === t.id ? "bg-white font-semibold text-slate-900 shadow-sm" : "font-medium text-slate-600"}`}
+          >
             {t.label}
           </Link>
         ))}
@@ -133,7 +148,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
         <>
           {m.isCurrent && !doneQuests.has("check") && <CheckQuest />}
           {m.isCurrent && m.entries.length === 0 && (
-            <AvatarEmpty text={EMPTY.expenses.text} avatar={readAvatar(user.avatar)}>
+            <AvatarEmpty text={pick(EMPTY.expenses.lines, Number(istDay().slice(8)))} avatar={readAvatar(user.avatar)}>
               <QuickAddButton className={`${primaryButton} py-3`}>{EMPTY.expenses.button}</QuickAddButton>
             </AvatarEmpty>
           )}
@@ -208,7 +223,12 @@ export default async function MoneyPage(props: PageProps<"/money">) {
             <>
               {budgetUsed !== null && (
                 <div className={`${card} p-4`}>
-                  <ProgressBar value={Math.min(m.spent, m.totalBudget!)} max={m.totalBudget!} label="Monthly budget used" tone={budgetUsed > 100 ? "bg-rose-500" : budgetUsed >= 80 ? "bg-orange-400" : "bg-emerald-500"} />
+                  <ProgressBar
+                    value={Math.min(m.spent, m.totalBudget!)}
+                    max={m.totalBudget!}
+                    label="Monthly budget used"
+                    tone={budgetUsed > 100 ? "bg-rose-500" : budgetUsed >= 80 ? "bg-orange-400" : "bg-emerald-500"}
+                  />
                   <p className="mt-1.5 text-sm text-slate-600">
                     {budgetUsed}% of {rupees(m.totalBudget!)} used · {m.totalBudget! > m.spent ? `${rupees(m.totalBudget! - m.spent)} left` : "nothing left"}
                   </p>
@@ -223,7 +243,9 @@ export default async function MoneyPage(props: PageProps<"/money">) {
                     {alerts.map((a) => (
                       <li key={a.id}>
                         <span className="font-semibold">{a.label}</span>:{" "}
-                        {a.level === "over" ? `${rupees(a.spent - a.budget)} over its ${rupees(a.budget)} budget.` : `${a.pct}% used, ${rupees(a.budget - a.spent)} left of ${rupees(a.budget)}.`}
+                        {a.level === "over"
+                          ? `${rupees(a.spent - a.budget)} over its ${rupees(a.budget)} budget.`
+                          : `${a.pct}% used, ${rupees(a.budget - a.spent)} left of ${rupees(a.budget)}.`}
                       </li>
                     ))}
                   </ul>
@@ -242,7 +264,10 @@ export default async function MoneyPage(props: PageProps<"/money">) {
           ) : (
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {goals.map((g) => (
-                <GoalCard key={g.id} goal={{ id: g.id, name: g.name, icon: g.icon, target: g.target, saved: g.saved, targetDay: g.targetDay, completed: !!g.completedAt, today }} />
+                <GoalCard
+                  key={g.id}
+                  goal={{ id: g.id, name: g.name, icon: g.icon, target: g.target, saved: g.saved, targetDay: g.targetDay, completed: !!g.completedAt, today }}
+                />
               ))}
               <li>
                 <NewGoalForm today={today} />
@@ -256,21 +281,35 @@ export default async function MoneyPage(props: PageProps<"/money">) {
         <section aria-label="Transactions">
           <nav aria-label="Filter transactions" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
             {TYPES.map((t) => (
-              <Link key={t.id} href={href({ type: t.id, cat: t.id === "in" ? null : undefined })} aria-current={type === t.id && !cat ? "page" : undefined} className={chip(type === t.id && !cat)}>
+              <Link
+                key={t.id}
+                href={href({ type: t.id, cat: t.id === "in" ? null : undefined })}
+                aria-current={type === t.id && !cat ? "page" : undefined}
+                className={chip(type === t.id && !cat)}
+              >
                 {t.label}
               </Link>
             ))}
             <span aria-hidden className="mx-1 w-px shrink-0 bg-slate-200" />
             {EXPENSE_CATEGORIES.map((c) => (
-              <Link key={c.id} href={href({ type: "out", cat: cat === c.id ? null : c.id })} aria-current={cat === c.id ? "page" : undefined} className={chip(cat === c.id)}>
+              <Link
+                key={c.id}
+                href={href({ type: "out", cat: cat === c.id ? null : c.id })}
+                aria-current={cat === c.id ? "page" : undefined}
+                className={chip(cat === c.id)}
+              >
                 {c.label}
               </Link>
             ))}
           </nav>
           {m.entries.length === 0 ? (
             <div className="mt-4">
-              <AvatarEmpty text={EMPTY.expenses.text} avatar={readAvatar(user.avatar)}>
-                {m.isCurrent ? <QuickAddButton className={`${primaryButton} py-3`}>{EMPTY.expenses.button}</QuickAddButton> : <span className="text-sm text-slate-600">Nothing logged for {m.label}.</span>}
+              <AvatarEmpty text={pick(EMPTY.expenses.lines, Number(istDay().slice(8)))} avatar={readAvatar(user.avatar)}>
+                {m.isCurrent ? (
+                  <QuickAddButton className={`${primaryButton} py-3`}>{EMPTY.expenses.button}</QuickAddButton>
+                ) : (
+                  <span className="text-sm text-slate-600">Nothing logged for {m.label}.</span>
+                )}
               </AvatarEmpty>
             </div>
           ) : shown.length === 0 ? (
@@ -283,7 +322,14 @@ export default async function MoneyPage(props: PageProps<"/money">) {
           ) : (
             <ul className="mt-2 divide-y divide-slate-200 border-y border-slate-200">
               {shown.slice(0, 100).map((e) => (
-                <EntryRow key={e.id} entry={e} label={e.kind === "EXPENSE" ? expenseCategory(e.category).label : incomeCategory(e.category).label} dayText={dayLabel(e.day, today)} today={today} minDay={shiftDay(today, -60)} />
+                <EntryRow
+                  key={e.id}
+                  entry={e}
+                  label={e.kind === "EXPENSE" ? expenseCategory(e.category).label : incomeCategory(e.category).label}
+                  dayText={dayLabel(e.day, today)}
+                  today={today}
+                  minDay={shiftDay(today, -60)}
+                />
               ))}
             </ul>
           )}

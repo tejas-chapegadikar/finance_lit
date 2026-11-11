@@ -9,15 +9,10 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { MotionToggle } from "@/components/ui/Motion";
-import { Celebrations } from "@/components/today/Celebrations";
-import { GuideHost } from "@/components/guide/GuideHost";
+import { BuddyHost } from "@/components/buddy/BuddyHost";
 import { db } from "@/lib/db";
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireOnboardedUser();
   const navProps = { xpTotal: user.xpTotal, displayName: getDisplayName(user) };
   const title = findReward(user.title)?.name ?? null;
@@ -47,8 +42,7 @@ export default async function AppLayout({
         </footer>
       </main>
       <MobileTabBar />
-      <Celebrations events={pending} name={avatarName(user)} />
-      <GuideHost avatar={avatar} seen={seenTips.map((t) => t.tipId)} tipsOn={user.avatarReactions} />
+      <BuddyHost avatar={avatar} seen={seenTips.map((t) => t.tipId)} tipsOn={user.avatarReactions} events={pending} name={avatarName(user)} />
     </div>
   );
 }

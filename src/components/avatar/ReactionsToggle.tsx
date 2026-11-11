@@ -28,8 +28,8 @@ export function ReactionsToggle({ initial }: { initial: boolean }) {
     <div>
       <div className="flex items-center justify-between gap-4">
         <span id="reactions-label" className="text-sm">
-          <span className="block font-semibold text-slate-900">Avatar tips</span>
-          <span className="text-slate-600">Tours, &quot;where do I go?&quot; hints and what-next tips. Locked items and errors still explain themselves.</span>
+          <span className="block font-semibold text-slate-900">Buddy tips: {on ? "On" : "Off"}</span>
+          <span className="text-slate-600">Tips, roasts and celebrations from your money buddy. Locked items and errors still explain themselves.</span>
         </span>
         <button
           type="button"

@@ -11,7 +11,8 @@ import { primaryButton } from "@/components/ui/button-styles";
 import { guideSay } from "@/lib/guide/bus";
 
 const OPEN_EVENT = "rupli:quick-add";
-const fieldClass = "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-200";
+const fieldClass =
+  "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-200";
 
 /** Opens the Quick add sheet from anywhere on the page (e.g. a quest's button). */
 export function openQuickAdd() {
@@ -58,7 +59,9 @@ export function QuickAddSheet({ today, minDay, startOpen = false, canNoSpend }: 
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
       if (e.key !== "Tab" || !panel.current) return;
-      const items = [...panel.current.querySelectorAll<HTMLElement>("button, input, summary, select")].filter((el) => !el.matches(":disabled") && el.offsetParent !== null);
+      const items = [...panel.current.querySelectorAll<HTMLElement>("button, input, summary, select")].filter(
+        (el) => !el.matches(":disabled") && el.offsetParent !== null,
+      );
       const first = items[0];
       const last = items[items.length - 1];
       if (e.shiftKey && document.activeElement === first) {
@@ -103,12 +106,21 @@ export function QuickAddSheet({ today, minDay, startOpen = false, canNoSpend }: 
         if (result.alert) toast.warning(result.alert);
         finish();
         if (kind === "EXPENSE") {
-          const { AFTER } = await import("@/content/avatar-lines");
-          guideSay({ kind: "after", text: AFTER.expense.text, expression: "happy", action: { label: AFTER.expense.button, target: "money-chart" } });
+          // A roast (or praise) about your real spending, else a plain "logged".
+          const { AFTER, pick } = await import("@/content/buddy-messages");
+          if (result.buddy)
+            guideSay({ kind: "after", text: result.buddy.text, expression: result.buddy.expression, action: { label: "Show me", target: "money-chart" } });
+          else
+            guideSay({
+              kind: "after",
+              text: pick(AFTER.expense.lines, Date.now() / 1000),
+              expression: "happy",
+              action: { label: AFTER.expense.button, target: "money-chart" },
+            });
         }
       } catch {
         setError(GENERIC_ERROR_MESSAGE);
-        guideSay({ kind: "error", text: GENERIC_ERROR_MESSAGE });
+        guideSay({ kind: "error", text: GENERIC_ERROR_MESSAGE, expression: "sad" });
       }
     });
   }
@@ -119,7 +131,7 @@ export function QuickAddSheet({ today, minDay, startOpen = false, canNoSpend }: 
       try {
         const result = await markNoSpendDay();
         if (result.status === "checked-in") {
-          toast.success(`+${result.checkInXp} XP`, { description: "No-spend day. Your wallet is sending flowers." });
+          toast.success(`+${result.checkInXp} XP`, { description: "No-spend day saved." });
           finish();
         }
         if (result.status === "already") setError("You've already checked in today.");
@@ -141,6 +153,7 @@ export function QuickAddSheet({ today, minDay, startOpen = false, canNoSpend }: 
         }}
         aria-label="Quick add money"
         data-guide="money-add"
+        data-buddy-avoid
         className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-brand-900 shadow-[0_10px_24px_-8px_rgb(15_31_24/0.55)] transition hover:scale-105 lg:right-8 lg:bottom-8"
       >
         <PlusIcon className="h-7 w-7" />
@@ -149,12 +162,23 @@ export function QuickAddSheet({ today, minDay, startOpen = false, canNoSpend }: 
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
           <button type="button" tabIndex={-1} aria-label="Close" onClick={() => setOpen(false)} className="sheet-backdrop absolute inset-0 bg-slate-950/50" />
-          <div ref={panel} role="dialog" aria-modal="true" aria-labelledby="quick-add-title" className="sheet-up relative max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:rounded-3xl">
+          <div
+            ref={panel}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quick-add-title"
+            className="sheet-up relative max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:rounded-3xl"
+          >
             <div className="flex items-center justify-between">
               <h2 id="quick-add-title" className="text-xl text-slate-900">
                 Quick add
               </h2>
-              <button type="button" onClick={() => setOpen(false)} aria-label="Close quick add" className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close quick add"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100"
+              >
                 <XIcon className="h-5 w-5" />
               </button>
             </div>
@@ -227,10 +251,23 @@ export function QuickAddSheet({ today, minDay, startOpen = false, canNoSpend }: 
                     <label htmlFor="quick-day" className="text-sm font-medium text-slate-700">
                       Date
                     </label>
-                    <input id="quick-day" type="date" value={day} min={minDay} max={today} onChange={(e) => setDay(e.target.value || today)} className={fieldClass} />
+                    <input
+                      id="quick-day"
+                      type="date"
+                      value={day}
+                      min={minDay}
+                      max={today}
+                      onChange={(e) => setDay(e.target.value || today)}
+                      className={fieldClass}
+                    />
                   </div>
                   {canNoSpend && (
-                    <button type="button" onClick={noSpend} disabled={isPending} className="self-start text-sm font-semibold text-brand-700 underline underline-offset-2">
+                    <button
+                      type="button"
+                      onClick={noSpend}
+                      disabled={isPending}
+                      className="self-start text-sm font-semibold text-brand-700 underline underline-offset-2"
+                    >
                       I spent nothing today
                     </button>
                   )}

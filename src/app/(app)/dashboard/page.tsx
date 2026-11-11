@@ -6,12 +6,11 @@ import { nicknameOf } from "@/lib/user";
 import { getProgress } from "@/lib/progress";
 import { streakStatus } from "@/lib/streak";
 import { QUESTS, ALL_QUESTS_BONUS, getDoneQuests, type QuestId } from "@/lib/quests";
-import { avatarName, readAvatar } from "@/lib/avatar";
+import { readAvatar } from "@/lib/avatar";
 import { dayNumber, istDay, istHour } from "@/lib/ist-date";
-import { getMoneyMonth, getMoneyTrends } from "@/lib/money";
-import { moneyRoast } from "@/lib/avatar/roast";
-import { SPENDING_ROAST_IDS, hubMessage, readRoastLevel } from "@/lib/avatar/hub";
-import { HUB_OPTIONS, type HubState } from "@/content/avatar-lines";
+import { getSpendingVerdict, sayVerdict } from "@/lib/buddy/spending";
+import { hubMessage, readRoastLevel } from "@/lib/avatar/hub";
+import { HUB_OPTIONS, type HubState } from "@/content/buddy-messages";
 import type { Expression } from "@/components/avatar/Avatar";
 import { AvatarHub } from "@/components/today/AvatarHub";
 import { CountUp } from "@/components/ui/CountUp";
@@ -35,10 +34,9 @@ export default async function HomePage() {
   const user = await requireOnboardedUser();
   const today = istDay();
 
-  const [progress, money, trends, doneQuests, portfolio, expensesEver] = await Promise.all([
+  const [progress, verdict, doneQuests, portfolio, expensesEver] = await Promise.all([
     getProgress(user.id),
-    getMoneyMonth(user.id),
-    getMoneyTrends(user.id, today),
+    getSpendingVerdict(db, user.id, today),
     getDoneQuests(user.id, today),
     db.virtualPortfolio.findUnique({ where: { userId: user.id }, select: { id: true } }),
     db.moneyEntry.count({ where: { userId: user.id, kind: "EXPENSE" } }),
@@ -51,7 +49,6 @@ export default async function HomePage() {
     (progress.next && !progress.next.isRetake ? progress.next.lesson : null) ?? progress.invest.find((l) => !l.locked && l.status !== "completed") ?? null;
   const investTouched = !!portfolio || progress.invest.some((l) => l.status !== "not-started");
   const seed = dayNumber(today) * 24 + istHour();
-  const roast = moneyRoast({ month: money, weekly: trends.weekly, name: avatarName(user) });
 
   const message = hubMessage(
     {
@@ -60,7 +57,7 @@ export default async function HomePage() {
       isNew: progress.completedCount === 0 && !unfinished && expensesEver === 0 && !investTouched,
       unfinishedLesson: unfinished ? { title: unfinished.title, minutes: unfinished.estimatedMinutes } : null,
       nextLesson: next ? { title: next.title, minutes: next.estimatedMinutes } : null,
-      spendingRoast: SPENDING_ROAST_IDS.includes(roast.id) ? roast.lines[seed % roast.lines.length] : null,
+      spendingRoast: verdict?.kind === "roast" ? sayVerdict(verdict, user.roastLevel, String(seed)).text : null,
       spentToday: doneQuests.has("log"),
       investTouched,
     },
@@ -90,7 +87,7 @@ export default async function HomePage() {
 
       <AvatarHub
         avatar={readAvatar(user.avatar)}
-        expression={FACE[message.state]}
+        expression={message.state === "spent" && verdict ? verdict.expression : FACE[message.state]}
         message={message.text}
         highlight={message.highlight}
         options={[

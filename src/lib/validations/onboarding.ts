@@ -1,18 +1,12 @@
 import { z } from "zod";
-import { MAX_ENTRY, MAX_GOAL } from "../money/categories";
+import { collegeNameSchema, displayNameSchema, stageSchema } from "./profile";
 
-const optionalAmount = (max: number) =>
-  z
-    .union([z.literal(""), z.coerce.number().int("Use whole rupees").min(1, "Enter an amount above ₹0").max(max, "That amount is too big")])
-    .transform((v) => (v === "" ? null : v));
-
-// Every step can be skipped, so every field is optional.
+// First login asks for three things only: your name (required, shown on your
+// profile), your college and your year (both optional). Same rules as Settings.
 export const onboardingSchema = z.object({
-  nickname: z.string().trim().max(20, "Keep it under 20 characters"),
-  income: optionalAmount(MAX_ENTRY),
-  budget: optionalAmount(MAX_ENTRY),
-  goalName: z.string().trim().max(40, "Keep the name under 40 characters"),
-  goalTarget: optionalAmount(MAX_GOAL),
+  name: displayNameSchema,
+  collegeName: collegeNameSchema,
+  stage: stageSchema,
 });
 
 export type OnboardingInput = z.input<typeof onboardingSchema>;

@@ -2,18 +2,10 @@
 
 import { useState } from "react";
 import { DEFAULT_AVATAR } from "@/lib/avatar";
+import { LANDING_ROASTS } from "@/content/buddy-messages";
 import { Avatar, type Expression } from "@/components/avatar/Avatar";
 
-const ROASTS = [
-  '"I\'ll start saving next month." You, for 26 months.',
-  "You know your Swiggy order number by heart. Your CIBIL score? Never met her.",
-  '"It\'s only ₹99." The national anthem of being broke.',
-  "You call it self-care. Your bank calls it a pattern.",
-  "Investing advice from a reel. Bold.",
-  "Your savings account has more dust than money.",
-  "You read the whole menu but not one loan agreement.",
-  "Your budget is a vibe. That's the problem.",
-];
+const ROASTS = LANDING_ROASTS;
 
 /** The strip of roasts running across the landing page. Decoration, so hidden from screen readers. */
 export function RoastMarquee() {

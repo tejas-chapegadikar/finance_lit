@@ -4,7 +4,7 @@ import { useEffect, useState, ViewTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { AvatarConfig } from "@/lib/avatar";
-import type { HubOptionId } from "@/content/avatar-lines";
+import type { HubOptionId } from "@/content/buddy-messages";
 import { Avatar, type Expression } from "@/components/avatar/Avatar";
 import { BookIcon, TrendingUpIcon, WalletIcon } from "@/components/ui/icons";
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { stageLabel } from "@/lib/learner-profile";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getProgress } from "@/lib/progress";
@@ -56,11 +57,18 @@ export default async function MePage() {
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
       <header data-guide="profile-header" className={`${card} flex items-center gap-4 p-4`}>
-        <Link href="/profile/avatar" aria-label="Open Avatar Studio" className="flex h-20 w-20 shrink-0 items-end justify-center overflow-hidden rounded-full bg-brand-100">
+        <Link
+          href="/profile/avatar"
+          aria-label="Open Avatar Studio"
+          className="flex h-20 w-20 shrink-0 items-end justify-center overflow-hidden rounded-full bg-brand-100"
+        >
           <Avatar config={readAvatar(user.avatar)} crop="head" className="h-20 w-20" label={`${name}'s avatar`} />
         </Link>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl leading-tight text-slate-900">{name}</h1>
+          {(user.collegeName || stageLabel(user.stage)) && (
+            <p className="line-clamp-2 text-sm leading-snug text-slate-600">{[user.collegeName, stageLabel(user.stage)].filter(Boolean).join(" · ")}</p>
+          )}
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-900">
             <span className="rounded-full bg-brand-500 px-2.5 py-0.5 text-xs font-bold text-brand-900">Level {level.level}</span>
             <span className="inline-flex items-center gap-1">
@@ -70,12 +78,14 @@ export default async function MePage() {
           </p>
           <div className="mt-2">
             <ProgressBar value={level.into} max={level.span} label={`Level ${level.level} progress`} size="sm" tone="bg-brand-500" />
-            <p className="mt-1 text-xs font-medium text-slate-600">{level.toNext} XP to Level {level.level + 1}</p>
+            <p className="mt-1 text-xs font-medium text-slate-600">
+              {level.toNext} XP to Level {level.level + 1}
+            </p>
           </div>
         </div>
       </header>
 
-      <section id="streak" aria-labelledby="streak-heading" data-guide="profile-streak" className={`${card} scroll-mt-20 p-4`}>
+      <section id="streak" aria-labelledby="streak-heading" className={`${card} scroll-mt-20 p-4`}>
         <h2 id="streak-heading" className="text-lg text-slate-900">
           Streak
         </h2>
@@ -97,14 +107,18 @@ export default async function MePage() {
         <p className="mt-3 text-sm text-slate-700">
           {milestone ? (
             <>
-              Next milestone: <span className="font-semibold">{milestone.days} days</span> for <span className="font-semibold text-orange-700">+{milestone.xp} XP</span>.
+              Next milestone: <span className="font-semibold">{milestone.days} days</span> for{" "}
+              <span className="font-semibold text-orange-700">+{milestone.xp} XP</span>.
             </>
           ) : (
             "Every milestone cleared. Now you're just showing off."
           )}
         </p>
-        <p className="mt-1 text-xs text-slate-600">Finish any daily quest to count the day. You earn 1 freeze every {FREEZE_EVERY_DAYS} days (max {MAX_STREAK_FREEZES}), and it&apos;s used automatically if you miss a day.</p>
-        <div className="mt-3">
+        <p className="mt-1 text-xs text-slate-600">
+          Finish any daily quest to count the day. You earn 1 freeze every {FREEZE_EVERY_DAYS} days (max {MAX_STREAK_FREEZES}), and it&apos;s used automatically
+          if you miss a day.
+        </p>
+        <div className="mt-3" data-guide="profile-streak">
           <StreakCalendar month={month} today={today} days={activity} label={monthLabel(month)} />
         </div>
       </section>
