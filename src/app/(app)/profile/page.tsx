@@ -123,7 +123,7 @@ export default async function MePage() {
         </div>
       </section>
 
-      <section aria-labelledby="badges-heading" className={`${card} p-4`}>
+      <section aria-labelledby="badges-heading" data-guide="profile-badges" className={`${card} p-4`}>
         <div className="flex items-baseline justify-between">
           <h2 id="badges-heading" className="text-lg text-slate-900">
             Badges

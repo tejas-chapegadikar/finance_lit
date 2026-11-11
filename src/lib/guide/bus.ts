@@ -13,7 +13,7 @@ export type GuideAction = {
   quickAdd?: boolean;
 };
 
-export type GuideKind = "tour" | "idle" | "after" | "locked" | "error" | "help";
+export type GuideKind = "tour" | "idle" | "after" | "locked" | "error" | "help" | "comment";
 
 export type GuideTip = {
   kind: GuideKind;

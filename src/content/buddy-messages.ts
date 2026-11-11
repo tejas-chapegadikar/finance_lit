@@ -330,8 +330,114 @@ export const FALLBACK_HELP: Lines = [
   "Not sure where to go? Try Home. I'll point the way.",
 ];
 
-/** First visit, 15 seconds without a tap or a scroll. */
-export const IDLE: Lines = ["Lost? Happens to the best of us. Tap here to start.", "Stuck? No worries. Try this first.", "Not sure where to go? Start here."];
+/**
+ * Running commentary: while you're on a section, the buddy keeps commenting,
+ * one line after another (never the same line twice in a row). Placeholders
+ * filled from your real numbers: {name}, {xp}, {level}, {streak}, {toNext}.
+ * A line whose number isn't known yet is skipped.
+ */
+export const COMMENTS: Record<string, Lines> = {
+  home: [
+    "Back again? I like this version of you.",
+    "One quest a day keeps the streak alive. Which one today?",
+    "People who track spending save more. Be one of them.",
+    "I've been waiting. Pick something, I'm bored.",
+    "Small steps, every day. That's literally the whole trick.",
+    "Your future self called. They said keep going.",
+    "{xp} XP so far. Not bad. Not great either. Keep going.",
+    "{streak}-day streak. Don't you dare break it today.",
+    "Level {level}. Only {toNext} XP to the next one.",
+    "{name}, open one bubble today. Any one. I'm not picky.",
+  ],
+  money: [
+    "Every rupee you log makes my roasts more accurate. Just saying.",
+    "Logged today's spending yet? It takes 10 seconds.",
+    "A budget is just a plan for your money. Make one.",
+    "Chai counts too. Log the small stuff, it adds up.",
+    "Want fewer roasts? Stay under budget. Easy.",
+    "Saving for something? Goals live in the tabs up top.",
+    "Money you don't track has a habit of disappearing.",
+    "Tap + any time you spend. I'll do the maths.",
+    "Check your spending once a week. Future you will thank you.",
+  ],
+  learn: [
+    "Five minutes of learning beats fifty minutes of scrolling.",
+    "Each lesson unlocks the next. Keep walking.",
+    "Got one wrong before? Revision brings it back for a rematch.",
+    "Stars come from quiz scores. Go collect them all.",
+    "Your avatar is waiting at the next stop. Don't leave it hanging.",
+    "One lesson today and your brain gets a free upgrade.",
+    "Credit scores, UPI scams, taxes. It's all on this map.",
+    "Every lesson is worth XP. {toNext} more and you level up.",
+    "Scammers love people who skip lessons. Don't be one.",
+  ],
+  invest: [
+    "Fake money, real lessons. Go make some mistakes.",
+    "Fast-forward a few months and watch what happens.",
+    "Markets fall sometimes. Holding on is the real skill.",
+    "Don't put everything in one place. Spread it out.",
+    "Compounding is slow, then sudden. Give it time.",
+    "Try the compounding simulator. Starting early is wild.",
+    "Brave enough to invest fake money today?",
+    "Low risk, low reward. High risk, high stress. Pick wisely.",
+  ],
+  profile: [
+    "Looking good. Well, I'm looking good.",
+    "Earn XP to unlock new outfits for me. I deserve nice things.",
+    "Your streak calendar is filling up. Keep the flames going.",
+    "Check your badges. Some are closer than you think.",
+    "Level {level} now. Level up again and I might get a new look.",
+    "{streak} days in a row. Every flame is a day you showed up.",
+    "Freezes save your streak if you miss a day. Don't rely on them.",
+    "{xp} XP. Spend it wisely. Oh wait, you can't. Keep earning.",
+  ],
+};
+
+/** Comments about what you're looking at, said when it scrolls into view (once per visit). Keyed by [data-guide] name. */
+export const COMMENTS_ON: Record<string, Lines> = {
+  "money-chart": [
+    "This chart never lies. Unlike 'just one more order'.",
+    "Look at that chart. Which bar surprised you?",
+    "The tallest bar is where your money goes. No hiding.",
+  ],
+  "money-tabs": [
+    "Budgets and goals live up here. Set one today.",
+    "History has every spend. Brave enough to look?",
+    "A goal gives your money a job. Try the Goals tab.",
+  ],
+  "learn-current": [
+    "That's you. Next stop is one tap away.",
+    "You're right here. Let's walk to the next one.",
+    "This is your stop. Finish it and the road moves on.",
+  ],
+  "learn-continue": ["This button skips the scrolling. Tap it.", "Fastest way to your next lesson. Right here.", "One tap and you're learning. No excuses."],
+  "invest-assets": [
+    "Each option has its own risk. Read before you pick.",
+    "Safe and slow, or wild and risky? Your call.",
+    "Mix a few of these. That's diversifying.",
+  ],
+  "invest-ff": ["Fast-forward is where the drama happens.", "Skip ahead and see what time does to money.", "Press it and try not to panic if it dips."],
+  "profile-streak": [
+    "Every gold square is a day you showed up.",
+    "Empty squares are days the streak missed you.",
+    "Fill this calendar. Make it look like a gold bar.",
+  ],
+  "profile-badges": [
+    "Badges! Some are easier than they look.",
+    "Collect them all. I'll act like I'm not impressed.",
+    "Pick one badge and go get it this week.",
+  ],
+};
+
+/** 20 seconds without a tap or a scroll (any visit): a nudge with a button. */
+export const IDLE: Lines = [
+  "Lost? Happens to the best of us. Tap here to start.",
+  "Stuck? No worries. Try this first.",
+  "Not sure where to go? Start here.",
+  "Still there? I'm getting lonely. Try this.",
+  "Taking a break? Here's a quick thing to do.",
+  "Hello? I'll keep talking until you tap something.",
+];
 export const IDLE_ACTIONS: Record<string, { label: string; target?: string; href?: string; quickAdd?: boolean }> = {
   home: { label: "Show me", target: "hub-suggested" },
   money: { label: "Log it", quickAdd: true },

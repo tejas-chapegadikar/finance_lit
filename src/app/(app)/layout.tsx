@@ -11,6 +11,9 @@ import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { MotionToggle } from "@/components/ui/Motion";
 import { BuddyHost } from "@/components/buddy/BuddyHost";
 import { db } from "@/lib/db";
+import { levelFor } from "@/lib/levels";
+import { streakStatus } from "@/lib/streak";
+import { nicknameOf } from "@/lib/user";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireOnboardedUser();
@@ -21,6 +24,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     getPendingAvatarEvents(user.id),
     db.seenTip.findMany({ where: { userId: user.id }, select: { tipId: true } }),
   ]);
+
+  const level = levelFor(user.xpTotal);
+  const streak = streakStatus(user).streak;
+  // Numbers the buddy can mention in its comments (a streak of 0 isn't worth mentioning).
+  const buddyFacts = {
+    name: nicknameOf(user),
+    xp: user.xpTotal.toLocaleString("en-IN"),
+    level: level.level,
+    toNext: level.toNext,
+    ...(streak > 1 ? { streak } : {}),
+  };
 
   return (
     <div className="flex min-h-screen flex-col lg:pl-64">
@@ -42,7 +56,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </footer>
       </main>
       <MobileTabBar />
-      <BuddyHost avatar={avatar} seen={seenTips.map((t) => t.tipId)} tipsOn={user.avatarReactions} events={pending} name={avatarName(user)} />
+      <BuddyHost
+        avatar={avatar}
+        seen={seenTips.map((t) => t.tipId)}
+        tipsOn={user.avatarReactions}
+        events={pending}
+        name={avatarName(user)}
+        facts={buddyFacts}
+      />
     </div>
   );
 }

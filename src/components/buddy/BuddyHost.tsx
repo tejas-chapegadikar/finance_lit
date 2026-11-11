@@ -9,6 +9,8 @@ import type { AvatarConfig } from "@/lib/avatar";
 import type { Expression } from "@/components/avatar/Avatar";
 import type { PendingAvatarEvent } from "@/lib/avatar/events";
 import { REACTIONS, buddyShows, reactionText } from "@/lib/avatar/reactions";
+import { toast } from "sonner";
+import { setAvatarReactions } from "@/actions/avatar";
 import { openQuickAdd } from "@/components/money/QuickAddSheet";
 import { BuddyPeek, type PeekFace, type PeekMessage } from "./BuddyPeek";
 
@@ -18,10 +20,12 @@ import { BuddyPeek, type PeekFace, type PeekMessage } from "./BuddyPeek";
 //
 // Rules:
 // - One bubble at a time.
-// - Things the buddy says on its own (first-visit tips, "lost?" after 15 idle
-//   seconds, what-next tips, roasts, celebrations): at most 3 per page visit
-//   and 6 a day, never within 20 seconds of the last bubble. With Buddy tips
-//   off in Settings, none of these.
+// - It keeps commenting the whole time you're on Home, Money, Learn, Invest
+//   or Profile: a one-time tip on your first visit, then a running commentary
+//   (about what you scroll to, your own numbers, or the page), a nudge with a
+//   button when you've been idle for 20 seconds, plus roasts and celebrations.
+//   A short pause (12 seconds) after each bubble so it never piles up. With
+//   Buddy tips off in Settings, none of these.
 // - Answers to something you did (tapping a locked item, the "?" button, an
 //   error) always show, straight away.
 // - One-time tips are saved to your account, so they never repeat.
@@ -37,10 +41,12 @@ type Shown = GuideTip & {
   tour?: { section: string; steps: { target: string; text: string }[]; index: number };
 };
 
-const PAGE_MAX = 3;
-const DAY_MAX = 6;
-const GAP_MS = 20000;
-const IDLE_MS = 15000;
+// Safety limits only: the commentary is meant to keep going.
+const PAGE_MAX = 60;
+const DAY_MAX = 400;
+const GAP_MS = 12000;
+const IDLE_MS = 20000;
+const FIRST_COMMENT_MS = 2500;
 const DAY_KEY = "rupli-buddy-day";
 
 const SECTION: { prefix: string; id: string }[] = [
@@ -99,12 +105,15 @@ export function BuddyHost({
   tipsOn,
   events,
   name,
+  facts,
 }: {
   avatar: AvatarConfig;
   seen: string[];
   tipsOn: boolean;
   events: PendingAvatarEvent[];
   name: string;
+  /** Your numbers, for comments like "{xp} XP so far". */
+  facts: Record<string, string | number>;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -114,6 +123,12 @@ export function BuddyHost({
   const [leaving, setLeaving] = useState(false);
   const [side, setSide] = useState<"left" | "right">("right");
   const currentRef = useRef<Shown | null>(null);
+  // Avatar comments on or off: on by default, switchable from the bubble or Settings.
+  const [commentsOn, setCommentsOn] = useState(tipsOn);
+  useEffect(() => {
+    const id = window.setTimeout(() => setCommentsOn(tipsOn), 0);
+    return () => window.clearTimeout(id);
+  }, [tipsOn]);
   const queue = useRef<Shown[]>([]);
   const replacement = useRef<Shown | null>(null);
   const pageCount = useRef(0);
@@ -154,7 +169,7 @@ export function BuddyHost({
   /** Unprompted bubbles wait in line; prompted ones go straight up (once you stop typing). */
   const offer = useCallback(
     (tip: Shown) => {
-      if (!tip.prompted && !tipsOn) {
+      if (!tip.prompted && !commentsOn) {
         if (tip.eventId) void markAvatarEventsShown([tip.eventId]).catch(() => {});
         return;
       }
@@ -162,7 +177,7 @@ export function BuddyHost({
       else if (tip.prompted) queue.current.unshift(tip);
       else queue.current.push(tip);
     },
-    [tipsOn, display],
+    [commentsOn, display],
   );
 
   // The line: shows the next bubble when there's room under the limits.
@@ -237,29 +252,31 @@ export function BuddyHost({
     return () => window.clearTimeout(id);
   }, [events, name, offer]);
 
-  // A new page: a fresh per-page allowance, page tips cleared, a one-time tour on a first visit, "lost?" after 15 idle seconds.
+  // On a section page: the one-time tip on a first visit, then a running
+  // commentary for as long as you stay. Each second it decides what's next:
+  // something you just scrolled to, a nudge if you've gone idle, or the next
+  // comment about the page. Never while another bubble is up or queued.
+  const lastComment = useRef<Record<string, number>>({});
+  const factsRef = useRef(facts);
+  useEffect(() => {
+    factsRef.current = facts;
+  }, [facts]);
   useEffect(() => {
     pageCount.current = 0;
-    queue.current = queue.current.filter((t) => t.kind !== "tour" && t.kind !== "idle");
+    queue.current = queue.current.filter((t) => t.kind !== "tour" && t.kind !== "idle" && t.kind !== "comment");
     const section = sectionOf(pathname);
     if (!section) return;
     let cancelled = false;
-    let idleTimer = 0;
-    const armIdle = () => {
-      window.clearTimeout(idleTimer);
-      if (seen.current.has(`idle:${section}`)) return;
-      idleTimer = window.setTimeout(async () => {
-        if (cancelled || seen.current.has(`idle:${section}`) || currentRef.current) return;
-        const l = await load();
-        const action = l.IDLE_ACTIONS[section];
-        if (!action || (action.target && !find(action.target))) return;
-        markSeen(`idle:${section}`);
-        offer({ kind: "idle", prompted: false, text: await say(l.IDLE), expression: "happy", action, key: Date.now() });
-      }, IDLE_MS);
-    };
-    const tourTimer = window.setTimeout(async () => {
-      if (cancelled || seen.current.has(`tour:${section}`)) return;
-      // The page may still be loading (a skeleton first): wait up to 10s for what the tour points at.
+    let tourPending = !seen.current.has(`tour:${section}`);
+    const opened = Date.now();
+    let lastActivity = Date.now();
+    let nudged = false;
+    const spoken = new Set<string>();
+
+    // The first-visit tip (the page may still be loading a skeleton: wait up to 10s for what it points at).
+    void (async () => {
+      if (!tourPending) return;
+      await new Promise((r) => window.setTimeout(r, 900));
       const l = await load();
       for (let i = 0; i < 25 && !cancelled && !l.TOURS[section]?.some((step) => find(step.target)); i++) await new Promise((r) => window.setTimeout(r, 400));
       if (cancelled) return;
@@ -268,27 +285,85 @@ export function BuddyHost({
         markSeen(`tour:${section}`);
         offer(tour);
       }
-    }, 900);
-    armIdle();
-    const activity = () => armIdle();
+      tourPending = false;
+    })().catch(() => (tourPending = false));
+
+    const known = (line: string) => [...line.matchAll(/\{(\w+)\}/g)].every(([, key]) => factsRef.current[key] !== undefined && factsRef.current[key] !== "");
+    const nextComment = (l: NonNullable<typeof lines.current>) => {
+      const pool = (l.COMMENTS[section] ?? []).filter(known);
+      if (pool.length === 0) return null;
+      let i = Math.floor(Math.random() * pool.length);
+      if (pool.length > 1 && i === lastComment.current[section]) i = (i + 1) % pool.length;
+      lastComment.current[section] = i;
+      return l.fill(pool[i], factsRef.current);
+    };
+
+    const tick = window.setInterval(async () => {
+      if (cancelled || tourPending || !commentsOn || currentRef.current || queue.current.length || busy()) return;
+      if (Date.now() - opened < FIRST_COMMENT_MS || Date.now() - lastClosed.current < GAP_MS) return;
+      const l = await load();
+      if (cancelled || currentRef.current || queue.current.length) return;
+      // 1. Something you just scrolled to.
+      for (const [target, list] of Object.entries(l.COMMENTS_ON)) {
+        const el = find(target);
+        if (!el || spoken.has(target)) continue;
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 0.65 && r.bottom > window.innerHeight * 0.1) {
+          spoken.add(target);
+          return offer({ kind: "comment", prompted: false, text: l.pick(list, Date.now() / 1000), expression: "happy", key: Date.now() });
+        }
+      }
+      // 2. Gone quiet for a while: a nudge with something to do.
+      const action = l.IDLE_ACTIONS[section];
+      if (!nudged && Date.now() - lastActivity > IDLE_MS && action && (!action.target || find(action.target))) {
+        nudged = true;
+        return offer({ kind: "idle", prompted: false, text: l.pick(l.IDLE, Date.now() / 1000), expression: "smirk", action, key: Date.now() });
+      }
+      // 3. The next comment about this page.
+      const text = nextComment(l);
+      if (text) offer({ kind: "comment", prompted: false, text, expression: Math.random() < 0.3 ? "smirk" : "happy", key: Date.now() });
+    }, 1000);
+
+    const activity = () => {
+      lastActivity = Date.now();
+      nudged = false;
+    };
     window.addEventListener("pointerdown", activity, { passive: true });
     window.addEventListener("scroll", activity, { passive: true });
     window.addEventListener("keydown", activity);
     // Close page tips when you leave the page.
     const close = window.setTimeout(() => {
       const c = currentRef.current;
-      if (c && (c.kind === "tour" || c.kind === "idle") && c.tour?.section !== section) setLeaving(true);
+      if (c && (c.kind === "tour" || c.kind === "idle" || c.kind === "comment") && c.tour?.section !== section) setLeaving(true);
     }, 0);
     return () => {
       cancelled = true;
-      window.clearTimeout(tourTimer);
-      window.clearTimeout(idleTimer);
+      window.clearInterval(tick);
       window.clearTimeout(close);
       window.removeEventListener("pointerdown", activity);
       window.removeEventListener("scroll", activity);
       window.removeEventListener("keydown", activity);
     };
-  }, [pathname, load, say, markSeen, offer, tourFor]);
+  }, [pathname, load, markSeen, offer, tourFor, commentsOn]);
+
+  /** "Stop comments" in the bubble: off now, saved to your account, with Undo. */
+  const mute = useCallback(() => {
+    setCommentsOn(false);
+    queue.current = queue.current.filter((t) => t.prompted);
+    setLeaving(true);
+    const save = (on: boolean) => setAvatarReactions(on).catch(() => toast.error("Couldn't save that. Try again in Settings."));
+    void save(false);
+    toast("Avatar comments are off", {
+      description: "Turn them back on any time in Settings.",
+      action: {
+        label: "Undo",
+        onClick: () => {
+          setCommentsOn(true);
+          void save(true);
+        },
+      },
+    });
+  }, []);
 
   const close = useCallback((why: "dismiss" | "timeout") => {
     const c = currentRef.current;
@@ -395,7 +470,17 @@ export function BuddyHost({
       )}
       <div role="status" aria-live="polite">
         {message && (
-          <BuddyPeek key={message.key} message={message} avatar={avatar} leaving={leaving} onAction={act} onClose={close} onLeft={left} onPlaced={placed} />
+          <BuddyPeek
+            key={message.key}
+            message={message}
+            avatar={avatar}
+            leaving={leaving}
+            onAction={act}
+            onClose={close}
+            onLeft={left}
+            onPlaced={placed}
+            onMute={current && !current.prompted ? mute : undefined}
+          />
         )}
       </div>
     </>

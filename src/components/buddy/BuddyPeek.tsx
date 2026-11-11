@@ -111,6 +111,7 @@ export function BuddyPeek({
   onClose,
   onLeft,
   onPlaced,
+  onMute,
 }: {
   message: PeekMessage;
   avatar: AvatarConfig;
@@ -121,6 +122,8 @@ export function BuddyPeek({
   onLeft: () => void;
   /** Where the bubble's top edge is on screen, so the page can keep things out from under it. */
   onPlaced: (top: number) => void;
+  /** Shown on comments the buddy makes by itself: turns its comments off. */
+  onMute?: () => void;
 }) {
   const [calm] = useState(calmNow);
   const [typed, setTyped] = useState(() => (calm ? message.text.length : 0));
@@ -246,7 +249,7 @@ export function BuddyPeek({
               <span className="col-start-1 row-start-1">{shown}</span>
             </p>
           </div>
-          <div className="mt-2.5 flex items-center gap-3">
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
             {message.action && (
               <button
                 type="button"
@@ -263,6 +266,15 @@ export function BuddyPeek({
             >
               Got it
             </button>
+            {onMute && (
+              <button
+                type="button"
+                onClick={onMute}
+                className="inline-flex min-h-9 items-center rounded-md px-1 text-[12px] font-medium text-[#0F1F18]/70 outline-offset-2 hover:text-[#0F1F18] focus-visible:outline-2 focus-visible:outline-[#FFB81F]"
+              >
+                Stop comments
+              </button>
+            )}
           </div>
           <button
             type="button"

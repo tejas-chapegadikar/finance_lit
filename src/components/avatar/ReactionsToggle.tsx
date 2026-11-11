@@ -28,8 +28,11 @@ export function ReactionsToggle({ initial }: { initial: boolean }) {
     <div>
       <div className="flex items-center justify-between gap-4">
         <span id="reactions-label" className="text-sm">
-          <span className="block font-semibold text-slate-900">Buddy tips: {on ? "On" : "Off"}</span>
-          <span className="text-slate-600">Tips, roasts and celebrations from your money buddy. Locked items and errors still explain themselves.</span>
+          <span className="block font-semibold text-slate-900">Avatar comments: {on ? "On" : "Off"}</span>
+          <span className="text-slate-600">
+            Your avatar keeps commenting as you use the app: tips, roasts and celebrations. Turn it off for some peace. Locked items, errors and the ? button
+            still work.
+          </span>
         </span>
         <button
           type="button"
