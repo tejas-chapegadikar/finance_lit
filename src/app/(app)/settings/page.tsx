@@ -6,6 +6,7 @@ import { getDisplayName } from "@/lib/user";
 import { LEGAL_LINKS } from "@/lib/site";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ReactionsToggle } from "@/components/avatar/ReactionsToggle";
+import { RoastLevelPicker } from "@/components/avatar/RoastLevelPicker";
 import { AccountActions } from "@/components/account/AccountActions";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { MenuRowContent, menuListClass, menuRowClass } from "@/components/ui/MenuRow";
@@ -46,6 +47,7 @@ export default async function SettingsPage() {
           Your avatar
         </h2>
         <ReactionsToggle initial={user.avatarReactions} />
+        <RoastLevelPicker initial={user.roastLevel} />
         <Link href="/profile/avatar" className={`${secondaryButton} self-start`}>
           Open Avatar Studio
         </Link>

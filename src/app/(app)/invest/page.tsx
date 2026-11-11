@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { getProgress } from "@/lib/progress";
@@ -24,6 +25,9 @@ export default async function InvestPage() {
       <Link href="/lessons" className="inline-flex min-h-10 items-center gap-1 self-start text-sm font-semibold text-slate-600">
         <ArrowLeftIcon className="h-4 w-4" /> Learn
       </Link>
+      <ViewTransition name="hub-invest" share="morph" default="none">
+        <h1 className="text-2xl text-slate-900">Practice investing</h1>
+      </ViewTransition>
       <VirtualPortfolio portfolio={portfolio} />
       <Link href="/invest/simulator" className="text-center text-sm font-semibold text-brand-700 underline underline-offset-2">
         Open the compounding simulator

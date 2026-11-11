@@ -7,6 +7,9 @@ import { EXPENSE_CATEGORIES } from "@/lib/money/categories";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { CategoryIcon } from "@/components/ui/topic-icons";
 import { primaryButton, secondaryButton } from "@/components/ui/button-styles";
+import { AvatarEmpty } from "@/components/guide/AvatarEmpty";
+import { EMPTY } from "@/content/avatar-lines";
+import { guideSay } from "@/lib/guide/bus";
 
 const fieldClass =
   "w-28 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-right text-sm text-slate-900 tabular-nums outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
@@ -36,20 +39,19 @@ export function BudgetEditor({ budgets, monthLabel }: { budgets: Record<string, 
         if (result.status === "slow-down") setMessage(SLOW_DOWN_MESSAGE);
       } catch {
         setMessage(GENERIC_ERROR_MESSAGE);
+        guideSay({ kind: "error", text: GENERIC_ERROR_MESSAGE });
       }
     });
   }
 
   if (!open && Object.keys(budgets).length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center">
-        <p className="font-display text-lg font-bold text-slate-900">No budget yet</p>
-        <p className="text-sm text-slate-600">Bold strategy. Decide your limit before the month decides for you.</p>
-        <button type="button" onClick={() => setOpen(true)} className={`${primaryButton} mt-2 py-3`}>
-          Set your first budget
+      <AvatarEmpty text={EMPTY.budget.text}>
+        <button type="button" onClick={() => setOpen(true)} className={`${primaryButton} py-3`}>
+          {EMPTY.budget.button}
         </button>
         <p className="text-xs font-semibold text-orange-700">+10 XP, first time</p>
-      </div>
+      </AvatarEmpty>
     );
   }
 

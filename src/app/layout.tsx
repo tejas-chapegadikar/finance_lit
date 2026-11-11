@@ -26,7 +26,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${poppins.variable} ${inter.variable} h-full antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning className={`${poppins.variable} ${inter.variable} h-full antialiased`}>
+      <head>
+        {/* Before first paint: skip Home's intro if it already played this session, and honour "Pause animations". */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "try{var d=document.documentElement;if(sessionStorage.getItem('rupli-hub-intro'))d.dataset.hubSeen='1';if(localStorage.getItem('rupli-calm')==='1')d.dataset.calm='1'}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <a href="#main" className="skip-link">
           Skip to content

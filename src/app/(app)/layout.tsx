@@ -10,6 +10,8 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { MotionToggle } from "@/components/ui/Motion";
 import { Celebrations } from "@/components/today/Celebrations";
+import { GuideHost } from "@/components/guide/GuideHost";
+import { db } from "@/lib/db";
 
 export default async function AppLayout({
   children,
@@ -20,7 +22,10 @@ export default async function AppLayout({
   const navProps = { xpTotal: user.xpTotal, displayName: getDisplayName(user) };
   const title = findReward(user.title)?.name ?? null;
   const avatar = readAvatar(user.avatar);
-  const pending = await getPendingAvatarEvents(user.id);
+  const [pending, seenTips] = await Promise.all([
+    getPendingAvatarEvents(user.id),
+    db.seenTip.findMany({ where: { userId: user.id }, select: { tipId: true } }),
+  ]);
 
   return (
     <div className="flex min-h-screen flex-col lg:pl-64">
@@ -33,7 +38,7 @@ export default async function AppLayout({
           <p>{DISCLAIMER_SHORT}</p>
           <nav aria-label="Legal" className="flex flex-wrap justify-center gap-x-4 gap-y-1">
             {LEGAL_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="font-medium text-slate-600 hover:text-slate-900">
+              <Link key={link.href} href={link.href} className="inline-flex min-h-6 items-center font-medium text-slate-600 hover:text-slate-900">
                 {link.label}
               </Link>
             ))}
@@ -43,6 +48,7 @@ export default async function AppLayout({
       </main>
       <MobileTabBar />
       <Celebrations events={pending} name={avatarName(user)} />
+      <GuideHost avatar={avatar} seen={seenTips.map((t) => t.tipId)} tipsOn={user.avatarReactions} />
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { GuideTip } from "@/lib/guide/bus";
+import { LockedStop } from "@/components/guide/GuideBits";
 import { BookIcon, CheckIcon, LockIcon, RefreshIcon, TrendingUpIcon, CompassIcon, ChevronRightIcon } from "@/components/ui/icons";
 
 // One vertical path: units of stops, Duolingo style. Done units and locked
@@ -14,6 +16,8 @@ export type PathStop = {
   note: string;
   href: string | null;
   state: StopState;
+  /** What the avatar says when a locked stop is tapped. */
+  lockedTip?: GuideTip;
 };
 
 export type PathUnit = { id: string; eyebrow: string; title: string; state: StopState; done: number; total: number; stops: PathStop[] };
@@ -51,6 +55,8 @@ function Stop({ stop, index }: { stop: PathStop; index: number }) {
         <Link href={stop.href} className="group flex min-h-16 items-center gap-3 rounded-2xl py-1 pr-2 transition hover:bg-white/70">
           {body}
         </Link>
+      ) : stop.lockedTip ? (
+        <LockedStop tip={stop.lockedTip}>{body}</LockedStop>
       ) : (
         <div className="flex min-h-16 items-center gap-3 py-1 pr-2">{body}</div>
       )}
@@ -60,9 +66,9 @@ function Stop({ stop, index }: { stop: PathStop; index: number }) {
 
 export function LearnPath({ units }: { units: PathUnit[] }) {
   return (
-    <div className="flex flex-col gap-3">
+    <div data-guide="learn-path" className="flex flex-col gap-3">
       {units.map((unit) => (
-        <details key={unit.id} open={unit.state === "current"} className="group/unit overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
+        <details key={unit.id} id={`unit-${unit.id}`} data-guide={`unit-${unit.id}`} open={unit.state === "current"} className="group/unit overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
           <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3 p-4 [&::-webkit-details-marker]:hidden">
             <span aria-hidden className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${unit.state === "done" ? "bg-emerald-700 text-white" : unit.state === "locked" ? "bg-slate-100 text-slate-500" : "bg-brand-500 text-brand-900"}`}>
               {unit.state === "done" ? <CheckIcon className="h-4 w-4" /> : unit.state === "locked" ? <LockIcon className="h-4 w-4" /> : <BookIcon className="h-4 w-4" />}

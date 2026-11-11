@@ -4,6 +4,9 @@ import { useState, useTransition } from "react";
 import { addToSavingsGoal, createSavingsGoal, deleteSavingsGoal, deleteMoneyEntry } from "@/actions/money";
 import { GOAL_ICONS, rupees, type GoalIconKey } from "@/lib/money/categories";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
+import { AvatarEmpty } from "@/components/guide/AvatarEmpty";
+import { EMPTY } from "@/content/avatar-lines";
+import { guideSay } from "@/lib/guide/bus";
 import { GoalIcon } from "@/components/ui/topic-icons";
 import { ProgressRing } from "@/components/ui/ProgressBar";
 import { Burst } from "@/components/ui/Burst";
@@ -170,20 +173,19 @@ export function NewGoalForm({ today, empty = false }: { today: string; empty?: b
         if (result.status === "slow-down") setError(SLOW_DOWN_MESSAGE);
       } catch {
         setError(GENERIC_ERROR_MESSAGE);
+        guideSay({ kind: "error", text: GENERIC_ERROR_MESSAGE });
       }
     });
   }
 
   if (!open && empty) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center">
-        <p className="font-display text-lg font-bold text-slate-900">No savings goal yet</p>
-        <p className="text-sm text-slate-600">Money without a job goes on food delivery. Give it one.</p>
-        <button type="button" onClick={() => setOpen(true)} className={`${primaryButton} mt-2 py-3`}>
-          Create a goal
+      <AvatarEmpty text={EMPTY.goals.text}>
+        <button type="button" onClick={() => setOpen(true)} className={`${primaryButton} py-3`}>
+          {EMPTY.goals.button}
         </button>
         <p className="text-xs font-semibold text-orange-700">+50 XP when you reach a goal of ₹500 or more</p>
-      </div>
+      </AvatarEmpty>
     );
   }
 

@@ -3,6 +3,7 @@ import { Logo } from "@/components/ui/Logo";
 import { XPBadge } from "./XPBadge";
 import type { AvatarConfig } from "@/lib/avatar";
 import { Avatar } from "@/components/avatar/Avatar";
+import { GuideButton } from "@/components/guide/GuideBits";
 
 /** The top bar on phones and tablets (with the bottom tab bar); desktops get the sidebar instead. */
 export function Navbar({ xpTotal, displayName, avatar }: { xpTotal: number; displayName: string; avatar: AvatarConfig }) {
@@ -14,6 +15,7 @@ export function Navbar({ xpTotal, displayName, avatar }: { xpTotal: number; disp
           <Logo />
         </Link>
         <div className="flex items-center gap-2">
+          <GuideButton />
           <Link href="/profile" aria-label={`${xpTotal} XP, your profile`} className="rounded-full transition hover:opacity-80">
             <XPBadge xpTotal={xpTotal} id="xp-navbar" />
           </Link>

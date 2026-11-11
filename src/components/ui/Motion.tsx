@@ -48,7 +48,7 @@ export function MotionToggle({ className = "" }: { className?: string }) {
     calmListeners.forEach((listener) => listener());
   }
   return (
-    <button type="button" onClick={toggle} className={`font-medium text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline ${className}`}>
+    <button type="button" onClick={toggle} className={`inline-flex min-h-6 items-center font-medium text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline ${className}`}>
       {paused ? "Play animations" : "Pause animations"}
     </button>
   );

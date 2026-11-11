@@ -1,175 +1,143 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
-import { getDisplayName } from "@/lib/user";
+import { db } from "@/lib/db";
+import { nicknameOf } from "@/lib/user";
 import { getProgress } from "@/lib/progress";
 import { streakStatus } from "@/lib/streak";
-import { levelFor } from "@/lib/levels";
 import { QUESTS, ALL_QUESTS_BONUS, getDoneQuests, type QuestId } from "@/lib/quests";
 import { avatarName, readAvatar } from "@/lib/avatar";
-import { istDay, shiftDay } from "@/lib/ist-date";
+import { dayNumber, istDay, istHour } from "@/lib/ist-date";
 import { getMoneyMonth, getMoneyTrends } from "@/lib/money";
-import { rupees } from "@/lib/money/categories";
 import { moneyRoast } from "@/lib/avatar/roast";
-import { getPendingAvatarEvents } from "@/lib/avatar/events";
-import { REACTIONS, isCelebration } from "@/lib/avatar/reactions";
-import { QuickAddButton, QuickAddSheet } from "@/components/money/QuickAddSheet";
-import { TodayTip } from "@/components/today/TodayTip";
+import { SPENDING_ROAST_IDS, hubMessage, readRoastLevel } from "@/lib/avatar/hub";
+import { HUB_OPTIONS, type HubState } from "@/content/avatar-lines";
+import type { Expression } from "@/components/avatar/Avatar";
+import { AvatarHub } from "@/components/today/AvatarHub";
 import { CountUp } from "@/components/ui/CountUp";
-import { ProgressBar } from "@/components/ui/ProgressBar";
-import { card, primaryButton } from "@/components/ui/button-styles";
-import { ArrowRightIcon, CheckIcon, FlameIcon, StarIcon } from "@/components/ui/icons";
+import { CheckIcon, ChevronRightIcon, FlameIcon, StarIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Today | Rupli" };
+export const metadata: Metadata = { title: "Home | Rupli" };
 
-function greetingFor(now: Date) {
-  const hour = Number(new Intl.DateTimeFormat("en-IN", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kolkata" }).format(now));
-  if (hour >= 5 && hour < 12) return "Good morning";
-  if (hour >= 12 && hour < 17) return "Good afternoon";
-  if (hour >= 17 && hour < 22) return "Good evening";
-  return "Hey";
-}
+const FACE: Record<HubState, Expression> = {
+  new: "welcoming",
+  unfinished: "thinking",
+  spent: "shocked",
+  noExpense: "confused",
+  investIdle: "excited",
+  nextLesson: "happy",
+  done: "celebrating",
+};
 
-const smallAction = "inline-flex min-h-10 shrink-0 items-center rounded-full bg-brand-600 px-4 text-sm font-semibold text-white transition hover:bg-brand-700";
-
-export default async function TodayPage(props: PageProps<"/dashboard">) {
+// Home is the avatar hub: who you are (tiny), the avatar with one clear
+// suggestion, three places to go, and today's quests folded away below.
+export default async function HomePage() {
   const user = await requireOnboardedUser();
   const today = istDay();
-  const params = await props.searchParams;
 
-  const [progress, money, trends, doneQuests, events] = await Promise.all([
+  const [progress, money, trends, doneQuests, portfolio, expensesEver] = await Promise.all([
     getProgress(user.id),
     getMoneyMonth(user.id),
     getMoneyTrends(user.id, today),
     getDoneQuests(user.id, today),
-    user.avatarReactions ? getPendingAvatarEvents(user.id) : Promise.resolve([]),
+    db.virtualPortfolio.findUnique({ where: { userId: user.id }, select: { id: true } }),
+    db.moneyEntry.count({ where: { userId: user.id, kind: "EXPENSE" } }),
   ]);
 
-  const name = getDisplayName(user);
-  const buddy = avatarName(user);
   const streak = streakStatus(user, today);
-  const level = levelFor(user.xpTotal);
-
-  // The next thing to learn: Money IQ first, then the InvestSmart units.
-  const nextLesson =
+  const allLessons = [...progress.lessons, ...progress.invest];
+  const unfinished = allLessons.find((l) => l.status === "in-progress" && !l.locked) ?? null;
+  const next =
     (progress.next && !progress.next.isRetake ? progress.next.lesson : null) ?? progress.invest.find((l) => !l.locked && l.status !== "completed") ?? null;
-  const continueHref = nextLesson ? `/lessons/${nextLesson.slug}` : "/revision";
+  const investTouched = !!portfolio || progress.invest.some((l) => l.status !== "not-started");
+  const seed = dayNumber(today) * 24 + istHour();
+  const roast = moneyRoast({ month: money, weekly: trends.weekly, name: avatarName(user) });
 
-  const questAction: Record<QuestId, React.ReactNode> = {
-    log: <QuickAddButton className={smallAction}>Log it</QuickAddButton>,
-    learn: (
-      <Link href={continueHref} className={smallAction}>
-        Learn
-      </Link>
-    ),
-    check: (
-      <Link href="/money" className={smallAction}>
-        Check
-      </Link>
-    ),
-  };
+  const message = hubMessage(
+    {
+      questsDone: doneQuests.size,
+      questsTotal: QUESTS.length,
+      isNew: progress.completedCount === 0 && !unfinished && expensesEver === 0 && !investTouched,
+      unfinishedLesson: unfinished ? { title: unfinished.title, minutes: unfinished.estimatedMinutes } : null,
+      nextLesson: next ? { title: next.title, minutes: next.estimatedMinutes } : null,
+      spendingRoast: SPENDING_ROAST_IDS.includes(roast.id) ? roast.lines[seed % roast.lines.length] : null,
+      spentToday: doneQuests.has("log"),
+      investTouched,
+    },
+    readRoastLevel(user.roastLevel),
+    seed,
+  );
 
-  const left = money.totalBudget !== null ? money.totalBudget - money.spent : money.income - money.spent;
-  const hasMoney = money.entries.length > 0 || money.totalBudget !== null;
-
-  const roast = moneyRoast({ month: money, weekly: trends.weekly, name: buddy });
-  const event = events.find((e) => !isCelebration(e.kind));
-  const tip = user.avatarReactions
-    ? event
-      ? { text: REACTIONS[event.kind].lines[0](buddy, event.data), expression: REACTIONS[event.kind].expression, eventId: event.id }
-      : { text: roast.lines[0], expression: roast.expression, eventId: undefined }
-    : null;
+  const learnHref = unfinished ? `/lessons/${unfinished.slug}` : next ? `/lessons/${next.slug}` : "/lessons";
+  const questHref: Record<QuestId, string> = { log: "/money?add=1", learn: learnHref, check: "/money" };
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
-      <header className="flex animate-fade-up flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h1 className="min-w-0 text-2xl leading-tight text-slate-900">
-            {greetingFor(new Date())}, {name}
-          </h1>
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <Link href="/profile#streak" className="inline-flex min-h-9 items-center gap-1 rounded-full bg-white px-3 ring-1 ring-slate-200">
-              <FlameIcon className={`h-4 w-4 text-orange-500 ${streak.doneToday ? "animate-flicker" : ""}`} />
-              {streak.streak}
-              <span className="sr-only">day streak</span>
-            </Link>
-            <span className="inline-flex min-h-9 items-center gap-1 rounded-full bg-white px-3 ring-1 ring-slate-200">
-              <StarIcon className="h-4 w-4 text-orange-500" />
-              <CountUp value={user.xpTotal} id="xp-today" /> XP
-            </span>
-          </div>
-        </div>
-        <div>
-          <ProgressBar value={level.into} max={level.span} label={`Level ${level.level} progress`} size="sm" tone="bg-brand-500" />
-          <p className="mt-1 text-xs font-medium text-slate-600">
-            Level {level.level} · {level.toNext} XP to Level {level.level + 1}
-          </p>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+      <header className="flex items-center justify-between gap-2">
+        <h1 className="min-w-0 truncate text-xl leading-tight text-slate-900 md:text-2xl">Hey {nicknameOf(user)}</h1>
+        <div className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-slate-900">
+          <Link href="/profile#streak" className="inline-flex min-h-9 items-center gap-1 rounded-full bg-white px-2.5 ring-1 ring-slate-200">
+            <FlameIcon className={`h-4 w-4 text-orange-500 ${streak.doneToday ? "animate-flicker" : ""}`} />
+            {streak.streak}
+            <span className="sr-only">day streak</span>
+          </Link>
+          <span className="inline-flex min-h-9 items-center gap-1 rounded-full bg-white px-2.5 ring-1 ring-slate-200">
+            <StarIcon className="h-4 w-4 text-orange-500" />
+            <CountUp value={user.xpTotal} id="xp-today" /> XP
+          </span>
         </div>
       </header>
 
-      <section aria-labelledby="quests-heading" className={`${card} p-4`}>
-        <div className="flex items-baseline justify-between gap-2">
-          <h2 id="quests-heading" className="text-lg text-slate-900">
-            Daily quests
-          </h2>
-          <p className="text-xs font-medium text-slate-600">
-            {doneQuests.size}/{QUESTS.length} · all 3 = +{ALL_QUESTS_BONUS} XP
-          </p>
-        </div>
-        <ul className="mt-2 divide-y divide-slate-100">
+      <AvatarHub
+        avatar={readAvatar(user.avatar)}
+        expression={FACE[message.state]}
+        message={message.text}
+        highlight={message.highlight}
+        options={[
+          { id: "learn", href: "/lessons", ...HUB_OPTIONS.learn },
+          { id: "money", href: "/money", ...HUB_OPTIONS.money },
+          { id: "invest", href: "/invest", ...HUB_OPTIONS.invest },
+        ]}
+      />
+
+      <details className="group mx-auto w-full max-w-md rounded-2xl bg-white ring-1 ring-slate-200">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 text-sm font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">
+          <span className="flex-1">
+            Today&apos;s quests {doneQuests.size}/{QUESTS.length}
+            <span className="font-medium text-orange-700"> · +{ALL_QUESTS_BONUS} XP bonus</span>
+          </span>
+          <ChevronRightIcon className="h-4 w-4 text-slate-500 transition group-open:rotate-90" />
+        </summary>
+        <ul className="divide-y divide-slate-100 px-4 pb-2">
           {QUESTS.map((quest) => {
             const done = doneQuests.has(quest.id);
             return (
-              <li key={quest.id} className="flex min-h-14 items-center gap-3 py-2">
-                <span aria-hidden className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${done ? "bg-emerald-700 text-white" : "ring-2 ring-slate-300"}`}>
-                  {done && <CheckIcon className="h-4 w-4 animate-check" />}
+              <li key={quest.id} className="flex min-h-12 items-center gap-3 py-1.5">
+                <span
+                  aria-hidden
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${done ? "bg-emerald-700 text-white" : "ring-2 ring-slate-300"}`}
+                >
+                  {done && <CheckIcon className="h-3.5 w-3.5" />}
                 </span>
-                <span className="min-w-0 flex-1 text-sm leading-snug font-semibold text-slate-900">
-                  {quest.title}
-                  <span className="block text-xs font-medium text-orange-700">+{quest.xp} XP</span>
+                <span className="min-w-0 flex-1 text-sm font-medium text-slate-900">
+                  {quest.title} <span className="text-xs text-orange-700">+{quest.xp} XP</span>
                 </span>
-                {done ? <span className="text-sm font-semibold text-emerald-800">Done</span> : questAction[quest.id]}
+                {done ? (
+                  <span className="text-sm font-semibold text-emerald-800">Done</span>
+                ) : (
+                  <Link
+                    href={questHref[quest.id]}
+                    aria-label={`Go: ${quest.title}`}
+                    className="inline-flex min-h-9 items-center rounded-full bg-brand-600 px-3.5 text-xs font-semibold text-white"
+                  >
+                    Go
+                  </Link>
+                )}
               </li>
             );
           })}
         </ul>
-      </section>
-
-      <Link href={continueHref} className={`${primaryButton} group w-full justify-between px-5 py-4 text-base`}>
-        <span className="min-w-0 truncate">{nextLesson ? `Continue: ${nextLesson.title}` : "Everything done. Time to revise"}</span>
-        <ArrowRightIcon className="h-5 w-5 shrink-0" />
-      </Link>
-
-      <Link href="/money" className={`${card} block p-4`}>
-        {hasMoney ? (
-          <>
-            <p className="font-display text-xl font-bold text-slate-900">
-              {left >= 0 ? `${rupees(left)} left this month` : `${rupees(-left)} over this month`}
-            </p>
-            {money.totalBudget !== null && (
-              <div className="mt-2">
-                <ProgressBar
-                  value={Math.min(money.spent, money.totalBudget)}
-                  max={money.totalBudget}
-                  label="Budget used"
-                  size="sm"
-                  tone={money.spent > money.totalBudget ? "bg-rose-500" : "bg-emerald-500"}
-                />
-              </div>
-            )}
-            <p className="mt-2 text-sm font-semibold text-brand-700">Open Money</p>
-          </>
-        ) : (
-          <>
-            <p className="font-display text-lg font-bold text-slate-900">No money logged yet</p>
-            <p className="mt-1 text-sm font-semibold text-brand-700">Set up Money</p>
-          </>
-        )}
-      </Link>
-
-      {tip && <TodayTip day={today} text={tip.text} expression={tip.expression} eventId={tip.eventId} avatar={readAvatar(user.avatar)} />}
-
-      <QuickAddSheet today={today} minDay={shiftDay(today, -60)} startOpen={params.add === "1"} canNoSpend={!money.checkedInToday && !money.entries.some((e) => e.day === today && e.kind === "EXPENSE")} />
+      </details>
     </div>
   );
 }

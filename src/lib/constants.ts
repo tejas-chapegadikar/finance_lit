@@ -23,7 +23,7 @@ export const NO_LESSONS_MESSAGE = "Lessons are still cooking. Check back soon!";
 export const NO_QUESTION_MESSAGE = "Today's question is still cooking. Check back soon!";
 export const COACH_UNAVAILABLE_MESSAGE =
   "Your AI Coach has stepped out for chai. The hint and explanation here will still get you there.";
-export const GENERIC_ERROR_MESSAGE = "That didn't work. Not your fault, for once. Try again?";
+export const GENERIC_ERROR_MESSAGE = "Kuch gadbad hui, meri galti. Ek baar aur try kar.";
 export const SLOW_DOWN_MESSAGE = "Whoa, slow down a sec. Then try again.";
 
 // Checking in on your money (logging today, or a no-spend day), once a day.

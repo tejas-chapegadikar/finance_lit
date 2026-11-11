@@ -17,7 +17,7 @@ export async function finishOnboarding(input: OnboardingInput): Promise<Onboardi
   const user = await requireAppUser();
   const parsed = onboardingSchema.safeParse(input);
   if (!parsed.success) return { status: "invalid", message: parsed.error.issues[0]?.message ?? "Please check your answers" };
-  const { income, budget, goalName, goalTarget } = parsed.data;
+  const { nickname, income, budget, goalName, goalTarget } = parsed.data;
   if (goalName && !goalTarget) return { status: "invalid", message: "Add a target amount, or clear the goal name" };
   const day = istDay();
 
@@ -29,7 +29,7 @@ export async function finishOnboarding(input: OnboardingInput): Promise<Onboardi
     if (income) await tx.moneyEntry.create({ data: { userId: user.id, kind: "INCOME", amount: income, category: "pocket-money", day } });
     if (budget) await tx.moneyBudget.create({ data: { userId: user.id, month: monthOf(day), category: "total", amount: budget } });
     if (goalName && goalTarget) await tx.savingsGoal.create({ data: { userId: user.id, name: goalName, icon: "target", target: goalTarget } });
-    await tx.user.update({ where: { id: user.id }, data: { onboardingCompletedAt: new Date(), ...(fresh.avatar ? {} : { avatar: DEFAULT_AVATAR }) } });
+    await tx.user.update({ where: { id: user.id }, data: { onboardingCompletedAt: new Date(), ...(nickname ? { displayName: nickname } : {}), ...(fresh.avatar ? {} : { avatar: DEFAULT_AVATAR }) } });
     const awarded = await awardXp(tx, { userId: user.id, amount: 20, type: "SIGNUP_BONUS", idempotencyKey: `onboarding:${user.id}`, description: "Finished setup" });
     await recordStreakDay(tx, user.id);
     return awarded;

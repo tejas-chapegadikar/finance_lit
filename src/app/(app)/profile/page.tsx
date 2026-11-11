@@ -55,7 +55,7 @@ export default async function MePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
-      <header className={`${card} flex items-center gap-4 p-4`}>
+      <header data-guide="profile-header" className={`${card} flex items-center gap-4 p-4`}>
         <Link href="/profile/avatar" aria-label="Open Avatar Studio" className="flex h-20 w-20 shrink-0 items-end justify-center overflow-hidden rounded-full bg-brand-100">
           <Avatar config={readAvatar(user.avatar)} crop="head" className="h-20 w-20" label={`${name}'s avatar`} />
         </Link>
@@ -75,7 +75,7 @@ export default async function MePage() {
         </div>
       </header>
 
-      <section id="streak" aria-labelledby="streak-heading" className={`${card} scroll-mt-20 p-4`}>
+      <section id="streak" aria-labelledby="streak-heading" data-guide="profile-streak" className={`${card} scroll-mt-20 p-4`}>
         <h2 id="streak-heading" className="text-lg text-slate-900">
           Streak
         </h2>

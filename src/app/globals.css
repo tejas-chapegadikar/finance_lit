@@ -692,6 +692,12 @@ html[data-calm] .marquee-track {
   animation: none !important;
 }
 
+html[data-calm]::view-transition-group(*),
+html[data-calm]::view-transition-old(*),
+html[data-calm]::view-transition-new(*) {
+  animation: none !important;
+}
+
 .skip-link {
   position: fixed;
   top: 0.5rem;
@@ -742,6 +748,103 @@ html[data-calm] .marquee-track {
   }
 }
 
+/* Home hub (components/today/AvatarHub.tsx). Transform and opacity only. */
+.hub-pop {
+  animation: hub-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.hub-cloud {
+  animation: hub-cloud 0.35s 0.22s var(--ease-out-soft) both;
+}
+.hub-fly {
+  animation: hub-fly 0.5s var(--ease-out-soft) both;
+}
+html[data-hub-seen] .hub-intro :is(.hub-pop, .hub-cloud, .hub-fly) {
+  animation: none;
+}
+.hub-float {
+  animation: hub-float var(--fd, 4s) ease-in-out infinite alternate;
+}
+.hub-breathe {
+  transform-origin: 50% 100%;
+  animation: hub-breathe 3.4s ease-in-out infinite;
+}
+.hub-glow::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  box-shadow: 0 0 22px 3px rgb(255 184 31 / 0.6);
+  pointer-events: none;
+  animation: hub-glow 2.2s ease-in-out infinite alternate;
+}
+.hub-bubble.is-going {
+  scale: 1.06;
+}
+.hub-bubble.is-fading {
+  opacity: 0;
+}
+@keyframes hub-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4) translateY(30px);
+  }
+}
+@keyframes hub-cloud {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+}
+@keyframes hub-fly {
+  from {
+    opacity: 0;
+    transform: translate(var(--fx, 0px), var(--fy, 0px)) scale(0.4);
+  }
+}
+@keyframes hub-float {
+  to {
+    translate: var(--dx, 0px) var(--dy, -5px);
+  }
+}
+@keyframes hub-breathe {
+  50% {
+    scale: 1 1.025;
+  }
+}
+@keyframes hub-glow {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Bubble to page: the shared-element view transition. */
+::view-transition-group(.morph) {
+  animation-duration: 300ms;
+}
+
+/* The avatar guide pop-up (components/guide/GuideHost.tsx). */
+.guide-pop {
+  animation: guide-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.guide-face {
+  animation: guide-face 0.45s 0.05s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes guide-pop {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes guide-face {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+}
+
 /* Motion is decoration: people who ask for less get none of it. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -755,6 +858,12 @@ html[data-calm] .marquee-track {
   }
 
   .marquee-track {
+    animation: none !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
     animation: none !important;
   }
 }

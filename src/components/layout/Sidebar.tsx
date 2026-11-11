@@ -8,6 +8,7 @@ import { Logo } from "@/components/ui/Logo";
 import { NAV_ITEMS, isActive } from "./nav-items";
 import { XPBadge } from "./XPBadge";
 import { SettingsIcon } from "@/components/ui/icons";
+import { GuideButton } from "@/components/guide/GuideBits";
 
 /** Desktop navigation: the pillars and other destinations, Settings, XP and you, as your avatar. */
 export function Sidebar({
@@ -25,9 +26,12 @@ export function Sidebar({
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-slate-50 lg:flex">
-      <Link href="/dashboard" aria-label="Rupli home" className="px-7 pt-7 pb-9">
-        <Logo />
-      </Link>
+      <div className="flex items-center justify-between px-7 pt-7 pb-9">
+        <Link href="/dashboard" aria-label="Rupli home">
+          <Logo />
+        </Link>
+        <GuideButton />
+      </div>
 
       <nav aria-label="Main" className="flex flex-1 flex-col gap-1 px-4">
         {NAV_ITEMS.map(({ href, label, Icon, also }) => {

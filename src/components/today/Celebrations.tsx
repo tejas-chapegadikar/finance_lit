@@ -25,7 +25,7 @@ export function Celebrations({ events, name }: { events: PendingAvatarEvent[]; n
 
   useEffect(() => {
     if (!current) return;
-    void markAvatarEventsShown([current.id]);
+    void markAvatarEventsShown([current.id]).catch(() => {});
     const id = window.setTimeout(() => setCurrent(queue.current.shift() ?? null), SHOW_MS);
     return () => window.clearTimeout(id);
   }, [current]);

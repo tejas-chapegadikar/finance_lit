@@ -20,7 +20,7 @@ These stay on your device and aren't used to track you:
 
 - **\`rupli-calm\`**: remembers if you paused animations.
 - **\`rupli-tip-dismissed\`**: remembers you closed today's buddy tip.
-- **Session items** for animated numbers. These go when you close the tab.
+- **Session items** for animated numbers and to play Home's intro only once. These go when you close the tab.
 
 ## How to remove them
 

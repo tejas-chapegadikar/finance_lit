@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
+import { LOCKED, fill } from "@/content/avatar-lines";
+import type { GuideTip } from "@/lib/guide/bus";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -39,6 +42,15 @@ export default async function LearnPage() {
   const pathNext = progress.next && !progress.next.isRetake ? progress.next.lesson : null;
   const next = pathNext ?? firstOpenInvest ?? null;
 
+  const levelTip = (levelNumber: number, chapterId: string | undefined): GuideTip => ({
+    kind: "locked",
+    text: fill(LOCKED.level.text, { level: levelNumber }),
+    action: { label: fill(LOCKED.level.button, { level: levelNumber }), target: chapterId ? `unit-${chapterId}` : "learn-path" },
+  });
+  const lessonTip = (title: string, slug: string): GuideTip => ({ kind: "locked", text: fill(LOCKED.lesson.text, { lesson: title }), action: { label: LOCKED.lesson.button, href: `/lessons/${slug}` } });
+  const chapterOf = (n: number) => levels.find((l) => l.chapter.number === n)?.chapter.id;
+  const before = (lesson: LessonProgress) => invest[invest.findIndex((l) => l.id === lesson.id) - 1];
+
   const lessonStop = (lesson: LessonProgress, levelNumber?: number): PathStop => ({
     key: lesson.id,
     kind: "lesson",
@@ -46,6 +58,7 @@ export default async function LearnPage() {
     note: lesson.locked ? (levelNumber ? `Finish Level ${levelNumber - 1} to unlock` : "Finish the lesson before to unlock") : lesson.status === "completed" ? "Done" : `${lesson.estimatedMinutes} min · +${lesson.xpReward} XP`,
     href: lesson.locked ? null : `/lessons/${lesson.slug}`,
     state: lessonState(lesson, next?.id),
+    lockedTip: !lesson.locked ? undefined : levelNumber ? levelTip(levelNumber - 1, chapterOf(levelNumber - 1)) : before(lesson) ? lessonTip(before(lesson)!.title, before(lesson)!.slug) : undefined,
   });
 
   const scenarioStop = (scenario: (typeof SCENARIOS)[number], levelNumber: number): PathStop => {
@@ -61,6 +74,11 @@ export default async function LearnPage() {
       note: levelLocked ? `Finish Level ${levelNumber - 1} to unlock` : xpLocked ? `Opens at ${reward!.cost} XP` : score !== undefined ? `Best score ${score}/${maxScore(scenario)}` : `${scenario.minutes} min · +${SCENARIO_XP} XP`,
       href: levelLocked || xpLocked ? null : `/practice/${scenario.slug}`,
       state: levelLocked || xpLocked ? "locked" : score !== undefined ? "done" : "open",
+      lockedTip: levelLocked
+        ? levelTip(levelNumber - 1, chapterOf(levelNumber - 1))
+        : xpLocked
+          ? { kind: "locked", text: fill(LOCKED.xp.text, { xp: reward!.cost }), action: { label: LOCKED.xp.button, href: next ? `/lessons/${next.slug}` : "/lessons" } }
+          : undefined,
     };
   };
 
@@ -98,10 +116,11 @@ export default async function LearnPage() {
     const stop = lessonStop(lesson);
     if (i !== 0) return [stop];
     const note = toolsOpen ? "Try it with pretend money" : `Finish "${lesson.title}" to unlock`;
+    const toolTip: GuideTip = { kind: "locked", text: fill(LOCKED.tool.text, { lesson: lesson.title }), action: { label: LOCKED.tool.button, href: `/lessons/${lesson.slug}` } };
     return [
       stop,
-      { key: "tool-portfolio", kind: "tool" as const, title: "Virtual investing simulator", note, href: toolsOpen ? "/invest" : null, state: (toolsOpen ? "open" : "locked") as StopState },
-      { key: "tool-compound", kind: "tool" as const, title: "Compounding simulator", note: toolsOpen ? "See what waiting costs you" : note, href: toolsOpen ? "/invest/simulator" : null, state: (toolsOpen ? "open" : "locked") as StopState },
+      { key: "tool-portfolio", kind: "tool" as const, title: "Virtual investing simulator", note, href: toolsOpen ? "/invest" : null, state: (toolsOpen ? "open" : "locked") as StopState, lockedTip: toolTip },
+      { key: "tool-compound", kind: "tool" as const, title: "Compounding simulator", note: toolsOpen ? "See what waiting costs you" : note, href: toolsOpen ? "/invest/simulator" : null, state: (toolsOpen ? "open" : "locked") as StopState, lockedTip: toolTip },
     ];
   });
   if (investStops.length && INVEST_TRACK.length) {
@@ -111,7 +130,9 @@ export default async function LearnPage() {
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
       <header>
-        <h1 className="text-2xl text-slate-900">Learn</h1>
+        <ViewTransition name="hub-learn" share="morph" default="none">
+          <h1 className="text-2xl text-slate-900">Learn</h1>
+        </ViewTransition>
         <div className="mt-2">
           <ProgressBar value={completedCount} max={Math.max(1, totalLessons)} label="Money IQ progress" size="sm" tone="bg-brand-500" />
           <p className="mt-1 text-xs font-medium text-slate-600">
@@ -125,7 +146,7 @@ export default async function LearnPage() {
       ) : (
         <>
           {next && (
-            <Link href={`/lessons/${next.slug}`} className={`${primaryButton} w-full justify-between px-5 py-4 text-base`}>
+            <Link href={`/lessons/${next.slug}`} data-guide="learn-continue" className={`${primaryButton} w-full justify-between px-5 py-4 text-base`}>
               <span className="min-w-0 truncate">Continue: {next.title}</span>
               <ArrowRightIcon className="h-5 w-5 shrink-0" />
             </Link>

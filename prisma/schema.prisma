@@ -168,6 +168,8 @@ model User {
   leagueOptIn      Boolean   @default(false)
   // Whether the avatar pops up to react to what you do (Settings).
   avatarReactions  Boolean   @default(true)
+  // How hard the avatar roasts: "mild" | "spicy" | "savage".
+  roastLevel       String    @default("spicy")
 
   quizAttempts         QuizAttempt[]
   xpTransactions       XPTransaction[]
@@ -182,6 +184,7 @@ model User {
   rewardUnlocks        RewardUnlock[]
   activityDays         ActivityDay[]
   dailyQuests          DailyQuest[]
+  seenTips             SeenTip[]
   dailyChallengeRuns   DailyChallengeRun[]
   coachFollowUps       CoachFollowUp[]
   moneyEntries         MoneyEntry[]
@@ -760,4 +763,15 @@ model DailyQuest {
   createdAt DateTime @default(now())
 
   @@unique([userId, day, quest])
+}
+
+// One-time avatar guide tips a student has already seen ("tour:money", "idle:learn"...).
+model SeenTip {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tipId  String
+  seenAt DateTime @default(now())
+
+  @@unique([userId, tipId])
 }

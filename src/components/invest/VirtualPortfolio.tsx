@@ -6,6 +6,10 @@ import { ASSETS, FAST_FORWARD, MIN_TRADE, START_CASH, findAsset, type AssetId } 
 import type { PortfolioView } from "@/lib/invest/portfolio";
 import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { card, primaryButton, secondaryButton } from "@/components/ui/button-styles";
+import { AvatarEmpty } from "@/components/guide/AvatarEmpty";
+import { GuideSayButton } from "@/components/guide/GuideBits";
+import { AFTER, EMPTY } from "@/content/avatar-lines";
+import { guideSay } from "@/lib/guide/bus";
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 const signed = (f: number) => `${f >= 0 ? "+" : "−"}${Math.abs(f * 100).toFixed(1)}%`;
@@ -94,15 +98,21 @@ export function VirtualPortfolio({ portfolio }: { portfolio: PortfolioView }) {
         const result = await action();
         if (result.status === "invalid") setMessage({ tone: "error", text: result.message });
         else if (result.status === "slow-down") setMessage({ tone: "error", text: SLOW_DOWN_MESSAGE });
-        else setMessage({ tone: "ok", text: done });
+        else {
+          setMessage({ tone: "ok", text: done });
+          if (portfolio.holdings.length === 0 && done.startsWith("Invested")) {
+            guideSay({ kind: "after", text: AFTER.invest.text, expression: "excited", action: { label: AFTER.invest.button, target: "invest-ff" } });
+          }
+        }
       } catch {
         setMessage({ tone: "error", text: GENERIC_ERROR_MESSAGE });
+        guideSay({ kind: "error", text: GENERIC_ERROR_MESSAGE });
       }
     });
   }
 
   return (
-    <section id="portfolio" aria-labelledby="portfolio-heading" className={`${card} scroll-mt-20 p-5 sm:p-7`}>
+    <section id="portfolio" aria-labelledby="portfolio-heading" data-guide="invest-portfolio" className={`${card} scroll-mt-20 p-5 sm:p-7`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-[13px] font-medium text-slate-500">Virtual money · {monthsLabel(portfolio.month)}</p>
@@ -146,7 +156,7 @@ export function VirtualPortfolio({ portfolio }: { portfolio: PortfolioView }) {
           }}
         >
           <h3 className="font-sans text-sm font-semibold tracking-normal text-slate-900">Invest virtual money</h3>
-          <fieldset className="mt-3">
+          <fieldset className="mt-3" data-guide="invest-assets">
             <legend className="sr-only">What to invest in</legend>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {ASSETS.map((a) => (
@@ -192,7 +202,7 @@ export function VirtualPortfolio({ portfolio }: { portfolio: PortfolioView }) {
 
         {/* Holdings + fast-forward */}
         <div className="flex flex-col gap-6">
-          <div>
+          <div data-guide="invest-ff">
             <h3 className="font-sans text-sm font-semibold tracking-normal text-slate-900">Fast-forward time</h3>
             <div className="mt-3 grid grid-cols-4 gap-2" role="group" aria-label="Fast-forward">
               {FAST_FORWARD.map((m) => (
@@ -205,7 +215,13 @@ export function VirtualPortfolio({ portfolio }: { portfolio: PortfolioView }) {
           <div>
             <h3 className="font-sans text-sm font-semibold tracking-normal text-slate-900">Your holdings</h3>
             {portfolio.holdings.length === 0 ? (
-              <p className="mt-2 text-sm text-slate-600">Nothing invested yet. Pick an option and put some virtual money in.</p>
+              <div className="mt-2">
+                <AvatarEmpty text={EMPTY.holdings.text} expression="excited">
+                  <GuideSayButton tip={{ kind: "help", text: EMPTY.holdingsHelp, target: "invest-assets" }} className={`${primaryButton} py-3`}>
+                    {EMPTY.holdings.button}
+                  </GuideSayButton>
+                </AvatarEmpty>
+              </div>
             ) : (
               <ul className="mt-2 divide-y divide-slate-100">
                 {portfolio.holdings.map((h) => {

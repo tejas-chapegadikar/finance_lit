@@ -8,6 +8,7 @@ import { GENERIC_ERROR_MESSAGE, SLOW_DOWN_MESSAGE } from "@/lib/constants";
 import { CategoryIcon } from "@/components/ui/topic-icons";
 import { PlusIcon, XIcon } from "@/components/ui/icons";
 import { primaryButton } from "@/components/ui/button-styles";
+import { guideSay } from "@/lib/guide/bus";
 
 const OPEN_EVENT = "rupli:quick-add";
 const fieldClass = "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-200";
@@ -101,8 +102,13 @@ export function QuickAddSheet({ today, minDay, startOpen = false, canNoSpend }: 
         toast.success(result.questXp > 0 ? `+${result.questXp} XP` : "Saved", { description: `${rupees(Number(amount))} · ${label}` });
         if (result.alert) toast.warning(result.alert);
         finish();
+        if (kind === "EXPENSE") {
+          const { AFTER } = await import("@/content/avatar-lines");
+          guideSay({ kind: "after", text: AFTER.expense.text, expression: "happy", action: { label: AFTER.expense.button, target: "money-chart" } });
+        }
       } catch {
         setError(GENERIC_ERROR_MESSAGE);
+        guideSay({ kind: "error", text: GENERIC_ERROR_MESSAGE });
       }
     });
   }
@@ -134,6 +140,7 @@ export function QuickAddSheet({ today, minDay, startOpen = false, canNoSpend }: 
           setOpen(true);
         }}
         aria-label="Quick add money"
+        data-guide="money-add"
         className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-brand-900 shadow-[0_10px_24px_-8px_rgb(15_31_24/0.55)] transition hover:scale-105 lg:right-8 lg:bottom-8"
       >
         <PlusIcon className="h-7 w-7" />

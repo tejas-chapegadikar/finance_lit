@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Avatar } from "@/components/avatar/Avatar";
 import { avatarName, readAvatar } from "@/lib/avatar";
 import { verdictFor } from "@/lib/avatar/quiz-lines";
+import { AFTER } from "@/content/avatar-lines";
+import { GuideOnMount } from "@/components/guide/GuideBits";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireOnboardedUser } from "@/lib/auth";
@@ -116,6 +118,7 @@ export default async function LessonCompletePage(props: PageProps<"/lessons/[slu
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-8">
+      <GuideOnMount tip={{ kind: "after", text: AFTER.lesson.text, expression: "proud", action: { label: AFTER.lesson.button, href: "/money" } }} />
       {/* Completing the lesson: the one dark, celebratory card */}
       <header className={`${gameSurface} flex animate-fade-up flex-col items-center px-6 pt-10 pb-6 text-center sm:px-10`}>
         <span

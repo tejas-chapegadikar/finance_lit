@@ -1,4 +1,9 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
+import { EMPTY } from "@/content/avatar-lines";
+import { readAvatar } from "@/lib/avatar";
+import { AvatarEmpty } from "@/components/guide/AvatarEmpty";
+import { primaryButton } from "@/components/ui/button-styles";
 import type { Metadata } from "next";
 import { requireOnboardedUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -10,7 +15,7 @@ import { getDoneQuests } from "@/lib/quests";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { card } from "@/components/ui/button-styles";
-import { QuickAddSheet } from "@/components/money/QuickAddSheet";
+import { QuickAddButton, QuickAddSheet } from "@/components/money/QuickAddSheet";
 import { CheckQuest } from "@/components/money/CheckQuest";
 import { BudgetEditor } from "@/components/money/BudgetEditor";
 import { CategoryBars, CategoryDonut, DailyColumns, SpendSplit, TrendColumns } from "@/components/money/Charts";
@@ -100,7 +105,9 @@ export default async function MoneyPage(props: PageProps<"/money">) {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       <header className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl text-slate-900">Money</h1>
+        <ViewTransition name="hub-money" share="morph" default="none">
+          <h1 className="text-2xl text-slate-900">Money</h1>
+        </ViewTransition>
         <nav aria-label="Month" className="flex items-center gap-1 text-sm font-medium text-slate-600">
           <Link href={href({ month: shiftMonth(month, -1) })} aria-label="Previous month" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100">
             <ArrowLeftIcon className="h-4 w-4" />
@@ -114,7 +121,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
         </nav>
       </header>
 
-      <nav aria-label="Money sections" className="grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1">
+      <nav aria-label="Money sections" data-guide="money-tabs" className="grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1">
         {TABS.map((t) => (
           <Link key={t.id} href={href({ tab: t.id, type: "all", cat: null })} aria-current={tab === t.id ? "page" : undefined} className={`flex min-h-10 items-center justify-center rounded-lg text-[13px] transition sm:text-sm ${tab === t.id ? "bg-white font-semibold text-slate-900 shadow-sm" : "font-medium text-slate-600"}`}>
             {t.label}
@@ -125,6 +132,11 @@ export default async function MoneyPage(props: PageProps<"/money">) {
       {tab === "overview" && (
         <>
           {m.isCurrent && !doneQuests.has("check") && <CheckQuest />}
+          {m.isCurrent && m.entries.length === 0 && (
+            <AvatarEmpty text={EMPTY.expenses.text} avatar={readAvatar(user.avatar)}>
+              <QuickAddButton className={`${primaryButton} py-3`}>{EMPTY.expenses.button}</QuickAddButton>
+            </AvatarEmpty>
+          )}
           <dl className="grid grid-cols-2 gap-2">
             {tiles.map((t) => (
               <div key={t.label} className={`${card} flex flex-col-reverse p-3`}>
@@ -141,7 +153,7 @@ export default async function MoneyPage(props: PageProps<"/money">) {
               <InsightList insights={insights} />
             </div>
           </section>
-          <section aria-labelledby="chart-heading">
+          <section aria-labelledby="chart-heading" data-guide="money-chart">
             <h2 id="chart-heading" className="text-lg text-slate-900">
               Spending by category
             </h2>
@@ -256,7 +268,11 @@ export default async function MoneyPage(props: PageProps<"/money">) {
             ))}
           </nav>
           {m.entries.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-600">Nothing logged for {m.label} yet. Tap + to add your first one.</p>
+            <div className="mt-4">
+              <AvatarEmpty text={EMPTY.expenses.text} avatar={readAvatar(user.avatar)}>
+                {m.isCurrent ? <QuickAddButton className={`${primaryButton} py-3`}>{EMPTY.expenses.button}</QuickAddButton> : <span className="text-sm text-slate-600">Nothing logged for {m.label}.</span>}
+              </AvatarEmpty>
+            </div>
           ) : shown.length === 0 ? (
             <p className="mt-4 text-sm text-slate-600">
               No {cat ? expenseCategory(cat).label.toLowerCase() : type === "in" ? "income" : "expenses"} logged for {m.label}.{" "}
