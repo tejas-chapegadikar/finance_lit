@@ -2,6 +2,8 @@
 // (0, 0). Parts the engine animates are marked: data-fill (a jar's money
 // level), data-count (a counter's number), data-layer="page:…" (calendar pages).
 
+import { MORE_ICONS, fit } from "./generic";
+
 const INK = "#0F1F18";
 const GOLD = "#FFB81F";
 const CREAM = "#F5EFE3";
@@ -267,13 +269,13 @@ export function Card({ icon, text }: { icon: string; text: string }) {
       <rect x={-130} y={-33} width={260} height={66} rx={18} fill="#fff" {...OUT} strokeWidth={2.6} />
       <circle cx={-98} cy={0} r={20} fill={CREAM} {...OUT} strokeWidth={2.2} />
       <g transform="translate(-98 0)">
-        {CARD_ICONS[icon] ?? (
+        {CARD_ICONS[icon] ?? (MORE_ICONS[icon] ? <g transform="scale(0.95)">{MORE_ICONS[icon]}</g> : null) ?? (
           <text y={8} textAnchor="middle" fontSize={22}>
             {icon}
           </text>
         )}
       </g>
-      <text x={-68} y={6} fontSize={17} fontWeight={800} fill={INK} fontFamily={FONT}>
+      <text x={-68} y={6} fontSize={fit(text, 17, 186)} fontWeight={800} fill={INK} fontFamily={FONT}>
         {text}
       </text>
     </g>

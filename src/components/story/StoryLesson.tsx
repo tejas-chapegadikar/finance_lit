@@ -46,7 +46,7 @@ function QuizButton({ startQuiz, xpReward, completed }: QuizProps) {
         {completed ? "Retake Quiz" : "Start Quiz"}
         <ArrowRightIcon className="h-5 w-5" />
       </SubmitButton>
-      <p className="text-sm font-semibold text-slate-700">{completed ? "5 questions · raise your readiness" : `5 questions · +${xpReward} XP`}</p>
+      <p className="rounded-full bg-white/90 px-3 py-0.5 text-sm font-semibold text-slate-700">{completed ? "5 questions · raise your readiness" : `5 questions · +${xpReward} XP`}</p>
     </form>
   );
 }
@@ -214,7 +214,7 @@ export function StoryLesson({ story, ...quiz }: { story: Story } & QuizProps) {
             </div>
             {/* The way out: the existing quiz, once the story is nearly done */}
             <div
-              className={`absolute inset-x-0 top-[34%] flex justify-center transition-[opacity,transform] duration-300 ${quizReady ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}
+              className={`absolute inset-x-0 top-[56%] flex justify-center transition-[opacity,transform] duration-300 ${quizReady ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}
               inert={!quizReady}
             >
               <QuizButton {...quiz} />

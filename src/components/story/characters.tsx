@@ -11,7 +11,7 @@ export const FACES = ["neutral", "happy", "excited", "confused", "worried", "thi
 export type Face = (typeof FACES)[number];
 
 /** One face, centred on the head at (0, cy). */
-function FaceLayer({ face, cy, show }: { face: Face; cy: number; show: boolean }) {
+export function FaceLayer({ face, cy, show }: { face: Face; cy: number; show: boolean }) {
   const ey = cy - 2;
   const my = cy + 11;
   const dot = (x: number, r = 2.6) => <circle cx={x} cy={ey} r={r} fill={INK} />;
@@ -118,7 +118,7 @@ function FaceLayer({ face, cy, show }: { face: Face; cy: number; show: boolean }
 }
 
 /** An outlined arm from the shoulder through `points`, ending in a hand. */
-function Arm({ points, skin, sleeve }: { points: [number, number][]; skin: string; sleeve: string }) {
+export function Arm({ points, skin, sleeve }: { points: [number, number][]; skin: string; sleeve: string }) {
   const d = points.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join(" ");
   const [hx, hy] = points[points.length - 1];
   const [sx, sy] = points[0];
@@ -135,7 +135,7 @@ function Arm({ points, skin, sleeve }: { points: [number, number][]; skin: strin
   );
 }
 
-function ArmLayer({ name, show, children }: { name: string; show: boolean; children: React.ReactNode }) {
+export function ArmLayer({ name, show, children }: { name: string; show: boolean; children: React.ReactNode }) {
   return (
     <g data-layer={`arms:${name}`} opacity={show ? 1 : 0}>
       {children}
@@ -144,7 +144,7 @@ function ArmLayer({ name, show, children }: { name: string; show: boolean; child
 }
 
 /** "face:happy" → face is happy; "arms:up" → arms are up. A layer string can set both: "face:happy arms:up". */
-function parse(layer: string | undefined, fallbackArms: string) {
+export function parseLayer(layer: string | undefined, fallbackArms: string) {
   const parts = (layer ?? "").split(/\s+/);
   const face = (parts.find((p) => p.startsWith("face:"))?.slice(5) ?? "neutral") as Face;
   const arms = parts.find((p) => p.startsWith("arms:"))?.slice(5) ?? fallbackArms;
@@ -177,7 +177,7 @@ const RIYA_ARMS: Record<string, [number, number][]> = {
 
 /** Riya: a college student, gold kurta, ponytail. */
 export function Riya({ layer }: { layer?: string }) {
-  const { face, arms } = parse(layer, "down");
+  const { face, arms } = parseLayer(layer, "down");
   const left = (name: string) => (name === "up" ? RIYA_ARMS.up : RIYA_ARMS.down);
   const right = (name: string): [number, number][] =>
     name === "up"
@@ -250,7 +250,7 @@ const MOM_RIGHT: Record<string, [number, number][]> = {
 
 /** Mom: a green saree with a gold border, a bun, glasses and a bindi. */
 export function Mom({ layer }: { layer?: string }) {
-  const { face, arms } = parse(layer, "down");
+  const { face, arms } = parseLayer(layer, "down");
   return (
     <g>
       {/* bun behind the head */}

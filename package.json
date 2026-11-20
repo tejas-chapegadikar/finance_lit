@@ -12,7 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "report": "tsx prisma/report.ts",
-    "test": "tsx --test \"src/**/*.test.ts\""
+    "test": "tsx --test \"src/**/*.test.ts\"",
+    "story:docs": "tsx scripts/story-docs.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
