@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Story } from "@/lib/story/types";
-import { guideHide, guideSay } from "@/lib/guide/bus";
-import { STORY } from "@/content/buddy-messages";
+import type { AvatarConfig } from "@/lib/avatar";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { primaryButton } from "@/components/ui/button-styles";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { StoryStage, buildTimeline } from "./StoryStage";
+import { StoryPeekBuddy } from "./StoryPeekBuddy";
 
 // A lesson told as a story that plays as you scroll. A pinned stage (CSS
 // sticky, so it never jumps on phones) sits inside a tall section; scrolling
@@ -46,7 +46,9 @@ function QuizButton({ startQuiz, xpReward, completed }: QuizProps) {
         {completed ? "Retake Quiz" : "Start Quiz"}
         <ArrowRightIcon className="h-5 w-5" />
       </SubmitButton>
-      <p className="rounded-full bg-white/90 px-3 py-0.5 text-sm font-semibold text-slate-700">{completed ? "5 questions · raise your readiness" : `5 questions · +${xpReward} XP`}</p>
+      <p className="rounded-full bg-white/90 px-3 py-0.5 text-sm font-semibold text-slate-700">
+        {completed ? "5 questions · raise your readiness" : `5 questions · +${xpReward} XP`}
+      </p>
     </form>
   );
 }
@@ -85,7 +87,7 @@ function StoryCards({ story, ...quiz }: { story: Story } & QuizProps) {
   );
 }
 
-export function StoryLesson({ story, ...quiz }: { story: Story } & QuizProps) {
+export function StoryLesson({ story, avatar, ...quiz }: { story: Story; avatar: AvatarConfig } & QuizProps) {
   const [calm, setCalm] = useState(false);
   const [quizReady, setQuizReady] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -95,7 +97,9 @@ export function StoryLesson({ story, ...quiz }: { story: Story } & QuizProps) {
   const hint = useRef<HTMLDivElement>(null);
   const captions = useRef<(HTMLLIElement | null)[]>([]);
   const posKey = `rupli-story-${story.slug}`;
-  const nudgeKey = `rupli-story-nudged-${story.slug}`;
+  // For the peek buddy: scroll progress without re-rendering, and where the quiz button is.
+  const progressRef = useRef(0);
+  const quizWrap = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!calmNow()) return;
@@ -110,12 +114,8 @@ export function StoryLesson({ story, ...quiz }: { story: Story } & QuizProps) {
     const stageEl = stage.current;
     const stageTop = () => parseFloat(getComputedStyle(stageEl).top) || 0;
     let progress = 0;
-    let lastMove = Date.now();
     let lastSave = 0;
-    let started = false;
-    let quizSaid = false;
     let ready = false;
-    let hintTimer = 0;
     let frame = 0;
 
     const ctx = gsap.context(() => {
@@ -129,20 +129,12 @@ export function StoryLesson({ story, ...quiz }: { story: Story } & QuizProps) {
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           progress = self.progress;
-          lastMove = Date.now();
+          progressRef.current = progress;
           if (bar.current) bar.current.style.transform = `scaleX(${progress})`;
           if (hint.current) hint.current.style.opacity = progress < 0.03 ? "1" : "0";
-          if (!started && progress > 0.05) {
-            started = true;
-            guideHide("story");
-          }
           if (progress >= QUIZ_AT !== ready) {
             ready = progress >= QUIZ_AT;
             setQuizReady(ready);
-          }
-          if (!quizSaid && progress >= 0.9) {
-            quizSaid = true;
-            guideSay({ kind: "help", tag: "story-quiz", text: STORY.quiz[0], expression: "smirk" });
           }
           if (Date.now() - lastSave > 400) {
             lastSave = Date.now();
@@ -156,31 +148,20 @@ export function StoryLesson({ story, ...quiz }: { story: Story } & QuizProps) {
       frame = requestAnimationFrame(() => {
         if (saved > 0.03 && saved < 0.97) {
           window.scrollTo({ top: trigger.start + saved * (trigger.end - trigger.start), behavior: "instant" });
-          started = saved > 0.05;
+          progressRef.current = saved;
         }
-        if (!started) hintTimer = window.setTimeout(() => guideSay({ kind: "help", tag: "story", text: STORY.start[0], expression: "happy" }), 700);
       });
     }, rootEl);
 
-    // Stopped scrolling for 6s mid-story: one nudge per lesson, ever.
-    const idle = window.setInterval(() => {
-      if (!started || progress >= QUIZ_AT || Date.now() - lastMove < 6000 || read(nudgeKey)) return;
-      write(nudgeKey, "1");
-      guideSay({ kind: "help", tag: "story", text: STORY.nudge[0], expression: "smirk" });
-    }, 1000);
-
     return () => {
-      window.clearInterval(idle);
-      window.clearTimeout(hintTimer);
       cancelAnimationFrame(frame);
       ctx.revert();
-      guideHide("story");
-      guideHide("story-quiz");
     };
-  }, [calm, story, posKey, nudgeKey]);
+  }, [calm, story, posKey]);
 
   return (
     <div className="story -mx-4 sm:-mx-6 lg:-mx-8">
+      <StoryPeekBuddy avatar={avatar} progress={progressRef} quizEl={quizWrap} quizReady={calm || quizReady} />
       {calm ? (
         <StoryCards story={story} {...quiz} />
       ) : (
@@ -214,6 +195,7 @@ export function StoryLesson({ story, ...quiz }: { story: Story } & QuizProps) {
             </div>
             {/* The way out: the existing quiz, once the story is nearly done */}
             <div
+              ref={quizWrap}
               className={`absolute inset-x-0 top-[56%] flex justify-center transition-[opacity,transform] duration-300 ${quizReady ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}
               inert={!quizReady}
             >

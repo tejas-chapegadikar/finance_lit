@@ -548,10 +548,33 @@ export const AFTER = {
 };
 
 /** Story lessons (scroll to watch): how to start, a nudge if you stop, and the quiz at the end. */
-export const STORY = {
-  start: ["Scroll down slowly 👇", "Scroll slowly and watch the story 👇", "Scroll down. The story plays as you go 👇"],
-  nudge: ["Keep scrolling, the good part is next 😏", "Don't stop now. It gets better 😏", "Still there? Keep scrolling, trust me 😏"],
-  quiz: ["Okay genius, prove it 😏", "Story's done. Now show me what you learned 😏", "You watched it all. Quiz time 😏"],
+/**
+ * Story Mode: the buddy peeking in from the side while you're NOT scrolling
+ * (components/story/StoryPeekBuddy.tsx; its timings are at the top of that file).
+ */
+export const STORY_PEEK = {
+  /** The story just opened and you haven't scrolled yet. */
+  intro: ["Psst. Scroll down. The story won't read itself.", "Scroll slowly. There's drama ahead.", "You open a story and just… stare? Scroll, buddy."],
+  /** You stopped in the middle of the story. */
+  idle: [
+    "Scroll down, buddy. The story is waiting.",
+    "Did your thumb fall asleep?",
+    "This isn't a photo. Keep scrolling.",
+    "Plot twist: you have to scroll.",
+    "I'm not reading this to you. Scroll.",
+    "The good part is literally below you.",
+    "Waiting… still waiting… scroll?",
+  ],
+  /** You stopped near the end (85%+) and the Start Quiz button isn't on screen yet. */
+  nearEnd: [
+    "Bro, the quiz is at the very bottom. Keep going.",
+    "So close. Scroll to the end to start the quiz.",
+    "The quiz button is down there. I checked.",
+    "You're one scroll away from XP. Go.",
+    "Don't quit now. The quiz is right at the bottom.",
+  ],
+  /** The Start Quiz button is on screen (said once per story). */
+  quizVisible: ["There it is. Tap Start Quiz and show off.", "Big moment. Tap Start Quiz, genius.", "Quiz time. Tap Start Quiz and grab your XP."],
 };
 
 /** When something breaks. */

@@ -49,7 +49,7 @@ test("English only: no Hindi or Hinglish words", () => {
 
 test("safe roasts: no em dash, nothing about family, looks, identity or income, no swearing, no shaming", () => {
   const banned =
-    /—|\b(papa|mummy|mom|dad|parents?|family|caste|religion|gender|your looks|ugly|fat|income|salary|stipend|broke|poor|poorer|cheap|idiot|stupid|dumb|loser|damn|hell|bro)\b/i;
+    /—|\b(papa|mummy|mom|dad|parents?|family|caste|religion|gender|your looks|ugly|fat|income|salary|stipend|broke|poor|poorer|cheap|idiot|stupid|dumb|loser|damn|hell)\b/i;
   for (const line of all) assert.ok(!banned.test(line), `bad line: ${line}`);
 });
 

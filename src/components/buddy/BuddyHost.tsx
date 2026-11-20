@@ -193,6 +193,8 @@ export function BuddyHost({
       }
       const tip = queue.current[0];
       if (!tip) return;
+      // In Story Mode the story has its own peek buddy: hold everything else until you leave the story.
+      if (!tip.prompted && document.querySelector(".story")) return;
       if (!tip.prompted && Date.now() - lastClosed.current < GAP_MS) return;
       queue.current.shift();
       if (!tip.prompted) {

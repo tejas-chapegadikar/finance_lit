@@ -11,6 +11,7 @@ import { answerScenario } from "@/actions/lessons";
 import { beginQuiz } from "@/actions/quiz";
 import { RecordLessonView } from "@/components/lessons/RecordLessonView";
 import { StoryLesson } from "@/components/story/StoryLesson";
+import { readAvatar } from "@/lib/avatar";
 import { hasStory, loadStory } from "@/lib/story/registry";
 import { LessonFinale } from "@/components/lessons/LessonFinale";
 import { LessonVisual } from "@/components/lessons/LessonVisual";
@@ -165,7 +166,13 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
       <article aria-label={lesson.title}>
         <h1 className="sr-only">{lesson.title}</h1>
         <RecordLessonView lessonId={lesson.id} />
-        <StoryLesson story={story} startQuiz={beginQuiz.bind(null, lesson.id)} xpReward={lesson.xpReward} completed={lessonProgress.status === "completed"} />
+        <StoryLesson
+          story={story}
+          avatar={readAvatar(user.avatar)}
+          startQuiz={beginQuiz.bind(null, lesson.id)}
+          xpReward={lesson.xpReward}
+          completed={lessonProgress.status === "completed"}
+        />
         <footer className="mx-auto mt-6 max-w-[480px] px-2 text-center text-xs leading-relaxed text-slate-500" aria-label="Sources">
           {storySources.length > 0 && (
             <>
