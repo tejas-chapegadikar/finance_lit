@@ -547,6 +547,13 @@ export const AFTER = {
   },
 };
 
+/** Story lessons (scroll to watch): how to start, a nudge if you stop, and the quiz at the end. */
+export const STORY = {
+  start: ["Scroll down slowly 👇", "Scroll slowly and watch the story 👇", "Scroll down. The story plays as you go 👇"],
+  nudge: ["Keep scrolling, the good part is next 😏", "Don't stop now. It gets better 😏", "Still there? Keep scrolling, trust me 😏"],
+  quiz: ["Okay genius, prove it 😏", "Story's done. Now show me what you learned 😏", "You watched it all. Quiz time 😏"],
+};
+
 /** When something breaks. */
 export const ERRORS: Lines = [
   "Oops, that one's on me. Try again?",

@@ -10,6 +10,8 @@ import { CORE_SCENARIOS } from "@/lib/scenarios";
 import { answerScenario } from "@/actions/lessons";
 import { beginQuiz } from "@/actions/quiz";
 import { RecordLessonView } from "@/components/lessons/RecordLessonView";
+import { StoryLesson } from "@/components/story/StoryLesson";
+import { hasStory, loadStory } from "@/lib/story/registry";
 import { LessonFinale } from "@/components/lessons/LessonFinale";
 import { LessonVisual } from "@/components/lessons/LessonVisual";
 import { LessonProgressBar, type LessonStep } from "@/components/lessons/LessonProgressBar";
@@ -37,10 +39,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
   const user = await requireOnboardedUser();
   const { slug } = await props.params;
 
-  const [lesson, progress] = await Promise.all([
-    db.lesson.findUnique({ where: { slug } }),
-    getProgress(user.id),
-  ]);
+  const [lesson, progress] = await Promise.all([db.lesson.findUnique({ where: { slug } }), getProgress(user.id)]);
   const inInvest = progress.invest.find((l) => l.id === lesson?.id);
   const lessonProgress = progress.lessons.find((l) => l.id === lesson?.id) ?? inInvest;
   if (!lesson || !lesson.isPublished || !lessonProgress) {
@@ -58,7 +57,9 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
           <LessonIcon slug={lesson.slug} area={lesson.area} />
         </IconTile>
       }
-      eyebrow={inInvest ? `InvestSmart · Lesson ${number} of ${progress.invest.length}` : `${level ? `Level ${level.number} · ` : ""}Lesson ${number} · ${area.label}`}
+      eyebrow={
+        inInvest ? `InvestSmart · Lesson ${number} of ${progress.invest.length}` : `${level ? `Level ${level.number} · ` : ""}Lesson ${number} · ${area.label}`
+      }
       title={lesson.title}
     >
       <MetaRow
@@ -77,10 +78,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
   );
 
   const backLink = (
-    <Link
-      href="/lessons"
-      className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900"
-    >
+    <Link href="/lessons" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-slate-600 hover:text-slate-900">
       <ArrowLeftIcon className="h-4 w-4" />
       {inInvest ? "InvestSmart" : "Learning path"}
     </Link>
@@ -158,19 +156,45 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
     );
   }
 
+  // Lessons with a scroll story show only the story, then the quiz. The text
+  // version below stays for every lesson that doesn't have a story yet.
+  const story = hasStory(lesson.slug) ? await loadStory(lesson.slug) : null;
+  if (story) {
+    const storySources = readSources(lesson.sources);
+    return (
+      <article aria-label={lesson.title}>
+        <h1 className="sr-only">{lesson.title}</h1>
+        <RecordLessonView lessonId={lesson.id} />
+        <StoryLesson story={story} startQuiz={beginQuiz.bind(null, lesson.id)} xpReward={lesson.xpReward} completed={lessonProgress.status === "completed"} />
+        <footer className="mx-auto mt-6 max-w-[480px] px-2 text-center text-xs leading-relaxed text-slate-500" aria-label="Sources">
+          {storySources.length > 0 && (
+            <>
+              Sources:{" "}
+              {storySources.map((source, i) => (
+                <span key={source.url}>
+                  {i > 0 && ", "}
+                  <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-slate-700">
+                    {source.label}
+                  </a>
+                </span>
+              ))}
+              .{" "}
+            </>
+          )}
+          Examples use illustrative numbers. This is education, not personal financial advice.
+        </footer>
+      </article>
+    );
+  }
+
   const sections = splitLearnSections(lesson.contentMarkdown);
   const sources = readSources(lesson.sources);
   const practiceScenario = CORE_SCENARIOS.find((s) => s.lessonSlug === lesson.slug);
   const keyTerms = readKeyTerms(lesson.keyTerms);
   const scenarioOptions = readChoiceOptions(lesson.scenarioOptions);
-  const scenario =
-    lesson.scenarioPrompt && scenarioOptions.length > 0
-      ? { prompt: lesson.scenarioPrompt, options: scenarioOptions.map((o) => o.text) }
-      : null;
+  const scenario = lesson.scenarioPrompt && scenarioOptions.length > 0 ? { prompt: lesson.scenarioPrompt, options: scenarioOptions.map((o) => o.text) } : null;
 
-  const previousAnswer = scenario
-    ? await db.scenarioAnswer.findUnique({ where: { userId_lessonId: { userId: user.id, lessonId: lesson.id } } })
-    : null;
+  const previousAnswer = scenario ? await db.scenarioAnswer.findUnique({ where: { userId_lessonId: { userId: user.id, lessonId: lesson.id } } }) : null;
   const initialAnswer =
     previousAnswer && scenarioOptions[previousAnswer.optionIndex]
       ? {
@@ -216,7 +240,10 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
         <StepLabel id="learn-heading" step={stepNumber("learn-heading")} title="Learn" />
         <div className="mt-6 flex flex-col">
           {sections.map((section, i) => (
-            <div key={i} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3 border-b border-slate-200 py-6 first:pt-0 last:border-b-0 sm:grid-cols-[2.5rem_minmax(0,1fr)]">
+            <div
+              key={i}
+              className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3 border-b border-slate-200 py-6 first:pt-0 last:border-b-0 sm:grid-cols-[2.5rem_minmax(0,1fr)]"
+            >
               <span aria-hidden className="pt-1 font-display text-sm font-semibold text-slate-500 tabular-nums">
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -268,10 +295,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
       />
 
       {practiceScenario && (
-        <Link
-          href={`/practice/${practiceScenario.slug}`}
-          className={`${tile} flex items-center gap-4 p-4`}
-        >
+        <Link href={`/practice/${practiceScenario.slug}`} className={`${tile} flex items-center gap-4 p-4`}>
           <IconTile area={practiceScenario.area} size="md">
             <ScenarioIcon slug={practiceScenario.slug} area={practiceScenario.area} />
           </IconTile>
@@ -288,8 +312,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
         <p className="font-semibold text-slate-900">Sources &amp; review</p>
         {lesson.reviewedAt && (
           <p className="mt-1">
-            Last reviewed:{" "}
-            {lesson.reviewedAt.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata" })}
+            Last reviewed: {lesson.reviewedAt.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata" })}
           </p>
         )}
         {lesson.appliesTo && <p className="mt-1">Applies to: {lesson.appliesTo}</p>}
@@ -304,9 +327,7 @@ export default async function LessonPage(props: PageProps<"/lessons/[slug]">) {
             ))}
           </ul>
         )}
-        <p className="mt-2 text-xs">
-          Examples use illustrative numbers. Your own situation may differ. This is education, not personal financial advice.
-        </p>
+        <p className="mt-2 text-xs">Examples use illustrative numbers. Your own situation may differ. This is education, not personal financial advice.</p>
       </footer>
     </article>
   );

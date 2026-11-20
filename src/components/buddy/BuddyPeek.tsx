@@ -47,8 +47,9 @@ function segments(text: string) {
 function typedPieces(text: string, count: number) {
   let left = count;
   return segments(text).map(({ part, bold }, i) => {
-    const piece = part.slice(0, Math.max(0, left));
-    left -= part.length;
+    const chars = Array.from(part);
+    const piece = chars.slice(0, Math.max(0, left)).join("");
+    left -= chars.length;
     return bold ? <strong key={i}>{piece}</strong> : <span key={i}>{piece}</span>;
   });
 }
@@ -126,12 +127,13 @@ export function BuddyPeek({
   onMute?: () => void;
 }) {
   const [calm] = useState(calmNow);
-  const [typed, setTyped] = useState(() => (calm ? message.text.length : 0));
+  const length = Array.from(message.text).length;
+  const [typed, setTyped] = useState(() => (calm ? length : 0));
   const [box, setBox] = useState<{ w: number; h: number; head: number } | null>(null);
   const bubble = useRef<HTMLDivElement>(null);
   const well = useRef<HTMLDivElement>(null);
   const held = useRef(false);
-  const done = typed >= message.text.length;
+  const done = typed >= length;
   const clipId = `buddy-clip-${message.key}`;
 
   // Measure the bubble (and the head) so the outline fits exactly.
@@ -239,7 +241,7 @@ export function BuddyPeek({
             {message.title ? `${message.title}. ` : ""}
             {message.text}
           </p>
-          <div aria-hidden onClick={() => setTyped(message.text.length)} className="cursor-default font-sans text-[15px] leading-[1.4] text-[#0F1F18]">
+          <div aria-hidden onClick={() => setTyped(length)} className="cursor-default font-sans text-[15px] leading-[1.4] text-[#0F1F18]">
             {message.title && <p className="mb-0.5 font-display text-[13px] font-bold">{message.title}</p>}
             {/* The full text sits underneath, invisible, so the bubble never changes size while typing. */}
             <p className="grid">

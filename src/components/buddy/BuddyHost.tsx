@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { markTipsSeen } from "@/actions/guide";
 import { markAvatarEventsShown } from "@/actions/avatar";
-import { GUIDE_EVENT, PAGE_GUIDE_EVENT, type GuideAction, type GuideTip } from "@/lib/guide/bus";
+import { GUIDE_EVENT, GUIDE_HIDE_EVENT, PAGE_GUIDE_EVENT, type GuideAction, type GuideTip } from "@/lib/guide/bus";
 import type { AvatarConfig } from "@/lib/avatar";
 import type { Expression } from "@/components/avatar/Avatar";
 import type { PendingAvatarEvent } from "@/lib/avatar/events";
@@ -230,10 +230,19 @@ export function BuddyHost({
       display({ kind: "help", prompted: true, text: await say(help?.lines ?? l.FALLBACK_HELP), key: Date.now() });
     }
     const help = () => void onHelp().catch(() => {});
+    // guideHide(tag): take that bubble down (or out of the line).
+    function onHide(e: Event) {
+      const tag = (e as CustomEvent<string>).detail;
+      queue.current = queue.current.filter((t) => t.tag !== tag);
+      if (replacement.current?.tag === tag) replacement.current = null;
+      if (currentRef.current?.tag === tag) setLeaving(true);
+    }
     window.addEventListener(GUIDE_EVENT, onSay);
+    window.addEventListener(GUIDE_HIDE_EVENT, onHide);
     window.addEventListener(PAGE_GUIDE_EVENT, help);
     return () => {
       window.removeEventListener(GUIDE_EVENT, onSay);
+      window.removeEventListener(GUIDE_HIDE_EVENT, onHide);
       window.removeEventListener(PAGE_GUIDE_EVENT, help);
     };
   }, [pathname, offer, display, tourFor, load, say]);

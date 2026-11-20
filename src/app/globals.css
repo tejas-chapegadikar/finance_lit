@@ -1009,6 +1009,27 @@ html[data-buddy] #main {
   }
 }
 
+/* Story lessons (components/story/StoryLesson.tsx): the pinned stage fills the
+   screen between the top bar and the bottom tabs (the whole height on desktop). */
+.story {
+  --story-top: 3.5rem;
+  --story-h: calc(100svh - 3.5rem - var(--buddy-nav));
+}
+@media (min-width: 64rem) {
+  .story {
+    --story-top: 0px;
+    --story-h: 100svh;
+  }
+}
+.story-bounce {
+  animation: story-bounce 1.1s ease-in-out infinite;
+}
+@keyframes story-bounce {
+  50% {
+    transform: translateY(7px);
+  }
+}
+
 /* Motion is decoration: people who ask for less get none of it. */
 @media (prefers-reduced-motion: reduce) {
   *,
