@@ -107,7 +107,7 @@ Sana (21) and her cousin Imran (23). An evening metro ride.
 | 3 | 'Bank' asks for your OTP? Share it with no one. |
 | 4 | ₹200 for likes, then 'deposit ₹3,000'? A task scam. |
 | 5 | 'Digital arrest' doesn't exist. Police never video-call for money. |
-| 6 | Customer care number from search? It could be fake. |
+| 6 | Customer care numbers in search can be scammers' fakes. |
 | 7 | Slow down. Share nothing. Check yourself. |
 
 | Quiz question | Correct answer | Scene | How it's shown (visual + caption) |
@@ -175,16 +175,17 @@ Harpreet (24) and her brother Gurdeep (22). A bike showroom.
 | 2 | Credit score: 300 to 900. Banks check it first. |
 | 3 | Biggest factor: paying EMIs and bills on time. |
 | 4 | ₹1,00,000 limit? Keep your balance under ₹30,000. |
-| 5 | Checking your own score? A soft check. No drop. |
+| 5 | Checking your own score is a soft enquiry. No drop. |
 | 6 | Never borrowed? No score yet. That's not bad. |
-| 7 | On time. Under 30%. Check freely. |
+| 7 | Many loan applications at once pull your score down. |
+| 8 | On time. Under 30%. Check freely. |
 
 | Quiz question | Correct answer | Scene | How it's shown (visual + caption) |
 |---|---|---|---|
 | A friend brags about a CIBIL score of 1,200. What's the actual range of a CIBIL score? | 300 to 900 | 2 | A dial sweeps from 300 to 900; label '300 to 900'. |
 | Which of these matters most for your credit score? | Paying EMIs and bills on time | 3 | Harpreet's on-time ticks push the needle up; Gurdeep's missed dates (crosses) pull it down. |
 | Your card limit is ₹1,00,000. To keep utilisation healthy, your balance should usually stay under: | ₹30,000 | 4 | A ₹1,00,000 limit bar turns red at 80%, then drops to the gold '30% = ₹30,000' mark. |
-| Does checking your own credit score lower it? | No, checking your own score is a soft enquiry | 5 | Harpreet checks her own score on her phone; the needle doesn't move; box 'Soft check: no drop'. |
+| Does checking your own credit score lower it? | No, checking your own score is a soft enquiry | 5 | Harpreet checks her own score on her phone; the needle doesn't move; caption and box: 'soft enquiry', no drop. |
 | You've never had a loan or a credit card. What does your credit report most likely show? | No score yet, because there's no credit history | 6 | The dial goes blank; box 'No loans yet = no score yet'; label 'Not a bad score'. |
 | | | | **5/5 covered** |
 
@@ -223,7 +224,8 @@ Vikram (20) and Neha (20). The college canteen.
 | 4 | Early EMIs are mostly interest. Later, mostly principal. |
 | 5 | '10% flat' ≈ 18% reducing. 14% reducing costs less. |
 | 6 | Neha: 'Be my guarantor?' You'd repay if she doesn't. |
-| 7 | Check lenders. Compare reducing rates. Guarantee carefully. |
+| 7 | Compare the APR in the Key Fact Statement, not ads. |
+| 8 | Check lenders. Compare reducing rates. Guarantee carefully. |
 
 | Quiz question | Correct answer | Scene | How it's shown (visual + caption) |
 |---|---|---|---|
@@ -246,7 +248,8 @@ Arjun (22, fresher) and Lakshmi (senior colleague). Arjun's first office.
 | 4 | TDS: income tax your employer cuts before paying you. |
 | 5 | EPF goes into YOUR retirement savings account. |
 | 6 | No regime chosen? The new regime applies by default. |
-| 7 | Read the CTC. Know your payslip. |
+| 7 | File your ITR anyway: it's your official income proof. |
+| 8 | Read the CTC. Know your payslip. |
 
 | Quiz question | Correct answer | Scene | How it's shown (visual + caption) |
 |---|---|---|---|
@@ -290,7 +293,7 @@ Aisha (21) and Rohan (31). The neighbourhood gym.
 | 2 | SIP: a fixed amount into a mutual fund, monthly. |
 | 3 | Prices fall? Your same ₹3,000 buys more units. |
 | 4 | Down 15%, goal 10 years away? Keep the SIP going. |
-| 5 | At 60: Aisha ~₹1.7 crore, Rohan ~₹62 lakh. |
+| 5 | 10 more years to compound: ₹1.7 crore vs ₹62 lakh. |
 | 6 | First: an emergency fund and health insurance. |
 | 7 | Show up monthly. Start early. Don't quit. |
 
@@ -298,7 +301,7 @@ Aisha (21) and Rohan (31). The neighbourhood gym.
 |---|---|---|---|
 | Everyone on finance Instagram says “start a SIP”. What is a SIP? | Investing a fixed amount in a mutual fund regularly | 2 | Box 'SIP = fixed ₹3,000 into a mutual fund every month' as a coin drops in for each month. |
 | With a fixed monthly SIP, what happens when market prices fall? | Your fixed amount buys more units | 3 | Price high: 3 units; price falls on the chart: 5 units for the same money. |
-| Aisha starts a ₹3,000 monthly SIP at 21. Rohan starts the same SIP at 31. Assuming the same returns, why does Aisha end up with much more at 60? | Her money had 10 more years to compound | 5 | Counters: Aisha ₹1.7 crore vs Rohan ₹62 lakh; label '10 extra years to compound'. |
+| Aisha starts a ₹3,000 monthly SIP at 21. Rohan starts the same SIP at 31. Assuming the same returns, why does Aisha end up with much more at 60? | Her money had 10 more years to compound | 5 | Caption: '10 more years to compound: ₹1.7 crore vs ₹62 lakh'; Aisha's bar towers over Rohan's. |
 | What should usually come before starting a SIP? | An emergency fund and health insurance | 6 | Emergency fund and health insurance shields pop up; box 'THEN start the SIP'. |
 | Your SIP's value drops 15% in its second year because the market fell. Your goal is 10 years away. What does this lesson suggest? | Keep the SIP going. Your fixed amount now buys more units | 4 | Chart dips '−15% in year 2' then recovers; Rohan wants to stop, Aisha keeps going; box 'Goal 10 years away: keep going'. |
 | | | | **5/5 covered** |
@@ -384,7 +387,8 @@ Nisha (22) and Future Nisha (60). Nisha's bedroom, late at night.
 | 4 | Mutual funds don't need demat. Shares and ETFs do. |
 | 5 | Paying for advice? Only SEBI-registered advisers. |
 | 6 | Would a 30% fall make you panic? Pick less risk. |
-| 7 | Know why. Do KYC. Pick risk you can hold. |
+| 7 | Start small: a ₹100–₹500 monthly SIP is fine. |
+| 8 | Know why. Do KYC. Pick risk you can hold. |
 
 | Quiz question | Correct answer | Scene | How it's shown (visual + caption) |
 |---|---|---|---|

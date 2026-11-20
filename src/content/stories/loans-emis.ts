@@ -55,6 +55,12 @@ const actors: Actor[] = [
   person("neha", NEHA, 290, "face:happy arms:down", 0.9),
 ];
 
+const extra: Actor[] = [
+  box("kfs", "KEY FACT STATEMENT|APR: all-in yearly cost|EMI · instalments · fees", 180, 150, { w: 250, h: 88, size: 13, fill: "#fff" }),
+  box("ad", "'Just ₹1,500 a month!'", 180, 260, { w: 210, h: 44, size: 14, fill: "#fde0dc" }),
+  icon("xAd", "cross", 290, 246, 0.8),
+];
+
 const end = recap(
   [
     ["shield", "Check the lender"],
@@ -68,7 +74,7 @@ const end = recap(
 const story: Story = {
   slug: "loans-emis",
   backdrop: { place: "canteen", accent: "#5FA35A" },
-  actors: [...actors, ...end.actors],
+  actors: [...actors, ...extra, ...end.actors],
   meta: {
     title: "Canteen loan alert",
     concept: "Over chai in the canteen, Vikram nearly takes an instant app loan and Neha asks him to be her guarantor.",
@@ -176,7 +182,18 @@ const story: Story = {
         pose("vikram", 0.4, "face:worried arms:chin"),
       ],
     },
-    end.scene,
+    {
+      caption: "Compare the APR in the Key Fact Statement, not ads.",
+      steps: [
+        ...hideAll(["guar", "bRepay", "lCredit"], 0),
+        pop("kfs", 0.06),
+        pop("ad", 0.3),
+        pop("xAd", 0.46, 0.8),
+        pose("vikram", 0.3, "face:thinking arms:chin"),
+        pose("neha", 0.5, "face:happy arms:thumb"),
+      ],
+    },
+    { ...end.scene, steps: [...hideAll(["kfs", "ad", "xAd"], 0), ...end.scene.steps] },
   ],
 };
 

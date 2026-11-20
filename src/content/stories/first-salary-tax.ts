@@ -1,6 +1,6 @@
 import type { Actor, Story } from "@/lib/story/types";
 import type { Look } from "@/components/story/person";
-import { box, count, counter, hideAll, icon, label, move, person, pop, pose, recap, show } from "./kit";
+import { box, count, counter, hideAll, icon, label, move, person, pop, pose, recap, show, stamp } from "./kit";
 
 // INCOME TAX FOR YOUR FIRST SALARY · "Arjun's first payslip". A fresher reads
 // his offer and payslip with Lakshmi, a senior colleague. Metaphor: a big CTC
@@ -54,6 +54,12 @@ const actors: Actor[] = [
   person("lakshmi", LAKSHMI, 290, "face:happy arms:down", 0.9),
 ];
 
+const extra: Actor[] = [
+  box("itr", "Income Tax Return|incometax.gov.in", 180, 150, { w: 230, h: 64, size: 15, fill: "#fff" }),
+  stamp("filed", "FILED", 260, 230, "#2f8a4a"),
+  label("lProof", "income proof for loans, visas, refunds", 180, 300, 12, "#dff0dc"),
+];
+
 const end = recap(
   [
     ["doc", "CTC isn't in-hand"],
@@ -67,7 +73,7 @@ const end = recap(
 const story: Story = {
   slug: "first-salary-tax",
   backdrop: { place: "office", accent: "#3f6fb5" },
-  actors: [...actors, ...end.actors],
+  actors: [...actors, ...extra, ...end.actors],
   meta: {
     title: "Arjun's first payslip",
     concept: "Arjun thinks his CTC means ₹70,000 a month; his senior Lakshmi walks him through the real numbers.",
@@ -174,7 +180,17 @@ const story: Story = {
         pose("lakshmi", 0.3, "face:happy arms:point"),
       ],
     },
-    end.scene,
+    {
+      caption: "File your ITR anyway: it's your official income proof.",
+      steps: [
+        ...hideAll(["doorNew", "doorOld", "lNone"], 0),
+        pop("itr", 0.06),
+        pop("filed", 0.3, 1),
+        show("lProof", 0.45),
+        pose("arjun", 0.4, "face:proud arms:thumb"),
+      ],
+    },
+    { ...end.scene, steps: [...hideAll(["itr", "filed", "lProof"], 0), ...end.scene.steps] },
   ],
 };
 

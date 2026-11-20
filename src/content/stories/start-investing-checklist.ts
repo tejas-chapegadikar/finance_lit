@@ -56,6 +56,12 @@ const actors: Actor[] = [
   person("future", FUTURE, 290, "face:happy arms:down", 0.9),
 ];
 
+const extra: Actor[] = [
+  { id: "smallCoin", kind: "coin", x: 180, y: 200, scale: 0.6, opacity: 0 },
+  box("b100", "SIP from ₹100–₹500|a month", 180, 120, { w: 220, h: 62, size: 15, fill: "#FFB81F" }),
+  label("lLearn", "learn how it feels, then grow it", 180, 290, 12, "#dff0dc"),
+];
+
 const end = recap(
   [
     ["clock", "Goal and timeline first"],
@@ -69,7 +75,7 @@ const end = recap(
 const story: Story = {
   slug: "start-investing-checklist",
   backdrop: { place: "bedroom", accent: "#9ed2c6" },
-  actors: [...actors, ...end.actors],
+  actors: [...actors, ...extra, ...end.actors],
   meta: {
     title: "A visit from Future Nisha",
     concept: "Late at night, Nisha meets herself at 60, who walks her through the checklist she wishes she'd had.",
@@ -177,7 +183,19 @@ const story: Story = {
         pose("nisha", 0.72, "face:happy arms:down"),
       ],
     },
-    end.scene,
+    {
+      caption: "Start small: a ₹100–₹500 monthly SIP is fine.",
+      steps: [
+        ...hideAll(["fall", "l30", "riskDial", "riskNeedle", "lLess"], 0),
+        pop("b100", 0.06),
+        show("smallCoin", 0.2),
+        move("smallCoin", 0.24, { scale: 2.6 }, 0.4, "back.out(1.4)"),
+        show("lLearn", 0.5),
+        pose("nisha", 0.4, "face:happy arms:thumb"),
+        pose("future", 0.5, "face:proud arms:thumb"),
+      ],
+    },
+    { ...end.scene, steps: [...hideAll(["smallCoin", "b100", "lLearn"], 0), ...end.scene.steps] },
   ],
 };
 

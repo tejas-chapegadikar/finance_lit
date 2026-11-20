@@ -38,11 +38,16 @@ const actors: Actor[] = [
   label("lLimit", "Limit ₹1,00,000", 180, 140, 13),
   { id: "line30", kind: "box", x: 101, y: 222, props: { text: "30% = ₹30,000", w: 130, h: 34, size: 13, fill: "#FFB81F" }, opacity: 0 },
   { id: "checkPhone", kind: "screen", x: 280, y: 180, scale: 0.7, props: { title: "MY CREDIT SCORE", text: "780|Checked by you", tone: "#fff" }, opacity: 0 },
-  box("bSoft", "Soft check:|no drop", 90, 150, { w: 140, h: 60, size: 14, fill: "#dff0dc" }),
+  box("bSoft", "Soft enquiry:|no drop", 90, 150, { w: 140, h: 60, size: 14, fill: "#dff0dc" }),
   box("bNone", "No loans yet =|no score yet", 180, 130, { w: 180, h: 62, size: 15 }),
   label("lNotBad", "Not a bad score", 180, 290, 14, "#dff0dc"),
   person("harpreet", HARPREET, 72, "face:happy arms:down", 0.9),
   person("gurdeep", GURDEEP, 290, "face:neutral arms:down", 0.9),
+];
+
+const extra: Actor[] = [
+  ...[0, 1, 2, 3].map((i): Actor => icon(`form${i}`, "doc", 110 + i * 46, 110, 0.9)),
+  label("lMany", "4 applications in a month", 180, 300, 13, "#fde0dc"),
 ];
 
 const end = recap(
@@ -58,7 +63,7 @@ const end = recap(
 const story: Story = {
   slug: "cibil-score",
   backdrop: { place: "showroom", accent: "#C2410C" },
-  actors: [...actors, ...end.actors],
+  actors: [...actors, ...extra, ...end.actors],
   meta: {
     title: "Two siblings, one bike",
     concept: "A sister and brother apply for the same bike loan; their credit scores decide who gets the better deal.",
@@ -91,7 +96,7 @@ const story: Story = {
       {
         q: "Does checking your own credit score lower it?",
         scene: 5,
-        how: "Harpreet checks her own score on her phone; the needle doesn't move; box 'Soft check: no drop'.",
+        how: "Harpreet checks her own score on her phone; the needle doesn't move; caption and box: 'soft enquiry', no drop.",
       },
       {
         q: "You've never had a loan or a credit card. What does your credit report most likely show?",
@@ -151,7 +156,7 @@ const story: Story = {
       ],
     },
     {
-      caption: "Checking your own score? A soft check. No drop.",
+      caption: "Checking your own score is a soft enquiry. No drop.",
       steps: [
         ...hideAll(["util", "lLimit", "line30"], 0),
         show("gauge", 0.04),
@@ -177,7 +182,19 @@ const story: Story = {
         pose("harpreet", 0.4, "face:happy arms:point"),
       ],
     },
-    end.scene,
+    {
+      caption: "Many loan applications at once pull your score down.",
+      steps: [
+        ...hideAll(["bNone", "lNotBad"], 0),
+        show("needle", 0.04),
+        move("needle", 0.04, { rotate: 48 }, 0.1),
+        ...[0, 1, 2, 3].map((i) => pop(`form${i}`, 0.18 + i * 0.08, 0.9)),
+        show("lMany", 0.5),
+        move("needle", 0.52, { rotate: 27 }, 0.2),
+        pose("gurdeep", 0.5, "face:worried arms:down"),
+      ],
+    },
+    { ...end.scene, steps: [...hideAll(["form0", "form1", "form2", "form3", "lMany"], 0), ...end.scene.steps] },
   ],
 };
 

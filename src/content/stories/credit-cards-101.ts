@@ -42,6 +42,7 @@ const actors: Actor[] = [
   label("l30", "about 30 days", 180, 112, 13),
   ...days,
   box("bill", "1 BILL", 180, 290, { w: 120, h: 50, size: 20, fill: "#fff" }),
+  label("lAuto", "Tip: auto-pay the full bill", 180, 300, 13, "#FFB81F"),
   box("bFull", "Full bill by due date", 180, 120, { w: 230, h: 48, size: 15, fill: "#dff0dc" }),
   counter("cZero", 180, 220, 0, 44, "#2f8a4a"),
   label("lInterest", "interest", 180, 262, 13),
@@ -142,6 +143,7 @@ const story: Story = {
         pop("bFull", 0.06),
         show("cZero", 0.2),
         show("lInterest", 0.22),
+        show("lAuto", 0.5),
         pose("zoya", 0.3, "face:proud arms:thumb"),
         pose("rao", 0.3, "face:happy arms:thumb"),
       ],
@@ -149,7 +151,7 @@ const story: Story = {
     {
       caption: "Minimum only? No late fee, but heavy interest grows.",
       steps: [
-        ...hideAll(["bFull", "cZero", "lInterest"], 0),
+        ...hideAll(["bFull", "cZero", "lInterest", "lAuto"], 0),
         pop("bMin", 0.04),
         show("lNoFee", 0.14),
         show("snow", 0.2),

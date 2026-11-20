@@ -39,6 +39,7 @@ const actors: Actor[] = [
   icon("company", "building", 180, 300, 1.2),
   icon("xCompany", "cross", 200, 284, 0.7),
   label("lNotCo", "not the company", 180, 340, 12, "#fde0dc"),
+  label("lIpo", "(only an IPO sells new shares for the company)", 180, 374, 10),
   icon("demat", "vault", 180, 200, 2.6),
   label("lDemat", "DEMAT account", 180, 262, 15, "#FFB81F"),
   box("bElec", "your shares, held|electronically", 180, 110, { w: 200, h: 62, size: 14 }),
@@ -146,13 +147,14 @@ const story: Story = {
         pop("company", 0.5, 1.2),
         pop("xCompany", 0.58, 0.7),
         show("lNotCo", 0.6),
+        show("lIpo", 0.72),
         pose("anika", 0.3, "face:happy arms:phone"),
       ],
     },
     {
       caption: "Your shares live in a demat account, electronically.",
       steps: [
-        ...hideAll(["anikaCoin", "toSeller", "seller", "lSeller", "company", "xCompany", "lNotCo"], 0),
+        ...hideAll(["anikaCoin", "toSeller", "seller", "lSeller", "company", "xCompany", "lNotCo", "lIpo"], 0),
         pop("demat", 0.06, 2.6),
         show("lDemat", 0.14),
         pop("bElec", 0.3),

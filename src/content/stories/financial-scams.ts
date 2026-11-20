@@ -1,6 +1,6 @@
 import type { Actor, Story } from "@/lib/story/types";
 import type { Look } from "@/components/story/person";
-import { box, hideAll, icon, move, person, pop, pose, recap, shake, stamp } from "./kit";
+import { box, hideAll, icon, label, move, person, pop, pose, recap, shake, show, stamp } from "./kit";
 
 // COMMON FINANCIAL SCAMS · "Metro ride, five traps". Cousins Sana and Imran
 // on the evening metro; her phone keeps buzzing. Metaphor: red-flag stamps.
@@ -37,6 +37,7 @@ const actors: Actor[] = [
   screen("sKyc", "URGENT!", "KYC expires today|Pay ₹999 penalty", "ACT NOW"),
   icon("timer", "clock", 290, 110, 1.2),
   stamp("flag", "RED FLAG", 180, 330),
+  label("l3tricks", "urgency · fear · greed", 180, 380, 13, "#FFB81F"),
   screen("sOtp", "'YOUR BANK'", "Tell us the OTP|for KYC"),
   icon("otpLock", "shield", 290, 150, 1.4),
   box("bNoOne", "OTP → no one", 290, 220, { w: 140, h: 44, size: 15, fill: "#FFB81F" }),
@@ -46,7 +47,7 @@ const actors: Actor[] = [
   stamp("fake", "FAKE", 180, 200),
   box("bNoArrest", "No such thing as|digital arrest", 180, 330, { w: 200, h: 58, size: 14 }),
   box("search", "Search: 'bank customer care'", 180, 100, { w: 260, h: 40, size: 13, fill: "#fff" }),
-  box("r1", "1800-XXX  (ad)", 180, 160, { w: 220, h: 40, size: 14, fill: "#fde0dc" }),
+  box("r1", "1800-XXX (fake ad)", 180, 160, { w: 220, h: 40, size: 14, fill: "#fde0dc" }),
   box("r2", "Official app / website", 180, 214, { w: 220, h: 40, size: 14, fill: "#dff0dc" }),
   icon("warnR1", "warn", 306, 160, 0.8),
   icon("okR2", "check", 306, 214, 0.8),
@@ -128,13 +129,14 @@ const story: Story = {
         pop("timer", 0.2, 1.2),
         shake("timer", 0.3, 0.4, 14),
         pop("flag", 0.5, 1),
+        show("l3tricks", 0.62),
         pose("sana", 0.3, "face:worried arms:phone"),
       ],
     },
     {
       caption: "'Bank' asks for your OTP? Share it with no one.",
       steps: [
-        ...hideAll(["sKyc", "timer", "flag"], 0),
+        ...hideAll(["sKyc", "timer", "flag", "l3tricks"], 0),
         pop("sOtp", 0.06, 0.82),
         move("sOtp", 0.25, { x: 110 }, 0.15),
         pop("otpLock", 0.35, 1.4),
@@ -165,7 +167,7 @@ const story: Story = {
       ],
     },
     {
-      caption: "Customer care number from search? It could be fake.",
+      caption: "Customer care numbers in search can be scammers' fakes.",
       steps: [
         ...hideAll(["sCbi", "fake", "bNoArrest"], 0),
         pose("imran", 0.04, "face:thinking arms:phone"),

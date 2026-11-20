@@ -33,6 +33,7 @@ const actors: Actor[] = [
   box("bPower", "Same ₹100,|less buying power", 180, 330, { w: 210, h: 62, size: 15, fill: "#FFB81F" }),
   icon("basket", "basket", 180, 200, 2.4),
   ...["thali", "bus", "building", "medical"].map((n, i): Actor => icon(`bk${i}`, n, 70 + i * 73, 300, 0.9)),
+  label("lOwn", "your own costs (rent, fees) can rise faster", 180, 330, 11, "#fde0dc"),
   box("bCpi", "CPI tracks the prices|of everyday things", 180, 110, { w: 230, h: 62, size: 14 }),
   icon("thali", "thali", 100, 200, 2),
   counter("cThali", 250, 200, 500, 34, "#C2410C"),
@@ -129,6 +130,7 @@ const story: Story = {
       steps: [
         ...hideAll(["price15", "note", "l6cups", "bPower", ...Array.from({ length: 10 }, (_, i) => `a${i}`)], 0),
         pop("bCpi", 0.06),
+        show("lOwn", 0.72),
         pop("basket", 0.14, 2.4),
         ...[0, 1, 2, 3].map((i) => pop(`bk${i}`, 0.24 + i * 0.06, 0.9)),
         ...[0, 1, 2, 3].map((i) => move(`bk${i}`, 0.5 + i * 0.04, { x: 180, y: 210, scale: 0.3, opacity: 0 }, 0.12)),
@@ -138,7 +140,7 @@ const story: Story = {
     {
       caption: "₹500 thali at 6% a year: ~₹895 in 10 years.",
       steps: [
-        ...hideAll(["bCpi", "basket"], 0),
+        ...hideAll(["bCpi", "basket", "lOwn"], 0),
         pop("thali", 0.06, 2),
         show("cThali", 0.1),
         show("lYears", 0.12),

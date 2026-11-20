@@ -93,7 +93,7 @@ const story: Story = {
       {
         q: "Aisha starts a ₹3,000 monthly SIP at 21. Rohan starts the same SIP at 31. Assuming the same returns, why does Aisha end up with much more at 60?",
         scene: 5,
-        how: "Counters: Aisha ₹1.7 crore vs Rohan ₹62 lakh; label '10 extra years to compound'.",
+        how: "Caption: '10 more years to compound: ₹1.7 crore vs ₹62 lakh'; Aisha's bar towers over Rohan's.",
       },
       { q: "What should usually come before starting a SIP?", scene: 6, how: "Emergency fund and health insurance shields pop up; box 'THEN start the SIP'." },
       {
@@ -139,7 +139,7 @@ const story: Story = {
       ],
     },
     {
-      caption: "At 60: Aisha ~₹1.7 crore, Rohan ~₹62 lakh.",
+      caption: "10 more years to compound: ₹1.7 crore vs ₹62 lakh.",
       steps: [
         ...hideAll(["recover", "l15", "bKeep"], 0),
         show("lA", 0.04),

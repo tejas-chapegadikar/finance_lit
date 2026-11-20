@@ -33,6 +33,7 @@ const actors: Actor[] = [
   label("lNom", "gets your money if something happens", 180, 300, 11),
   { id: "bal", kind: "bar", x: 180, y: 200, props: { w: 260, h: 30, color: "#7cc3e8", fill: 0 }, opacity: 0 },
   label("lMin", "Minimum ₹5,000", 250, 160, 12, "#FFB81F"),
+  label("lZero", "Fix: a zero-balance account", 180, 350, 12, "#dff0dc"),
   box("avg", "₹6,000 × 10 days|+ ₹0 × 20 days|÷ 30 = ₹2,000", 180, 290, { w: 210, h: 84, size: 15 }),
   stamp("fee", "FEE!", 290, 236),
   icon("coinRace", "rupee", 60, 200, 1),
@@ -141,6 +142,7 @@ const story: Story = {
         fill("bal", 0.34, 0.16, 0.6, 0.0001),
         pop("avg", 0.5),
         pop("fee", 0.7, 1),
+        show("lZero", 0.82),
         pose("aditya", 0.7, "face:shocked arms:down"),
         pose("fern", 0.5, "face:neutral arms:point"),
       ],
@@ -148,7 +150,7 @@ const story: Story = {
     {
       caption: "Savings earn ~3%. Prices rise faster. Value shrinks.",
       steps: [
-        ...hideAll(["bal", "lMin", "avg", "fee"], 0),
+        ...hideAll(["bal", "lMin", "avg", "fee", "lZero"], 0),
         show("coinRace", 0.04),
         show("priceRace", 0.04),
         show("l3", 0.04),
